@@ -33,8 +33,9 @@ never this copy.
   Never hand-edit a generated file; edit the pack source and regenerate.
 - Drift check (gate 99): `python3 .claude/skills/corpus-management/tools/build-corpus-management.py --check`.
 - Release floor: `python3 .claude/skills/corpus-management/tools/build-corpus-management.py --check
-  --release-delta`. Every pack change needs at least a PATCH bump of
-  `core/manifest.toml` `[pack].version`; new identifiers need a MINOR.
+  --release-delta`. Every pack change needs a bump of `core/manifest.toml` `[pack].version`;
+  the level each change needs is stated in `specs/specification-audit-programme.md`, section 6,
+  gate 99.
 - Gate engines live in the pack (`.claude/skills/corpus-management/src/tools/gate_lint_*.py`)
   behind thin `.claude/skills/corpus-management/tools/lint-*.py` wrappers: edit the engine in the pack, keep
   project scope and configuration in the wrapper.

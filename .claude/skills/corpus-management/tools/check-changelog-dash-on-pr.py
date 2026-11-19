@@ -12,9 +12,11 @@ anywhere in added lines, including in code that the language gate skips.
 Historical lines are outside this delta check, but remain covered by the
 language gate under its normal rules.
 
-Scope: root .working/CHANGELOG.md only. The detailed mirror at
-.working/changelog-details/CHANGELOG-detailed.md is maintainer working state,
-exempt from the corpus gates, and is not checked here.
+Scope: root .working/CHANGELOG.md only. The public file carries weekly summaries
+only (maintainer-directed 2026-11-13), so the lines it judges are the lines of an added
+or changed weekly or monthly paragraph (and of the preamble); delta gate D1 refuses
+every other added line. Every added line is checked, whatever its shape. The private
+per-change record is outside this repository and is not checked here.
 
 Usage:
     # In CI (uses GITHUB_BASE_REF):

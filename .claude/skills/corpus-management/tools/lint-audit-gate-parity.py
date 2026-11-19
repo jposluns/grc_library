@@ -25,15 +25,28 @@ deterministically, and it checks each surface's gate arguments against
 GATE_ARGV, the canonical argument table below.
 
 In addition to the four-surface row parity, this gate ADDITIVELY guards the
-three exclusion allow-lists and the per-PR D-numbered delta gates (3.99 (closing PR #1087), extended by #1250): each
+four exclusion allow-lists and the per-PR D-numbered delta gates (3.99 (closing PR #1087), extended by #1250): each
 exclusion member is cross-checked against a positive signal that it is genuinely
-not a corpus gate (a setup step invokes no gate script; a delta-gate step's
-script is not a §6-inventory script; a non-gate pre-commit hook carries no
-`--check`), so a real gate mistakenly added to an exclusion set fails rather than
+not a corpus gate (a setup step invokes no gate script; a delta-gate step's run value is
+exactly its pinned command string (WORKFLOW_DELTA_GATE_STEP_RUNS), any other
+run value is a finding, and the script that pin names is not a §6-inventory
+script; a WORKFLOW_NON_GATE_CHECK_STEPS step is
+pinned to its exact keys and run command, may not run a gate script and is left
+out of the gate list; a non-gate pre-commit hook carries no
+`--check`), and each workflow member must be a step of the lint job, so a real
+gate mistakenly added to an exclusion set fails rather than
 being masked; and each D-numbered delta gate in the PR-time runner is confirmed
-to map to a workflow delta-gate step of the same script, with the D-numbers
-contiguous D1..HIGHEST_DELTA_GATE apart from retired numbers (D6, retired 2026-08-03;
-D14, retired 2026-11-08). See ``verify_exclusion_and_delta_guards``.
+to map to a workflow delta-gate step whose pinned command runs the same
+script, with the D-numbers contiguous D1..HIGHEST_DELTA_GATE apart from retired
+numbers (D6, retired 2026-08-03;
+D8, retired 2026-11-13; D14, retired 2026-11-08). A delta-gate step
+whose run value is not exactly its pinned command, for example one that runs its
+own script and then a second tools script that is not a gate, runs its own
+script twice, or runs it under another interpreter form, path or quoting, is
+reported as script drift as well as by the exclusion guard. The refusal is
+intended: the workflow would then run something other than the PR-time runner
+does. See
+``verify_exclusion_and_delta_guards``.
 
 It also checks the spec's section 5 "Gate categories" grouped list against
 the section-6 inventory: every inventory gate number appears exactly
@@ -118,9 +131,17 @@ and the workflow keeps its one pull_request trigger. A step's first key is
 types and types_or, pinned to the values the gate hooks use (PRECOMMIT_GATE_SELECTORS),
 and the workflow's job name, runner and permissions are pinned too. Any other
 shape is a parse error (exit 2). The allowlist does NOT cover: the values of the
-excluded setup, delta-gate and regeneration steps and hooks (their uses, with, env, if,
-run and entry values, the text of the ``run: |`` block included), which the exclusion
-guards check only by script; runner shell code outside run_gate lines (the function
+excluded delta-gate steps and regeneration hooks (WORKFLOW_DELTA_GATE_STEPS and
+PRECOMMIT_NON_GATE_HOOKS: their env and if values and the hook's entry value),
+which the allowlist does not read; the exclusion guards hold each delta-gate
+step's own run value to its exact pinned command string
+(WORKFLOW_DELTA_GATE_STEP_RUNS; any other value is a finding, exit 1) and check
+the hook's entry only for ``--check``. The other two exclusion sets are
+pinned, not left uncovered: the setup steps by WORKFLOW_SETUP_STEP_SHAPES (exact keys,
+the uses action at a full commit SHA, the with values and the run command), and the
+web generator health check step (WORKFLOW_NON_GATE_CHECK_STEPS) to its keys and run
+command, with no gate script. Nor does it cover runner shell code outside run_gate
+lines (the function
 body, a redefinition of python3 or run_gate, PATH or BASH_ENV, and whether bash
 reaches a run_gate line inside a conditional, heredoc, loop or backslash
 continuation); the values the skeletons leave free (the workflow name, and the names
@@ -259,13 +280,55 @@ WORKFLOW_DELTA_GATE_STEPS = {
     "Per-PR Version-Date co-bump check",
     "Backlog-rotation-on-PR check",
     "CHANGELOG length-on-PR check",
-    "Daily-changelog-rollup reminder",
     "Retired-section-orphan check",
     "CLAUDE.md-size ratchet",
     "Narrative-corpus mixed-diff check",
     "Number-floor monotonicity check",
     "Stranded-control-code check",
     "Alignment-citation register check",
+}
+
+# Each delta-gate step's run value, pinned to its exact command string, the way
+# WORKFLOW_NON_GATE_CHECK_STEPS pins the web generator health check's. The
+# exclusion and delta-gate guards compare a step's whole run value with its pin
+# and take the step's script from the pin (_delta_pinned_script), never from the
+# run value, so any other run value (another interpreter or interpreter flag, a
+# path prefix, a quote, text after the name, an argument, a second command or a
+# `run: |` block) is refused whatever it names. The keys are exactly
+# WORKFLOW_DELTA_GATE_STEPS (a test keeps them equal); that set stays a set,
+# because lint-audit-spec-detailed-prose.py loads it as one.
+WORKFLOW_DELTA_GATE_STEP_RUNS = {
+    "CHANGELOG-on-PR check": "python3 .claude/skills/corpus-management/tools/check-changelog-on-pr.py",
+    "Per-PR version-bump check": "python3 .claude/skills/corpus-management/tools/check-version-bump-on-pr.py",
+    "CHANGELOG dash-on-PR check": "python3 .claude/skills/corpus-management/tools/check-changelog-dash-on-pr.py",
+    "Per-PR Version-Date co-bump check": "python3 .claude/skills/corpus-management/tools/check-date-cobump-on-pr.py",
+    "Backlog-rotation-on-PR check": "python3 .claude/skills/corpus-management/tools/check-todo-rotation-on-pr.py",
+    "CHANGELOG length-on-PR check": "python3 .claude/skills/corpus-management/tools/check-changelog-length-on-pr.py",
+    "Retired-section-orphan check": "python3 .claude/skills/corpus-management/tools/check-retired-section-orphan-on-pr.py",
+    "CLAUDE.md-size ratchet": "python3 .claude/skills/corpus-management/tools/check-claude-md-size.py",
+    "Narrative-corpus mixed-diff check":
+        "python3 .claude/skills/corpus-management/tools/check-narrative-corpus-mixed-diff-on-pr.py",
+    "Number-floor monotonicity check": "python3 .claude/skills/corpus-management/tools/check-todo-floor-monotonic-on-pr.py",
+    "Stranded-control-code check": "python3 .claude/skills/corpus-management/tools/check-stranded-control-code-on-pr.py",
+    "Alignment-citation register check": "python3 .claude/skills/corpus-management/tools/check-alignment-register-on-pr.py",
+}
+
+
+def _delta_pinned_script(name: str) -> str:
+    """The repository-relative script that the pinned command of the delta-gate
+    step ``name`` runs: the pin with its leading ``python3 `` taken off."""
+    return WORKFLOW_DELTA_GATE_STEP_RUNS[name].removeprefix("python3 ")
+
+# Workflow steps that run a check that is not a section 6 gate and not a delta
+# gate: the web generator health check, which the earlier repository ran on each
+# pull request and maintainer decision 2026-11-15 restored to the lint job. Each is
+# pinned to its exact keys and run command (``_check_non_gate_check_step``), must
+# invoke no gate script, and is excluded from the gate list.
+WORKFLOW_NON_GATE_CHECK_STEPS = {
+    "Web generator health check": {
+        "keys": ("name", "run"),
+        "run": "python3 .web/build.py --check",
+    },
 }
 
 # Delta-gate numbers are PERMANENT and never reused (the same rule as backlog
@@ -275,9 +338,11 @@ WORKFLOW_DELTA_GATE_STEPS = {
 # version-history co-bump) was retired 2026-08-03 when the pack README's
 # ``## Version history`` section was removed; D14 (class-completeness
 # attestation) was retired 2026-11-08 when the open-findings ledger it read
-# moved to the private operational store. The contiguity guard below
-# tolerates these gaps.
-RETIRED_DELTA_GATES = {6, 14}
+# moved to the private operational store; D8 (daily-changelog-rollup
+# reminder) was retired 2026-11-13 when the public CHANGELOG became weekly
+# summaries only, leaving no per-PR entry for a daily roll-up to collapse.
+# The contiguity guard below tolerates these gaps.
+RETIRED_DELTA_GATES = {6, 8, 14}
 HIGHEST_DELTA_GATE = 15
 
 # Pre-commit hooks that are setup or regeneration steps, not audit
@@ -297,10 +362,53 @@ PRECOMMIT_NON_GATE_HOOKS = {"Regenerate taxonomy, narrative registry, portal, ma
 # `python3 -I .claude/skills/corpus-management/tools/X.py ...` style command. Captures the script's
 # repository-relative path only, discarding the `python3` prefix, the optional
 # isolated-mode flag and any trailing arguments. It is used to find the script of
-# the excluded and delta-gate steps; a gate line itself must match GATE_COMMAND below.
+# each D-numbered delta gate in the PR-time runner; a gate line itself must match
+# GATE_COMMAND below. A setup or non-gate check step's run value is searched with
+# STEP_SCRIPT_RE, and a delta-gate step's run value is compared whole with its pin
+# (WORKFLOW_DELTA_GATE_STEP_RUNS).
 # Whether a gate runs with `-I` is not compared across surfaces; only its script and
 # flags are.
 SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(.claude/skills/corpus-management/tools/[A-Za-z0-9_.\-]+\.py)")
+
+# Every .claude/skills/corpus-management/tools/NAME.py path in a setup or non-gate
+# check step's run value, captured from the start of the word that holds it to the
+# end of the name; text joined after the name (a closing quote and more) is not
+# captured, and those two steps are pinned whole, which refuses such a value
+# anyway. A word starts at the start of
+# the value or after whitespace or a shell operator character (; & | ( ) < > `), so
+# any interpreter name or path (python3, /usr/bin/python3, python3.14) and any
+# interpreter flags (-B, -u, -I -B) may come before the path. Quotes stay in the
+# word, because the shell joins quoted and unquoted text that touch. _step_script
+# takes the quotes out and accepts the word as that script only when what is left
+# is the path itself or ./ and the path; any other text joined to the front of the
+# path (fake.claude/..., x/.claude/..., "$X".claude/...) names a different file,
+# so the word itself is returned and reported, and is never read as the reviewed
+# script. The setup-step exclusion guard reads the setup steps' run values with it
+# (_step_run_scripts), and parse_workflow's _check_setup_step and
+# _check_non_gate_check_step search the setup and non-gate check steps' plain run
+# values with it, so no invocation form hides a section 6 gate path there;
+# SCRIPT_RE, which reads only `python3 [-I]`, hid the gate in
+# `python3 -B .claude/skills/corpus-management/tools/X.py`. A delta-gate step's run
+# value is not read with it: it is compared whole with its pinned command
+# (WORKFLOW_DELTA_GATE_STEP_RUNS). The name ends at a
+# character that cannot continue it, so `X.pyc` is not read as `X.py`; a `/` after
+# the name continues the word, so `X.py/.claude/.../Y.py` is one word, reported
+# whole. A path the value does not spell out literally (a shell variable, glob,
+# `..` or doubled slash inside it, or a `cd` into the tools directory) is not read.
+STEP_SCRIPT_RE = re.compile(
+    r"(?:^|(?<=[\s;&|()<>`]))"
+    r"([^\s;&|()<>`]*?\.claude/skills/corpus-management/tools/[A-Za-z0-9_.\-]+\.py)"
+    r"(?![A-Za-z0-9_.\-/])")
+
+
+def _step_script(word: str) -> str:
+    """The repository-relative script path a STEP_SCRIPT_RE word names, or the
+    word itself when other text is joined to the front of the path. Quotes are
+    taken out first, as the shell removes them, then one leading ./ is dropped."""
+    unquoted = word.replace("'", "").replace('"', "")
+    if unquoted.startswith("./.claude/"):
+        unquoted = unquoted[2:]
+    return unquoted if unquoted.startswith(".claude/") else word
 
 # Gate lines are matched against a closed allowlist. Versions in the earlier repository
 # read the shell grammar and refused the shapes known to hide an interpreter; each was
@@ -361,11 +469,17 @@ SCRIPT_RE = re.compile(r"python3\s+(?:-I\s+)?(.claude/skills/corpus-management/t
 # as a line break, is a finding.
 #
 # NOT COVERED by the allowlist (each runs what it runs; this check does not pin it):
-#   - the values of the excluded steps and hooks (WORKFLOW_SETUP_STEPS,
-#     WORKFLOW_DELTA_GATE_STEPS, PRECOMMIT_NON_GATE_HOOKS): their uses, with, env, if, run
-#     and entry values and the text of a `run: |` block, which the exclusion guards check
-#     only by script. Their keys are in the skeleton, so no gate step or hook can sit
-#     inside them;
+#   - the values of the excluded steps and hooks of two of the four exclusion sets
+#     (WORKFLOW_DELTA_GATE_STEPS, PRECOMMIT_NON_GATE_HOOKS): their env and if values
+#     and the hook's entry value, which this allowlist does not read; the exclusion
+#     guards hold a delta-gate step's own run value to its exact pinned command
+#     string (WORKFLOW_DELTA_GATE_STEP_RUNS) and check the hook's entry only for
+#     --check. Their keys are in the skeleton, so no gate step or hook can sit inside
+#     them. The other two sets are pinned: WORKFLOW_SETUP_STEPS by
+#     WORKFLOW_SETUP_STEP_SHAPES (_check_setup_step: exact keys, the uses action at a
+#     full commit SHA, the with values and the run command), and
+#     WORKFLOW_NON_GATE_CHECK_STEPS, whose step holds exactly its pinned keys and run
+#     command, may not run a gate script and is left out of the gate list;
 #   - runner shell code outside run_gate lines: the run_gate function body, the preamble,
 #     a function, alias or PATH/BASH_ENV change that redefines python3 or run_gate, and
 #     whether bash runs a run_gate line at all (a conditional, a heredoc, a loop or a
@@ -955,6 +1069,23 @@ def _check_no_regression_step(path: Path) -> None:
                              f"regression suite or a shard of it; {WORKFLOW_SHAPE}")
 
 
+def _held_run(path: Path, run: _YamlNode | None) -> str:
+    """A step's run value as a ParseError reports it: a plain value quoted; a ``run: |``
+    block scalar said plainly to be one, with its own text quoted (its text lines
+    (_block_scalar_lines) moved left by the first text line's indent and joined at LF,
+    trailing blank lines dropped); and None when the step has no run key."""
+    if run is None:
+        return "None"
+    if run.kind != "block":
+        return repr(run.value)
+    lines = _block_scalar_lines(_lf_lines(path), run)
+    while lines and not lines[-1]:
+        lines.pop()
+    column = next((len(line) - len(line.lstrip(" ")) for line in lines if line), 0)
+    text = "\n".join(line[column:] for line in lines)
+    return f"a `|` block scalar holding {text!r}"
+
+
 def _check_setup_step(path: Path, step: _YamlNode, where: str) -> None:
     """Raise a ParseError unless ``step``, named in WORKFLOW_SETUP_STEPS, holds
     exactly its pinned accepted shape (WORKFLOW_SETUP_STEP_SHAPES): the exact
@@ -963,9 +1094,9 @@ def _check_setup_step(path: Path, step: _YamlNode, where: str) -> None:
     rel = path.relative_to(REPO_ROOT)
     name = step.get("name").value
     run = step.get("run")
-    if run is not None and run.kind == "scalar" and SCRIPT_RE.search(run.value):
+    if run is not None and run.kind == "scalar" and STEP_SCRIPT_RE.search(run.value):
         raise ParseError(f"{rel}:{step.lineno}: {where} setup step {name!r} invokes "
-                         f"the gate script {SCRIPT_RE.search(run.value).group(1)!r}; "
+                         f"the gate script {STEP_SCRIPT_RE.search(run.value).group(1)!r}; "
                          f"a setup step must not run a gate; {WORKFLOW_SHAPE}")
     shape = WORKFLOW_SETUP_STEP_SHAPES[name]
     keys = tuple(step.keys())
@@ -991,10 +1122,45 @@ def _check_setup_step(path: Path, step: _YamlNode, where: str) -> None:
                              f"has a with mapping other than the pinned {pinned}; "
                              f"{WORKFLOW_SHAPE}")
     elif run is None or run.kind != "scalar" or run.value != shape["run"]:
-        held = run.value if run is not None and run.kind == "scalar" else None
         raise ParseError(f"{rel}:{step.lineno}: {where} setup step {name!r} runs "
-                         f"{held!r}, not exactly the pinned {shape['run']!r}; "
+                         f"{_held_run(path, run)}, not exactly the pinned "
+                         f"{shape['run']!r}; {WORKFLOW_SHAPE}")
+
+
+def _check_non_gate_check_step(path: Path, step: _YamlNode) -> None:
+    """Raise a ParseError unless ``step``, named in WORKFLOW_NON_GATE_CHECK_STEPS,
+    holds exactly its pinned keys and its pinned run command as a plain value.
+
+    The checks run in this order: a plain run value that names a gate script
+    (STEP_SCRIPT_RE) is refused with a message naming that script; a key set other
+    than the pinned one is refused, and this key-set check is the one that refuses
+    a missing run value, since the pinned keys include run; and a run value that is
+    a ``run: |`` block or is not exactly the pinned command is refused by the
+    exact-command check. That check keeps its ``run is None`` test, which cannot be
+    reached while the pinned keys include run, so that it refuses rather than
+    raising AttributeError should the pinned key set ever change. The gate-script
+    check is not a separate condition: the pinned command names no gate script, so
+    the exact-command check would refuse such a value anyway; the first check only
+    gives that case a clearer message. A block run value is not searched for a
+    gate script; the exact-command check refuses it."""
+    rel = path.relative_to(REPO_ROOT)
+    name = step.get("name").value
+    shape = WORKFLOW_NON_GATE_CHECK_STEPS[name]
+    run = step.get("run")
+    if run is not None and run.kind == "scalar" and STEP_SCRIPT_RE.search(run.value):
+        raise ParseError(f"{rel}:{step.lineno}: lint job non-gate check step {name!r} "
+                         f"invokes the gate script {STEP_SCRIPT_RE.search(run.value).group(1)!r}; "
+                         f"a non-gate check step must not run a gate; {WORKFLOW_SHAPE}")
+    keys = tuple(step.keys())
+    if keys != shape["keys"]:
+        raise ParseError(f"{rel}:{step.lineno}: lint job non-gate check step {name!r} has "
+                         f"the keys {list(keys)}, not exactly the pinned "
+                         f"{list(shape['keys'])} (WORKFLOW_NON_GATE_CHECK_STEPS); "
                          f"{WORKFLOW_SHAPE}")
+    if run is None or run.kind != "scalar" or run.value != shape["run"]:
+        raise ParseError(f"{rel}:{step.lineno}: lint job non-gate check step {name!r} "
+                         f"runs {_held_run(path, run)}, not exactly the pinned "
+                         f"{shape['run']!r}; {WORKFLOW_SHAPE}")
 
 
 def _step_names(path: Path, steps: list[_YamlNode]) -> list[str]:
@@ -1369,11 +1535,17 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
     WORKFLOW_SKELETON (pull_request only, jobs exactly ``lint`` named
     WORKFLOW_JOB_NAME), pins the lint job's first steps to
     WORKFLOW_SETUP_STEP_ORDER (``_check_lint_setup_order``), then reads each item
-    of jobs.lint.steps, whose first key must be ``name``. A setup step named in
+    of jobs.lint.steps, whose first key must be ``name``. Three of the four
+    exclusion sets are workflow sets (the fourth, PRECOMMIT_NON_GATE_HOOKS, is
+    parse_precommit's). A setup step named in
     WORKFLOW_SETUP_STEPS is pinned to its exact accepted shape
     (``_check_setup_step``) and then excluded from the gate list; the delta-gate
-    steps in WORKFLOW_DELTA_GATE_STEPS are excluded as before. Every other step is
-    a gate step: its keys must be exactly ``name`` and ``run``, and its ``run``
+    steps in WORKFLOW_DELTA_GATE_STEPS are excluded here, and the exclusion guards
+    hold each one's run value to its pinned command (WORKFLOW_DELTA_GATE_STEP_RUNS);
+    a step named in
+    WORKFLOW_NON_GATE_CHECK_STEPS is pinned to its exact keys and run command, may
+    not run a gate script (``_check_non_gate_check_step``) and is left out of the
+    gate list. Every step outside those three workflow sets is a gate step: its keys must be exactly ``name`` and ``run``, and its ``run``
     value must match GATE_COMMAND. Anything outside the skeleton is a ParseError.
     See GATE_COMMAND's comment for what this does not cover.
     """
@@ -1394,6 +1566,9 @@ def parse_workflow(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
             _check_setup_step(path, step, "lint job")
             continue
         if step_name in WORKFLOW_DELTA_GATE_STEPS:
+            continue
+        if step_name in WORKFLOW_NON_GATE_CHECK_STEPS:
+            _check_non_gate_check_step(path, step)
             continue
         what = f"step '{step_name}'"
         keys = tuple(step.keys())
@@ -1502,14 +1677,29 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
 
 # --- Additive hardening of the exclusion allow-lists + the D-numbered delta gates.
 # These guards ADD to the parity audit; they do not weaken the
-# name/script row-parity above. Gap (i): the three exclusion allow-lists are
+# name/script row-parity above. Gap (i): the four exclusion allow-lists are
 # themselves unguarded, so a real §6 gate mistakenly added to an exclusion set
 # would be silently masked from parity. Each guard cross-checks every exclusion
-# member against a POSITIVE signal that it is genuinely NOT a corpus gate:
-#   - WORKFLOW_SETUP_STEPS: the named step exists in the workflow and invokes no
-#     `python3 .claude/skills/corpus-management/tools/X.py` gate script (it is a `uses:` action step).
-#   - WORKFLOW_DELTA_GATE_STEPS: the named step exists and its script is NOT one
-#     of the §6-inventory gate scripts (it is a delta / informational script).
+# member against a POSITIVE signal that it is genuinely NOT a corpus gate. A
+# workflow member is present only as a step of the lint job (jobs.lint.steps, read
+# by _lint_job_step_scripts and _lint_job_step_runs), not as a `- name:` line
+# anywhere in the file, and the run value a guard reads for it is that step's own, so a
+# `- name:` line in the text of another step's `run: |` block, or a same-named step
+# in another job, cannot stand in for it:
+#   - WORKFLOW_SETUP_STEPS: the named step is a lint job step and its run value
+#     holds no .claude/skills/corpus-management/tools/X.py path: the guard reports
+#     any such path in the step's run value, in any invocation form (STEP_SCRIPT_RE,
+#     read by _step_run_scripts). The setup steps are the two pinned `uses:` steps
+#     (Checkout, Set up Python) and the one pinned `run:` step (Install pinned
+#     dependencies), each held to its shape by WORKFLOW_SETUP_STEP_SHAPES.
+#   - WORKFLOW_NON_GATE_CHECK_STEPS: the named step is a lint job step; parse_workflow
+#     pins it to its exact keys and run command, refuses a gate script in it and
+#     leaves it out of the gate list.
+#   - WORKFLOW_DELTA_GATE_STEPS: the named step is a lint job step, its run value is
+#     exactly its pinned command string (WORKFLOW_DELTA_GATE_STEP_RUNS; any other
+#     value is a finding whatever script it names, and is never read for a script),
+#     and the script the pin names is not one of the §6-inventory gate scripts (it
+#     is a delta / informational script).
 #   - PRECOMMIT_NON_GATE_HOOKS: the named hook exists and its entry is a write /
 #     regeneration invocation (no `--check`), not a verification gate. (The regen
 #     hook runs `build-taxonomy.py`/`build-narrative-registry.py`/`build-portal.py`/`build-relationship-model.py`/`build-todo-number-allocation.py` in write mode; the §6 gates
@@ -1517,28 +1707,106 @@ def parse_precommit(path: Path) -> list[tuple[int, str, str, tuple[str, ...]]]:
 #     discriminator, not the script name.)
 # Gap (ii): the live PR-time delta gates (D1..HIGHEST_DELTA_GATE, retired numbers excepted) run in the workflow (authoritative) and the local pre-push runner, with no
 # cross-surface parity. The delta-gate guard confirms each D-numbered gate in the
-# PR-time runner (PRTIME_PATH) maps to a WORKFLOW_DELTA_GATE_STEPS step of the
-# same script, and that the D-numbers are contiguous D1..HIGHEST_DELTA_GATE apart from retired numbers (D6, D14).
-WF_NAME_RE = re.compile(r"^\s*-\s*name:\s*(.+?)\s*$")
+# PR-time runner (PRTIME_PATH) maps to a WORKFLOW_DELTA_GATE_STEPS step whose pinned
+# command runs exactly that one script and whose run value is exactly that pinned
+# command (a second script, the same script run again or any other change to the
+# run value is script drift), and that the D-numbers are contiguous D1..HIGHEST_DELTA_GATE apart from retired numbers (D6, D8, D14).
 PC_NAME_RE = re.compile(r"^\s*name:\s*(.+?)\s*$")
 PC_ENTRY_RE = re.compile(r"^\s*entry:\s*(.+?)\s*$")
 RUN_CHECK_DN_RE = re.compile(r'^\s*run_check\s+"D(\d+)\s+(.+?)"')
 
 
-def _wf_step_script(wf_lines: list[str], name: str) -> str | None:
-    """The first `python3 .claude/skills/corpus-management/tools/X.py` script under the workflow step ``name``
-    (None if the step invokes no such script, i.e. a setup/uses step)."""
-    for i, line in enumerate(wf_lines):
-        m = WF_NAME_RE.match(line)
-        if m and m.group(1) == name:
-            for j in range(i + 1, min(i + 14, len(wf_lines))):
-                if WF_NAME_RE.match(wf_lines[j]):
-                    break
-                sm = SCRIPT_RE.search(wf_lines[j])
-                if sm:
-                    return sm.group(1)
-            return None
-    return None
+def _step_run_scripts(raw: list[str], run: _YamlNode | None) -> list[str]:
+    """Every `.claude/skills/corpus-management/tools/X.py` path in a step's own
+    ``run`` value, in order, after any interpreter name or path, any interpreter
+    flags or a ./ prefix (STEP_SCRIPT_RE, _step_script; a word with other text
+    joined to the front of the path is returned whole): a plain value, or the text
+    lines of a ``run: |`` block (the lines after its key line that are blank or
+    deeper than its key, as _yaml_lines consumes them). Not only the first: a run
+    value that runs a setup command and then a second command could otherwise run a
+    section 6 gate unseen by the setup-step exclusion guard, and neither may an
+    interpreter form such as `python3 -B` hide one. Empty when the step has no run
+    value or the value holds no such path (a setup ``uses:`` step, say). The
+    exclusion guards use it for the setup steps only; a delta-gate step's run value
+    is compared whole with its pinned command (WORKFLOW_DELTA_GATE_STEP_RUNS) and
+    is not read for a script."""
+    if run is None:
+        return []
+    text = run.value
+    if run.kind == "block":
+        text = "\n".join(_block_scalar_lines(raw, run))
+    return [_step_script(word) for word in STEP_SCRIPT_RE.findall(text)]
+
+
+def _block_scalar_lines(raw: list[str], run: _YamlNode) -> list[str]:
+    """The text lines of the ``run: |`` block scalar ``run`` in ``raw`` (the file's
+    lines split at LF): the lines after its key line that are blank or deeper than its
+    key, as _yaml_lines consumes them, trailing spaces and tabs dropped."""
+    key_line = raw[run.lineno - 1]
+    key_column = len(key_line) - len(key_line.lstrip(" -"))
+    body: list[str] = []
+    for line in raw[run.lineno:]:
+        stripped = line.rstrip(" \t")
+        if stripped and len(stripped) - len(stripped.lstrip(" ")) <= key_column:
+            break
+        body.append(stripped)
+    return body
+
+
+def _lint_job_step_scripts(path: Path, only: set[str] | frozenset[str] | None = None
+                           ) -> dict[str, list[str | None]]:
+    """For each step name of jobs.lint.steps in the workflow at ``path`` (with
+    ``only``, each such name that is in ``only``), every script
+    that each lint job step so named invokes, in file order (_step_run_scripts; one
+    None for a step whose run value invokes no gate-path script). A step whose name
+    is not in ``only`` is passed over before its run value is read: the exclusion
+    guards pass the setup step names, so a delta-gate step's run value, which is
+    compared whole with its pinned command, is never read for a script. Read with
+    parse_workflow's line and
+    tree readers (the skeleton, which parse_workflow checks first, is not checked again
+    here). A step in another job, a ``- name:`` line anywhere else in the file and a
+    ``- name:`` line in the text of a ``run: |`` block are not lint job steps, and
+    one step's run value is never read as another's."""
+    raw = _lf_lines(path)
+    root = _yaml_tree(path, _yaml_lines(path, {}, WORKFLOW_PINNED_QUOTED_VALUES))
+    scripts: dict[str, list[str | None]] = {}
+    for step in _yaml_list(path, root, "jobs", "lint", "steps").items:
+        name = step.get("name")
+        if (name is not None and name.kind == "scalar"
+                and (only is None or name.value in only)):
+            scripts.setdefault(name.value, []).extend(
+                _step_run_scripts(raw, step.get("run")) or [None])
+    return scripts
+
+
+def _lint_job_step_runs(path: Path) -> dict[str, list[_YamlNode | None]]:
+    """For each step name of jobs.lint.steps in the workflow at ``path``, the run
+    value of each lint job step so named, in file order (None for a step with no
+    run key). Read like _lint_job_step_scripts, so only the lint job's own steps
+    count and one step's run value is never read as another's."""
+    root = _yaml_tree(path, _yaml_lines(path, {}, WORKFLOW_PINNED_QUOTED_VALUES))
+    runs: dict[str, list[_YamlNode | None]] = {}
+    for step in _yaml_list(path, root, "jobs", "lint", "steps").items:
+        name = step.get("name")
+        if name is not None and name.kind == "scalar":
+            runs.setdefault(name.value, []).append(step.get("run"))
+    return runs
+
+
+def _delta_run_problem(path: Path, runs: dict[str, list[_YamlNode | None]],
+                       name: str) -> str | None:
+    """None when the lint job holds exactly one step named ``name`` and its run
+    value is a plain value equal to that step's pinned command
+    (WORKFLOW_DELTA_GATE_STEP_RUNS); otherwise the held run value as a finding
+    shows it (_held_run), or the list of them when the name holds another number
+    of steps. The comparison is of the whole string: nothing is read out of it."""
+    pinned = WORKFLOW_DELTA_GATE_STEP_RUNS[name]
+    held = runs.get(name, [])
+    if (len(held) == 1 and held[0] is not None and held[0].kind == "scalar"
+            and held[0].value == pinned):
+        return None
+    shown = [_held_run(path, run) for run in held]
+    return shown[0] if len(shown) == 1 else "[" + ", ".join(shown) + "]"
 
 
 def verify_exclusion_and_delta_guards(
@@ -1548,8 +1816,15 @@ def verify_exclusion_and_delta_guards(
     delta gates. Returns a (possibly empty) list of findings. Never mutates the
     row-parity result; the caller appends these to its findings."""
     findings: list[str] = []
-    wf_lines = _read_utf8(root / WORKFLOW_PATH).splitlines()
-    wf_names = {m.group(1) for m in (WF_NAME_RE.match(l) for l in wf_lines) if m}
+    # Each workflow exclusion member must be a step of the lint job, the one job
+    # parse_workflow reads and pins; a step named only in another job is not present.
+    # A setup step's scripts are read from each lint job step of that name, from the
+    # step's own run value, never from the first matching `- name:` line in the file.
+    # A delta-gate step's own run value is compared whole with its pinned command
+    # (_delta_run_problem) and is never read for a script: its script is the pin's.
+    wf_runs = _lint_job_step_runs(root / WORKFLOW_PATH)
+    wf_names = set(wf_runs)
+    wf_scripts = _lint_job_step_scripts(root / WORKFLOW_PATH, WORKFLOW_SETUP_STEPS)
     pc_lines = _read_utf8(root / PRECOMMIT_PATH).splitlines()
     prtime = (root / PRTIME_PATH)
     # Absent (lstat finds no entry) is tolerated for a portable clone. Anything present goes
@@ -1560,32 +1835,59 @@ def verify_exclusion_and_delta_guards(
     if prtime_present:
         prtime_lines = _read_utf8(prtime).splitlines()
 
-    # (i) WORKFLOW_SETUP_STEPS: must exist and invoke no gate script.
+    # (i) WORKFLOW_SETUP_STEPS: must exist and invoke no gate script. The
+    # gate-script finding below is a second layer behind parse_workflow's
+    # _check_setup_step, which main() runs first and which refuses (exit 2) a
+    # setup step that names a gate script or differs in any way from its pinned
+    # shape, so on the command line this finding cannot fire. It is kept in case
+    # that check is loosened, and it fires when the guards are called directly
+    # on a workflow that parse_workflow refuses, as the tests do.
     for name in sorted(WORKFLOW_SETUP_STEPS):
         if name not in wf_names:
             findings.append(
                 f"exclusion guard: WORKFLOW_SETUP_STEPS member {name!r} is not a "
-                f"step in {WORKFLOW_PATH} (stale exclusion?)"
+                f"step of the lint job in {WORKFLOW_PATH} (stale exclusion?)"
             )
             continue
-        scr = _wf_step_script(wf_lines, name)
-        if scr is not None:
+        for scr in wf_scripts[name]:
+            if scr is None:
+                continue
             findings.append(
                 f"exclusion guard: WORKFLOW_SETUP_STEPS member {name!r} invokes "
                 f"gate script {scr!r}; a setup step must not run a gate. If this "
                 f"is a real gate, remove it from the exclusion set."
             )
 
-    # (i) WORKFLOW_DELTA_GATE_STEPS: must exist and NOT be a §6-inventory gate.
+    # (i) WORKFLOW_NON_GATE_CHECK_STEPS: must be a lint job step, where parse_workflow
+    # pins its shape (a step in another job is never read by parse_workflow).
+    for name in sorted(WORKFLOW_NON_GATE_CHECK_STEPS):
+        if name not in wf_names:
+            findings.append(
+                f"exclusion guard: WORKFLOW_NON_GATE_CHECK_STEPS member {name!r} is "
+                f"not a step of the lint job in {WORKFLOW_PATH}; the pull-request "
+                f"job must run it"
+            )
+
+    # (i) WORKFLOW_DELTA_GATE_STEPS: must exist, run exactly its pinned command and
+    # NOT be a §6-inventory gate. The script is the pin's, never read out of the
+    # run value, so no run value other than the pinned string is accepted.
     for name in sorted(WORKFLOW_DELTA_GATE_STEPS):
         if name not in wf_names:
             findings.append(
                 f"exclusion guard: WORKFLOW_DELTA_GATE_STEPS member {name!r} is "
-                f"not a step in {WORKFLOW_PATH} (stale exclusion?)"
+                f"not a step of the lint job in {WORKFLOW_PATH} (stale exclusion?)"
             )
             continue
-        scr = _wf_step_script(wf_lines, name)
-        if scr is not None and scr in spec_scripts:
+        held = _delta_run_problem(root / WORKFLOW_PATH, wf_runs, name)
+        if held is not None:
+            findings.append(
+                f"exclusion guard: WORKFLOW_DELTA_GATE_STEPS member {name!r} runs "
+                f"{held}, not exactly the pinned "
+                f"{WORKFLOW_DELTA_GATE_STEP_RUNS[name]!r} "
+                f"(WORKFLOW_DELTA_GATE_STEP_RUNS); any other run value is refused."
+            )
+        scr = _delta_pinned_script(name)
+        if scr in spec_scripts:
             findings.append(
                 f"exclusion guard: WORKFLOW_DELTA_GATE_STEPS member {name!r} runs "
                 f"{scr!r}, which IS a §6-inventory gate script; a real gate is "
@@ -1664,11 +1966,23 @@ def verify_exclusion_and_delta_guards(
                     f"matching WORKFLOW_DELTA_GATE_STEPS entry in {WORKFLOW_PATH}."
                 )
                 continue
-            wf_scr = _wf_step_script(wf_lines, nm)
-            if wf_scr != scr:
+            # The workflow step must run exactly its pinned command, and the pin
+            # must run the runner's one script: a pin naming another script, and
+            # any other run value (a second script, even one that is not a gate,
+            # the same script run again, or another form of the command) are drift
+            # by design, since the workflow would then run something other than the
+            # PR-time runner. A mismatch is one delta-gate guard finding quoting the
+            # held run value. A run value that differs from its pin is also the
+            # exclusion guard's finding above, under the step's name, because that
+            # guard holds the run value to its pin even when the PR-time runner is
+            # absent; the two findings are one per guard, not a repeat within one.
+            pinned = WORKFLOW_DELTA_GATE_STEP_RUNS[nm]
+            held = _delta_run_problem(root / WORKFLOW_PATH, wf_runs, nm)
+            if held is not None or _delta_pinned_script(nm) != scr:
                 findings.append(
                     f"delta-gate guard: D{num} {nm!r} script drift: "
-                    f"{PRTIME_PATH} = {scr!r}; {WORKFLOW_PATH} = {wf_scr!r}."
+                    f"{PRTIME_PATH} = {scr!r}; {WORKFLOW_PATH} runs "
+                    f"{held if held is not None else repr(pinned)}, pinned {pinned!r}."
                 )
     return findings
 

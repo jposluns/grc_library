@@ -669,7 +669,9 @@ def _store_dir(root: "Path", *, strict: bool = False) -> "Path | None":
     ``strict=True`` keeps both fallbacks (an ABSENT store and an in-repo store return None)
     but raises :class:`InaccessiblePath` for a store path that cannot be examined, is not a
     directory, or is a directory this account cannot search (``os.access(store, os.X_OK)``; its
-    message is "present but not searchable"), which the default reads as absent. Both
+    message is "present but not searchable"). The default reads the first two as absent
+    but returns an unsearchable directory as the store: a file lookup in it then finds nothing and
+    falls through (Python 3.11 raises PermissionError instead); a directory lookup returns it. Both
     modes also catch the RuntimeError that Python 3.11's ``resolve()`` raises on a relative
     ``GRC_STORE`` symlink loop (in the earlier repository, it escaped as a traceback, since
     ``_store_root`` ran outside the ``try``).
@@ -1851,7 +1853,6 @@ _HEADER_TAIL_IDENTITY_RE = re.compile(
     r"(?:(?<!\w)|(?<=PR)|(?<=PRs))" + _STORE_PR_IDENTITY, re.IGNORECASE
 )
 _HEADER_PR_COUNT_RE = re.compile(r"\(\d+ PRs?\)", re.IGNORECASE)
-STORE_SCOPE_BASE_REF = "origin/main"
 CHANGELOG_ENTRY_BOUNDARY_RE = re.compile(
     r"^(?:##[ \t]+\d{4}-\d{2}-\d{2},|\*\*\d{4}-\d{2}-\d{2} \| |\*\*Week of \d{4}-\d{2}-\d{2}\b)"
 )
@@ -1869,9 +1870,6 @@ _HEADER_LIKE_RE = re.compile(
 # of the scanned text, and declaration when the delimiter line is at or above the candidate
 # header.
 STORE_EXAMPLE_DELIMITERS = (chr(96) * 3, "~~~", "<!--", "-->")
-# Merged-PR evidence in origin/main's commit subjects: the squash-merge `(#N)` suffix and the
-# merge-commit `Merge pull request #N` form. Over-reading only protects more PRs.
-_MERGED_SUBJECT_PR_RE = re.compile(r"\(#(\d+)\)|^Merge pull request #(\d+)\b", re.MULTILINE)
 
 
 class StorePRs(list):
@@ -1961,11 +1959,6 @@ def _header_over_read(line: str) -> tuple[list[int], tuple[tuple[int, int], ...]
     return values, tuple(spans)
 
 
-def _ceiling_header_prs(line: str) -> list[int]:
-    """Over-read ambiguous headers only on the protection/ceiling side."""
-    return _header_over_read(line)[0]
-
-
 def _header_ranges(line: str) -> tuple[tuple[int, int], ...]:
     """Inclusive PR coverage, represented as intervals to avoid expansion."""
     values, spans = _header_over_read(line)
@@ -1978,49 +1971,6 @@ def _changelog_ranges(text: str) -> tuple[tuple[int, int], ...]:
 
 def _contains_pr(spans: Iterable[tuple[int, int]], pr: int) -> bool:
     return any(lo <= pr <= hi for lo, hi in spans)
-
-
-def store_pr_ceiling(changelog_text: str | None) -> int | None:
-    """Highest raw header PR; example headers count and summary tails do not."""
-    prs = [pr for line in (changelog_text or "").splitlines()
-           for pr in _ceiling_header_prs(line)]
-    return max(prs) if prs else None
-
-
-def _store_git_text(args: list[str], repo_root: Path | str | None) -> str | None:
-    root = Path(repo_root) if repo_root is not None else REPO_ROOT
-    try:
-        result = subprocess.run(["git", "-C", str(root), *args],
-                                stdin=subprocess.DEVNULL, capture_output=True, text=True, check=True)
-    except (subprocess.CalledProcessError, OSError):
-        return None
-    return result.stdout
-
-
-def merge_base_changelog(repo_root: Path | str | None = None) -> str | None:
-    """Fail closed if either the merge-base or its root changelog is unreadable."""
-    base = _store_git_text(["merge-base", "HEAD", STORE_SCOPE_BASE_REF], repo_root)
-    if not base or not base.strip():
-        return None
-    return _store_git_text(["show", f"{base.strip()}:.working/CHANGELOG.md"], repo_root)
-
-
-def main_changelog(repo_root: Path | str | None = None) -> str | None:
-    """Offline merged-PR evidence from the remote-tracking ref's root file."""
-    return _store_git_text(["show", f"{STORE_SCOPE_BASE_REF}:.working/CHANGELOG.md"], repo_root)
-
-
-def main_merged_prs(repo_root: Path | str | None = None) -> tuple[tuple[int, int], ...] | None:
-    """Offline merged-PR evidence from origin/main's commit subjects.
-
-    A merged PR need not have a root header (D1 accepts a `Changelog:` trailer),
-    so header absence alone never proves that a PR is open.
-    """
-    log = _store_git_text(["log", "--format=%s", STORE_SCOPE_BASE_REF, "--"], repo_root)
-    if log is None:
-        return None
-    prs = {int(a or b) for a, b in _MERGED_SUBJECT_PR_RE.findall(log)}
-    return tuple((pr, pr) for pr in sorted(prs))
 
 
 def own_pr_declaration(changelog_text: str, base_changelog_text: str,
@@ -2085,15 +2035,10 @@ def declared_own_pr(changelog_text: str, base_changelog_text: str,
 class StoreScope(NamedTuple):
     """Declaration, numeric ceiling, and offline protected PR coverage.
 
-    ``store_scope`` declares an own PR only when the merge-base changelog and
-    both origin/main readers are readable. The same evidence enables a
-    clean-base scope with no own PR when no new header-like line exists against
-    the merge-base; root delimiters disallow that scope. Historical milestone
-    lines already present in the merge-base do not invalidate it.
-    Both scopes set ``open_rule`` and protect all ``merged_prs`` evidence. A
-    clean-base scope has ``own_pr`` None, so an undeclared (trailer-only) own
-    PR's entries defer until it merges. A scope built
-    without ``open_rule`` keeps only the ceiling rule.
+    Read by the deferral functions below. Nothing in the repository builds one
+    any more (the store-scope builder and its git readers were removed after gate
+    59 stopped deferring); this type and those functions are removed separately. A
+    scope built without ``open_rule`` keeps only the ceiling rule.
     """
 
     root_max: int | None
@@ -2103,47 +2048,6 @@ class StoreScope(NamedTuple):
     branch_prs: tuple[tuple[int, int], ...] = ()
     merged_prs: tuple[tuple[int, int], ...] = ()
     open_rule: bool = False
-
-
-def store_scope(changelog_text: str | None, *, repo_root: Path | str | None = None) -> StoreScope:
-    text = changelog_text or ""
-    root_max = store_pr_ceiling(text)
-    branch_prs = _changelog_ranges(text)
-    base = merge_base_changelog(repo_root)
-    if base is None:
-        return StoreScope(root_max, None, None,
-                          "store scope fail-closed: the merge-base changelog with origin/main "
-                          "is unreadable; every store entry is evaluated.", branch_prs)
-    main = main_changelog(repo_root)
-    merged = main_merged_prs(repo_root)
-    if main is None or merged is None:
-        return StoreScope(root_max, None, None,
-                          "store scope fail-closed: origin/main evidence (.working/CHANGELOG.md headers "
-                          "or merge subjects) is unreadable, so no own PR can be declared; every "
-                          "store entry is evaluated.", branch_prs)
-    own, why = own_pr_declaration(text, base, main, merged)
-    if own is None:
-        # Clean-base: nothing new against the merge-base, so the own PR (if any) is unknown and
-        # its entries defer like another open PR's until merged; merged PRs stay protected.
-        base_headers = {line.strip() for line in base.splitlines()
-                        if changelog_header_like(line)}
-        clean_base = changelog_text is not None and root_max is not None and not any(
-            store_example_delimiter(line)
-            or (changelog_header_like(line) and line.strip() not in base_headers)
-            for line in text.splitlines()
-        )
-        if clean_base:
-            return StoreScope(
-                root_max, None, root_max,
-                "store scope: clean-base (no new root header against the merge-base; "
-                "origin/main headers and merge subjects readable); other open PRs may "
-                "defer. Offline origin/main may be stale until fetched.",
-                branch_prs, _changelog_ranges(main) + merged, True)
-        return StoreScope(root_max, None, None,
-                          f"store scope: no own-PR declaration ({why}); every store entry "
-                          "is evaluated.", branch_prs)
-    return StoreScope(root_max, own, max(own, root_max or own), None, branch_prs,
-                      _changelog_ranges(main) + merged, True)
 
 
 _STORE_ROW_TAIL_RE = re.compile(

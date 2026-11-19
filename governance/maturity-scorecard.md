@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 .claude/skills/corpus-management/t
 **Document Title:** Document Maturity Scorecard\
 **Document Type:** Register\
 **Version:** 1.0.2\
-**Date:** 2026-11-14\
+**Date:** 2026-11-19\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/portal.md`](portal.md), [`.claude/skills/corpus-management/docs/adopter-guide.md`](../.claude/skills/corpus-management/docs/adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`governance/specification-master-project.md`](specification-master-project.md)\
@@ -92,7 +92,7 @@ _137 documents._
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.7.1 | 2026-10-27 |
 | [governance/specification-citation-verification.md](../governance/specification-citation-verification.md) | Citation Verification Specification | Specification | 1.2.44 | 2026-11-12 |
 | [governance/specification-ingestion.md](../governance/specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.9.7 | 2026-11-10 |
-| [governance/specification-master-project.md](../governance/specification-master-project.md) | Master Project Specification | Specification | 1.7.17 | 2026-11-12 |
+| [governance/specification-master-project.md](../governance/specification-master-project.md) | Master Project Specification | Specification | 1.7.18 | 2026-11-19 |
 | [governance/standard-maturity-assessment-methodology.md](../governance/standard-maturity-assessment-methodology.md) | Maturity Assessment Methodology Standard | Standard | 1.1.5 | 2026-10-13 |
 | [governance/standard-records-retention-and-destruction.md](../governance/standard-records-retention-and-destruction.md) | Records Retention and Destruction Standard | Standard | 1.8.0 | 2026-10-15 |
 | [governance/template-maturity-self-assessment.md](../governance/template-maturity-self-assessment.md) | Adopter Maturity Self-Assessment Template | Template | 1.1.7 | 2026-10-26 |
@@ -253,7 +253,7 @@ _149 documents._
 | [governance/policy-digital-twin-and-simulation-governance.md](../governance/policy-digital-twin-and-simulation-governance.md) | Digital Twin and Simulation Governance Policy | Policy | 1.0.10 | 2026-10-24 |
 | [governance/procedure-continuous-improvement-register.md](../governance/procedure-continuous-improvement-register.md) | Continuous Improvement Register Procedure | Procedure | 1.0.4 | 2026-08-13 |
 | [governance/procedure-library-quality-and-review-cadence.md](../governance/procedure-library-quality-and-review-cadence.md) | Library Quality and Review Cadence Procedure | Procedure | 1.0.30 | 2026-11-12 |
-| [governance/procedure-standard-version-upgrade.md](../governance/procedure-standard-version-upgrade.md) | Standard Version Upgrade Procedure | Procedure | 1.0.5 | 2026-11-12 |
+| [governance/procedure-standard-version-upgrade.md](../governance/procedure-standard-version-upgrade.md) | Standard Version Upgrade Procedure | Procedure | 1.0.6 | 2026-11-19 |
 | [governance/procedure-whistleblower-and-incident-reporting.md](../governance/procedure-whistleblower-and-incident-reporting.md) | Whistleblower and Incident Reporting Procedure | Procedure | 1.0.22 | 2026-11-01 |
 | [governance/template-citation-verification-worklist.md](../governance/template-citation-verification-worklist.md) | Citation Verification Worklist Template | Template | 1.0.4 | 2026-07-02 |
 | [governance/template-document-review-record.md](../governance/template-document-review-record.md) | Document Review Record Template | Template | 1.0.10 | 2026-10-16 |

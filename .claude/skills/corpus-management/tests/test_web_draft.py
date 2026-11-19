@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The promoted site tree (the rebuild on the shared family site template,
-baseline 1.11.1, flipped to the site root at the draft-site promotion).
+baseline 1.12.4, flipped to the site root at the draft-site promotion).
 
 What is locked here, each test failing without its feature:
 
@@ -326,13 +326,13 @@ What is locked here, each test failing without its feature:
    by that fixed form only.
 39. Baseline 1.10.0, as items 49 and 50 update it (CHANGELOG 1.7.0 to 1.10.0;
    spec sections 4 item 3, 6.1, 6.4, 7.24, 7.29 and 7.35): the copied files
-   RELEASE_1_9_2_DIGESTS and RELEASE_1_10_0_CARD_DIGESTS pin, which 1.11.0 and
-   1.11.1 leave byte-identical (scheme.js, which 1.6.0 added, search.js, which
+   RELEASE_1_9_2_DIGESTS and RELEASE_1_10_0_CARD_DIGESTS pin, which 1.11.0 to
+   1.12.4 leave byte-identical (scheme.js, which 1.6.0 added, search.js, which
    1.7.0 changed, matrix.js and the overflow check, which 1.8.0 changes or
    adds, and the 1.10.0 card fonts), carry their releases' digests in the pin,
-   in the repository and, for the served ones, in the draft copy; the files
-   RELEASE_1_11_0_DIGESTS pins (item 49) carry 1.11.0's and the files
-   RELEASE_1_11_1_DIGESTS pins (item 50) carry 1.11.1's; the card builder and
+   in the repository and, for the served ones, in the draft copy; the file
+   RELEASE_1_11_0_DIGESTS pins (item 49) carries 1.11.0's and the files
+   RELEASE_1_12_4_DIGESTS pins (item 51) carry 1.12.4's; the card builder and
    its fonts are never served, and the live card is unchanged (a card change
    waits for the owner's approval); the overflow check is pinned
    beside the palette gate and, like it, never served; the served palettes.css
@@ -438,22 +438,32 @@ What is locked here, each test failing without its feature:
    27001 and ISO/IEC 27002 links both pages; every taxonomy spelling of the
    five counts toward its page, and a compound joined with " and " keeps that
    joiner on its chip.
-49. Baseline 1.11.0, as item 50 updates it (CHANGELOG 1.11.0, spec section
-   7.19): of the files 1.11.0 changes or adds that grc copies (baseline.css,
-   palettes.css, NOTICE.md, the new logos/vendorreplies.png, the palette gate
-   and the card builder), the 4 that 1.11.1 leaves byte-identical
-   (palettes.css, NOTICE.md, logos/vendorreplies.png and the palette gate,
-   RELEASE_1_11_0_DIGESTS) carry 1.11.0's SHA256SUMS digests in the pin, in
-   the repository and, for the served ones, in the served copy; every page's
+49. Baseline 1.11.0, as items 50 and 51 update it (CHANGELOG 1.11.0, spec
+   section 7.19): of the files 1.11.0 changes or adds that grc copies
+   (baseline.css, palettes.css, NOTICE.md, the new logos/vendorreplies.png,
+   the palette gate and the card builder), the 1 that 1.11.1 to 1.12.4
+   leave byte-identical (logos/vendorreplies.png, RELEASE_1_11_0_DIGESTS)
+   carries 1.11.0's SHA256SUMS digest in the pin, in the repository and in
+   the served copy; every page's
    footer list is labelled "The 7 project sites" and holds vendorreplies.ai's
    card, li.slice.slice-vr in the release's markup, as its last item, after
    the 6 existing cards in their order.
-50. Baseline 1.11.1 (CHANGELOG 1.11.1: every site moves, by replacing
-   baseline.css, with no markup change; spec section 7.19): the pin names
-   1.11.1, and the 2 files 1.11.1 changes that grc copies (baseline.css and
-   the card builder, RELEASE_1_11_1_DIGESTS; 1.11.1 adds no file) carry the
-   release's SHA256SUMS digests in the pin, in the repository and, for
-   baseline.css, in the served copy, while the card builder stays unserved.
+50. Baseline 1.11.1, as item 51 updates it (CHANGELOG 1.11.1: every site
+   moves, by replacing baseline.css, with no markup change; spec section
+   7.19): 1.11.1 changed 2 files grc copies (baseline.css and the card
+   builder) and added no file; 1.12.4 changes both again, so they carry
+   RELEASE_1_12_4_DIGESTS (item 51).
+51. Baseline 1.12.4 (maintainer decisions
+   2026-11-14 16:06Z and 2026-11-15 13:14Z): the pin names 1.12.4, and the
+   7 files grc copies whose 1.12.4 SHA256SUMS digest differs from 1.11.1's
+   (NOTICE.md, baseline.css, fonts.css, palettes.css, the palette gate, the
+   card builder and the new fonts/dancing-script-wght-normal.ttf,
+   RELEASE_1_12_4_DIGESTS) carry 1.12.4's digests in the pin, in the
+   repository and, for the served ones, in the served copy; the removed
+   fonts/dancing-script-latin-wght-normal.woff2 is neither pinned nor
+   served, and every font the served fonts.css names is a pinned file. The
+   files 1.12.4 adds that grc does not copy (tools/build_icons.py and the
+   project favicons) stay out, and the live card is unchanged.
 """
 
 from __future__ import annotations
@@ -478,7 +488,7 @@ from unittest import mock
 # (<root>/.claude/skills/corpus-management/tests/).
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
-# The draft CSP, copied from baseline 1.11.1 SPECIFICATION.md section 9
+# The draft CSP, copied from baseline 1.12.4 SPECIFICATION.md section 9
 # (unchanged since 1.3.1), the shared policy for draft pages; build.py must
 # carry it byte for byte.
 SPEC_SECTION_9_CSP = (
@@ -515,7 +525,7 @@ SCHEME_SCRIPT_TAG = (
 )
 # The baseline 1.10.0 SHA256SUMS digests of the card fonts, which grc
 # copies to .web/site-card/ with the card builder and pins beside the
-# other tools (spec 7.35), never served; 1.11.0 and 1.11.1 leave them
+# other tools (spec 7.35), never served; 1.11.0 to 1.12.4 leave them
 # byte-identical.
 RELEASE_1_10_0_CARD_DIGESTS = {
     ".web/site-card/card-fonts/Inter-Bold.otf":
@@ -528,11 +538,11 @@ RELEASE_1_10_0_CARD_DIGESTS = {
         "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a",
 }
 # The baseline 1.9.2 SHA256SUMS digests of the files 1.8.0 changes or adds
-# that 1.11.0 and 1.11.1 leave byte-identical (matrix.js and
+# that 1.11.0 to 1.12.4 leave byte-identical (matrix.js and
 # .claude/skills/corpus-management/tools/check_overflow.js, which the site pins beside the palette gate, spec
 # section 4 item 3), of search.js, which 1.7.0 changed, and of scheme.js,
 # which 1.6.0 added; every other pinned file not named in this table, the
-# card-font table above, RELEASE_1_11_0_DIGESTS or RELEASE_1_11_1_DIGESTS
+# card-font table above, RELEASE_1_11_0_DIGESTS or RELEASE_1_12_4_DIGESTS
 # below is unchanged from 1.6.1. 1.9.2 itself changes only
 # .claude/skills/corpus-management/tools/build_card.js and the documents, none of which grc copied then.
 RELEASE_1_9_2_DIGESTS = {
@@ -545,42 +555,60 @@ RELEASE_1_9_2_DIGESTS = {
     ".web/site-card/check_overflow.js":
         "8e50e8f311516ae4ed7ed653ce24d4c727530e081f44ba9f55af32e9c0d4ba01",
 }
-# The baseline 1.11.0 SHA256SUMS digests of the 4 files grc copies that
-# 1.11.0 changes or adds and 1.11.1 leaves byte-identical (CHANGELOG 1.11.0
-# and 1.11.1): palettes.css (the .site-vendorreplies palette and the 3
-# silver band tokens of the seventh card), NOTICE.md (item 3, the 7 project
-# logos), the new logos/vendorreplies.png (the seventh card's logo) and
-# .claude/skills/corpus-management/tools/check_palette.py (the component
-# tokens of 1.11.0). The other 2 files 1.11.0 changed that grc copies,
-# baseline.css and .claude/skills/corpus-management/tools/build_card.js,
-# change again in 1.11.1 and carry RELEASE_1_11_1_DIGESTS below.
+# The baseline 1.11.0 SHA256SUMS digest of the 1 file grc copies that
+# 1.11.0 adds and 1.11.1 to 1.12.4 leave byte-identical (CHANGELOG 1.11.0):
+# the new logos/vendorreplies.png (the seventh card's logo). The other files
+# 1.11.0 changed that grc copies (palettes.css, NOTICE.md, baseline.css, the
+# palette gate and the card builder) change again by 1.12.4 and carry
+# RELEASE_1_12_4_DIGESTS below.
 RELEASE_1_11_0_DIGESTS = {
-    ".web/baseline/palettes.css":
-        "9a83e8a2f690b36a9dd40913d0cda90e9b824860effa1c49dd2cff1a263fe01f",
-    ".web/baseline/NOTICE.md":
-        "a84715f2a3d6ee761ca2cbd8a8656fa204f45b6f0df120dfb3ae557eef472dc8",
     ".web/baseline/logos/vendorreplies.png":
         "24c965ca0568376ea505b80aee61faf03428acb968cbca8f364236feb9cf990e",
-    ".web/site-card/check_palette.py":
-        "fd6a41d816e25076cb54cabb50d04d959fdb5072fee3b937d9be89a186d8c8c1",
 }
-# The baseline 1.11.1 SHA256SUMS digests of the 2 files grc copies that
-# 1.11.1 changes (CHANGELOG 1.11.1; 1.11.1 adds no file): baseline.css (the
-# compact footer bar, the names shown above 1159 px of footer width, the 3
-# marks grouped beside the signature while the names show, the gold line
-# under the whole current tile at every width, and the optional --band-pad
-# token, which grc does not set) and .claude/skills/corpus-management/tools/build_card.js (its version label
-# alone). Every pinned file is in this table, RELEASE_1_11_0_DIGESTS,
+# The baseline 1.12.4 SHA256SUMS digests of the 7 files grc copies whose
+# digest differs between the 1.11.1 and the 1.12.4 SHA256SUMS (compared by
+# digest, so this table does not say which of 1.11.2 to 1.12.4 last changed
+# each): NOTICE.md, baseline.css, fonts.css (from 1.11.5 Dancing Script is
+# the unmodified upstream TrueType file), palettes.css, the palette gate,
+# the card builder, and fonts/dancing-script-wght-normal.ttf, which
+# replaces the removed fonts/dancing-script-latin-wght-normal.woff2. Every
+# pinned file is in this table, RELEASE_1_11_0_DIGESTS,
 # RELEASE_1_10_0_CARD_DIGESTS, RELEASE_1_9_2_DIGESTS or the set the 1.9.2
 # comment above names as unchanged from 1.6.1, and every digest in the pin
-# equals its file's entry in the 1.11.1 SHA256SUMS, so the pin's version is
-# 1.11.1.
-RELEASE_1_11_1_DIGESTS = {
+# equals its file's entry in the 1.12.4 SHA256SUMS, so the pin's version is
+# 1.12.4.
+RELEASE_1_12_4_DIGESTS = {
+    ".web/baseline/NOTICE.md":
+        "e96ece3d82f1e1e09fcf55877bde2590ceb06fa29ef9ddedad42c1922e0cad17",
     ".web/baseline/baseline.css":
-        "fbc97a3cbcda9bf0df3a914485720d008fdefe702592fab4bb2b12ce4661c3be",
+        "8512af10fedc1a0875f724929d54bd7a7067025804b9d929d23b1db2bd66c3d1",
+    ".web/baseline/fonts.css":
+        "b9573d444f52dc81cae6e2620aedfe819976858bd7224bfa721ec00b8880dfad",
+    ".web/baseline/fonts/dancing-script-wght-normal.ttf":
+        "21808625578fe8d8cd10cb684be546dca077b27cd03a53a2f1ec11dc743c924c",
+    ".web/baseline/palettes.css":
+        "d3e4326a5c694df7479241ce1a22dc70a2624c5d4457f30cf9ee67d233b5ac55",
     ".web/site-card/build_card.js":
-        "fc05c9aeb646620034cb014cd9afb752e6aca4b448df48d3d369cbd447ec5c8a",
+        "c32145c1569e2e85f21b70ad902949b39f2152730b4f725ab00bb02059929c4f",
+    ".web/site-card/check_palette.py":
+        "00ed3de3eed31bdc2e0cebfaca3f8c9a7a407c32bf0f39ee212cd2d22acbdea0",
 }
+# The self-hosted fonts grc copies from 1.12.4 (the 1.12.4
+# SHA256SUMS fonts/ entries): Dancing Script is now the upstream .ttf, and
+# the latin-subset .woff2 that 1.11.1 shipped is removed.
+RELEASE_1_12_4_FONTS = frozenset({
+    "dancing-script-LICENSE.txt",
+    "dancing-script-wght-normal.ttf",
+    "jetbrains-mono-LICENSE.txt",
+    "jetbrains-mono-latin-wght-italic.woff2",
+    "jetbrains-mono-latin-wght-normal.woff2",
+    "newsreader-LICENSE.txt",
+    "newsreader-latin-wght-italic.woff2",
+    "newsreader-latin-wght-normal.woff2",
+    "public-sans-LICENSE.txt",
+    "public-sans-latin-wght-italic.woff2",
+    "public-sans-latin-wght-normal.woff2",
+})
 # Spec 7.19 from 1.11.0: the seventh footer card, exactly as the release's
 # reference pages carry it (reference/landing.html and 15 more), with the
 # logo path in the site's served asset tree. The href is checked by its
@@ -10237,6 +10265,37 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.assertIn(f"assets/baseline/{name}", self.draft_all,
                           f"{name} is copied into the draft asset tree")
 
+    def test_pinned_fonts_are_the_release_font_set(self):
+        """Baseline 1.12.4 replaces
+        fonts/dancing-script-latin-wght-normal.woff2 with the unmodified
+        upstream fonts/dancing-script-wght-normal.ttf (fonts.css 1.11.5).
+        The pin, the vendored tree and the draft copy carry exactly the
+        1.12.4 font set, the removed file is in none of them, and every
+        url() in the served fonts.css names a served font."""
+        import tomllib
+        pin = tomllib.loads(
+            (REPO_ROOT / ".web" / "site-card" / "pin.toml").read_text(encoding="utf-8")
+        )
+        prefix = ".web/baseline/fonts/"
+        pinned = {key[len(prefix):] for key in pin["files"]
+                  if key.startswith(prefix)}
+        self.assertEqual(pinned, set(RELEASE_1_12_4_FONTS),
+                         "the pin carries the release's font set")
+        on_disk = {p.name for p in
+                   (REPO_ROOT / ".web" / "baseline" / "fonts").iterdir()}
+        self.assertEqual(on_disk, set(RELEASE_1_12_4_FONTS),
+                         "the vendored tree carries the release's font set")
+        served = {rel[len("assets/baseline/fonts/"):] for rel in self.draft_all
+                  if rel.startswith("assets/baseline/fonts/")}
+        self.assertEqual(served, set(RELEASE_1_12_4_FONTS),
+                         "the draft serves the release's font set")
+        self.assertNotIn("dancing-script-latin-wght-normal.woff2", served)
+        css = self.draft_all["assets/baseline/fonts.css"].decode("utf-8")
+        urls = re.findall(r'url\("fonts/([^"]+)"\)', css)
+        self.assertIn("dancing-script-wght-normal.ttf", urls)
+        self.assertLessEqual(set(urls), served,
+                             "every font fonts.css names is served")
+
     def test_hidden_content_is_never_displayed(self):
         """Baseline 1.5.1 SPECIFICATION.md section 10 (every site moves to
         1.5.1): from 1.0.0 to 1.5.0 ``.doc section, .doc article { display:
@@ -10276,19 +10335,19 @@ class DraftSiteRenderTests(unittest.TestCase):
 
     # -- 25. baseline 1.6.0: switch, scheme.js, dark palette, palette gate --
 
-    def test_pin_and_copies_are_baseline_1_11_1(self):
+    def test_pin_and_copies_are_baseline_1_12_4(self):
         """The 1.9.2 move (the owner's 1.9.1 notice: grclibrary.ai, whose
         documents page prompted the chip states, moves; the 1.9.2 notice: move
         to 1.9.2 instead, with the same steps), the move to 1.10.0, which
         changed no copied file but the card builder, the move to 1.11.0, then
         the move to 1.11.1 (CHANGELOG 1.11.1: every site moves, by replacing
-        baseline.css): the pin names 1.11.1; the 2 files 1.11.1 changes that
-        grc copies (baseline.css and the card builder, RELEASE_1_11_1_DIGESTS)
-        carry 1.11.1's SHA256SUMS digests, the 4 files 1.11.0 changes or adds
-        that 1.11.1 leaves byte-identical (palettes.css, NOTICE.md,
-        logos/vendorreplies.png and the palette gate, RELEASE_1_11_0_DIGESTS)
-        carry 1.11.0's, and the files RELEASE_1_9_2_DIGESTS and
-        RELEASE_1_10_0_CARD_DIGESTS pin, which 1.11.0 and 1.11.1 leave as they
+        baseline.css), then the move to 1.12.4: the pin names
+        1.12.4; the 7 files grc copies whose digest 1.12.4 changes or adds
+        (RELEASE_1_12_4_DIGESTS) carry 1.12.4's SHA256SUMS digests, the file
+        1.11.0 adds that 1.11.1 to 1.12.4 leave byte-identical
+        (logos/vendorreplies.png, RELEASE_1_11_0_DIGESTS) carries 1.11.0's,
+        and the files RELEASE_1_9_2_DIGESTS and
+        RELEASE_1_10_0_CARD_DIGESTS pin, which 1.11.0 to 1.12.4 leave as they
         were, carry their releases', each in the pin, in the repository and,
         for the served ones, in the draft copy; the card builder and its fonts
         (spec 7.35) are pinned and never served, while the data file template
@@ -10299,8 +10358,8 @@ class DraftSiteRenderTests(unittest.TestCase):
         pin = tomllib.loads(
             (REPO_ROOT / ".web" / "site-card" / "pin.toml").read_text(encoding="utf-8")
         )
-        self.assertEqual(pin["version"], "1.11.1")
-        for key, digest in {**RELEASE_1_11_1_DIGESTS,
+        self.assertEqual(pin["version"], "1.12.4")
+        for key, digest in {**RELEASE_1_12_4_DIGESTS,
                             **RELEASE_1_11_0_DIGESTS}.items():
             self.assertEqual(pin["files"].get(key), digest, f"{key} pin")
             self.assertEqual(
@@ -19575,7 +19634,8 @@ class PromotedRouteCoverageTests(unittest.TestCase):
     .claude/skills/corpus-management/tests/fixtures/pre-promotion-draft-inventory.txt)
     must map through the splat rule to an existing output. The 14 retired old
     routes are pinned as retired literals: absent from the inventory and,
-    with no redirects, reaching nothing. Every route, link and sitemap entry
+    with no redirects, reaching nothing; so is the 1 baseline asset the
+    site template baseline 1.12.4 replaced. Every route, link and sitemap entry
     stays clear of the dot-prefixed skill directory."""
 
     # The pre-promotion live root inventory, pinned as literals: the 33
@@ -19743,6 +19803,36 @@ class PromotedRouteCoverageTests(unittest.TestCase):
         "draft/documents/governance/specification-audit-programme/index.html",
         "draft/documents/governance/specification-project-governance-separation/index.html",
     })
+    # The baseline assets a site template release replaced, retired by
+    # maintainer decision (2026-11-15 22:39Z) with no redirect: baseline
+    # 1.12.4 replaced the Dancing Script woff2 with
+    # fonts/dancing-script-wght-normal.ttf, so the old draft font address
+    # stops resolving.
+    RETIRED_ASSETS = frozenset({
+        "draft/assets/baseline/fonts/dancing-script-latin-wght-normal.woff2",
+    })
+    # The baseline assets that replaced a retired one, pinned as literals. They are
+    # not in the pre-promotion inventory (main 716a3f53b did not render them), so
+    # the splat test above never reads them; each must be a promoted output, and
+    # its /draft/ address must reach it in one splat hop.
+    REPLACEMENT_ASSETS = frozenset({
+        "draft/assets/baseline/fonts/dancing-script-wght-normal.ttf",
+    })
+
+    def test_replacement_baseline_assets_are_served(self):
+        self.assertEqual(len(self.REPLACEMENT_ASSETS), 1)
+        inventory = set(self.DRAFT_INVENTORY.read_text(
+            encoding="utf-8").splitlines())
+        for out_rel in sorted(self.REPLACEMENT_ASSETS):
+            with self.subTest(replacement_asset="/" + out_rel):
+                self.assertNotIn(out_rel, inventory)
+                self.assertNotIn(out_rel, self.RETIRED_ASSETS)
+                promoted_rel = out_rel[len("draft/"):]
+                self.assertIn(promoted_rel, self.outputs,
+                              f"{promoted_rel}: the replacement baseline asset is "
+                              "not a promoted output")
+                self.assertEqual(self._resolve("/" + out_rel), promoted_rel)
+                self.assertEqual(self._resolve("/" + promoted_rel), promoted_rel)
 
     def test_every_pre_promotion_draft_path_maps_through_the_splat(self):
         inventory = [
@@ -19753,13 +19843,25 @@ class PromotedRouteCoverageTests(unittest.TestCase):
         ]
         # The whole pinned tree: 494 pages and files plus the 37 copied
         # baseline assets of the pre-promotion draft render, less the 14
-        # retired routes (480 pages and files, 37 assets).
+        # retired routes and the 1 retired baseline asset (480 pages and
+        # files, 36 assets).
         self.assertEqual(len(self.RETIRED), 14)
-        self.assertEqual(len(inventory), 531 - len(self.RETIRED))
+        self.assertEqual(len(self.RETIRED_ASSETS), 1)
+        self.assertEqual(len(inventory),
+                         531 - len(self.RETIRED) - len(self.RETIRED_ASSETS))
         self.assertEqual(len(inventory), len(set(inventory)))
         self.assertLessEqual(set(self.MOVED), set(inventory))
         self.assertEqual(sorted(self.RETIRED & set(inventory)), [],
                          "a retired route is back in the inventory")
+        self.assertEqual(sorted(self.RETIRED_ASSETS & set(inventory)), [],
+                         "a retired baseline asset is back in the inventory")
+        for out_rel in sorted(self.RETIRED_ASSETS):
+            with self.subTest(retired_asset="/" + out_rel):
+                self.assertIsNone(
+                    self._resolve("/" + out_rel),
+                    f"/{out_rel}: this baseline asset is retired with no "
+                    "redirect")
+                self.assertNotIn(out_rel[len("draft/"):], self.outputs)
         for out_rel in sorted(self.RETIRED):
             old_url = "/" + out_rel[: -len("index.html")]
             with self.subTest(retired=old_url):
@@ -27952,7 +28054,8 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
 
         Each check is shown to discriminate: an in-memory copy of each
         extract it searches, with one added line its pattern matches,
-        fails it. The test skips when the held corpus is absent."""
+        fails it. The test skips, through _held_lines, when the held
+        corpus is absent."""
         extracts = {}
         for name, (scope, pattern, allowed, samples) in (
                 self._HELD_ABSENCE_CHECKS.items()):
@@ -27972,6 +28075,2063 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
                         self.assertNotEqual(
                             self._absence_matches(copy, scope, pattern),
                             sorted(allowed))
+
+
+class MarkdownReadingTableTests(unittest.TestCase):
+    """A table that pins how main's .web/build.py reads each Markdown
+    structure it reads, row by row: an input, the build.py function that
+    reads it, and what that function does with it (accepted, with the
+    result, or refused, with the BuildError message). Every outcome was
+    recorded by calling the function unchanged; a row that looks wrong is
+    still main's behaviour and is pinned as such, so a reader change has
+    to change the row it touches.
+
+    The readers, by structure:
+
+    - level-one title lines: _narrative_body_lines (the first non-blank
+      line must start with '# '), _classify_narrative_line (a body line led
+      by a hash), _adopter_purpose (its no-Purpose fallback skips a
+      stripped line starting with '# '), _adopter_metadata and
+      _adopter_sections (neither treats a title line as structure), and
+      _llms_links (a line starting with '# ').
+    - level-two and level-three headings: _classify_narrative_line and
+      render_narrative_body (through _narrative_blocks), _adopter_sections,
+      _adopter_metadata, _adopter_first_paragraph, _adopter_purpose,
+      read_domain_purpose, parse_compliance_matrix, the shared citations
+      register reader (through parse_citations_register_sections and
+      parse_citations_register), parse_reverse_matrix, and _llms_links.
+    - the metadata terminator and other thematic-break forms:
+      _narrative_body_lines, _adopter_metadata, _adopter_first_paragraph,
+      _adopter_purpose, read_domain_purpose and
+      parse_compliance_tsc_status.
+    - fenced code blocks and lines inside them: _adopter_fence_line (used
+      by _adopter_metadata, _adopter_purpose and _adopter_sections),
+      _classify_narrative_line, and, with no fence handling at all,
+      _narrative_body_lines, _adopter_first_paragraph, read_domain_purpose,
+      the citations register readers, parse_reverse_matrix and
+      _llms_links.
+    - thematic breaks in a body: _classify_narrative_line and _llms_links.
+    - register tables under or above the first level-two heading:
+      parse_citations_register_sections, parse_citations_register and
+      parse_reverse_matrix, including a heading whose table has no data
+      rows and a heading holding only prose, each structural refusal
+      (a duplicate Standard ID, a header with no separator, a wrong cell
+      count, an interrupted or repeated table, a row citing no document)
+      and each refusal of the document-path reader the reverse matrix
+      uses.
+    - narrative tables, paragraphs and lists: _narrative_blocks (the block
+      list it groups), _classify_narrative_line, _reject_nested_block,
+      _render_narrative_table and _split_narrative_table_cells.
+    - inline text left once links, bold and emphasis are taken out:
+      _esc_narrative_text, with each residual-markup refusal.
+    - inline flattening and the llms.txt manifest rows: _adopter_flatten
+      and _llms_markdown_rows.
+    - the compliance matrix and its reading-guide status:
+      parse_compliance_matrix and parse_compliance_tsc_status, whose
+      accepted rows and each structural refusal (a duplicate domain
+      section, a header with no separator, a table that does not open
+      with the pinned header, a wrong cell count and a row citing other
+      than one document; a section line off the pin in either
+      reading-guide form, a second column key table and the populating
+      sentence outside its paragraph) are built from the build.py
+      constants at run time.
+    - the Related Documents links of an adopter document:
+      parse_adopter_docs, which reads them itself, with each refusal (a
+      link without backticked text or a .md target, a target that is not
+      a tracked file inside the repository, and text that is not a link).
+
+    For render_narrative_body an accepted row records the table of
+    contents (the second element of its result), which only level-two
+    headings feed; the rendered HTML (the first element) of
+    NARRATIVE_SAMPLE is pinned whole by its own test. For
+    _adopter_first_paragraph, _narrative_blocks and _render_narrative_table
+    the input is split on LF into its line list; _reject_nested_block reads
+    the input as list-item content; read_domain_purpose reads the input as
+    the README.md of a domain 'dom' under a temporary repository root;
+    parse_adopter_docs reads the input as the Related Documents value of
+    one otherwise valid adopter document, the only file in a temporary
+    ADOPTER_DOCS_DIR, and records the related documents of each record.
+
+    Every reader this docstring names, as a reading-family name or as
+    code in backticks, is in READERS with rows of its own; a helper
+    reached only through a reader is described here, never named.
+
+    A stated limit: the coverage check finds readers by name. A build.py
+    function is held to a list only when its name is in a reading family
+    (READER_FAMILY) or the docstring names it, so a new Markdown reader
+    under another name passes unnoticed until it is placed in a list by
+    hand."""
+
+    SOURCE = "doc.md"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.build = _load_build()
+
+    @staticmethod
+    def _read_outcome(build, name, arg):
+        """Call one reader on one input; a BuildError is a refusal and any
+        other exception fails the row."""
+        fn = getattr(build, name)
+        source = MarkdownReadingTableTests.SOURCE
+        try:
+            if name in ("_narrative_body_lines", "_classify_narrative_line",
+                        "_adopter_metadata", "_split_narrative_table_cells",
+                        "_esc_narrative_text"):
+                result = fn(arg, source)
+            elif name in ("_narrative_blocks", "_render_narrative_table"):
+                result = fn(arg.split("\n"), source)
+            elif name == "_reject_nested_block":
+                result = fn(arg, source, "list item")
+            elif name == "render_narrative_body":
+                result = fn(arg, source)[1]
+            elif name == "_adopter_first_paragraph":
+                result = fn(arg.split("\n"))
+            elif name == "_llms_links":
+                result = fn("llms.txt", arg)
+            elif name == "read_domain_purpose":
+                with tempfile.TemporaryDirectory() as tmp:
+                    (Path(tmp) / "dom").mkdir()
+                    (Path(tmp) / "dom" / "README.md").write_text(
+                        arg, encoding="utf-8")
+                    with mock.patch.object(build, "REPO_ROOT", Path(tmp)):
+                        result = fn("dom")
+            elif name == "parse_adopter_docs":
+                with tempfile.TemporaryDirectory() as tmp:
+                    (Path(tmp) / "fixture.md").write_text(
+                        MarkdownReadingTableTests._adopter_doc(arg),
+                        encoding="utf-8")
+                    with mock.patch.object(build, "ADOPTER_DOCS_DIR",
+                                           Path(tmp)):
+                        result = [record["related_documents"]
+                                  for record in fn()]
+            else:
+                result = fn(arg)
+        except build.BuildError as e:
+            return ("refused", str(e))
+        return ("accepted", result)
+
+    @staticmethod
+    def _adopter_doc(related):
+        """An adopter document with the fixture metadata block of
+        AdopterDocsFixtureTests, its Related Documents value replaced by
+        ``related``."""
+        fields = [(n, related if n == "Related Documents" else v)
+                  for n, v in AdopterDocsFixtureTests.FIELDS]
+        lines = [f"**{n}:** {v}" + ("\\" if i < len(fields) - 1 else "")
+                 for i, (n, v) in enumerate(fields)]
+        return ("# Fixture guide\n\n" + "\n".join(lines)
+                + "\n\n---\n\n## Overview\n\nA fixture paragraph.\n")
+
+    # Bold and emphasis inline, a level-three heading, a list and an
+    # escaped comparison between two level-two headings.
+    NARRATIVE_SAMPLE = (
+        '# Title\n\n**Version:** 1.0.0\n\n---\n\n'
+        '## First part\n'
+        '\n'
+        'Text with **bold** and *emphasis*.\n'
+        '\n'
+        '### Detail\n'
+        '\n'
+        '- Item one.\n'
+        '- Item two.\n'
+        '\n'
+        '## Second part\n'
+        '\n'
+        '1 < 2 & 3 > 2.\n'
+        '\n**End of Document**\n')
+
+    ROWS = (
+        ('_narrative_body_lines',
+         '# Title\n'
+         '\n'
+         '**Version:** 1.0.0\n'
+         '\n'
+         '---\n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('accepted', ['', 'Body line.', ''])),
+        # Differs: _adopter_purpose skips an indented title line, this refuses it.
+        ('_narrative_body_lines',
+         '  # Title\n'
+         '\n'
+         '**Version:** 1.0.0\n'
+         '\n'
+         '---\n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('refused',
+          "doc.md: narrative source has no leading '# ' title line")),
+        # Differs: _adopter_purpose keeps '#\tTitle' as lede prose after the
+        # metadata block; _llms_links refuses the tab as a control character.
+        ('_narrative_body_lines',
+         '#\tTitle\n'
+         '\n'
+         '**Version:** 1.0.0\n'
+         '\n'
+         '---\n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('refused',
+          "doc.md: narrative source has no leading '# ' title line")),
+        # Differs: after the metadata block _adopter_purpose keeps a bare '#'
+        # as the lede.
+        ('_narrative_body_lines',
+         '#\n'
+         '\n'
+         '**Version:** 1.0.0\n'
+         '\n'
+         '---\n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('refused',
+          "doc.md: narrative source has no leading '# ' title line")),
+        ('_narrative_body_lines',
+         '#Title\n'
+         '\n'
+         '**Version:** 1.0.0\n'
+         '\n'
+         '---\n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('refused',
+          "doc.md: narrative source has no leading '# ' title line")),
+        ('_narrative_body_lines',
+         '## Title\n'
+         '\n'
+         '**Version:** 1.0.0\n'
+         '\n'
+         '---\n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('refused',
+          "doc.md: narrative source has no leading '# ' title line")),
+        ('_classify_narrative_line',
+         '# Title',
+         ('refused',
+          "doc.md: only '## ' and '### ' section headings are supported in "
+          "the body: '# Title'")),
+        ('_classify_narrative_line',
+         '  # Title',
+         ('refused',
+          "doc.md: indented line unsupported by the constrained renderer: '  "
+          "# Title'")),
+        ('_classify_narrative_line',
+         '#\tTitle',
+         ('refused',
+          "doc.md: only '## ' and '### ' section headings are supported in "
+          "the body: '#\\tTitle'")),
+        ('_classify_narrative_line',
+         '#',
+         ('refused',
+          "doc.md: only '## ' and '### ' section headings are supported in "
+          "the body: '#'")),
+        ('_adopter_purpose',
+         '# Title\n\n**Version:** 1.0.0\n\nIntro.\n',
+         ('accepted', 'Intro.')),
+        # Differs: _narrative_body_lines and _llms_links refuse an indented title.
+        ('_adopter_purpose',
+         '  # Title\n\n**Version:** 1.0.0\n\nIntro.\n',
+         ('accepted', 'Intro.')),
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n# Title\n\nIntro.\n',
+         ('accepted', 'Intro.')),
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n  # Title\n\nIntro.\n',
+         ('accepted', 'Intro.')),
+        # Looks wrong: a hash-tab title after the metadata block becomes the lede.
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n#\tTitle\n\nIntro.\n',
+         ('accepted', '#\tTitle')),
+        # Looks wrong: a bare hash after the metadata block becomes the lede.
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n#\n\nIntro.\n',
+         ('accepted', '#')),
+        ('_adopter_metadata',
+         '# Title\n\n**Version:** 1.0.0\n',
+         ('accepted', {'Version': '1.0.0'})),
+        ('_adopter_sections', '# Title\n', ('accepted', [])),
+        ('_llms_links', '# Title\n', ('accepted', [])),
+        ('_llms_links',
+         '  # Title\n',
+         ('refused',
+          'llms.txt: line 1 column 1: a line that is none of the llms.txt '
+          "shapes (a blank line, a '# ' or '## ' heading, a '> ' block-quote "
+          "line, or a '- [label](https://...)' list item): '  # Title'")),
+        ('_llms_links',
+         '#\tTitle\n',
+         ('refused',
+          'llms.txt: line 1 column 2: a control character (U+0009) is '
+          "outside the llms.txt grammar: '\\tTitle'")),
+        ('_llms_links',
+         '#\n',
+         ('refused',
+          'llms.txt: line 1 column 1: a line that is none of the llms.txt '
+          "shapes (a blank line, a '# ' or '## ' heading, a '> ' block-quote "
+          "line, or a '- [label](https://...)' list item): '#'")),
+        ('_classify_narrative_line', '## Heading', ('accepted', 'h2')),
+        ('_classify_narrative_line', '### Heading', ('accepted', 'h3')),
+        ('_classify_narrative_line',
+         '#### Heading',
+         ('refused',
+          "doc.md: only '## ' and '### ' section headings are supported in "
+          "the body: '#### Heading'")),
+        # Empty heading text. Differs: the citations and reverse-matrix readers
+        # accept '## ' as a section with an empty heading; _adopter_first_paragraph
+        # stops at it; _adopter_sections ignores it; _llms_links refuses it.
+        ('_classify_narrative_line',
+         '## ',
+         ('refused',
+          "doc.md: only '## ' and '### ' section headings are supported in "
+          "the body: '## '")),
+        ('_classify_narrative_line',
+         '##',
+         ('refused',
+          "doc.md: only '## ' and '### ' section headings are supported in "
+          "the body: '##'")),
+        ('_classify_narrative_line',
+         '### ',
+         ('refused',
+          "doc.md: only '## ' and '### ' section headings are supported in "
+          "the body: '### '")),
+        # Differs: _adopter_sections reads '##\tHeading' as a heading and
+        # _adopter_first_paragraph stops at it, but _adopter_metadata reads past it.
+        ('_classify_narrative_line',
+         '##\tHeading',
+         ('refused',
+          "doc.md: only '## ' and '### ' section headings are supported in "
+          "the body: '##\\tHeading'")),
+        # Differs: _adopter_metadata stops at an indented level-two heading and
+        # _adopter_purpose matches an indented Purpose heading, but
+        # _adopter_sections and _adopter_first_paragraph do not read it as one.
+        ('_classify_narrative_line',
+         '  ## Heading',
+         ('refused',
+          "doc.md: indented line unsupported by the constrained renderer: '  "
+          "## Heading'")),
+        ('_classify_narrative_line',
+         '## Heading ##',
+         ('refused',
+          'doc.md: closing-hash ATX headings unsupported (the supported form '
+          "is '## Text' with no trailing hashes): '## Heading ##'")),
+        ('_classify_narrative_line', '## C#', ('accepted', 'h2')),
+        ('_classify_narrative_line',
+         '#hashtag',
+         ('refused',
+          "doc.md: only '## ' and '### ' section headings are supported in "
+          "the body: '#hashtag'")),
+        ('render_narrative_body',
+         '# Title\n'
+         '\n'
+         '**Version:** 1.0.0\n'
+         '\n'
+         '---\n'
+         '\n'
+         '## Heading\n'
+         '\n'
+         'Text.\n'
+         '\n'
+         '### Sub\n'
+         '\n'
+         'More.\n'
+         '\n'
+         '**End of Document**\n',
+         ('accepted', [('heading', 'Heading')])),
+        ('_adopter_sections', '## Heading\n', ('accepted', ['Heading'])),
+        # Differs: _classify_narrative_line refuses '##\tHeading'.
+        ('_adopter_sections', '##\tHeading\n', ('accepted', ['Heading'])),
+        ('_adopter_sections', '##   Heading   \n', ('accepted', ['Heading'])),
+        # Empty heading text: no section here, but the citations and
+        # reverse-matrix readers accept '## ' as a section named ''.
+        ('_adopter_sections', '## \n', ('accepted', [])),
+        ('_adopter_sections', '##\n', ('accepted', [])),
+        # Differs: _adopter_metadata stops at this indented heading.
+        ('_adopter_sections', '  ## Heading\n', ('accepted', [])),
+        ('_adopter_sections', '### Sub\n', ('accepted', [])),
+        ('_adopter_sections', '##Heading\n', ('accepted', [])),
+        ('_adopter_metadata',
+         '**Version:** 1.0.0\n## Heading\n**Owner:** x\n',
+         ('accepted', {'Version': '1.0.0'})),
+        # Differs: _adopter_sections does not read an indented heading.
+        ('_adopter_metadata',
+         '**Version:** 1.0.0\n  ## Heading\n**Owner:** x\n',
+         ('accepted', {'Version': '1.0.0'})),
+        # Differs: _adopter_sections reads '##\tHeading' as a heading; this reads past it.
+        ('_adopter_metadata',
+         '**Version:** 1.0.0\n##\tHeading\n**Owner:** x\n',
+         ('accepted', {'Owner': 'x', 'Version': '1.0.0'})),
+        # A level-three heading does not end the block.
+        ('_adopter_metadata',
+         '**Version:** 1.0.0\n### Sub\n**Owner:** x\n',
+         ('accepted', {'Owner': 'x', 'Version': '1.0.0'})),
+        ('_adopter_first_paragraph',
+         'Para.\n## Next\nMore.',
+         ('accepted', 'Para.')),
+        ('_adopter_first_paragraph',
+         'Para.\n##\tNext\nMore.',
+         ('accepted', 'Para.')),
+        # Empty heading text stops the paragraph here (the regex needs only '##'
+        # and whitespace).
+        ('_adopter_first_paragraph', '## \nPara.', ('accepted', '')),
+        # Looks wrong: a bare '##' is read as prose and joins the paragraph.
+        ('_adopter_first_paragraph', '##\nPara.', ('accepted', '## Para.')),
+        ('_adopter_first_paragraph', '### Sub\nPara.', ('accepted', 'Para.')),
+        ('_adopter_first_paragraph',
+         'Para.\n### Sub\nMore.',
+         ('accepted', 'Para.')),
+        # Looks wrong: an indented level-two heading joins the paragraph.
+        # Differs: read_domain_purpose and _adopter_metadata stop at it.
+        ('_adopter_first_paragraph',
+         'Para.\n  ## Next\nMore.',
+         ('accepted', 'Para. ## Next More.')),
+        ('_adopter_purpose', '## Purpose\n\nLede.\n', ('accepted', 'Lede.')),
+        ('_adopter_purpose',
+         '## 1. Overview\n\nLede.\n',
+         ('accepted', 'Lede.')),
+        # Differs: read_domain_purpose refuses an indented Purpose heading.
+        ('_adopter_purpose', '  ## Purpose\n\nLede.\n', ('accepted', 'Lede.')),
+        ('_adopter_purpose', '##Purpose\n\nLede.\n', ('accepted', '')),
+        ('_adopter_purpose', '## purposes\n\nLede.\n', ('accepted', '')),
+        ('read_domain_purpose',
+         '## Purpose\n\nLede.\n',
+         ('accepted', 'Lede.')),
+        ('read_domain_purpose',
+         '##  Purpose  \n\nLede.\n',
+         ('accepted', 'Lede.')),
+        # Differs: _adopter_purpose accepts an indented Purpose heading.
+        ('read_domain_purpose',
+         '  ## Purpose\n\nLede.\n',
+         ('refused', "dom/README.md has no '## Purpose' paragraph")),
+        ('read_domain_purpose',
+         '## 1. Purpose\n\nLede.\n',
+         ('refused', "dom/README.md has no '## Purpose' paragraph")),
+        # Looks wrong: a level-three heading line joins the Purpose lede.
+        # Differs: _adopter_first_paragraph skips or stops at it.
+        ('read_domain_purpose',
+         '## Purpose\n\nLede one\n### Sub\nmore\n',
+         ('accepted', 'Lede one ### Sub more')),
+        ('read_domain_purpose',
+         '## Purpose\n\nLede one\n  ## Next\nmore\n',
+         ('accepted', 'Lede one')),
+        ('parse_compliance_matrix',
+         '## Nonsense domain\n',
+         ('refused',
+          "crosswalk: compliance matrix section 'Nonsense' names no "
+          'DOMAIN_SCOPE domain (renamed domain or schema change?)')),
+        # Looks wrong: an extra space after '##' survives into the section name in
+        # the message; the slug is stripped, so '##  Governance domain' would read.
+        ('parse_compliance_matrix',
+         '##  Nonsense domain\n',
+         ('refused',
+          "crosswalk: compliance matrix section ' Nonsense' names no "
+          'DOMAIN_SCOPE domain (renamed domain or schema change?)')),
+        ('parse_compliance_matrix',
+         '## Nonsense\n',
+         ('refused',
+          'crosswalk: compliance matrix is missing domain section(s): ai, '
+          'architecture, compliance, crypto, dev-security, governance, '
+          'operations, privacy, resilience, risk, security, supply-chain')),
+        ('_llms_links', '## Docs\n', ('accepted', [])),
+        # Differs: the citations and reverse-matrix readers accept an empty heading.
+        ('_llms_links',
+         '## \n',
+         ('refused',
+          'llms.txt: line 1 column 4: a heading with no text is outside the '
+          "llms.txt grammar: ''")),
+        ('_llms_links',
+         '### Sub\n',
+         ('refused',
+          'llms.txt: line 1 column 1: a line that is none of the llms.txt '
+          "shapes (a blank line, a '# ' or '## ' heading, a '> ' block-quote "
+          "line, or a '- [label](https://...)' list item): '### Sub'")),
+        # Differs: parse_compliance_tsc_status needs the exact line '---' and
+        # refuses an indented one; _classify_narrative_line reads '---  ' as prose.
+        ('_narrative_body_lines',
+         '# Title\n'
+         '\n'
+         '**Version:** 1.0.0\n'
+         '\n'
+         '  ---\n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('accepted', ['', 'Body line.', ''])),
+        ('_narrative_body_lines',
+         '# Title\n'
+         '\n'
+         '**Version:** 1.0.0\n'
+         '\n'
+         '---  \n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('accepted', ['', 'Body line.', ''])),
+        # Differs: _adopter_metadata stops at '----' (any line starting with '---').
+        ('_narrative_body_lines',
+         '# Title\n'
+         '\n'
+         '**Version:** 1.0.0\n'
+         '\n'
+         '----\n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('refused', "doc.md: no '---' metadata terminator found")),
+        ('_narrative_body_lines',
+         '# Title\n'
+         '\n'
+         '**Version:** 1.0.0\n'
+         '\n'
+         '***\n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('refused', "doc.md: no '---' metadata terminator found")),
+        ('_narrative_body_lines',
+         '# Title\n'
+         '\n'
+         '**Version:** 1.0.0\n'
+         '\n'
+         '- - -\n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('refused', "doc.md: no '---' metadata terminator found")),
+        ('_narrative_body_lines',
+         '# Title\n'
+         '\n'
+         '**Version:** 1.0.0\n'
+         '\n'
+         '___\n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('refused', "doc.md: no '---' metadata terminator found")),
+        # Looks wrong: a '---' inside a fence before the metadata block is taken
+        # as the metadata terminator; the body then opens with the fence.
+        ('_narrative_body_lines',
+         '# Title\n'
+         '\n'
+         '```\n'
+         '---\n'
+         '```\n'
+         '\n'
+         '---\n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('accepted', ['```', '', '---', '', 'Body line.', ''])),
+        ('_adopter_metadata',
+         '**Version:** 1.0.0\n---\n**Owner:** x\n',
+         ('accepted', {'Version': '1.0.0'})),
+        ('_adopter_metadata',
+         '**Version:** 1.0.0\n  ---  \n**Owner:** x\n',
+         ('accepted', {'Version': '1.0.0'})),
+        # Differs: _narrative_body_lines refuses '----' as a terminator, and
+        # _adopter_first_paragraph, _adopter_purpose and read_domain_purpose read
+        # it as prose.
+        ('_adopter_metadata',
+         '**Version:** 1.0.0\n----\n**Owner:** x\n',
+         ('accepted', {'Version': '1.0.0'})),
+        # Thematic breaks other than a '---' prefix do not end the block.
+        ('_adopter_metadata',
+         '**Version:** 1.0.0\n***\n**Owner:** x\n',
+         ('accepted', {'Owner': 'x', 'Version': '1.0.0'})),
+        ('_adopter_metadata',
+         '**Version:** 1.0.0\n- - -\n**Owner:** x\n',
+         ('accepted', {'Owner': 'x', 'Version': '1.0.0'})),
+        ('_adopter_metadata',
+         '---\n**Version:** 1.0.0\n',
+         ('refused',
+          'adopter doc doc.md has no leading metadata block (the **Field:** '
+          'block before the first code fence, rule, or section)')),
+        ('_adopter_first_paragraph',
+         'Para.\n---\nMore.',
+         ('accepted', 'Para.')),
+        ('_adopter_first_paragraph',
+         'Para.\n  ---  \nMore.',
+         ('accepted', 'Para.')),
+        # Looks wrong: '----' joins the paragraph. Differs: _adopter_metadata stops.
+        ('_adopter_first_paragraph',
+         'Para.\n----\nMore.',
+         ('accepted', 'Para. ---- More.')),
+        # Looks wrong: '***' joins the paragraph.
+        ('_adopter_first_paragraph',
+         'Para.\n***\nMore.',
+         ('accepted', 'Para. *** More.')),
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n---\n\nIntro.\n',
+         ('accepted', 'Intro.')),
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n  ---  \n\nIntro.\n',
+         ('accepted', 'Intro.')),
+        # Looks wrong: '----' after the metadata block becomes the lede.
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n----\n\nIntro.\n',
+         ('accepted', '----')),
+        # Looks wrong: '***' after the metadata block becomes the lede.
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n***\n\nIntro.\n',
+         ('accepted', '***')),
+        ('read_domain_purpose',
+         '## Purpose\n\nLede one\n---\nmore\n',
+         ('accepted', 'Lede one')),
+        ('read_domain_purpose',
+         '## Purpose\n\nLede one\n  ---  \nmore\n',
+         ('accepted', 'Lede one')),
+        # Looks wrong: '----' joins the Purpose lede.
+        ('read_domain_purpose',
+         '## Purpose\n\nLede one\n----\nmore\n',
+         ('accepted', 'Lede one ---- more')),
+        ('read_domain_purpose',
+         '## Purpose\n\n---\n\nLede.\n',
+         ('refused', "dom/README.md has no '## Purpose' paragraph")),
+        # Differs: _narrative_body_lines accepts '  ---' as its terminator.
+        ('parse_compliance_tsc_status',
+         '## How to use this matrix\n\nText.\n  ---\n',
+         ('refused',
+          'crosswalk: compliance/matrix-grc-compliance-alignment.md: no --- '
+          "after '## How to use this matrix' ends its section; if the edit "
+          'is intended, update the pinned text in .web/build.py '
+          '(CROSSWALK_TSC_SECTION_HEADING, CROSSWALK_TSC_SECTION_OPENING, '
+          'CROSSWALK_TSC_READING_GUIDE, CROSSWALK_TSC_POPULATING; the blank '
+          'lines between the heading, the opening, the reading-guide '
+          'paragraph and the closing --- are fixed in '
+          'parse_compliance_tsc_status); a status sentence, changed or '
+          'moved, belongs only in CROSSWALK_TSC_POPULATING at the end of the '
+          'reading-guide line, never in CROSSWALK_TSC_SECTION_HEADING, '
+          'CROSSWALK_TSC_SECTION_OPENING or CROSSWALK_TSC_READING_GUIDE, '
+          'because the section without it records the AICPA TSC 2017 column '
+          'as no longer being populated; its "How to use this matrix" '
+          'section, from its heading to the --- that ends it, must read '
+          'exactly CROSSWALK_TSC_SECTION_HEADING, '
+          'CROSSWALK_TSC_SECTION_OPENING and its reading-guide paragraph, '
+          'each followed by a blank line, then ---, with the reading-guide '
+          'paragraph in one of two forms, CROSSWALK_TSC_READING_GUIDE '
+          'followed by a space and CROSSWALK_TSC_POPULATING (the AICPA TSC '
+          '2017 column is being populated) or CROSSWALK_TSC_READING_GUIDE '
+          'alone (it is not): form 1: Read across a row to identify which '
+          'frameworks a given document supports. Read down a column to '
+          'identify which GRC library documents map or align to a '
+          "framework's requirements; a mapping does not establish that those "
+          'documents satisfy the framework. A cell containing "N/A" '
+          'indicates no direct mapping; the document may still provide '
+          'contextual support. "N/A" is used in particular for the customs '
+          'and trade-security columns (CTPAT, PIP, BASC, WCO SAFE, '
+          'AEO/AEO-S) on documents whose subject is not customs or trade '
+          'security. The AICPA TSC 2017 column is being populated domain by '
+          "domain; until a row's Trust Services Criteria mapping has been "
+          'assessed, its "N/A" in that column records that no mapping has '
+          'been made yet and does not assert that no criterion applies. form '
+          '2: Read across a row to identify which frameworks a given '
+          'document supports. Read down a column to identify which GRC '
+          "library documents map or align to a framework's requirements; a "
+          'mapping does not establish that those documents satisfy the '
+          'framework. A cell containing "N/A" indicates no direct mapping; '
+          'the document may still provide contextual support. "N/A" is used '
+          'in particular for the customs and trade-security columns (CTPAT, '
+          'PIP, BASC, WCO SAFE, AEO/AEO-S) on documents whose subject is not '
+          'customs or trade security.')),
+        ('parse_compliance_tsc_status',
+         'Text.\n---\n',
+         ('refused',
+          "crosswalk: compliance/matrix-grc-compliance-alignment.md: 0 '## "
+          "How to use this matrix' headings instead of one; if the edit is "
+          'intended, update the pinned text in .web/build.py '
+          '(CROSSWALK_TSC_SECTION_HEADING, CROSSWALK_TSC_SECTION_OPENING, '
+          'CROSSWALK_TSC_READING_GUIDE, CROSSWALK_TSC_POPULATING; the blank '
+          'lines between the heading, the opening, the reading-guide '
+          'paragraph and the closing --- are fixed in '
+          'parse_compliance_tsc_status); a status sentence, changed or '
+          'moved, belongs only in CROSSWALK_TSC_POPULATING at the end of the '
+          'reading-guide line, never in CROSSWALK_TSC_SECTION_HEADING, '
+          'CROSSWALK_TSC_SECTION_OPENING or CROSSWALK_TSC_READING_GUIDE, '
+          'because the section without it records the AICPA TSC 2017 column '
+          'as no longer being populated; its "How to use this matrix" '
+          'section, from its heading to the --- that ends it, must read '
+          'exactly CROSSWALK_TSC_SECTION_HEADING, '
+          'CROSSWALK_TSC_SECTION_OPENING and its reading-guide paragraph, '
+          'each followed by a blank line, then ---, with the reading-guide '
+          'paragraph in one of two forms, CROSSWALK_TSC_READING_GUIDE '
+          'followed by a space and CROSSWALK_TSC_POPULATING (the AICPA TSC '
+          '2017 column is being populated) or CROSSWALK_TSC_READING_GUIDE '
+          'alone (it is not): form 1: Read across a row to identify which '
+          'frameworks a given document supports. Read down a column to '
+          'identify which GRC library documents map or align to a '
+          "framework's requirements; a mapping does not establish that those "
+          'documents satisfy the framework. A cell containing "N/A" '
+          'indicates no direct mapping; the document may still provide '
+          'contextual support. "N/A" is used in particular for the customs '
+          'and trade-security columns (CTPAT, PIP, BASC, WCO SAFE, '
+          'AEO/AEO-S) on documents whose subject is not customs or trade '
+          'security. The AICPA TSC 2017 column is being populated domain by '
+          "domain; until a row's Trust Services Criteria mapping has been "
+          'assessed, its "N/A" in that column records that no mapping has '
+          'been made yet and does not assert that no criterion applies. form '
+          '2: Read across a row to identify which frameworks a given '
+          'document supports. Read down a column to identify which GRC '
+          "library documents map or align to a framework's requirements; a "
+          'mapping does not establish that those documents satisfy the '
+          'framework. A cell containing "N/A" indicates no direct mapping; '
+          'the document may still provide contextual support. "N/A" is used '
+          'in particular for the customs and trade-security columns (CTPAT, '
+          'PIP, BASC, WCO SAFE, AEO/AEO-S) on documents whose subject is not '
+          'customs or trade security.')),
+        ('_adopter_fence_line', '```', ('accepted', True)),
+        ('_adopter_fence_line', '~~~', ('accepted', True)),
+        ('_adopter_fence_line', '```python', ('accepted', True)),
+        ('_adopter_fence_line', '   ```', ('accepted', True)),
+        ('_adopter_fence_line', '    ```', ('accepted', False)),
+        ('_adopter_fence_line', '\t```', ('accepted', False)),
+        ('_adopter_fence_line', '``', ('accepted', False)),
+        ('_adopter_fence_line', '> ```', ('accepted', False)),
+        ('_classify_narrative_line',
+         '```',
+         ('refused', "doc.md: fenced code unsupported: '```'")),
+        ('_classify_narrative_line',
+         '```python',
+         ('refused', "doc.md: fenced code unsupported: '```python'")),
+        ('_classify_narrative_line',
+         '~~~',
+         ('refused', "doc.md: fenced code unsupported: '~~~'")),
+        ('_classify_narrative_line',
+         '   ```',
+         ('refused',
+          'doc.md: indented line unsupported by the constrained renderer: '
+          "'   ```'")),
+        ('_classify_narrative_line',
+         '    code',
+         ('refused',
+          'doc.md: indented line unsupported by the constrained renderer: '
+          "'    code'")),
+        ('_adopter_sections',
+         '```\n## Inside\n```\n## After\n',
+         ('accepted', ['After'])),
+        ('_adopter_sections',
+         '~~~\n## Inside\n~~~\n## After\n',
+         ('accepted', ['After'])),
+        # A fence opened with backticks is closed by a tilde fence line: the
+        # toggle does not match the fence character.
+        ('_adopter_sections',
+         '```\n## Inside\n~~~\n## After\n',
+         ('accepted', ['After'])),
+        # An unclosed fence hides every later heading.
+        ('_adopter_sections', '```\n## Inside\n', ('accepted', [])),
+        ('_adopter_sections',
+         '    ```\n## Outside\n',
+         ('accepted', ['Outside'])),
+        ('_adopter_metadata',
+         '**Version:** 1.0.0\n```\n**Owner:** x\n```\n',
+         ('accepted', {'Version': '1.0.0'})),
+        ('_adopter_metadata',
+         '```\n**Version:** 1.0.0\n```\n',
+         ('refused',
+          'adopter doc doc.md has no leading metadata block (the **Field:** '
+          'block before the first code fence, rule, or section)')),
+        ('_adopter_purpose',
+         '```\n## Purpose\n\nInside.\n```\n## Purpose\n\nOutside.\n',
+         ('accepted', 'Outside.')),
+        # Looks wrong: the no-Purpose fallback does not track fences, so the
+        # opening fence line joins the paragraph and the level-two line inside
+        # the fence ends the scan; the flattener then strips the backticks of
+        # that one-line paragraph, leaving an empty lede. Differs: the Purpose
+        # search above it honours fences.
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n```\n## Next\n```\n\nIntro.\n',
+         ('accepted', '')),
+        # Differs: _adopter_sections honours the fence; this reader does not.
+        ('_adopter_first_paragraph',
+         '```\n## Inside\n```',
+         ('accepted', '```')),
+        # Looks wrong: the level-two line inside the fence ends the Purpose
+        # section, so the paragraph is the opening fence line alone; dropping
+        # its backticks leaves an empty lede, and the no-paragraph refusal
+        # does not fire.
+        ('read_domain_purpose',
+         '## Purpose\n\n```\n## Inside\n```\n',
+         ('accepted', '')),
+        # Looks wrong: a register table inside a fence is read as register rows.
+        ('parse_citations_register_sections',
+         '## Standards\n'
+         '```\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n'
+         '```\n',
+         ('accepted',
+          [('Standards',
+            [{'date': '2022-01',
+              'id': 'ISO 1',
+              'topic': 'Topic one.',
+              'upstream': 'https://www.iso.org',
+              'verified': '2026-01-01',
+              'version': '2022'}])])),
+        # Looks wrong: an instrument table inside a fence is read as rows.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '```\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n'
+         '```\n',
+         ('accepted',
+          {'Instrument': {'area_label': 'Area',
+                          'rows': [{'alignment': 'Direct',
+                                    'area': 'Area one',
+                                    'paths': ['governance/x.md']}]}})),
+        ('_llms_links',
+         '```\n',
+         ('refused',
+          'llms.txt: line 1 column 1: a backtick is outside the llms.txt '
+          "grammar: '```'")),
+        ('_classify_narrative_line',
+         '---',
+         ('refused', "doc.md: horizontal rules unsupported: '---'")),
+        ('_classify_narrative_line',
+         '----',
+         ('refused', "doc.md: horizontal rules unsupported: '----'")),
+        ('_classify_narrative_line',
+         '***',
+         ('refused', "doc.md: horizontal rules unsupported: '***'")),
+        ('_classify_narrative_line',
+         '___',
+         ('refused', "doc.md: horizontal rules unsupported: '___'")),
+        ('_classify_narrative_line',
+         '- - -',
+         ('refused', "doc.md: spaced thematic breaks unsupported: '- - -'")),
+        ('_classify_narrative_line',
+         '* * *',
+         ('refused', "doc.md: spaced thematic breaks unsupported: '* * *'")),
+        ('_classify_narrative_line',
+         '--',
+         ('refused', "doc.md: setext heading underlines unsupported: '--'")),
+        ('_classify_narrative_line',
+         '===',
+         ('refused', "doc.md: setext heading underlines unsupported: '==='")),
+        # Looks wrong: a thematic break with trailing spaces is a paragraph,
+        # while '---' is refused. Differs: _narrative_body_lines accepts '---  '
+        # as its metadata terminator.
+        ('_classify_narrative_line', '---  ', ('accepted', 'p')),
+        ('_llms_links',
+         '---\n',
+         ('refused',
+          'llms.txt: line 1 column 1: a line that is none of the llms.txt '
+          "shapes (a blank line, a '# ' or '## ' heading, a '> ' block-quote "
+          "line, or a '- [label](https://...)' list item): '---'")),
+        ('parse_citations_register_sections',
+         '## Standards\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n',
+         ('accepted',
+          [('Standards',
+            [{'date': '2022-01',
+              'id': 'ISO 1',
+              'topic': 'Topic one.',
+              'upstream': 'https://www.iso.org',
+              'verified': '2026-01-01',
+              'version': '2022'}])])),
+        ('parse_citations_register',
+         '## Standards\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n',
+         ('accepted',
+          {'ISO 1': {'date': '2022-01',
+                     'id': 'ISO 1',
+                     'topic': 'Topic one.',
+                     'upstream': 'https://www.iso.org',
+                     'verified': '2026-01-01',
+                     'version': '2022'}})),
+        # Differs: parse_citations_register accepts a table above the first
+        # level-two heading; parse_reverse_matrix ignores it without naming it.
+        ('parse_citations_register_sections',
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n'
+         '\n'
+         '## Later\n',
+         ('refused',
+          'crosswalk: citations register table above the first ## section '
+          'heading (schema change?)')),
+        # Differs: parse_citations_register_sections refuses this table.
+        ('parse_citations_register',
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n'
+         '\n'
+         '## Later\n',
+         ('accepted',
+          {'ISO 1': {'date': '2022-01',
+                     'id': 'ISO 1',
+                     'topic': 'Topic one.',
+                     'upstream': 'https://www.iso.org',
+                     'verified': '2026-01-01',
+                     'version': '2022'}})),
+        # '##Standards' is no heading, so the table sits above the first heading.
+        ('parse_citations_register_sections',
+         '##Standards\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n',
+         ('refused',
+          'crosswalk: citations register table above the first ## section '
+          'heading (schema change?)')),
+        ('parse_citations_register',
+         '##Standards\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n',
+         ('accepted',
+          {'ISO 1': {'date': '2022-01',
+                     'id': 'ISO 1',
+                     'topic': 'Topic one.',
+                     'upstream': 'https://www.iso.org',
+                     'verified': '2026-01-01',
+                     'version': '2022'}})),
+        # Empty heading text is accepted as the section name ''.
+        ('parse_citations_register_sections',
+         '## \n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n',
+         ('accepted',
+          [('',
+            [{'date': '2022-01',
+              'id': 'ISO 1',
+              'topic': 'Topic one.',
+              'upstream': 'https://www.iso.org',
+              'verified': '2026-01-01',
+              'version': '2022'}])])),
+        # An indented '## ' line is no heading here.
+        ('parse_citations_register_sections',
+         '  ## Standards\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n',
+         ('refused',
+          'crosswalk: citations register table above the first ## section '
+          'heading (schema change?)')),
+        ('parse_citations_register_sections',
+         '## Standards\n'
+         '### Sub\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n',
+         ('accepted',
+          [('Standards',
+            [{'date': '2022-01',
+              'id': 'ISO 1',
+              'topic': 'Topic one.',
+              'upstream': 'https://www.iso.org',
+              'verified': '2026-01-01',
+              'version': '2022'}])])),
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('accepted',
+          {'Instrument': {'area_label': 'Area',
+                          'rows': [{'alignment': 'Direct',
+                                    'area': 'Area one',
+                                    'paths': ['governance/x.md']}]}})),
+        # Looks wrong: a table above the first level-two heading is skipped
+        # silently; the refusal only names zero sections. Differs: the citations
+        # section reader names the misplaced table, the flat reader accepts it.
+        ('parse_reverse_matrix',
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n'
+         '\n'
+         '## Later\n',
+         ('refused',
+          'crosswalk: reverse matrix parsed to zero instrument sections '
+          '(schema change?)')),
+        ('parse_reverse_matrix',
+         '##Instrument\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('refused',
+          'crosswalk: reverse matrix parsed to zero instrument sections '
+          '(schema change?)')),
+        # Empty heading text is accepted as the section name ''.
+        ('parse_reverse_matrix',
+         '## \n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('accepted',
+          {'': {'area_label': 'Area',
+                'rows': [{'alignment': 'Direct',
+                          'area': 'Area one',
+                          'paths': ['governance/x.md']}]}})),
+        ('parse_reverse_matrix',
+         '  ## Instrument\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('refused',
+          'crosswalk: reverse matrix parsed to zero instrument sections '
+          '(schema change?)')),
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '### Sub\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('accepted',
+          {'Instrument': {'area_label': 'Area',
+                          'rows': [{'alignment': 'Direct',
+                                    'area': 'Area one',
+                                    'paths': ['governance/x.md']}]}})),
+        # Narrative block grouping: the block list _narrative_blocks builds
+        # from the body line list.
+        ('_narrative_blocks',
+         '| A | B |\n| --- | --- |\n| 1 | 2 |',
+         ('accepted', [('tr', ['| A | B |', '| --- | --- |', '| 1 | 2 |'])])),
+        ('_narrative_blocks',
+         'One line.\nTwo line.',
+         ('accepted', [('p', ['One line.', 'Two line.'])])),
+        ('_narrative_blocks',
+         '- one\n- two',
+         ('accepted', [('li', ['one', 'two'])])),
+        ('_narrative_blocks',
+         '1. one\n2. two',
+         ('accepted', [('ol', ['one', 'two'])])),
+        ('_narrative_blocks',
+         '## H\n\nPara.\n\n> Quote\n\n### Sub',
+         ('accepted',
+          [('h2', ['H']), ('p', ['Para.']), ('quote', ['Quote']),
+           ('h3', ['Sub'])])),
+        ('_narrative_blocks',
+         '1. one\n3. two',
+         ('refused',
+          'doc.md: ordered-list items must be numbered sequentially from 1 '
+          '(expected 2; <ol> renders 1..n, so other numbering would silently '
+          "diverge): '3. two'")),
+        ('_narrative_blocks',
+         '| A | B |\n| --- | --- |\n| 1 | 2 |\nProse.',
+         ('refused',
+          'doc.md: a table must be followed by a blank line, not directly by '
+          'prose (GFM would absorb the line into the table): '
+          "'Prose.'")),
+        ('_narrative_blocks',
+         'Prose.\n| A | B |\n| --- | --- |\n| 1 | 2 |',
+         ('refused',
+          'doc.md: a table must be preceded by a blank line, not directly by '
+          'prose, a quote, or a list item (GFM would not start a new table '
+          "there): '| A | B |'")),
+        ('_narrative_blocks',
+         '- one\nlazy',
+         ('refused',
+          "doc.md: lazy list-item continuation unsupported: 'lazy'")),
+        ('_narrative_blocks',
+         '> one\n> two',
+         ('refused', "doc.md: multi-line blockquotes unsupported: '> two'")),
+        # The line classifier's table row, quote, list and prose branches.
+        ('_classify_narrative_line', '| a | b |', ('accepted', 'tr')),
+        ('_classify_narrative_line',
+         '| a | b',
+         ('refused',
+          "doc.md: a pipe is only supported inside a '|'-led and "
+          "'|'-terminated table row: '| a | b'")),
+        ('_classify_narrative_line', '> quote', ('accepted', 'quote')),
+        ('_classify_narrative_line', '- item', ('accepted', 'li')),
+        ('_classify_narrative_line', '1. item', ('accepted', 'ol')),
+        ('_classify_narrative_line', 'Plain prose.', ('accepted', 'p')),
+        # The table model: rendered HTML, then each refusal.
+        ('_render_narrative_table',
+         '| A | B |\n| --- | --- |\n| 1 | 2 |',
+         ('accepted',
+          '      <table>\n'
+          '        <thead>\n'
+          '          <tr><th>A</th><th>B</th></tr>\n'
+          '        </thead>\n'
+          '        <tbody>\n'
+          '          <tr><td>1</td><td>2</td></tr>\n'
+          '        </tbody>\n'
+          '      </table>')),
+        ('_render_narrative_table',
+         '| A |  |\n| --- | --- |\n| 1 | 2 |',
+         ('refused', "doc.md: empty table cell: '| A |  |'")),
+        ('_render_narrative_table',
+         '| A | B\\|C |\n| --- | --- |\n| 1 | 2 |',
+         ('refused',
+          'doc.md: backslash in a table row unsupported (an escaped pipe '
+          "cannot be represented): '| A | B\\\\|C |'")),
+        ('_render_narrative_table',
+         '| A | B |\n| --- | --- |\n| 1 |',
+         ('refused',
+          'doc.md: ragged table (row 3 has 1 cell(s), the header has 2): '
+          "'| 1 |'")),
+        ('_render_narrative_table',
+         '| A | B |\n| 1 | 2 |\n| 3 | 4 |',
+         ('refused',
+          "doc.md: the second table row must be the '---' separator row: "
+          "'| 1 | 2 |'")),
+        ('_render_narrative_table',
+         '| A | B |\n| --- | --- |',
+         ('refused',
+          "doc.md: a table needs a header row, a '---' separator row, and at "
+          "least one data row: '| A | B |'")),
+        ('_split_narrative_table_cells', '| a | b |', ('accepted', ['a', 'b'])),
+        ('_split_narrative_table_cells',
+         '| a |  |',
+         ('refused', "doc.md: empty table cell: '| a |  |'")),
+        ('_split_narrative_table_cells',
+         '| a\\|b | c |',
+         ('refused',
+          'doc.md: backslash in a table row unsupported (an escaped pipe '
+          "cannot be represented): '| a\\\\|b | c |'")),
+        ('_reject_nested_block', 'plain', ('accepted', None)),
+        ('_reject_nested_block',
+         '### x',
+         ('refused',
+          'doc.md: nested block construct in a list item unsupported '
+          "(container content must be inline-only): '### x'")),
+        # Empty sections. Looks wrong: the citations readers silently drop a
+        # heading whose register table has a header and separator but no data
+        # rows, as they drop a heading holding only prose; with no other rows
+        # they refuse the register.
+        ('parse_citations_register_sections',
+         '## Empty\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '\n'
+         '## Standards\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n',
+         ('accepted', [('Standards', [{'date': '2022-01',
+              'id': 'ISO 1',
+              'topic': 'Topic one.',
+              'upstream': 'https://www.iso.org',
+              'verified': '2026-01-01',
+              'version': '2022'}])])),
+        ('parse_citations_register_sections',
+         '## Prose\n'
+         '\n'
+         'Just prose.\n'
+         '\n'
+         '## Standards\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n',
+         ('accepted', [('Standards', [{'date': '2022-01',
+              'id': 'ISO 1',
+              'topic': 'Topic one.',
+              'upstream': 'https://www.iso.org',
+              'verified': '2026-01-01',
+              'version': '2022'}])])),
+        ('parse_citations_register_sections',
+         '## Empty\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n',
+         ('refused',
+          'crosswalk: citations register parsed to zero rows (schema change?)')),
+        ('parse_citations_register_sections',
+         '## Prose\n\nJust prose.\n',
+         ('refused',
+          'crosswalk: citations register parsed to zero rows (schema change?)')),
+        ('parse_citations_register',
+         '## Empty\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '\n'
+         '## Standards\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n',
+         ('accepted', {'ISO 1': {'date': '2022-01',
+              'id': 'ISO 1',
+              'topic': 'Topic one.',
+              'upstream': 'https://www.iso.org',
+              'verified': '2026-01-01',
+              'version': '2022'}})),
+        ('parse_citations_register',
+         '## Prose\n'
+         '\n'
+         'Just prose.\n'
+         '\n'
+         '## Standards\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n',
+         ('accepted', {'ISO 1': {'date': '2022-01',
+              'id': 'ISO 1',
+              'topic': 'Topic one.',
+              'upstream': 'https://www.iso.org',
+              'verified': '2026-01-01',
+              'version': '2022'}})),
+        ('parse_citations_register',
+         '## Empty\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n',
+         ('refused',
+          'crosswalk: citations register parsed to zero rows (schema change?)')),
+        ('parse_citations_register',
+         '## Prose\n\nJust prose.\n',
+         ('refused',
+          'crosswalk: citations register parsed to zero rows (schema change?)')),
+        # Differs: parse_reverse_matrix refuses a heading whose instrument
+        # table has no data rows, where the citations readers drop it; a
+        # heading holding only prose is no instrument section and is skipped.
+        ('parse_reverse_matrix',
+         '## Empty\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '\n'
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('refused',
+          'crosswalk: reverse matrix section(s) with zero rows: Empty')),
+        ('parse_reverse_matrix',
+         '## Prose\n'
+         '\n'
+         'Just prose.\n'
+         '\n'
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('accepted', {'Instrument': {'area_label': 'Area',
+                          'rows': [{'alignment': 'Direct',
+                                    'area': 'Area one',
+                                    'paths': ['governance/x.md']}]}})),
+        ('parse_reverse_matrix',
+         '## Empty\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n',
+         ('refused',
+          'crosswalk: reverse matrix section(s) with zero rows: Empty')),
+        ('parse_reverse_matrix',
+         '## Prose\n\nJust prose.\n',
+         ('refused',
+          'crosswalk: reverse matrix parsed to zero instrument sections '
+          '(schema change?)')),
+        # Inline flattening: a leading bold run-in label is dropped; links,
+        # bold, star emphasis and code spans are flattened.
+        ('_adopter_flatten',
+         '**Purpose.** A [`x`](y.md) **bold** *em* `code`  end',
+         ('accepted', 'A x bold em code end')),
+        ('_adopter_flatten', '```', ('accepted', '')),
+        # The llms.txt manifest rows keep repeats and skip non-corpus links.
+        ('_llms_markdown_rows',
+         '# T\n'
+         '\n'
+         '> s\n'
+         '\n'
+         '## S\n'
+         '\n'
+         '- [Doc](https://github.com/jposluns/grc_library/blob/main/'
+         'governance/x.md)\n'
+         '- [Again](https://github.com/jposluns/grc_library/blob/main/'
+         'governance/x.md)\n'
+         '- [Site](https://grclibrary.ai/)\n',
+         ('accepted',
+          [('governance/x.md', 'Doc'), ('governance/x.md', 'Again')])),
+        ('_llms_markdown_rows',
+         '# T\n\n## S\n\n- `x`\n',
+         ('refused',
+          'llms.txt: line 5 column 3: a backtick is outside the llms.txt '
+          "grammar: '`x`'")),
+        # A lead-in ending in a colon folds the first sentence of each
+        # following list item into the lede.
+        ('read_domain_purpose',
+         '## Purpose\n\nLead-in:\n\n- One. More.\n- Two.\n',
+         ('accepted', 'Lead-in: One; Two.')),
+        # Looks wrong: a paragraph after the list folds into the last item,
+        # so 'After.' joins 'Two.' and only the first sentence survives.
+        ('read_domain_purpose',
+         '## Purpose\n\nLead-in:\n\n1. One\n   wrapped.\n2. Two.\n\nAfter.\n',
+         ('accepted', 'Lead-in: One wrapped; Two.')),
+        # Looks wrong: a fence of plain code joins the paragraph, and stripping
+        # the backticks leaves the code as the lede.
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n```\nplain\n```\n\nIntro.\n',
+         ('accepted', 'plain')),
+        ('_adopter_purpose',
+         '## Purpose\n\n```\nplain\n```\n',
+         ('accepted', 'plain')),
+        ('_adopter_first_paragraph',
+         '```\nplain\n```',
+         ('accepted', '``` plain ```')),
+        ('read_domain_purpose',
+         '## Purpose\n\n```\ncode\n```\n',
+         ('accepted', 'code')),
+        # The flat reader reads a fenced register table too, as the section
+        # reader does.
+        ('parse_citations_register',
+         '## Standards\n'
+         '```\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | '
+         'https://www.iso.org | 2026-01-01 |\n'
+         '```\n',
+         ('accepted',
+          {'ISO 1': {'date': '2022-01',
+                     'id': 'ISO 1',
+                     'topic': 'Topic one.',
+                     'upstream': 'https://www.iso.org',
+                     'verified': '2026-01-01',
+                     'version': '2022'}})),
+        ('parse_citations_register_sections',
+         '## Standards\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | '
+         'https://www.iso.org | 2026-01-01 |\n'
+         '| ISO 1 | 2023 | 2023-01 | Topic two. | None | '
+         'https://www.iso.org | 2026-01-01 |\n',
+         ('refused',
+          'crosswalk: duplicate Standard ID in the citations register: ISO 1')),
+        # A repeated Standard ID refuses across sections too.
+        ('parse_citations_register',
+         '## Standards\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | '
+         'https://www.iso.org | 2026-01-01 |\n'
+         '\n'
+         '## More\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | '
+         'https://www.iso.org | 2026-01-01 |\n',
+         ('refused',
+          'crosswalk: duplicate Standard ID in the citations register: ISO 1')),
+        ('parse_citations_register_sections',
+         '## Standards\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | '
+         'https://www.iso.org | 2026-01-01 |\n',
+         ('refused',
+          'crosswalk: citations register header not followed by a separator '
+          'row (schema change?)')),
+        ('parse_citations_register',
+         '## Standards\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. |\n',
+         ('refused',
+          'crosswalk: citations register row with 4 cell(s) instead of 7: '
+          "'ISO 1'")),
+        ('parse_citations_register_sections',
+         '## Standards\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | '
+         'https://www.iso.org | 2026-01-01 | extra |\n',
+         ('refused',
+          'crosswalk: citations register row with 8 cell(s) instead of 7: '
+          "'ISO 1'")),
+        # A blank line inside the table interrupts it.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n'
+         '\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('refused',
+          "crosswalk: reverse matrix table under 'Instrument' is interrupted "
+          'or carries an unexpected table line')),
+        # A second table under the same heading interrupts the first.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('refused',
+          "crosswalk: reverse matrix table under 'Instrument' is interrupted "
+          'or carries an unexpected table line')),
+        # A repeated heading carrying a second table.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n'
+         '\n'
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('refused',
+          "crosswalk: duplicate reverse matrix table under 'Instrument'")),
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('refused',
+          "crosswalk: reverse matrix 'Instrument' header not followed by a "
+          'separator row (schema change?)')),
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) |\n',
+         ('refused',
+          "crosswalk: reverse matrix row under 'Instrument' with 2 cell(s) "
+          'instead of 3')),
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct | '
+         'extra |\n',
+         ('refused',
+          "crosswalk: reverse matrix row under 'Instrument' with 4 cell(s) "
+          'instead of 3')),
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | , ; | Direct |\n',
+         ('refused',
+          "crosswalk: reverse matrix row under 'Instrument' cites no parsable "
+          "document path: 'Area one'")),
+        # The document-path reader refuses an empty link text.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [](../governance/x.md) | Direct |\n',
+         ('refused',
+          "crosswalk: reverse matrix row under 'Instrument' holds a link the "
+          "parser cannot read as a document path: ''")),
+        # The document-path reader refuses a backtick left in the path.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`a`b`](../governance/x.md) | Direct |\n',
+         ('refused',
+          "crosswalk: reverse matrix row under 'Instrument' holds a link the "
+          "parser cannot read as a document path: '`a`b`'")),
+        # The document-path reader refuses link syntax outside the pattern.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | governance/x.md](../governance/x.md) | Direct |\n',
+         ('refused',
+          "crosswalk: reverse matrix row under 'Instrument' holds link syntax "
+          "the parser cannot read: 'governance/x.md](../governance/x.md)'")),
+        # The document-path reader refuses a path written as plain text.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | governance/x.md | Direct |\n',
+         ('refused',
+          "crosswalk: reverse matrix row under 'Instrument' holds text "
+          'outside its document links (a path written as plain text?): '
+          "'governance/x.md'")),
+        # Two links separated by a comma and a semicolon both read.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md), '
+         '[governance/y.md](../governance/y.md); | Direct |\n',
+         ('accepted',
+          {'Instrument': {'area_label': 'Area',
+                          'rows': [{'alignment': 'Direct',
+                                    'area': 'Area one',
+                                    'paths': ['governance/x.md',
+                                              'governance/y.md']}]}})),
+        ('_adopter_metadata',
+         '**Version:** 1.0.0\n'
+         '**Version:** 2.0.0\n',
+         ('refused',
+          "adopter doc doc.md repeats metadata field 'Version' (each field "
+          'appears once in the leading block)')),
+        ('_narrative_body_lines',
+         '# Title\n\n**Version:** 1.0.0\n\n---\n\n'
+         'Body line.\n',
+         ('refused',
+          "doc.md: body does not end with the '**End of Document**' "
+          'terminator (document-model drift?)')),
+        # The terminator must be the last non-blank line.
+        ('_narrative_body_lines',
+         '# Title\n\n**Version:** 1.0.0\n\n---\n\n'
+         '**End of Document**\n'
+         '\n'
+         'Trailing.\n',
+         ('refused',
+          "doc.md: body does not end with the '**End of Document**' "
+          'terminator (document-model drift?)')),
+        # Only the level-two headings feed the table of contents; the
+        # level-three heading does not. The bold, emphasis, list and escaping
+        # of this input are pinned in its rendered HTML by
+        # test_narrative_body_html_matches_main.
+        ('render_narrative_body',
+         NARRATIVE_SAMPLE,
+         ('accepted',
+          [('first-part', 'First part'), ('second-part', 'Second part')])),
+        ('_esc_narrative_text',
+         'Plain 1 < 2 & {x}.',
+         ('accepted', 'Plain 1 &lt; 2 &amp; &#123;x}.')),
+        ('_esc_narrative_text',
+         'a ** b',
+         ('refused',
+          'doc.md: unbalanced bold unsupported by the constrained renderer: '
+          "'a ** b'")),
+        ('_esc_narrative_text',
+         'a `code` b',
+         ('refused',
+          "doc.md: code spans unsupported by the constrained renderer: 'a "
+          "`code` b'")),
+        ('_esc_narrative_text',
+         'a [b c',
+         ('refused',
+          'doc.md: unsupported or malformed link syntax unsupported by the '
+          "constrained renderer: 'a [b c'")),
+        ('_esc_narrative_text',
+         'a b] c',
+         ('refused',
+          'doc.md: unsupported or malformed link syntax unsupported by the '
+          "constrained renderer: 'a b] c'")),
+        ('_esc_narrative_text',
+         'a * b',
+         ('refused',
+          "doc.md: star emphasis unsupported by the constrained renderer: 'a "
+          "* b'")),
+        ('_esc_narrative_text',
+         'a ~~b~~ c',
+         ('refused',
+          "doc.md: strikethrough unsupported by the constrained renderer: 'a "
+          "~~b~~ c'")),
+        ('_esc_narrative_text',
+         'a \\# b',
+         ('refused',
+          'doc.md: backslash escapes unsupported by the constrained renderer: '
+          "'a \\\\# b'")),
+        # A backslash before a letter is not a Markdown escape.
+        ('_esc_narrative_text',
+         'C:\\Users',
+         ('accepted', 'C:\\Users')),
+        ('_esc_narrative_text',
+         'a _b_ c',
+         ('refused', "doc.md: underscore emphasis unsupported: 'a _b_ c'")),
+        ('_esc_narrative_text',
+         'see <https://www.iso.org>',
+         ('refused',
+          "doc.md: autolink or raw-HTML scheme text unsupported: 'see "
+          "<https://www.iso.org>'")),
+        ('_esc_narrative_text',
+         'a <b>bold</b> c',
+         ('refused',
+          "doc.md: raw HTML tags unsupported by the constrained renderer: 'a "
+          "<b>bold</b> c'")),
+        ('_esc_narrative_text',
+         'a &amp; b',
+         ('refused',
+          'doc.md: HTML entities unsupported (write the literal character; '
+          "prose is escaped at render time): 'a &amp; b'")),
+        ('parse_adopter_docs',
+         '[`.claude/skills/corpus-management/docs/adopter-guide.md`]'
+         '(adopter-guide.md)',
+         ('accepted',
+          [['.claude/skills/corpus-management/docs/adopter-guide.md']])),
+        # The target, not the link text, names the file; it resolves from the
+        # adopter document's own directory, and links separate on a comma.
+        ('parse_adopter_docs',
+         '[`adopter-guide.md`](adopter-guide.md), '
+         '[`README.md`](../../../../README.md)',
+         ('accepted',
+          [['.claude/skills/corpus-management/docs/adopter-guide.md',
+            'README.md']])),
+        ('parse_adopter_docs',
+         '[guide](adopter-guide.md)',
+         ('refused',
+          'adopter doc .claude/skills/corpus-management/docs/fixture.md has '
+          'a Related Documents link the parser cannot keep: '
+          '[guide](adopter-guide.md) (the form is [`path`](target.md))')),
+        ('parse_adopter_docs',
+         '[`guide`](adopter-guide.txt)',
+         ('refused',
+          'adopter doc .claude/skills/corpus-management/docs/fixture.md has '
+          'a Related Documents link the parser cannot keep: '
+          '[`guide`](adopter-guide.txt) (the form is [`path`](target.md))')),
+        ('parse_adopter_docs',
+         '[`missing.md`](missing.md)',
+         ('refused',
+          'adopter doc .claude/skills/corpus-management/docs/fixture.md has '
+          'a Related Documents target that is not a tracked file inside the '
+          "repository: [`missing.md`](missing.md) (resolves to "
+          "'.claude/skills/corpus-management/docs/missing.md')")),
+        ('parse_adopter_docs',
+         '[`outside.md`](../../../../../outside.md)',
+         ('refused',
+          'adopter doc .claude/skills/corpus-management/docs/fixture.md has '
+          'a Related Documents target that is not a tracked file inside the '
+          'repository: [`outside.md`](../../../../../outside.md) (resolves '
+          "to '../outside.md')")),
+        # An absolute URL is joined to the adopter directory as a path.
+        ('parse_adopter_docs',
+         '[`a.md`](https://www.iso.org/a.md)',
+         ('refused',
+          'adopter doc .claude/skills/corpus-management/docs/fixture.md has '
+          'a Related Documents target that is not a tracked file inside the '
+          'repository: [`a.md`](https://www.iso.org/a.md) (resolves to '
+          "'.claude/skills/corpus-management/docs/https:/www.iso.org/a.md')")),
+        ('parse_adopter_docs',
+         'See [`adopter-guide.md`](adopter-guide.md)',
+         ('refused',
+          'adopter doc .claude/skills/corpus-management/docs/fixture.md has '
+          "Related Documents text that is not a link: 'See' (each entry is "
+          '[`path`](target.md))')),
+        ('parse_adopter_docs',
+         'None',
+         ('refused',
+          'adopter doc .claude/skills/corpus-management/docs/fixture.md has '
+          "Related Documents text that is not a link: 'None' (each entry is "
+          '[`path`](target.md))')),
+        # Differs: parse_reverse_matrix accepts a semicolon between links,
+        # this refuses it as text that is not a link.
+        ('parse_adopter_docs',
+         '[`adopter-guide.md`](adopter-guide.md); '
+         '[`README.md`](../../../../README.md)',
+         ('refused',
+          'adopter doc .claude/skills/corpus-management/docs/fixture.md has '
+          "Related Documents text that is not a link: ';' (each entry is "
+          '[`path`](target.md))')),
+    )
+
+    # Every build.py function whose name is in a reading family below is
+    # pinned in exactly one list: a Markdown reader with rows of its own
+    # (READERS), a helper the table reaches only through a tabled reader
+    # (THROUGH), or outside the Markdown reading this table pins (OUTSIDE);
+    # a function outside the families may be placed too. A new function
+    # in these families fails the coverage test until it is placed, and a
+    # name in READERS without a row fails it too.
+    READER_FAMILY = re.compile(
+        r"^(?:_?parse_|_?read_|_?render_narrative|_narrative_|"
+        r"_classify_narrative|_split_narrative|_reject_nested|_adopter_|"
+        r"_llms_|_xw_|_esc_narrative)")
+    READERS = (
+        "_adopter_fence_line", "_adopter_first_paragraph", "_adopter_flatten",
+        "_adopter_metadata", "_adopter_purpose", "_adopter_sections",
+        "_classify_narrative_line", "_esc_narrative_text", "_llms_links",
+        "_llms_markdown_rows",
+        "_narrative_blocks", "_narrative_body_lines", "_reject_nested_block",
+        "_render_narrative_table", "_split_narrative_table_cells",
+        "parse_citations_register", "parse_citations_register_sections",
+        "parse_adopter_docs",
+        "parse_compliance_matrix", "parse_compliance_tsc_status",
+        "parse_reverse_matrix", "read_domain_purpose", "render_narrative_body",
+    )
+    # The shared citations reader, the table cell, separator, cell
+    # flattening and document-path helpers under the register and matrix
+    # readers, the llms.txt grammar parts under _llms_links, and the
+    # inline and heading helpers under the narrative renderer are reached
+    # through the tabled readers. The line splitting, line and column, and
+    # refusal helpers (_text_lines, _line_column, _grammar_refusal) are
+    # reached here through _llms_links; the robots.txt, _headers,
+    # _redirects, security.txt and XML grammars share them and read no
+    # Markdown.
+    THROUGH = (
+        "_parse_citations_register_sections", "_xw_table_cells",
+        "_xw_is_separator", "_xw_plain", "_xw_doc_paths",
+        "_llms_destinations",
+        "_llms_item", "_llms_prescan", "_llms_prose",
+        "_narrative_heading_slug", "_narrative_link_url",
+        "_render_narrative_bold", "_render_narrative_em",
+        "_render_narrative_inline", "_render_narrative_links",
+        "_text_lines", "_line_column", "_grammar_refusal",
+    )
+    # YAML and TOML readers, the crosswalk display helpers that work on
+    # rows already parsed, and compute_figures, whose one Markdown read is
+    # a regular-expression search for the README.md Library Version line,
+    # not a structure. parse_adopter_docs is in READERS: besides handing
+    # each file to the tabled _adopter_ readers, it reads the Related
+    # Documents links itself.
+    OUTSIDE = (
+        "parse_taxonomy", "parse_taxonomy_full", "read_baseline_pin",
+        "compute_figures",
+        "_xw_topic_name", "_xw_split_identifiers", "_xw_reverse_rows",
+        "_xw_doc_noun", "_xw_short_ids", "_xw_column_name",
+        "_xw_shows_codes", "_xw_names", "_xw_table_intro",
+        "_xw_matrix_link", "_xw_views_intro", "_xw_register_block",
+    )
+
+    @staticmethod
+    def _compliance_matrix_text(build, empty=None):
+        """A minimal compliance matrix built from DOMAIN_SCOPE and
+        CROSSWALK_COMPLIANCE_COLUMNS: one section per domain with the pinned
+        header, a separator and one row citing '<domain>/x.md', except that
+        the section for ``empty`` keeps its header and separator only."""
+        cols = list(build.CROSSWALK_COMPLIANCE_COLUMNS)
+        header = "| " + " | ".join(
+            ["Domain", "Document Title", "Path"] + cols) + " |"
+        sep = "| " + " | ".join(["---"] * (3 + len(cols))) + " |"
+        parts = ["# Matrix", ""]
+        for d in build.DOMAIN_SCOPE:
+            parts += ["## " + d.replace("-", " ").title() + " domain", "",
+                      header, sep]
+            if d != empty:
+                parts.append("| " + " | ".join(
+                    [d, "Doc", f"[`{d}/x.md`](../{d}/x.md)"]
+                    + ["c"] * len(cols)) + " |")
+            parts.append("")
+        return "\n".join(parts)
+
+    @staticmethod
+    def _tsc_section_text(build, populating):
+        """The pinned 'How to use this matrix' section built from the
+        CROSSWALK_TSC_* constants, its reading guide in the populating form
+        or alone."""
+        guide = build.CROSSWALK_TSC_READING_GUIDE
+        if populating:
+            guide += " " + build.CROSSWALK_TSC_POPULATING
+        return "\n".join([
+            "# Matrix", "", build.CROSSWALK_TSC_SECTION_HEADING, "",
+            build.CROSSWALK_TSC_SECTION_OPENING, "", guide, "", "---", ""])
+
+    @staticmethod
+    def _compliance_section_lines(build, d, paths=("x.md",)):
+        """The heading, pinned header, separator and one row of the
+        compliance matrix section for domain ``d``, built from
+        CROSSWALK_COMPLIANCE_COLUMNS as _compliance_matrix_text builds
+        them, the row citing '<d>/<name>' for each name in ``paths``."""
+        cols = list(build.CROSSWALK_COMPLIANCE_COLUMNS)
+        header = "| " + " | ".join(
+            ["Domain", "Document Title", "Path"] + cols) + " |"
+        sep = "| " + " | ".join(["---"] * (3 + len(cols))) + " |"
+        cell = ", ".join(f"[`{d}/{p}`](../{d}/{p})" for p in paths)
+        row = "| " + " | ".join([d, "Doc", cell] + ["c"] * len(cols)) + " |"
+        return ("## " + d.replace("-", " ").title() + " domain", header,
+                sep, row)
+
+    # The fixed parts of a parse_compliance_tsc_status refusal: the
+    # instruction to update the pinned constants, which only a section
+    # refusal carries, and the statement of the two accepted forms, which
+    # every refusal carries before the forms themselves.
+    TSC_UPDATE = (
+        "if the edit is intended, update the pinned text in .web/build.py "
+        "(CROSSWALK_TSC_SECTION_HEADING, CROSSWALK_TSC_SECTION_OPENING, "
+        "CROSSWALK_TSC_READING_GUIDE, CROSSWALK_TSC_POPULATING; the blank "
+        "lines between the heading, the opening, the reading-guide "
+        "paragraph and the closing --- are fixed in "
+        "parse_compliance_tsc_status); a status sentence, changed or moved, "
+        "belongs only in CROSSWALK_TSC_POPULATING at the end of the "
+        "reading-guide line, never in CROSSWALK_TSC_SECTION_HEADING, "
+        "CROSSWALK_TSC_SECTION_OPENING or CROSSWALK_TSC_READING_GUIDE, "
+        "because the section without it records the AICPA TSC 2017 column "
+        "as no longer being populated; ")
+    TSC_ACCEPTED = (
+        "its \"How to use this matrix\" section, from its heading to the "
+        "--- that ends it, must read exactly CROSSWALK_TSC_SECTION_HEADING, "
+        "CROSSWALK_TSC_SECTION_OPENING and its reading-guide paragraph, each "
+        "followed by a blank line, then ---, with the reading-guide "
+        "paragraph in one of two forms, CROSSWALK_TSC_READING_GUIDE "
+        "followed by a space and CROSSWALK_TSC_POPULATING (the AICPA TSC "
+        "2017 column is being populated) or CROSSWALK_TSC_READING_GUIDE "
+        "alone (it is not): ")
+
+    def test_constant_built_rows_match_main(self):
+        build = self.build
+        cols = list(build.CROSSWALK_COMPLIANCE_COLUMNS)
+        domains = list(build.DOMAIN_SCOPE)
+        rows = (
+            ("parse_compliance_matrix",
+             self._compliance_matrix_text(build),
+             ("accepted",
+              (domains,
+               {d: [{"path": f"{d}/x.md", "title": "Doc",
+                     "cells": dict.fromkeys(cols, "c")}]
+                for d in domains}))),
+            ("parse_compliance_matrix",
+             self._compliance_matrix_text(build, empty=domains[1]),
+             ("refused",
+              "crosswalk: compliance matrix domain section(s) with zero "
+              "rows: " + domains[1])),
+            ("parse_compliance_tsc_status",
+             self._tsc_section_text(build, True), ("accepted", True)),
+            ("parse_compliance_tsc_status",
+             self._tsc_section_text(build, False), ("accepted", False)),
+        )
+        # One refusal row per structural refusal of the compliance matrix
+        # reader, each in the first domain's section.
+        d = domains[0]
+        heading, header, sep, row = self._compliance_section_lines(build, d)
+        two = self._compliance_section_lines(build, d, ("x.md", "y.md"))[3]
+        rows += (
+            ("parse_compliance_matrix",
+             "\n".join([heading, "", header, sep, row, "", heading, ""]),
+             ("refused",
+              "crosswalk: duplicate compliance matrix section for domain "
+              f"'{d}'")),
+            ("parse_compliance_matrix",
+             "\n".join([heading, "", header, row, ""]),
+             ("refused",
+              f"crosswalk: compliance matrix '{d}' header not followed by a "
+              "separator row (schema change?)")),
+            ("parse_compliance_matrix",
+             "\n".join([heading, "", row, ""]),
+             ("refused",
+              f"crosswalk: compliance matrix table in '{d}' does not open "
+              "with the pinned column header (schema change?)")),
+            ("parse_compliance_matrix",
+             "\n".join([heading, "", header, sep, f"| {d} | Doc |", ""]),
+             ("refused",
+              f"crosswalk: compliance matrix row in '{d}' with 2 cell(s) "
+              f"instead of {3 + len(cols)}")),
+            ("parse_compliance_matrix",
+             "\n".join([heading, "", header, sep, two, ""]),
+             ("refused",
+              f"crosswalk: compliance matrix row in '{d}' must cite exactly "
+              f"one document path: {two.split(' | ')[2]!r}")),
+        )
+        # One refusal row per refusal of the reading-guide status reader
+        # that the rows above do not reach.
+        guide = build.CROSSWALK_TSC_READING_GUIDE
+        populating = build.CROSSWALK_TSC_POPULATING
+        opening = build.CROSSWALK_TSC_SECTION_OPENING
+        where = f"crosswalk: {build.CROSSWALK_COMPLIANCE_MATRIX_PATH}:"
+        accepted = (self.TSC_ACCEPTED
+                    + f"form 1: {guide} {populating} form 2: {guide}")
+        bare = self._tsc_section_text(build, False)
+        guide_line = bare.split("\n").index(guide) + 1
+        key = "| " + " | ".join(build.CROSSWALK_COMPLIANCE_KEY_HEADER) + " |"
+        rows += (
+            ("parse_compliance_tsc_status",
+             "\n".join(["# Matrix", "", build.CROSSWALK_TSC_SECTION_HEADING,
+                        "", "Other.", "", guide, "", "---", ""]),
+             ("refused",
+              f"{where} line 5 reads 'Other.' where the pin has "
+              f"{opening.split(chr(10))[0]!r}; {self.TSC_UPDATE}{accepted}")),
+            # The reading guide with other text after it is shown against
+            # the populating form.
+            ("parse_compliance_tsc_status",
+             bare.replace(guide, guide + " Extra."),
+             ("refused",
+              f"{where} line {guide_line} reads {guide + ' Extra.'!r} where "
+              f"the pin has {guide + ' ' + populating!r}; "
+              f"{self.TSC_UPDATE}{accepted}")),
+            ("parse_compliance_tsc_status",
+             bare + key + "\n| --- | --- | --- |\n",
+             ("refused",
+              f"{where} 2 framework column key tables (header "
+              f"{' | '.join(build.CROSSWALK_COMPLIANCE_KEY_HEADER)}) instead "
+              f"of one; {accepted}")),
+            ("parse_compliance_tsc_status",
+             bare + populating + "\n",
+             ("refused",
+              f"{where} CROSSWALK_TSC_POPULATING stands 1 time(s) outside the "
+              "reading-guide paragraph (each run of whitespace read as one "
+              f"space); it may stand only there, as form 1; {accepted}")),
+        )
+        for name, arg, expected in rows:
+            with self.subTest(function=name, line=arg[:60]):
+                self.assertEqual(self._read_outcome(build, name, arg),
+                                 expected)
+
+    def test_each_row_matches_main(self):
+        for name, arg, expected in self.ROWS:
+            with self.subTest(function=name, line=arg):
+                self.assertEqual(self._read_outcome(self.build, name, arg),
+                                 expected)
+
+    def test_narrative_body_html_matches_main(self):
+        """The rendered HTML of NARRATIVE_SAMPLE, the first element of
+        render_narrative_body's result, pinned whole: the bold, emphasis,
+        level-three heading, list and escaped comparison its row names. The
+        row recording its table of contents stays in ROWS."""
+        html, toc = self.build.render_narrative_body(self.NARRATIVE_SAMPLE,
+                                                     self.SOURCE)
+        self.assertEqual(
+            html,
+            '  <section class="narr" id="first-part">\n'
+            '    <div class="wrap">\n'
+            '      <div class="sec-head"><span class="sec-num">&sect;01</span>'
+            '<h2>First part</h2></div>\n'
+            '      <p>Text with <strong>bold</strong> and <em>emphasis</em>.'
+            '</p>\n'
+            '      <h3 id="detail">Detail</h3>\n'
+            '      <ul>\n'
+            '        <li>Item one.</li>\n'
+            '        <li>Item two.</li>\n'
+            '      </ul>\n'
+            '    </div>\n'
+            '  </section>\n'
+            '\n'
+            '  <section class="narr" id="second-part">\n'
+            '    <div class="wrap">\n'
+            '      <div class="sec-head"><span class="sec-num">&sect;02</span>'
+            '<h2>Second part</h2></div>\n'
+            '      <p>1 &lt; 2 &amp; 3 &gt; 2.</p>\n'
+            '    </div>\n'
+            '  </section>')
+        self.assertIn(("render_narrative_body", self.NARRATIVE_SAMPLE,
+                       ("accepted", toc)), self.ROWS)
+
+    def test_every_reader_is_pinned_and_every_named_reader_has_rows(self):
+        functions = {
+            n for n, f in inspect.getmembers(self.build, inspect.isfunction)
+            if f.__module__ == self.build.__name__
+        }
+        readers, through = set(self.READERS), set(self.THROUGH)
+        pinned = readers | through | set(self.OUTSIDE)
+        with self.subTest(check="every pinned name is a build.py function"):
+            self.assertEqual(pinned - functions, set())
+        with self.subTest(check="no name is pinned twice"):
+            self.assertEqual(
+                len(pinned),
+                len(self.READERS) + len(self.THROUGH) + len(self.OUTSIDE))
+        with self.subTest(check="every reading-family function is pinned"):
+            family = {n for n in functions if self.READER_FAMILY.match(n)}
+            self.assertEqual(family - pinned, set())
+        # A name counts as named when the docstring writes it as code in
+        # backticks or it is in a reading family; ordinary words are not
+        # collected.
+        doc = self.__doc__
+        named = set(re.findall(r"`([A-Za-z_][A-Za-z0-9_]*)`", doc)) | {
+            w for w in re.findall(r"\b[A-Za-z_][A-Za-z0-9_]*\b", doc)
+            if self.READER_FAMILY.match(w)}
+        tabled = {name for name, _, _ in self.ROWS}
+        with self.subTest(check="the docstring names readers"):
+            self.assertTrue(named)
+        with self.subTest(
+                check="every reader the docstring names is in READERS "
+                      "and has rows"):
+            self.assertEqual(named - (readers & tabled), set())
+        with self.subTest(check="every reader has a row"):
+            self.assertEqual(readers, tabled)
+        # A plain-text word in the docstring that is a build.py function
+        # name, inside a reading family or not, is in READERS or THROUGH.
+        plain = set(re.findall(r"\b_?[a-z][a-z_]+\b(?=[ ,.()\n])", doc))
+        with self.subTest(
+                check="every build.py function the docstring names in "
+                      "plain text is in READERS or THROUGH"):
+            self.assertEqual((plain & functions) - readers - through, set())
 
 
 if __name__ == "__main__":

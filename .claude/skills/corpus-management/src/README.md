@@ -263,16 +263,62 @@ adopter relies on are:
 
 ## Release versioning
 Gate 99's `--release-delta` mode (`tools/pack_release_delta.py`) checks the manifest version
-against every change to a pack file, README files included. Every change must have at least a PATCH
-bump; added identifiers, clauses, public functions, `configure()` inputs or literal accepted-key
-declarations (at module level or in public classes and functions) must have a MINOR; their removal
-must have a MAJOR (a MINOR while the major version is 0). Keys accepted in other ways, and
-breaking-shaped edits the rules do not name, count as PATCH. A maintainer-approved row in
+against every change to a pack file, README files included. The release level each kind of change needs, and the exit
+status of a refusal, are stated once, in the specification
+(`specs/specification-audit-programme.md`, section 6, gate 99), whose rules point to the rows
+of the release-level table `_RELEASE_CASES` that exercise them. A top-level `del` of a public name removes it, together with
+the inputs of a deleted `configure()`, unless a
+later top-level def, class or assignment binds the name again, which is then compared as that
+binding. The rules by which accepted keys are read (what counts as a declaration, what a
+top-level `del` drops of them, the views in which keys are compared, what is reported
+removed or added, the places read as releases, the places that are not read and fail
+closed, and what the check does not see) are stated once, in the module docstring
+of `tools/pack_release_delta.py`, section "Accepted-key declaration and removal rules", and
+only that section states them. That section also states why the refusal of a key-owning
+name that is not key-named, in a public def or class body, is a deliberate over-refusal;
+the outcome of each such refusal is a refusing row of the release-level table
+`_RELEASE_CASES` for a key-owning name that is not key-named in a public def or class body.
+A kind
+change is reported without parameter changes. Any two bindings of one public name by a def,
+class or assignment, at least one of them a
+def or class, with no top-level `del` of that name between them, fail closed; a top-level
+`del` lets a later def, class or assignment bind the name again. The level a changed
+assigned value, an import alias or a binding in a public or private body needs is
+the matching row of the release-level table `_RELEASE_CASES` in `tools/pack_release_delta.py`, which `test_release_level_table` runs through the check. The level of a key accepted in another way (an inline set in an expression, a later
+`add`, or a `|=` on a name, one on a `keys` or `*_keys` name in a public def or class body or
+inside a compound statement included) and of a breaking-shaped edit the rules do not name (a
+removed public method, a changed class or instance attribute, reordered or un-defaulted
+parameters, `__all__`, or a binding by augmented assignment, a `type` statement or
+`globals()`) is the matching row of `_RELEASE_CASES`. A name bound or deleted only inside a top-level `if`,
+`try`, `with`, `for`, `while` or `match` block is not seen as public surface; the level of
+replacing a counted name with such a binding, with an annotation without a value or with an
+import alias is the matching row of `_RELEASE_CASES`. A maintainer-approved row in
 `core/release-waivers.toml` can waive one exact upward transition. When the mode was added in the
 earlier repository on 2026-09-26, the manifest version was re-baselined from 0.6.0 to 0.6.80 under such a waiver,
 covering 79 earlier pack changes that had shipped without a bump, plus that change.
 
 ## Release history
+- **0.23.9:** the release-delta check (`tools/pack_release_delta.py`) counts a public name bound
+  by a top-level assignment (a plain assignment binding the name directly or inside a tuple, list
+  or starred target, or an annotated one with a value binding it directly) as public surface, so
+  adding one, removing one (a top-level `del` included), renaming it to a private name and
+  changing its kind are release changes; a kind change is reported without parameter changes,
+  and any two bindings of one public name by a def, class or assignment, at least one of them
+  a def or class, with no top-level `del` of that name between them, fail closed, while a
+  top-level `del` lets a later def, class or assignment bind the name again. The level each of
+  these changes needs, and the outcome of a refusal, are stated in the specification
+  (`specs/specification-audit-programme.md`, section 6, gate 99), whose rules point to the
+  matching rows of the release-level table `_RELEASE_CASES` in `tools/pack_release_delta.py`,
+  which `test_release_level_table` runs through the check; those rows also cover a changed value,
+  a binding inside a function or class, an import alias, `__all__`, a binding of a key-owning
+  name in a public def or class body and replacing a counted name with an annotation without a
+  value. The new helper is private, so the pack gains no public name. 0.23.9 also makes the
+  check fail closed at every place that the section "Accepted-key declaration and removal
+  rules" of the `tools/pack_release_delta.py` module docstring lists as one that is not read
+  and fails closed, so it can refuse inputs that 0.23.8 accepted at any of those places, not
+  only a `del` of a key-owning name in a public def or class body; that section states each
+  of those places, and the specification (`specs/specification-audit-programme.md`, section 6,
+  gate 99) states the outcome of each refusal.
 - **0.23.8:** gate 62 (`tools/gate_lint_cross_file_section_refs.py`) keeps the 0.23.7 test for a table cell's local-section exception path and adds a second condition that must also hold, so the exception can only narrow. The text between the section reference and the link must still fully match the 0.23.7 pattern `\s+[^()]*\S[^()]*\(\s*`: it begins with whitespace, holds a non-whitespace character, which may itself be a parenthesis, and otherwise no parenthesis, and ends, ignoring whitespace, with an opening parenthesis. In addition, read with the bare-character scanner the gate already uses after the link, where a parenthesis is bare when it is outside any code span and not escaped with a backslash, the last opening parenthesis before the link must be bare. The path is closed when the text after the link closes every bare opening parenthesis in that text, and is refused as malformed, with the existing message, when it does not. A bare closing parenthesis before the link, which the 0.23.7 pattern allows only as the descriptive character before the last opening parenthesis, closes none of them, so such a cell keeps the 0.23.7 decision: it is local when the text after the link closes the one opening parenthesis, as in `Section 8 exception path) see ([policy](t.md))`, and malformed when it does not, as in `Section 8 ) ([policy](t.md)`. The text before the section reference is not read for parentheses: a parenthesis there is neither counted nor required to be closed, while, as in 0.23.7, a link there keeps the cell from being an exception path and a code span opened there is followed. Changed from 0.23.7: a cell whose one descriptive character allowed to be a parenthesis is a bare opening parenthesis, such as `§8 text ( ([policy](t.md))` or `§8 (([policy](t.md))`, and that the text after the link closes only once was accepted as local and is now refused as malformed, because two bare opening parentheses are left to close (an intended malformed refusal); a cell whose opening parenthesis before the link is inside a code span or escaped with a backslash, such as `` §8 text `( [policy](t.md)` ) `` or `Section 8 exception path \([policy](t.md))`, was accepted as local when the text after the link closed it and is now checked as a citation of the target (a tightening); the same cell with nothing bare closing it after the link, such as `` Section 8 exception path `([policy](t.md))` ``, was refused as malformed and is now checked as a citation of the target, so it is still refused, by the target check, when the target lacks the cited number, and passes when the target holds it, because that parenthesis is text and opens no exception path. No cell that 0.23.7 checked as a citation of the target is accepted as local: a closed parenthetical before the link's opening parenthesis, three opening parentheses there, or two or more parentheses there besides the link's own, escaped, in a code span or bare, keep the cell a citation of the target, as in 0.23.7; the only cells 0.23.7 refused as malformed that are now checked as a citation of the target are those whose last opening parenthesis before the link is escaped or in a code span. Gates and register keys are unchanged.
 - **0.23.7:** internal work labels are removed from two `--aiqt-root` refusal messages in `tools/corpus_mgmt_compiler.py`; in the gate origins in `core/gates.toml` and the clause origins in `core/clauses.toml`, the numbered pull-request, phase and item labels and a dated option-decision label are replaced by a plain description, and one of the two transfer-lane labels is removed with its numbered pull-request labels, while the other, which many of those origins carry, is unchanged, and the standards-currency gate's origin now also names every condition that blocks; outside the pack, the project's tools and test messages drop theirs in the same change or replace each with a phrase that names the case it guards against, corrects or discloses. The compiler (`tools/corpus_mgmt_compiler.py`) now refuses an explicit `--aiqt-root` unless its `tools/aiqt_corpus.py` is a regular file: a symlinked core formerly passed the compiler's own pre-check and was refused only by the verified loader, and is now refused by the pre-check, whose refusal reads "no regular tools/aiqt_corpus.py there". The residual lists in the language engine's docstring and URL-mask comment (`tools/gate_lint_language.py`) now name the comma-and-digit path form, path text after a comma and a digit run before "/". Gate 62 (`tools/gate_lint_cross_file_section_refs.py`) now refuses, as malformed, a table cell whose local-section exception path opens a parenthesized link that no closing parenthesis closes, counting nested parentheses and not counting one inside a code span or escaped with a backslash; such a row formerly fell through to the target check. A residual stays: the check that first decides a cell is an exception path still reads an opening parenthesis inside a code span that also encloses the link as a bare one. A closed exception path holding a nested parenthetical is now accepted as local, where before it fell through to the target check and failed there whenever the target lacked the cited number. The `corpus-scan-integrity` clause origin in `core/clauses.toml` is reworded to describe the clause's addition in plain terms. Gates and register keys are unchanged.
 - **0.23.6:** internal work references are removed from two notes in `core/id-history.toml`; ids, events and dates are unchanged.

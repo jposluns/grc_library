@@ -31,10 +31,17 @@ mirror contain any of:
     and code-span-illustrative links are excluded; resolution is relative to
     the source file's own directory.
 
-  - a root ``.working/CHANGELOG.md`` compact entry whose summary exceeds the D7 length
-    ceiling (100 words total, or a single sentence over 45 words); this reuses
-    ``check-changelog-length-on-pr.py`` (the D7 delta-gate authority) so the two
-    never drift, catching an over-long entry at authoring rather than at the guard.
+  - in the public root ``.working/CHANGELOG.md``, which carries weekly summaries only
+    (maintainer-directed 2026-11-13): an added per-change entry, daily summary heading,
+    unauthored scaffold marker or heading that is not a weekly or monthly heading (the
+    line-local refusals of delta gate D1, read through ``changelog_diff.public_line_kind`` at
+    the start of a line and after every ``str.splitlines()`` boundary), or an added or changed
+    weekly or monthly paragraph over the D7 ceilings (4 sentences, 140 words, a 45-word
+    sentence), measured whole from the file's new text; this reuses
+    ``check-changelog-length-on-pr.py`` (the D7 delta-gate authority) so the two never drift,
+    catching the finding at authoring rather than at the guard. D1's section rule (a text line
+    under a per-change entry or a daily heading) is left to D1. The detailed mirror is the
+    private per-change record and is neither refused nor measured here.
 
 In addition to the added-line checks above, a FULL-MIRROR link-resolution pass
 scans EVERY in-repo relative markdown link in the whole detailed mirror (not
@@ -99,7 +106,7 @@ Usage:
     python3 .claude/skills/corpus-management/tools/preflight-changelog.py --staged   # staged diff only
 
 Exit codes:
-    0   no spelling, dash, unlinked-reference, dangling-link, or D7-over-length issue in the added CHANGELOG lines
+    0   no spelling, dash, unlinked-reference, dangling-link, weekly-record or D7-over-length issue in the added CHANGELOG lines
     1   one or more issues (do not commit until fixed)
     2   git invocation error: a ``git diff`` that fails (an unborn HEAD, or a directory that
         is not a repository, including the operational store or the private sibling, whenever
@@ -110,8 +117,8 @@ Exit codes:
         Loading is checked even without added lines. KeyboardInterrupt raised in THIS process
         (a real Ctrl-C) propagates; one raised by engine code is an engine fault in the child,
         exit 2. A D7 length checker (check-changelog-length-on-pr.py) that fails to load, or
-        that lacks entries_in_added_line, evaluate, DEFAULT_WORD_MAX or DEFAULT_SENTENCE_MAX,
-        is also exit 2, reported as one fixed ERROR line rather than a traceback. So is a
+        that lacks judged_paragraphs, evaluate_paragraphs, PARAGRAPH_WORD_MAX,
+        PARAGRAPH_SENTENCE_MAX or PARAGRAPH_SENTENCE_COUNT_MAX, is also exit 2, reported as one fixed ERROR line rather than a traceback. So is a
         CHANGELOG file whose new text cannot be read whole (a failed ``git cat-file``, an
         unreadable file) or does not hold an added line at that line's number. So is a diff
         the parser cannot read exactly: a hunk whose lines do not match its header's line
@@ -253,13 +260,13 @@ from lint_common import (  # noqa: E402  # grc-config/store, stays local
 from changelog_diff import (  # noqa: E402
     ChangelogDiffUnreadable, GitQueryFailed, GitSelectsAnotherTree, _git_query, added_line_diff,
     check_git_selects_root, foreign_repo_env as _foreign_repo_env, git_selection,
-    parse_numbered_added_lines, refuse_links)
+    parse_numbered_added_lines, public_line_kind, refuse_links)
 
-# D7 length check reuse: import the authoritative per-PR length checker so the 100-word /
-# 45-word-sentence ceiling on a root-CHANGELOG compact entry is caught at authoring (this aid)
-# rather than only at the pre-push guard. The module name is hyphenated, so load it via
-# importlib; reusing its entry reader + evaluate keeps the two in lock-step (no duplicated
-# length logic to drift). It loads on first use, inside main()'s fail-closed boundary, so a
+# D7 length check reuse: import the authoritative paragraph length checker so the 4-sentence /
+# 140-word / 45-word-sentence ceiling on a public weekly or monthly paragraph is caught at
+# authoring (this aid) rather than only at the pre-push guard. The module name is hyphenated, so
+# load it via importlib; reusing its paragraph reader + evaluate keeps the two in lock-step (no
+# duplicated length logic to drift). It loads on first use, inside main()'s fail-closed boundary, so a
 # load failure is one named error (exit 2), not a traceback.
 import importlib.util as _ilu  # noqa: E402
 _d7 = None
@@ -274,7 +281,8 @@ class D7CheckerUnavailable(RuntimeError):
     """The D7 length checker failed to load; main() reports the fixed error and exits 2."""
 
 
-_D7_NAMES = ("entries_in_added_line", "evaluate", "DEFAULT_WORD_MAX", "DEFAULT_SENTENCE_MAX")
+_D7_NAMES = ("judged_paragraphs", "evaluate_paragraphs", "PARAGRAPH_WORD_MAX",
+             "PARAGRAPH_SENTENCE_MAX", "PARAGRAPH_SENTENCE_COUNT_MAX")
 
 
 def _load_d7():
@@ -537,22 +545,50 @@ def spelling_findings(lines):
         raise LanguageEngineUnavailable() from None
 
 
-def d7_length_findings(lines):
-    """The D7 length-ceiling findings for the ROOT ``.working/CHANGELOG.md`` compact entries in
-    ``lines`` (a list of ``(path, added_text)``), reusing ``check-changelog-length-on-pr``'s
-    entries_in_added_line + evaluate so this aid and the D7 delta gate never drift. An entry is
-    read at the start of an added line and after any ``str.splitlines()`` boundary inside it
-    (CR, U+2028, U+0085 and the rest), as D7 reads it. Only the root file is length-gated; the
-    detailed mirror is out of the D7 gate's scope."""
+_PUBLIC_CHANGELOG = ".working/CHANGELOG.md"
+
+# D1's line-local refusals in the public weekly record, by changelog_diff.public_line_kind.
+_WEEKLY_RECORD_REFUSALS = {
+    "per-change": "per-change entry in the public weekly record (D1: it belongs in the private "
+                  "per-change record)",
+    "daily": "daily summary heading in the public weekly record (D1)",
+    "scaffold": "unauthored scaffold marker in the public weekly record (D1)",
+    "heading": "heading that is not a weekly or monthly heading (D1)",
+}
+
+
+def d7_length_findings(lines, public_text=None, public_added=None):
+    """The weekly-record findings for the ROOT ``.working/CHANGELOG.md`` lines in ``lines`` (a
+    list of ``(path, added_text)``): D1's line-local refusals (a per-change entry, a daily
+    summary heading, an unauthored scaffold marker or another heading), read at the start of an
+    added line and after any ``str.splitlines()`` boundary inside it (CR, U+2028, U+0085 and the
+    rest), as D1 reads it; and the D7 ceilings on each weekly or monthly paragraph holding an
+    added line, through ``check-changelog-length-on-pr``'s judged_paragraphs and
+    evaluate_paragraphs, so this aid and the D7 delta gate never drift.
+
+    ``public_text`` is the root file's new text and ``public_added`` its added line numbers;
+    each paragraph is measured whole from that text. Without them (a caller that has only the
+    added lines), the root's added lines are read as the file, in order. The detailed mirror is
+    the private per-change record: none of its lines is refused or measured."""
     d7 = _load_d7()
-    entries = []
-    for path, text in lines:
-        if path == ".working/CHANGELOG.md":
-            entries.extend(d7.entries_in_added_line(text))
-    return [
-        (".working/CHANGELOG.md", f"D7 length ceiling exceeded ({offence})", "")
-        for offence in d7.evaluate(entries, d7.DEFAULT_WORD_MAX, d7.DEFAULT_SENTENCE_MAX)
-    ]
+    findings = []
+    public = [text for path, text in lines if path == _PUBLIC_CHANGELOG]
+    for text in public:
+        for part in text.splitlines() or [""]:
+            reason = _WEEKLY_RECORD_REFUSALS.get(public_line_kind(part))
+            if reason is not None:
+                findings.append((_PUBLIC_CHANGELOG, reason, part.strip()))
+    if public:
+        if public_text is None:
+            public_text = "\n".join(public) + "\n"
+            public_added = set(range(1, len(public) + 1))
+        paragraphs = d7.judged_paragraphs(set(public_added or ()), public_text)
+        findings.extend(
+            (_PUBLIC_CHANGELOG, f"D7 length ceiling exceeded ({offence})", "")
+            for offence in d7.evaluate_paragraphs(
+                paragraphs, d7.PARAGRAPH_WORD_MAX, d7.PARAGRAPH_SENTENCE_MAX,
+                d7.PARAGRAPH_SENTENCE_COUNT_MAX))
+    return findings
 
 
 CHANGELOG_FILES = (
@@ -1168,7 +1204,8 @@ def main(argv: list[str]) -> int:
         description=(
             "Pre-commit aid: fail when added CHANGELOG lines carry an em/en "
             "dash in prose, a gate-2 spelling, an unlinked path-shaped reference, a dangling "
-            "in-repo markdown-link target, or a root entry over the D7 length ceiling."
+            "in-repo markdown-link target, a per-change or daily line in the public weekly "
+            "record, or a weekly or monthly paragraph over the D7 ceilings."
         )
     )
     parser.add_argument(
@@ -1188,8 +1225,9 @@ def main(argv: list[str]) -> int:
     origins: list[tuple[Path, dict[str, str] | None, bool, str, int]] = []
     try:
         lines = added_lines(args.staged, diffed=diffed, origins=origins)
-        # Consistency check only: each added line is its file's line at its number.
-        _dash_sources(lines, origins)
+        # Each added line is its file's line at its number; the root's new text and its added
+        # line numbers then let the D7 paragraphs be measured whole.
+        sources = _dash_sources(lines, origins)
     except subprocess.CalledProcessError as exc:
         # Fail closed: a failed diff is not zero added lines.
         detail = (exc.stderr or "").strip()
@@ -1268,20 +1306,26 @@ def main(argv: list[str]) -> int:
         return 2
 
     findings.extend(spelling)
-    findings.extend(d7_length_findings(lines))
+    public_text = public_added = None
+    for name, file_lines, added_at, ends in sources or ():
+        if name == _PUBLIC_CHANGELOG:
+            public_text = "\n".join(file_lines) + ("\n" if ends else "")
+            public_added = {number for _, number in added_at}
+    findings.extend(d7_length_findings(lines, public_text, public_added))
 
     if not findings:
         scope = "staged" if args.staged else "working-tree"
         print(
             f"OK: {len(lines)} added CHANGELOG line(s) ({scope}) are spelling-clean and dash-free, "
             f"every path-shaped reference is a markdown link, every in-repo link "
-            f"target resolves, and no root entry exceeds the D7 length ceiling."
+            f"target resolves, and the root's added lines keep the weekly record (no "
+            f"per-change or daily line, no paragraph over the D7 ceilings)."
         )
         return 0
 
     for path, issue, evidence in findings:
         # Only append the evidence line when there is evidence: the D7 length findings
-        # carry no line-evidence (the offence string already names the PR and the count),
+        # carry no line-evidence (the offence string already names the paragraph and the count),
         # so a blank indented line would otherwise print.
         msg = f"FAIL {path}: {issue}" + (f"\n    {evidence}" if evidence else "")
         print(msg, file=sys.stderr)
@@ -1290,8 +1334,10 @@ def main(argv: list[str]) -> int:
         f"before committing: fix gate-2 spellings, remove em/en dashes from prose (use commas, "
         f"colons, or parentheses), wrap path-shaped references as "
         f"[`path`](path), fix any dangling in-repo link target (or exclude "
-        f"a cross-repo / illustrative link), and shorten any root entry over the "
-        f"D7 length ceiling (100 words total, or a single sentence over 45 words). "
+        f"a cross-repo / illustrative link), keep the root to weekly and monthly "
+        f"paragraphs (each change's own entry goes to the private per-change record), and "
+        f"shorten any paragraph over the D7 ceilings (4 sentences, 140 words, or a sentence "
+        f"over 45 words). "
         f"This aid mirrors gate 2 spelling, delta gate D3, the D7 length check, the "
         f"link-coverage gate, and the detailed-mirror link-resolution check "
         f"(3.34 (closing PR #1084)), surfaced before the first commit.",

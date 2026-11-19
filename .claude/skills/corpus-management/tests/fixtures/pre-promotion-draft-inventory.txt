@@ -11,6 +11,12 @@
 # draft/documents/governance/specification-* (2) whose documents moved in
 # the new repository layout are retired without redirects and are no
 # longer listed; the test pins them as retired literals.
+# By maintainer decision (2026-11-15 22:39Z), the baseline asset
+# draft/assets/baseline/fonts/dancing-script-latin-wght-normal.woff2 is no
+# longer listed: site template baseline 1.12.4 replaced it with
+# fonts/dancing-script-wght-normal.ttf, so the promoted site no longer serves
+# the old file and its old draft address stops resolving; the test pins it as
+# a retired asset literal.
 draft/404.html
 draft/ai/index.html
 draft/architecture/index.html
@@ -20,7 +26,6 @@ draft/assets/baseline/baseline.css
 draft/assets/baseline/copy.js
 draft/assets/baseline/fonts.css
 draft/assets/baseline/fonts/dancing-script-LICENSE.txt
-draft/assets/baseline/fonts/dancing-script-latin-wght-normal.woff2
 draft/assets/baseline/fonts/jetbrains-mono-LICENSE.txt
 draft/assets/baseline/fonts/jetbrains-mono-latin-wght-italic.woff2
 draft/assets/baseline/fonts/jetbrains-mono-latin-wght-normal.woff2

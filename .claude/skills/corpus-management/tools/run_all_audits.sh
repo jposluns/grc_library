@@ -192,7 +192,7 @@ run_gate "Gate-name parity audit"                        python3 .claude/skills/
 # Linter regression test suite (1 gate). Positive tests for each
 # in-scope linter: each test constructs a synthetic fixture appropriate to the linter's target surface (Markdown for corpus linters, Python source for the gate-94/95 code linters)
 # that should trigger exactly one rule, invokes the linter, and asserts
-# non-zero exit. See .claude/skills/corpus-management/tests/README.md for scope and limits.
+# its findings exit code (1 unless the test names another code). See .claude/skills/corpus-management/tests/README.md for scope and limits.
 # ----------------------------------------------------------------------
 run_gate "Linter regression test suite"                  python3 .claude/skills/corpus-management/tools/run-linter-regression.py
 

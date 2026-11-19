@@ -129,8 +129,7 @@
       "check-alignment-register-on-pr.py",
       "check-class-completeness.py",
       "check-clause-preservation.py",
-      "check-clean-language-upstream.py",
-      "check-daily-changelog-rollup.py"
+      "check-clean-language-upstream.py"
     ]
   }
 }

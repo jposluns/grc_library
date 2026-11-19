@@ -41,8 +41,8 @@ value is exactly "1" (as the GRC_ALLOW_BULK_ADD and GRC_ALLOW_PR_ATTRIBUTION hoo
 read against the empty tree, as there is no HEAD to diff against. A commit that concludes a
 conflicted merge, cherry-pick, or revert is checked like any other, whether `git commit`
 or `git merge|cherry-pick|revert --continue` makes it (each runs pre-commit; a rebase does not, see
-the residue below): .working/CHANGELOG.md is the file most likely to conflict (every PR adds an entry in the
-same place), so the resolution is a hand edit of exactly the kind this check exists for. The other
+the residue below): .working/CHANGELOG.md can conflict (each weekly summary is written at the top of the same
+file), so the resolution is a hand edit of exactly the kind this check exists for. The other
 side's added lines, when they come from main, have already passed the D3, D7 and link-coverage
 gates, so they rarely refuse, and the override covers the rest. check-version-bump-commit.py exempts
 these commits because a Version bump belongs to a PR, which a merge does not have; a dash belongs to

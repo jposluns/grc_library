@@ -6,8 +6,9 @@ in [`.claude/skills/corpus-management/tools/`](../tools/). Each test:
 1. Constructs a minimal synthetic fixture appropriate to each linter's target surface (Markdown for the corpus linters, Python source for the gate-94/95 code linters) that should trigger
    exactly one linter rule.
 2. Invokes the target linter against the fixture.
-3. Asserts that the linter exits non-zero and emits a finding
-   matching the expected pattern.
+3. Asserts that the linter exits with its findings code (1 unless
+   the test names another code) and emits a finding matching the
+   expected pattern.
 
 The tests exist to catch a class of defect that no other gate in the
 audit programme can catch: a regression in a linter's own detection
@@ -19,8 +20,9 @@ exists to detect. The regression tests catch this.
 ## Scope
 
 The default test shape is a **positive test**: a fixture containing
-exactly one violation, asserting the linter exits non-zero and emits
-the expected finding. The suite also includes **negative tests**
+exactly one violation, asserting the linter exits with its findings
+code (1 unless the test names another code) and emits the expected
+finding. The suite also includes **negative tests**
 (fixtures whose content is permissible in context and must not be
 flagged, such as a template placeholder inside a template file, or a
 placeholder string inside a fenced code block), and **environmental

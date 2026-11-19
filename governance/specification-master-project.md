@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.7.17\
-**Date:** 2026-11-12\
+**Version:** 1.7.18\
+**Date:** 2026-11-19\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`governance/specification-ingestion.md`](specification-ingestion.md), [`.claude/skills/corpus-management/specs/instruction-ai-document-ingestion.md`](../.claude/skills/corpus-management/specs/instruction-ai-document-ingestion.md), [`README.md`](../README.md), [`NOTICE.md`](../NOTICE.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md)\
@@ -241,10 +241,10 @@ Examples: `2026.05.0`, `2026.05.7`, `2026.06.0`, `2026.12.42`.
 > on a single merge. A PR that never merges consumes no patch number, so it cannot produce a gap.
 > These historical gaps do not violate the go-forward sequential intent. No current gate detects
 > them. The library-version monotonicity gate asserts only that the version never decreases. The
-> CHANGELOG mirror-parity gate (gate 59) asserts that `Library Version` values strictly decrease
-> top-down in [`.working/CHANGELOG.md`](../.working/CHANGELOG.md) and, where the detailed private copy is present, in that copy too,
-> and that both record the same version for each PR; without the copy, only the checks on `.working/CHANGELOG.md` run
-> and the copy's ordering and version-agreement checks are skipped. A skipped number satisfies every
+> CHANGELOG weekly-range coverage gate (gate 59) asserts, where the detailed private copy is present,
+> that its `Library Version` values strictly decrease top-down and that each weekly or monthly range in
+> [`.working/CHANGELOG.md`](../.working/CHANGELOG.md) names exactly the copy's PRs for its period; the public file carries
+> weekly summaries only, so without the copy only its own checks run. A skipped number satisfies every
 > one of these checks; a forward-looking continuity check remains planned under the Corpus-Management discipline roadmap (item 4.1 of the public working backlog in [`.working/TODO.md`](../.working/TODO.md)).
 
 #### Why CalVer
@@ -257,7 +257,7 @@ The library evolves continuously through small phased PRs rather than discrete v
 
 #### Where the version is recorded
 
-The current library version is displayed in [`README.md`](../README.md)'s metadata block as the field `Library Version`. The CHANGELOG holds per-PR entries and weekly summaries; each per-PR entry records the library version its PR set.
+The current library version is displayed in [`README.md`](../README.md)'s metadata block as the field `Library Version`. The public CHANGELOG holds weekly summaries only (maintainer-directed 2026-11-13); each change's own entry, with the library version its PR set, is kept in the private per-change record.
 
 #### Maintenance
 
@@ -266,7 +266,7 @@ Each PR that merges to `main` updates [`README.md`](../README.md)'s `Library Ver
 - If the merge falls in the same calendar month as the current version, increment the patch.
 - If the calendar month has changed, set the new version to `YYYY.MM.0`.
 
-The version bump is the author's responsibility on the PR that introduces the change. The audit suite's version-monotonicity audit (gate 13) enforces that the README's Library Version and every document's Version metadata field never decrease against the prior committed state; gate 13 passes an unchanged value (a missing library-version bump surfaces instead through the CHANGELOG-coupling gates 29 and 59, which require each PR's entry to carry a strictly higher Library Version matching the README), so reviewers should still verify the bump is present before approving the PR.
+The version bump is the author's responsibility on the PR that introduces the change. The audit suite's version-monotonicity audit (gate 13) enforces that the README's Library Version and every document's Version metadata field never decrease against the prior committed state; gate 13 passes an unchanged value (a missing library-version bump surfaces instead through the per-PR version-bump delta gate D2; the public weekly CHANGELOG carries no per-PR Library Version for gates 29 and 59 to compare, so their version checks read only the private per-change record, where it is present), so reviewers should still verify the bump is present before approving the PR.
 
 #### Relationship to per-document versioning
 

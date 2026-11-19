@@ -291,7 +291,7 @@ policy file is validated on load. Generic placeholders (``N/A``, ``Internal``,
 with no citation shape (no acronym or digit, and no instrument word in a
 multiword name) are not citations (the ``not_citable`` block of the alias file).
 
-POSTURE. ADVISORY, the D8 precedent: it prints a ``D15 WARN`` line per
+POSTURE. ADVISORY: it prints a ``D15 WARN`` line per
 unregistered citation and, once its modules load, ALWAYS exits 0. It is wired into the PR-time runner
 and the 1 ``pull_request`` job of ``quality.yml`` only, never into
 ``.claude/skills/corpus-management/tools/run_all_audits.sh``: the corpus-gate bar requires near-zero false
