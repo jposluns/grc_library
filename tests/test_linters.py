@@ -19171,6 +19171,506 @@ class PrePushGuardTests(unittest.TestCase):
                                  f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
 
+class PrePushGuardMaintainerSiblingTests(unittest.TestCase):
+    """The identity, store and grc_library_ref rules of tools/pre-push-guard.sh on a maintainer
+    push (3b843).
+
+    The guard takes a push as the maintainer's from the clone's origin URL (git remote get-url
+    origin), as its grc_library_private check does: jposluns/grc_library after a "/" or ":",
+    with or without .git, matched case-sensitively as the end of the URL.
+    tools/pre-push-hook.py keys on the push destination instead: it runs the guard for a push
+    only when the destination's path, percent-decoded, case-folded, normalized by
+    posixpath.normpath and with its trailing slashes and a final .git dropped, equals
+    jposluns/grc_library or ends in /jposluns/grc_library (a "/" before the owner). On a push
+    from a maintainer clone:
+
+    1. Store rule: with GRC_STORE unset or empty and no <repo-parent>/private directory,
+       one this account cannot enter, or one whose real path is the repository root or
+       inside it, the guard refuses (exit 4) before any runner starts,
+       naming that condition and then the one remedy sentence every store refusal prints
+       (STORE_REMEDY: set GRC_STORE to an existing directory outside the repository that
+       this account can enter, or unset it and provide the sibling store as such a
+       directory), after the search-permission hint for an unenterable sibling store.
+       With GRC_STORE unset the store is <repo-parent>/private by name: when it is absent or
+       not a directory, default readers
+       of lint_common.resolve_working (strict=False) look up a file in
+       grc_library_private/.working/, a transitional tree that may be stale, then in the
+       repository's own .working/, in place of the live operational store; one this account
+       cannot enter they still take as the store, so a file lookup finds nothing in it and
+       falls through the same way (on Python 3.11, whose pathlib exists() raises
+       PermissionError on EACCES, it raises instead) and a directory lookup
+       (resolve_working_dir) returns the unenterable store itself. Strict readers
+       (strict=True) refuse a store path that is present but not a directory, a directory
+       they cannot search, or a GRC_STORE path behind a missing intermediate component, and
+       fall through like default readers only for an absent store or a directory inside the
+       repository that they can search. No other location is derived: the only documented
+       default store is <repo-parent>/private itself. With GRC_STORE set, the guard refuses
+       (exit 4) before any runner starts, naming GRC_STORE and the condition, unless it names
+       an existing directory outside the repository: a missing path, a path that is not a
+       directory, a directory this account cannot enter, and a directory whose real path is the
+       repository root or inside it (a relative value read against the repository root, as
+       lint_common reads it) all refuse, since lint_common takes GRC_STORE alone as the store
+       and does not consult <repo-parent>/private while GRC_STORE is set, so each such value
+       leaves the gates off the live operational store in the ways described above. GRC_STORE
+       naming an existing directory outside the repository, or (GRC_STORE unset) the sibling
+       store present as a directory outside the repository, proceeds as before.
+    2. Reference rule: with no grc_library_ref directory beside the clone that this account
+       can search (nothing at that path, something there that is not a directory, or a
+       directory this account cannot search), the guard refuses (exit 4) before any runner
+       starts, naming grc_library_ref, those conditions and one remedy that covers each
+       (REF_REMEDY). Before this rule the push passed, with only the reference-manifest
+       advisory's could-not-run line.
+
+    An adopter clone (any other origin, a fork owner ending in jposluns included) is
+    unaffected by both rules.
+
+    Residuals: identity keys on the origin URL here and on the push destination in
+    tools/pre-push-hook.py, so a push to the maintainer repository from a clone
+    whose origin names another URL takes none of these checks; a present store that lacks a
+    file resolve_working looks up still falls through to grc_library_private/.working/;
+    an empty or partial grc_library_ref passes the reference rule; and no test builds a
+    repository whose real path is /, so the store rule's in-repository test for that root (the
+    repository path's trailing "/" is stripped before matching, so every store is inside it) is
+    not exercised here.
+
+    Each fixture is a git repository in the test's own temporary directory, with the real
+    shim, hook and guard, stub runners (no run_gate lines, so the guard runs the whole stub
+    runner and no local shard step) and, as origin, a local bare repository the test creates
+    at a path ending jposluns/grc_library.git (the maintainer shape) or other/grc_library.git
+    (an adopter), so neither a push nor the guard's fetch of origin reaches another remote.
+    The test commits to its own fixture before it installs the hooks."""
+
+    TOOLS = Path("tools")
+    COPIED = ("git-hooks/pre-push", "pre-push-guard.sh", "pre-push-hook.py",
+              "check-dirty-tree-push.py", "install-git-hooks.sh", "lint_common.py")
+    # The one remedy sentence every store refusal prints, asserted whole in each store
+    # refusal test so a refusal that states the remedy differently fails.
+    STORE_REMEDY = ("Set GRC_STORE to an existing directory outside this repository that "
+                    "this account can enter, or unset GRC_STORE and provide the sibling "
+                    "store at ../private as a directory outside this repository that this "
+                    "account can enter, then retry.")
+    # The one remedy sentence the reference refusal prints, asserted whole for every
+    # refused shape of the grc_library_ref sibling.
+    REF_REMEDY = ("Move aside whatever stands at ../grc_library_ref (if anything), clone "
+                  "the reference corpus there and make sure this account can search it, "
+                  "then retry.")
+
+    def _run(self, env, cwd, *args):
+        return subprocess.run(args, cwd=str(cwd), env=env, text=True, capture_output=True,
+                              timeout=120)
+
+    def _git(self, env, cwd, *args):
+        result = self._run(env, cwd, "git", *args)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        return result
+
+    def _fixture(self, *, maintainer=True, store=None, ref=True):
+        """The fixture repository, its environment and its origin. store is None (no store),
+        "sibling" (a <repo-parent>/private directory) or "env" (a directory GRC_STORE names);
+        grc_library_private/.working/ is present, holding a stale entry."""
+        holder_dir = tempfile.TemporaryDirectory(prefix="guard-sibling-")
+        self.addCleanup(holder_dir.cleanup)
+        holder = Path(holder_dir.name)
+        repo = holder / "grc_library"
+        tools = repo / self.TOOLS
+        for name in self.COPIED:
+            dest = tools / name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(REPO_ROOT / "tools" / name, dest)
+        for name, body in (("run_all_audits.sh", "#!/bin/sh\necho STUB RUNNER RAN\n"),
+                           ("run-pr-time-checks.sh", "#!/bin/sh\necho STUB PR CHECKS RAN\n")):
+            (tools / name).write_text(body, encoding="utf-8")
+            (tools / name).chmod(0o755)
+        (tools / "build-reference-manifest.py").write_text(
+            "print('STUB MANIFEST CHECK RAN')\n", encoding="utf-8")
+        (holder / "tmp").mkdir()
+        env = {k: v for k, v in os.environ.items()
+               if not k.startswith("GIT_") and not k.startswith("PRE_PUSH_GUARD_")
+               and k not in ("GRC_STORE", "BASE_REF")}
+        env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1",
+                   GIT_ALLOW_PROTOCOL="file", TMPDIR=str(holder / "tmp"))
+        working = holder / "grc_library_private" / ".working"
+        working.mkdir(parents=True)
+        (working / "pending-decisions.md").write_text("- stale transitional entry\n",
+                                                      encoding="utf-8")
+        if store == "sibling":
+            (holder / "private").mkdir()
+            (holder / "private" / "pending-decisions.md").write_text("- live store entry\n",
+                                                                     encoding="utf-8")
+        elif store == "env":
+            (holder / "store").mkdir()
+            (holder / "store" / "pending-decisions.md").write_text("- live store entry\n",
+                                                                   encoding="utf-8")
+            env["GRC_STORE"] = str(holder / "store")
+        if ref:
+            (holder / "grc_library_ref").mkdir()
+            (holder / "grc_library_ref" / "catalogue.yml").write_text("entries: []\n",
+                                                                      encoding="utf-8")
+        origin = holder / "remotes" / ("jposluns" if maintainer else "other") / "grc_library.git"
+        origin.parent.mkdir(parents=True)
+        self._git(env, holder, "init", "-q", "--bare", str(origin))
+        for args in (("init", "-q"), ("config", "user.email", "fixture@example.com"),
+                     ("config", "user.name", "Guard fixture"),
+                     ("remote", "add", "origin", str(origin)), ("add", "."),
+                     ("commit", "-qm", "Fixture")):
+            self._git(env, repo, *args)
+        installed = self._run(env, repo, "sh", str(self.TOOLS / "install-git-hooks.sh"))
+        self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
+        return repo, env, origin
+
+    def _guard(self, repo, env):
+        """Run the guard directly, its output on a regular file (not a pipe)."""
+        with tempfile.TemporaryFile(mode="w+") as log:
+            result = subprocess.run(["bash", str(self.TOOLS / "pre-push-guard.sh")],
+                                    cwd=str(repo), env=env, stdout=log, stderr=log, timeout=120)
+            log.seek(0)
+            return result.returncode, log.read()
+
+    def _push(self, repo, env, origin):
+        """git push of HEAD to origin's refs/heads/test through the installed hook; the result,
+        its output, HEAD and the commit that landed (None when nothing did)."""
+        result = self._run(env, repo, "git", "push", "origin", "HEAD:refs/heads/test")
+        head = self._git(env, repo, "rev-parse", "HEAD").stdout.strip()
+        landed = self._run(env, repo, "git", "--git-dir", str(origin), "rev-parse", "--verify",
+                           "-q", "refs/heads/test")
+        return (result.returncode, result.stdout + result.stderr, head,
+                landed.stdout.strip() if landed.returncode == 0 else None)
+
+    def test_maintainer_push_without_store_refused_while_private_working_present(self):
+        """Store rule: GRC_STORE unset, no sibling store and grc_library_private/.working/
+        present refuses, before any runner, naming the condition and the remedy."""
+        repo, env, origin = self._fixture()
+        rc, out = self._guard(repo, env)
+        self.assertEqual(rc, 4, out)
+        for needle in ("REFUSING", "GRC_STORE is unset", "/private is absent",
+                       "grc_library_private/.working/", "Set GRC_STORE",
+                       "provide the sibling store", self.STORE_REMEDY):
+            self.assertIn(needle, out)
+        self.assertNotIn("STUB RUNNER RAN", out)
+        code, output, _head, landed = self._push(repo, env, origin)
+        self.assertNotEqual(code, 0, output)
+        self.assertIn("GRC_STORE is unset", output)
+        self.assertIsNone(landed, output)
+
+    def test_maintainer_push_with_store_set_or_sibling_store_proceeds(self):
+        """The same push with GRC_STORE set, or with the sibling store present, runs every
+        check and lands, as before the store rule."""
+        for store in ("env", "sibling"):
+            with self.subTest(store=store):
+                repo, env, origin = self._fixture(store=store)
+                code, output, head, landed = self._push(repo, env, origin)
+                self.assertEqual(code, 0, output)
+                for needle in ("STUB RUNNER RAN", "STUB PR CHECKS RAN",
+                               "STUB MANIFEST CHECK RAN", "Safe to push"):
+                    self.assertIn(needle, output)
+                self.assertNotIn("REFUSING", output)
+                self.assertEqual(landed, head, output)
+
+    def test_maintainer_push_without_reference_corpus_refused(self):
+        """Reference rule: no grc_library_ref directory beside the clone that this account can
+        search (nothing at that path, a regular file there, or a directory this account cannot
+        search, which the reference-manifest advisory and the gate 36 shards cannot read)
+        refuses with exit 4, before any runner, naming it, all three conditions and the one
+        remedy that covers each. The unsearchable directory is skipped when run as root, whose
+        search permission bits do not refuse."""
+        for shape in ("absent", "regular file", "unsearchable directory"):
+            with self.subTest(shape=shape):
+                if shape == "unsearchable directory" and os.geteuid() == 0:
+                    self.skipTest("root ignores directory permission bits")
+                repo, env, origin = self._fixture(
+                    store="env", ref=shape == "unsearchable directory")
+                ref = repo.parent / "grc_library_ref"
+                if shape == "regular file":
+                    ref.write_text("not a directory\n", encoding="utf-8")
+                elif shape == "unsearchable directory":
+                    ref.chmod(0)
+                    self.addCleanup(ref.chmod, 0o755)
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 4, out)
+                for needle in ("REFUSING", "3b843 ref-required", "the grc_library_ref sibling",
+                               "is absent, is not a directory or cannot be searched",
+                               "Move aside whatever stands at ../grc_library_ref",
+                               self.REF_REMEDY):
+                    self.assertIn(needle, out)
+                self.assertNotIn("STUB RUNNER RAN", out)
+                code, output, _head, landed = self._push(repo, env, origin)
+                self.assertNotEqual(code, 0, output)
+                self.assertIn("the grc_library_ref sibling", output)
+                self.assertIn("is absent, is not a directory or cannot be searched", output)
+                self.assertIn(self.REF_REMEDY, output)
+                self.assertIsNone(landed, output)
+
+    def test_adopter_push_unaffected_by_store_and_reference_rules(self):
+        """An adopter clone with no store, no grc_library_ref and grc_library_private/.working/
+        present passes the guard run directly, and its push (which the hook does not guard)
+        lands."""
+        repo, env, origin = self._fixture(maintainer=False, ref=False)
+        rc, out = self._guard(repo, env)
+        self.assertEqual(rc, 0, out)
+        self.assertIn("Safe to push", out)
+        self.assertNotIn("REFUSING", out)
+        code, output, head, landed = self._push(repo, env, origin)
+        self.assertEqual(code, 0, output)
+        self.assertEqual(landed, head, output)
+
+    def test_maintainer_push_with_unusable_grc_store_refused(self):
+        """Store rule, GRC_STORE set: a missing path, a regular file, a relative value naming a
+        directory inside the repository (GRC_STORE=private, read as <repo>/private) and an
+        absolute path through a symbolic link that resolves inside the repository each refuse
+        (exit 4) before any runner, naming GRC_STORE and the condition. The sibling store is
+        present in every case, since lint_common does not consult it while GRC_STORE is set."""
+        for case in ("missing", "file", "in-repo-relative", "in-repo-link"):
+            with self.subTest(case=case):
+                repo, env, origin = self._fixture(store="sibling")
+                holder = repo.parent
+                if case == "missing":
+                    env["GRC_STORE"] = str(holder / "no-such-store")
+                    condition = "does not name an existing directory"
+                elif case == "file":
+                    (holder / "store-file").write_text("not a directory\n", encoding="utf-8")
+                    env["GRC_STORE"] = str(holder / "store-file")
+                    condition = "does not name an existing directory"
+                elif case == "in-repo-relative":
+                    (repo / "private").mkdir()
+                    env["GRC_STORE"] = "private"
+                    condition = "inside this repository"
+                else:
+                    (repo / "in-repo-store").mkdir()
+                    (holder / "store-link").symlink_to(repo / "in-repo-store")
+                    env["GRC_STORE"] = str(holder / "store-link")
+                    condition = "inside this repository"
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 4, out)
+                for needle in ("REFUSING", "3b843 store-required", "GRC_STORE is set",
+                               condition, "Set GRC_STORE", self.STORE_REMEDY):
+                    self.assertIn(needle, out)
+                self.assertNotIn("STUB RUNNER RAN", out)
+                if case == "missing":
+                    code, output, _head, landed = self._push(repo, env, origin)
+                    self.assertNotEqual(code, 0, output)
+                    self.assertIn("GRC_STORE is set", output)
+                    self.assertIsNone(landed, output)
+
+    def test_maintainer_push_with_grc_store_behind_regular_file_refused(self):
+        """Store rule, GRC_STORE set: a path behind an intermediate component that is a regular
+        file (<holder>/afile/sub, with afile a regular file) refuses (exit 4) before any
+        runner, naming GRC_STORE and the condition. lint_common's strict readers refuse such a
+        value too ("present but not a directory (at .../afile, a path component of ...)"), so
+        the message bounds their fall-through: they fall through like the default readers only
+        for an absent store or a directory inside this repository that they can search, and
+        refuse every other unusable path."""
+        with self.subTest(case="behind-regular-file"):
+            repo, env, _origin = self._fixture(store="sibling")
+            holder = repo.parent
+            (holder / "afile").write_text("a regular file\n", encoding="utf-8")
+            env["GRC_STORE"] = str(holder / "afile" / "sub")
+            rc, out = self._guard(repo, env)
+            self.assertEqual(rc, 4, out)
+            bounded = ("fall through like the default readers only for an absent store or "
+                       "a directory inside this repository that they can search")
+            for needle in ("REFUSING", "3b843 store-required", "GRC_STORE is set",
+                           "does not name an existing directory", bounded,
+                           "refuse every other unusable path", "Set GRC_STORE",
+                           self.STORE_REMEDY):
+                self.assertIn(needle, out)
+            self.assertNotIn("otherwise fall through as the default readers do", out)
+            self.assertNotIn("STUB RUNNER RAN", out)
+
+    def test_maintainer_push_with_relative_grc_store_outside_repository_proceeds(self):
+        """Guard test (passes before and after the GRC_STORE-set rule): GRC_STORE=../store, a
+        relative value read against the repository root, names an existing directory outside
+        the repository, so the guard runs every check and passes."""
+        repo, env, _origin = self._fixture(store="env")
+        env["GRC_STORE"] = "../store"
+        rc, out = self._guard(repo, env)
+        self.assertEqual(rc, 0, out)
+        for needle in ("STUB RUNNER RAN", "STUB PR CHECKS RAN", "Safe to push"):
+            self.assertIn(needle, out)
+        self.assertNotIn("REFUSING", out)
+
+    def test_maintainer_push_with_grc_store_naming_repository_root_refused(self):
+        """Store rule, GRC_STORE set: GRC_STORE=. (read against the repository root) and the
+        repository root as an absolute path each refuse (exit 4) before any runner, naming
+        GRC_STORE and the condition (round 2 light check, S3)."""
+        for case in (".", "absolute"):
+            with self.subTest(case=case):
+                repo, env, _origin = self._fixture(store="sibling")
+                env["GRC_STORE"] = "." if case == "." else str(repo)
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 4, out)
+                for needle in ("REFUSING", "3b843 store-required", "GRC_STORE is set",
+                               "is the repository root", "Set GRC_STORE", self.STORE_REMEDY):
+                    self.assertIn(needle, out)
+                self.assertNotIn("STUB RUNNER RAN", out)
+
+    def test_maintainer_push_with_unenterable_grc_store_refused(self):
+        """Store rule, GRC_STORE set: a store directory outside the repository at mode 0 or
+        600, which this account cannot enter, refuses (exit 4) before any runner, naming
+        GRC_STORE and the condition (round 2 light check, S3). Skipped as root, which can
+        enter it."""
+        if os.geteuid() == 0:
+            self.skipTest("root can enter a directory at mode 0 or 600")
+        for mode in (0o000, 0o600):
+            with self.subTest(mode=oct(mode)):
+                repo, env, _origin = self._fixture(store="env")
+                store = Path(env["GRC_STORE"])
+                store.chmod(mode)
+                self.addCleanup(store.chmod, 0o700)
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 4, out)
+                for needle in ("REFUSING", "3b843 store-required", "GRC_STORE is set",
+                               "cannot enter", "Set GRC_STORE", self.STORE_REMEDY):
+                    self.assertIn(needle, out)
+                self.assertNotIn("STUB RUNNER RAN", out)
+
+    def test_maintainer_push_with_unenterable_sibling_store_refused(self):
+        """Store rule, GRC_STORE unset: a sibling store <repo-parent>/private at mode 0 or 600,
+        which this account cannot enter, refuses (exit 4) before any runner, naming the
+        condition, since default readers of lint_common.resolve_working still take it as the
+        store but find no file in it, so a file lookup falls through to
+        grc_library_private/.working/ in its place (on Python 3.11 it raises PermissionError
+        instead) and a directory lookup returns the unenterable store itself, while strict
+        readers (strict=True) refuse it as present but not searchable (round 2 light check,
+        S1); the push through the installed hook does not land. Skipped as root, which can
+        enter it."""
+        if os.geteuid() == 0:
+            self.skipTest("root can enter a directory at mode 0 or 600")
+        for mode in (0o000, 0o600):
+            with self.subTest(mode=oct(mode)):
+                repo, env, origin = self._fixture(store="sibling")
+                sibling = repo.parent / "private"
+                sibling.chmod(mode)
+                self.addCleanup(sibling.chmod, 0o700)
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 4, out)
+                for needle in ("REFUSING", "3b843 store-required", "GRC_STORE is unset",
+                               "cannot enter", "grc_library_private/.working/",
+                               "set GRC_STORE", "search (execute) permission",
+                               self.STORE_REMEDY):
+                    self.assertIn(needle, out)
+                self.assertNotIn("STUB RUNNER RAN", out)
+                code, output, _head, landed = self._push(repo, env, origin)
+                self.assertNotEqual(code, 0, output)
+                self.assertIn("cannot enter", output)
+                self.assertIsNone(landed, output)
+
+    def test_maintainer_push_with_non_directory_sibling_store_refused(self):
+        """Store rule, GRC_STORE unset: a sibling store <repo-parent>/private that is a regular
+        file refuses (exit 4) before any runner, saying the sibling store is absent or is not a
+        directory, since default readers of lint_common.resolve_working then look up each file
+        in grc_library_private/.working/ in its place and strict readers refuse it as present
+        but not a directory (round 5 light check, G1)."""
+        with self.subTest(sibling="regular file"):
+            repo, env, _origin = self._fixture()
+            (repo.parent / "private").write_text("not a directory\n", encoding="utf-8")
+            rc, out = self._guard(repo, env)
+            self.assertEqual(rc, 4, out)
+            for needle in ("REFUSING", "3b843 store-required", "GRC_STORE is unset",
+                           "/private is absent or is not a directory",
+                           "grc_library_private/.working/",
+                           "refuse a sibling store that is present but not a directory",
+                           self.STORE_REMEDY):
+                self.assertIn(needle, out)
+            self.assertNotIn("STUB RUNNER RAN", out)
+
+    def test_maintainer_push_with_sibling_store_inside_repository_refused(self):
+        """Store rule, GRC_STORE unset: a sibling store <repo-parent>/private that is a symbolic
+        link resolving to a directory inside the repository, or to the repository root,
+        refuses (exit 4) before any runner, naming the condition, since lint_common does not
+        take a store whose real path is inside the repository as the store, so default and
+        strict readers alike look up each file in grc_library_private/.working/ in its place;
+        the push through the installed hook does not land."""
+        for case in ("in-repo-directory", "repository-root"):
+            with self.subTest(case=case):
+                repo, env, origin = self._fixture()
+                if case == "in-repo-directory":
+                    target = repo / "in-repo-store"
+                    target.mkdir()
+                else:
+                    target = repo
+                (repo.parent / "private").symlink_to(target)
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 4, out)
+                for needle in ("REFUSING", "(3b843 store-required)", "GRC_STORE is unset",
+                               "is the repository root or inside this repository",
+                               "grc_library_private/.working/", "Set GRC_STORE",
+                               self.STORE_REMEDY):
+                    self.assertIn(needle, out)
+                self.assertNotIn("STUB RUNNER RAN", out)
+                code, output, _head, landed = self._push(repo, env, origin)
+                self.assertNotEqual(code, 0, output)
+                self.assertIn("inside this repository", output)
+                self.assertIsNone(landed, output)
+
+    def test_maintainer_push_with_empty_grc_store(self):
+        """Store rule: GRC_STORE set to the empty string is read as unset. Without the sibling
+        store the guard refuses (exit 4) before any runner, naming the condition; with it the
+        guard runs every check and passes (round 2 light check, S3)."""
+        for sibling in (False, True):
+            with self.subTest(sibling=sibling):
+                repo, env, _origin = self._fixture(store="sibling" if sibling else None)
+                env["GRC_STORE"] = ""
+                rc, out = self._guard(repo, env)
+                if sibling:
+                    self.assertEqual(rc, 0, out)
+                    for needle in ("STUB RUNNER RAN", "STUB PR CHECKS RAN", "Safe to push"):
+                        self.assertIn(needle, out)
+                    self.assertNotIn("REFUSING", out)
+                else:
+                    self.assertEqual(rc, 4, out)
+                    for needle in ("REFUSING", "3b843 store-required", "GRC_STORE is unset",
+                                   "/private is absent", "Set GRC_STORE",
+                                   self.STORE_REMEDY):
+                        self.assertIn(needle, out)
+                    self.assertNotIn("STUB RUNNER RAN", out)
+
+    def test_adopter_push_with_unusable_grc_store_unaffected(self):
+        """The GRC_STORE-set refusal stays inside the maintainer case: an adopter clone (origin
+        other/grc_library.git) with GRC_STORE naming a missing path, or a directory inside the
+        repository, passes the guard run directly (exit 0) with no REFUSING (round 2 light
+        check, S4)."""
+        for case in ("missing", "in-repo"):
+            with self.subTest(case=case):
+                repo, env, _origin = self._fixture(maintainer=False)
+                if case == "missing":
+                    env["GRC_STORE"] = str(repo.parent / "no-such-store")
+                else:
+                    (repo / "in-repo-store").mkdir()
+                    env["GRC_STORE"] = str(repo / "in-repo-store")
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 0, out)
+                self.assertIn("Safe to push", out)
+                self.assertNotIn("REFUSING", out)
+
+    def test_adopter_push_with_unenterable_or_repository_root_store_unaffected(self):
+        """The store rule stays inside the maintainer case: an adopter clone (origin
+        other/grc_library.git) with GRC_STORE unset and the sibling store <repo-parent>/private
+        at mode 0 or 600, with GRC_STORE naming a directory outside the repository at mode 0 or
+        600, or with GRC_STORE=. passes the guard run directly (exit 0, Safe to push) with no
+        REFUSING (round 3 light check, T1). The mode cases are skipped as root, which can enter
+        such a directory."""
+        for case, mode in (("sibling", 0o000), ("sibling", 0o600), ("env", 0o000),
+                           ("env", 0o600), ("dot", None)):
+            with self.subTest(case=case, mode=None if mode is None else oct(mode)):
+                if mode is not None and os.geteuid() == 0:
+                    self.skipTest("root can enter a directory at mode 0 or 600")
+                repo, env, _origin = self._fixture(maintainer=False,
+                                                   store=None if case == "dot" else case)
+                if case == "dot":
+                    env["GRC_STORE"] = "."
+                else:
+                    if case == "sibling":
+                        target = repo.parent / "private"
+                    else:
+                        target = Path(env["GRC_STORE"])
+                    target.chmod(mode)
+                    self.addCleanup(target.chmod, 0o700)
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 0, out)
+                self.assertIn("Safe to push", out)
+                self.assertNotIn("REFUSING", out)
+
+
 class PrePushGuardFastPathTests(unittest.TestCase):
     """tools/pre-push-guard.sh site-only fast path (maintainer directive 2026-11-04).
 
@@ -46549,14 +47049,14 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F 24a8298d028a1b6eaf4b2bcfdac19dda0935c2165c74f4050d7bc0094a0b750b
         lint-worker-id-anonymity.py ROOT F 67a9a21df757ee66a8bf7eb774df851b79738ce25a356979f889a4f26c26803c
         lint-working-prose-hygiene.py CWD F 062ea412cfecf48aa8d14c61cb016325307136c5b9d820b18cfe6b5c51d21908
-        lint_common.py PASSIVE F c3f9567cb927a4a4599fc2704a690a93d145aef8edfa2a90eb660b246aadbedd
+        lint_common.py PASSIVE F 328b40a9b22abe4616e095dec297eb80ae35dc08a8e4edc542581345a9138f9d
         matrix_code_parse.py PASSIVE F a45385e10a6bd3e5fd9f1792fee1bba7639b52053e36627f27cecaa2e20663de
         measure-regression-timings.py WRITE F bbb0c66679ee54028e5ad9d4c8d0893aa55e9865f18821809eebc436d8db6e8b
         merge-grc-library-new.py NO_FS F 99c3d7eb8742695145e93147223d6472c7c5630977b63ea636d65dd99ebb03cb
         merge-when-green.py NO_FS F babbe83220b290a22103757a5a389d69239608183d6eeb7dbfce5056dafb04aa
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
         open-findings-row.py OWN F 3a54eb94a169d0822cc291617cd172aa812cc47bacacc50dd5ce35f3e123b35e
-        pre-push-guard.sh FIXED F e082e92fe082af59cee69da9d2a329dacf1cdf4e8e4d600f4c5b6fc2ce89dabf
+        pre-push-guard.sh FIXED F 34bfddd4f3be13944ecb1c58e9894d9dc6b79ef87dd1ac144678334a14a9a296
         pre-push-hook.py TRANSPORT F d193c170d963cbca2e64bb76ce0b1dfbe7999b9f5af6c0701ae11d95f9d7f659
         preflight-changelog.py NO_FS F a50874e9bb41aaf17949348e2ea14633f4f6e44b05ff24e4461dc05c74316911
         preflight-version-date.py NO_FS F a12ecf5ae928da5048eed6f282876a3ad2de92a51cc266eda65c8d5b2a613088

@@ -95,6 +95,62 @@
 # It then prints one ADVISORY that never blocks: build-reference-manifest.py --check
 # (reference-manifest drift against the grc_library_ref sibling; P-TODO 3b62).
 #
+# Maintainer-sibling checks (exit 4, on both paths, before the gates): on a
+# push from the maintainer's own clone (identity below), the guard refuses when
+# grc_library_private is absent or empty (1.19.8); when GRC_STORE is unset or
+# empty and the sibling store <repo-parent>/private is not a directory, is
+# a directory this account cannot enter, or is a directory whose real path is
+# the repository root or inside it, and
+# when GRC_STORE is set but does not name an existing directory outside this
+# repository (a missing path, a path that is not a directory, a directory this
+# account cannot enter, or a directory whose real path is the repository root
+# or inside it; a relative value is read against the repository root, as
+# lint_common reads it) (the 3b843 store rule: with GRC_STORE set, lint_common
+# takes GRC_STORE alone as the store and never consults <repo-parent>/private;
+# with GRC_STORE unset or empty, the store is <repo-parent>/private by name;
+# in every refused case the gates would not read the live operational store:
+# a default reader of lint_common.resolve_working (strict=False) looks up a
+# file in grc_library_private/.working/, a transitional tree that may be
+# stale, then in the repository's own .working/, when the store is absent,
+# not a directory, inside the repository, or a directory this account cannot
+# enter (which it still takes as the store, finding no file in it; on Python
+# 3.11, whose pathlib exists() raises PermissionError on EACCES, that file
+# lookup raises instead of falling through), and a directory lookup
+# (resolve_working_dir) returns such an unenterable store itself; a strict
+# reader (strict=True) refuses a store path that is present but not a
+# directory, a directory it cannot search, or a GRC_STORE path behind a
+# missing intermediate component, and falls through like a default reader
+# only for an absent store or a directory inside the repository that it can
+# search; every store refusal states its own finding, then prints the one remedy
+# sentence _store_remedy holds: set GRC_STORE to an existing directory outside
+# the repository that this account can enter or, with GRC_STORE unset, provide
+# the sibling store as such a directory); and when the grc_library_ref sibling
+# is absent, is not a directory or is a directory this account cannot search
+# (the 3b843 reference rule: the reference-manifest advisory above and the gate
+# 36 shards read it, and without it a push passed with only the advisory's
+# could-not-run line). No other store location is derived: the only documented
+# default is <repo-parent>/private itself (the fleet-standard
+# /opt/<project>/private is that same path when the clone sits at
+# /opt/<project>/<clone>). Identity: the clone is the maintainer's when its
+# origin URL (git remote get-url origin) ends in jposluns/grc_library, with or
+# without .git, after a "/" or ":" (the https, scp-like host:owner/repo and
+# ssh://host/owner/repo forms and local paths), matched as text and
+# case-sensitively. An adopter clone (any other origin, a fork owner ending in
+# jposluns included) and CI are exempt. Residuals: identity keys on the origin
+# URL here and on the push destination in tools/pre-push-hook.py, which runs
+# this guard for a push only when the destination's path, percent-decoded,
+# case-folded, normalized by posixpath.normpath and with its trailing slashes
+# and a final .git dropped, equals jposluns/grc_library or ends in
+# /jposluns/grc_library (a "/" before the owner), so a push to the maintainer
+# repository from a clone whose origin names another URL (another letter case,
+# a trailing slash, a percent-encoded name or a query string among them) takes
+# none of these checks; a present store without a file resolve_working looks up
+# still falls through to grc_library_private/.working/;
+# an empty or partial grc_library_ref passes; and no test builds a
+# repository whose real path is /, so the store rule's in-repository test for
+# that root (the repository path's trailing "/" is stripped before matching,
+# so every store is inside it) is not exercised by any test.
+#
 # Leftover report (strictly read-only; on both paths, before the gates): an
 # interrupt, a KILL or a crash can leave shard checkouts, their shard
 # directory and a process behind. Each push first reports what earlier runs
@@ -331,8 +387,14 @@
 #
 # Exit codes: 1 for an installed-hook check failure; 0 only if the gate steps, the local gate 36 shards and their reconcile, run-pr-time-checks.sh and the web check (when .web/build.py is present) pass, or on the fast path only if every fast-path check passes; 3 if the guard REFUSES to run
 # because stdout is piped (the RM-10 self-defence below, before any runner
-# starts); 4 if grc_library_private is required but absent (the _private check
-# below); 5 if the tracked working tree is dirty or its state cannot be read
+# starts); 4 on a maintainer push (origin naming jposluns/grc_library;
+# header, "Maintainer-sibling checks") when grc_library_private is absent or
+# empty, when GRC_STORE is unset or empty and <repo-parent>/private is not a
+# directory or is a directory this account cannot enter, when GRC_STORE is set
+# but does not name an existing directory outside this repository that this
+# account can enter, or when grc_library_ref
+# is not a directory;
+# 5 if the tracked working tree is dirty or its state cannot be read
 # (the attestation-soundness check below). At the local gate 36 shards (step
 # 1b): the first failing shard's own exit status, in shard order, when any
 # shard fails; otherwise 2 when the shard run cannot be set up or a shard
@@ -376,14 +438,103 @@ cd "${REPO_ROOT}"
 # dependency. Fail LOUD at push time if it is absent, so a push authored without it (the
 # Bash-write path the PreToolUse Edit/Write hook does not gate) is caught here too. This is
 # identity-conditional: an adopter clone (any other origin) and CI are exempt (they legitimately
-# have no _private). Exit 4 is the _private-refuse code (3 the pipe-refuse above, 5 the dirty-tree refuse below).
+# have no _private). Exit 4 is the _private-refuse code, shared by the 3b843 store and
+# reference checks after it (3 the pipe-refuse above, 5 the dirty-tree refuse below).
 _origin="$(git remote get-url origin 2>/dev/null || true)"
 # Boundary-anchored (a "/" or ":" before the owner) so a fork owner ending in "jposluns"
-# is not misread as the maintainer.
+# is not misread as the maintainer. Identity keys on origin here, and on the push
+# destination in tools/pre-push-hook.py (header, "Maintainer-sibling checks").
 case "${_origin}" in
   */jposluns/grc_library|*:jposluns/grc_library|*/jposluns/grc_library.git|*:jposluns/grc_library.git)
     if [ ! -d "${REPO_ROOT}/../grc_library_private" ] || [ -z "$(ls -A "${REPO_ROOT}/../grc_library_private" 2>/dev/null)" ]; then
       echo "pre-push-guard: REFUSING to push (1.19.8 (closing PR #1030) _private-required): origin is the maintainer repo but grc_library_private is absent or empty. It holds the operational state the CLAUDE.md delegation directive points to; clone it (git clone <the private sibling's remote URL> ../grc_library_private) or grant access (--add-dir ../grc_library_private), then retry. An adopter clone is exempt." >&2
+      exit 4
+    fi
+    # The one remedy sentence every store refusal below prints after its own first clause
+    # (what was found, and the search-permission hint where it applies), so the refusals
+    # cannot state the remedy differently.
+    _store_remedy="Set GRC_STORE to an existing directory outside this repository that this account can enter, or unset GRC_STORE and provide the sibling store at ../private as a directory outside this repository that this account can enter, then retry."
+    # 3b843 store rule (header, "Maintainer-sibling checks"): with GRC_STORE unset or empty
+    # the store is <repo-parent>/private by name. When it is absent or not a directory (a
+    # regular file, a dangling link), default readers of lint_common.resolve_working look up
+    # a file in grc_library_private/.working/, a transitional tree that may be stale, then in
+    # the repository's own .working/, in place of the live operational store; strict readers
+    # do the same for an absent sibling store and refuse one that is present but not a
+    # directory. A sibling store this account cannot enter default readers still take as the
+    # store: a file lookup finds nothing in it and falls through to the same trees (on Python
+    # 3.11, whose pathlib exists() raises PermissionError on EACCES, it raises instead; CI
+    # (.github/workflows/quality.yml) runs 3.11), and a directory lookup (resolve_working_dir)
+    # returns the unenterable store itself; strict readers (strict=True) refuse it as present
+    # but not searchable. Refuse in every case rather than let the transitional tree stand in,
+    # a gate read an unenterable store or a strict gate fail. No other location is derived.
+    if [ -z "${GRC_STORE:-}" ] && [ ! -d "${REPO_ROOT}/../private" ]; then
+      echo "pre-push-guard: REFUSING to push (3b843 store-required): origin is the maintainer repo, GRC_STORE is unset (or empty) and the sibling store ${REPO_ROOT}/../private is absent or is not a directory, so the gates that read the store by default would look up each file in grc_library_private/.working/ (a transitional tree that may be stale), then in this clone's .working/, in place of the live operational store, while the gates that read it strictly would do the same for an absent sibling store and refuse a sibling store that is present but not a directory (a regular file, a dangling link). ${_store_remedy} An adopter clone is exempt." >&2
+      exit 4
+    fi
+    # A sibling store this account cannot enter: the same cd -P test as the GRC_STORE-set
+    # branch below.
+    if [ -z "${GRC_STORE:-}" ]; then
+      if ! _sibling_real="$(cd -P -- "${REPO_ROOT}/../private" 2>/dev/null && pwd -P)" || [ -z "${_sibling_real}" ]; then
+        echo "pre-push-guard: REFUSING to push (3b843 store-required): origin is the maintainer repo, GRC_STORE is unset (or empty) and the sibling store ${REPO_ROOT}/../private is a directory this account cannot enter. The gates that read the store by default still take it as the store: a file lookup finds nothing in it and falls through to grc_library_private/.working/ (a transitional tree that may be stale), then this clone's .working/, in place of the live operational store (on Python 3.11, whose pathlib raises PermissionError there, it fails instead), and a directory lookup returns the unenterable store itself; the gates that read it strictly would refuse it as present but not searchable. To keep the sibling store, give this account search (execute) permission on it, then retry. ${_store_remedy} An adopter clone is exempt." >&2
+        exit 4
+      fi
+      # A sibling store whose real path is the repository root or inside it: lint_common
+      # does not take it as the store (default and strict readers fall through to
+      # grc_library_private/.working/), so refuse it by the same repository-prefix test
+      # and with the same exit code as the GRC_STORE-set branch below.
+      _repo_real="$(pwd -P)"
+      _repo_prefix="${_repo_real%/}"
+      case "${_sibling_real}/" in
+        "${_repo_prefix}"/*)
+          echo "pre-push-guard: REFUSING to push (3b843 store-required): origin is the maintainer repo, GRC_STORE is unset (or empty) and the real path of the sibling store ${REPO_ROOT}/../private, ${_sibling_real}, is the repository root or inside this repository (${_repo_real}), so lint_common does not take it as the store: the gates that read the store by default, and those that read it strictly, look up each file in grc_library_private/.working/ (a transitional tree that may be stale), then in this clone's .working/, in place of the live operational store. ${_store_remedy} An adopter clone is exempt." >&2
+          exit 4
+          ;;
+      esac
+    fi
+    # 3b843 store rule, GRC_STORE set: lint_common takes GRC_STORE alone as the store (a
+    # relative value read against the repository root) and never consults
+    # <repo-parent>/private while it is set. Unless GRC_STORE names an existing directory this
+    # account can enter whose real path is outside the repository, the gates do not read the
+    # live operational store: default readers look up a file in grc_library_private/.working/,
+    # then the repository's own .working/, for a missing path, a non-directory or a directory
+    # inside the repository; a directory this account cannot enter they still take as the
+    # store, so a file lookup finds nothing there and falls through the same way (on Python
+    # 3.11 it raises PermissionError instead) and a directory lookup returns it; strict readers
+    # refuse a path that is present but not a directory, a directory they cannot search or a
+    # path behind a missing intermediate component, and fall through like default readers
+    # only for an absent store or a directory inside the repository that they can search.
+    # Refuse it, naming GRC_STORE and the condition.
+    if [ -n "${GRC_STORE:-}" ]; then
+      case "${GRC_STORE}" in
+        /*) _store_given="${GRC_STORE}" ;;
+        *) _store_given="${REPO_ROOT}/${GRC_STORE}" ;;
+      esac
+      _store_why=""
+      if [ ! -d "${_store_given}" ]; then
+        _store_why="it does not name an existing directory"
+      elif ! _store_real="$(cd -P -- "${_store_given}" 2>/dev/null && pwd -P)" || [ -z "${_store_real}" ]; then
+        _store_why="it names a directory this account cannot enter, so its real path cannot be read"
+      else
+        _repo_real="$(pwd -P)"
+        # The repository path without a trailing "/" (only / itself has one), stripped into a
+        # variable of its own before the case, so a repository at / gives the pattern /*.
+        _repo_prefix="${_repo_real%/}"
+        case "${_store_real}/" in
+          "${_repo_prefix}"/*) _store_why="its real path ${_store_real} is the repository root or inside this repository (${_repo_real})" ;;
+        esac
+      fi
+      if [ -n "${_store_why}" ]; then
+        echo "pre-push-guard: REFUSING to push (3b843 store-required): origin is the maintainer repo and GRC_STORE is set (to ${GRC_STORE}), but ${_store_why}, so the gates would not read the live operational store: while GRC_STORE is set, lint_common takes it alone as the store and never consults ../private; for a missing path, a non-directory or a directory inside this repository, the gates that read the store by default look up each file in grc_library_private/.working/ (a transitional tree that may be stale), then in this clone's .working/, in its place; a directory this account cannot enter they still take as the store, so a file lookup finds nothing there and falls through the same way (on Python 3.11 it fails with PermissionError instead) and a directory lookup returns it; the gates that read it strictly fall through like the default readers only for an absent store or a directory inside this repository that they can search, and refuse every other unusable path (one that is present but not a directory, a directory they cannot search, or a path behind an intermediate component that is missing, not a directory or not searchable). ${_store_remedy} An adopter clone is exempt." >&2
+        exit 4
+      fi
+    fi
+    # 3b843 reference rule: the reference-manifest advisory (end of this guard) and the gate
+    # 36 shards read the grc_library_ref sibling; without it a maintainer push passed with
+    # only the advisory's could-not-run line. A directory this account cannot search is
+    # refused too, by the same cd -P test as the store rule above: those readers cannot
+    # read it either.
+    if [ ! -d "${REPO_ROOT}/../grc_library_ref" ] || ! _ref_real="$(cd -P -- "${REPO_ROOT}/../grc_library_ref" 2>/dev/null && pwd -P)" || [ -z "${_ref_real}" ]; then
+      echo "pre-push-guard: REFUSING to push (3b843 ref-required): origin is the maintainer repo but the grc_library_ref sibling ${REPO_ROOT}/../grc_library_ref is absent, is not a directory or cannot be searched, so the reference-manifest advisory and the gate 36 shards would run without the reference corpus. Move aside whatever stands at ../grc_library_ref (if anything), clone the reference corpus there and make sure this account can search it, then retry. An adopter clone is exempt." >&2
       exit 4
     fi
     ;;
@@ -2392,6 +2543,8 @@ fi
 # GIT_CONFIG_GLOBAL, GIT_CONFIG_SYSTEM, GIT_CONFIG_NOSYSTEM, and safe.directory supplied that
 # way) reaches only the generator's read, since detect-env runs with no GIT_ variable, so a
 # difference it makes to the origin makes the two reads disagree and gives exit 4.
+# On a maintainer push (origin jposluns/grc_library) the sibling is never absent here: the
+# 3b843 reference check near the top refuses that push first (exit 4).
 echo ""
 echo "=== pre-push guard advisory: build-reference-manifest.py --check (reference manifest vs grc_library_ref; does not block) ==="
 # The status is captured inside an `if`, so an inherited errexit (SHELLOPTS) cannot end the guard
