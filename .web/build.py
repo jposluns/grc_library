@@ -689,56 +689,72 @@ def read_domain_purpose(domain):
     """Return the ``## Purpose`` intro of ``<domain>/README.md`` as clean plain
     text. Normally that is the section's first paragraph. When the first
     paragraph is a list lead-in (it ends with a colon, the dev-security case),
-    the following list items' lead-in sentences are folded in so the page never
-    renders a dangling colon. Markdown links, bold, and code spans are flattened,
+    the first sentence of each following list item is folded in after the
+    colon. When no list item follows the lead-in (prose comes next, or
+    nothing), the paragraph is returned as it stands, its closing colon
+    kept. Markdown links, bold, and code spans are flattened,
     and the CC BY-SA quotation sentence is dropped: the domain page's Note
     callout already states it, so the lead never repeats it. Every corpus domain
     README follows the section model and carries a Purpose section; a missing
     file or missing section is a coupling breakage the generator-health check
-    must surface."""
+    must surface.
+
+    The Purpose section is the first section read_markdown_sections finds
+    with the flush-text heading rule and no fence handling whose heading
+    is 'Purpose' (a flush '##', white space, 'Purpose', then optional
+    white space). Its paragraph is
+    read through read_markdown_paragraph, fence-blind, from the line after
+    the heading: blank lines and level-three or deeper headings before it
+    are skipped, and it stops at a blank line or a level-three or deeper
+    heading after text, at a stripped line starting with '##' then white
+    space or the end of the line, or at a thematic break. The list items
+    folded after a lead-in are read from the lines after the paragraph up
+    to a stripped line starting with '## ' or a thematic break; the list
+    ends at a line that is neither an item nor the continuation of one,
+    and a non-item line after a blank line ends it too, so a paragraph
+    after the list does not join the last item. A paragraph that is empty
+    once links, bold and code spans are flattened and the CC BY-SA
+    sentence is dropped is refused as no paragraph."""
     p = REPO_ROOT / domain / "README.md"
     if not p.is_file():
         raise BuildError(f"domain README not found at {p}")
-    # Collect the section's lines (stripped), stopping at the next heading / rule.
-    lines = []
-    in_purpose = False
-    for line in p.read_text(encoding="utf-8").splitlines():
-        if not in_purpose:
-            if re.match(r"^##\s+Purpose\s*$", line):
-                in_purpose = True
-            continue
-        if line.strip().startswith("## ") or line.strip() == "---":
-            break
-        lines.append(line.strip())
-
-    i = 0
-    while i < len(lines) and not lines[i]:
-        i += 1
+    text = p.read_text(encoding="utf-8")
+    lines = text.splitlines()
     para = []
-    while i < len(lines) and lines[i]:
-        para.append(lines[i])
-        i += 1
+    i = len(lines)
+    for section in read_markdown_sections(text, heading="flush-text",
+                                          fences="none")[1:]:
+        if section.heading == "Purpose":
+            para, i = read_markdown_paragraph(lines, section.line.number)
+            break
     if not para:
         raise BuildError(f"{domain}/README.md has no '## Purpose' paragraph")
     intro = " ".join(para)
 
     if intro.endswith(":"):
         # Fold the following list items' first sentences into the lead-in.
+        rest = []
+        for line in lines[i:]:
+            st = line.strip()
+            if st.startswith("## ") or md_thematic_break(st):
+                break
+            rest.append(st)
         items = []
         cur = None
-        while i < len(lines):
-            m = re.match(r"^(?:\d+\.|[-*])\s+(.*)$", lines[i])
+        blank = False
+        for st in rest:
+            m = re.match(r"^(?:\d+\.|[-*])\s+(.*)$", st)
             if m:
                 if cur is not None:
                     items.append(cur)
                 cur = m.group(1)
-            elif lines[i] == "":
-                pass
-            elif cur is not None:
-                cur += " " + lines[i]
+                blank = False
+            elif st == "":
+                blank = True
+            elif cur is not None and not blank:
+                cur += " " + st
             else:
                 break
-            i += 1
         if cur is not None:
             items.append(cur)
         leads = []
@@ -750,7 +766,10 @@ def read_domain_purpose(domain):
             intro = intro.rstrip(":").rstrip() + ": " + "; ".join(leads) + "."
 
     text = _MD_LINK_RE.sub(r"\1", intro).replace("**", "").replace("`", "")
-    return _DOMAIN_LEAD_LICENCE_RE.sub("", text).strip()
+    lede = _DOMAIN_LEAD_LICENCE_RE.sub("", text).strip()
+    if not lede:
+        raise BuildError(f"{domain}/README.md has no '## Purpose' paragraph")
+    return lede
 
 
 def compute_figures():
@@ -1054,7 +1073,8 @@ _NARR_MD_EM_RE = re.compile(r"\*([^*\s](?:[^*]*[^*\s])?)\*")
 _NARR_MD_UNDERSCORE_EM_RE = re.compile(r"(?<![A-Za-z0-9])_[^_\s][^_]*_(?![A-Za-z0-9])")
 _NARR_MD_AUTOLINK_RE = re.compile(r"<[a-z][a-z0-9+.-]*:")
 _NARR_MD_SCHEME_RE = re.compile(r"^[a-z][a-z0-9+.-]*:", re.I)
-_NARR_MD_HR_RE = re.compile(r"^(-{3,}|\*{3,}|_{3,})$")
+# A thematic break may carry trailing spaces or tabs and is still one.
+_NARR_MD_HR_RE = re.compile(r"^(-{3,}|\*{3,}|_{3,})[ \t]*$")
 _NARR_MD_SETEXT_UNDERLINE_RE = re.compile(r"^(=+|-{2})[ \t]*$")
 _NARR_MD_SPACED_BREAK_RE = re.compile(r"^([-*_=])(?:[ \t]+\1)+[ \t]*$")
 _NARR_MD_RAW_HTML_RE = re.compile(r"<[A-Za-z/!?]")
@@ -1163,18 +1183,26 @@ def _narrative_body_lines(text, source_rel):
     ``**End of Document**`` terminator required and dropped (the page chrome
     supplies the title and the closing sections, so neither the H1, the
     metadata block, nor the terminator is rendered). Loud on document-model
-    drift: a missing leading H1, a missing metadata terminator, or a missing
-    document terminator each raise BuildError."""
+    drift: a missing leading H1, a missing metadata terminator, a missing
+    document terminator, or a fence line (three backticks or three
+    tildes after any indentation) before the metadata terminator each
+    raise BuildError, so a '---' inside a fence is never taken as the
+    terminator. A source with no '---' line at all is refused as
+    having no metadata terminator, whether or not it holds a fence."""
     lines = text.splitlines()
     first_content = next((ln for ln in lines if ln.strip()), "")
     if not first_content.startswith("# "):
         raise BuildError(f"{source_rel}: narrative source has no leading '# ' title line")
-    for i, ln in enumerate(lines):
-        if ln.strip() == "---":
-            body = lines[i + 1:]
-            break
-    else:
+    end = next((i for i, ln in enumerate(lines) if ln.strip() == "---"), None)
+    if end is None:
         raise BuildError(f"{source_rel}: no '---' metadata terminator found")
+    for ln in lines[:end]:
+        if ln.lstrip().startswith(("```", "~~~")):
+            raise BuildError(
+                f"{source_rel}: fenced code before the '---' metadata "
+                f"terminator: {ln[:60]!r}"
+            )
+    body = lines[end + 1:]
     non_blank = [j for j, ln in enumerate(body) if ln.strip()]
     if not non_blank or body[non_blank[-1]].strip() != _NARR_TERMINATOR:
         raise BuildError(
@@ -4163,53 +4191,57 @@ def _adopter_metadata(text, rel):
 
 
 def _adopter_first_paragraph(lines):
-    """First real prose paragraph, skipping sub-headings, stopping at the next
-    top-level section or a horizontal rule."""
-    para = []
-    for nxt in lines:
-        st = nxt.strip()
-        if st == "---" or re.match(r"^##\s", nxt):
-            break
-        if re.match(r"^#{3,}\s", nxt):
-            if para:
-                break
-            continue
-        if not st:
-            if para:
-                break
-            continue
-        para.append(st)
-    return " ".join(para)
+    """First real prose paragraph, read by read_markdown_paragraph: blank
+    lines and sub-headings before it are skipped, and it stops at a blank
+    line or a sub-heading after text, at a level-two heading line, or at a
+    thematic break. Fence-blind."""
+    return " ".join(read_markdown_paragraph(lines)[0])
 
 
 def _adopter_purpose(text):
     """The document's lede: the first paragraph under a ``## Purpose`` or
     ``## Overview`` heading outside any code fence, else the intro paragraph
     between the metadata block and the first section (the worked examples
-    carry no Overview heading). Empty string only if neither is present."""
+    carry no Overview heading). The result is an empty string when the
+    Purpose or Overview paragraph is empty (a stop such as a thematic
+    break or a bare '##' comes before any text under the heading; the
+    fallback is not read then), and when neither a heading nor an intro
+    paragraph is present.
+
+    The heading search reads sections through read_markdown_sections with
+    the stripped-text heading rule and fences toggled, and reads the
+    paragraph after the heading through read_markdown_paragraph. The
+    fallback reads the lines before the first level-two heading outside a
+    fence (the stripped heading rule, fences toggled) and skips a fence
+    line or a line inside a fence, a title line (a stripped line that
+    begins with '#' followed by white space or the end of the line), a
+    metadata field line, a thematic break and a level-three or deeper
+    heading written flush at the start
+    of the line with white space after its hashes. An indented
+    level-three heading, or hashes with nothing after them, is not
+    skipped and is read as paragraph text, as main reads it."""
     lines = text.splitlines()
-    in_fence = False
-    for i, ln in enumerate(lines):
-        if _adopter_fence_line(ln):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        if re.match(r"^##\s+(?:\d+\.\s+)?(?:Purpose|Overview)\b",
-                    ln.strip(), re.I):
-            return _adopter_flatten(_adopter_first_paragraph(lines[i + 1:]))
+    for section in read_markdown_sections(text, heading="stripped-text",
+                                          fences="toggle")[1:]:
+        if re.match(r"(?:\d+\.\s+)?(?:Purpose|Overview)\b",
+                    section.heading, re.I):
+            para, _ = read_markdown_paragraph(lines, section.line.number)
+            return _adopter_flatten(" ".join(para))
+    preamble = read_markdown_sections(text, heading="stripped",
+                                      fences="toggle")[0]
     started = False
     para = []
-    for ln in lines:
+    for md_line in preamble.lines:
+        if md_line.fenced:
+            continue
+        ln = md_line.text
         st = ln.strip()
-        if st.startswith("## "):
-            break
-        if st.startswith("# "):
+        if re.match(r"#(?:\s|$)", st):
             continue
         if re.match(r"^\*\*[^*]+:\*\*", ln):
             started = True
             continue
-        if st == "---" or re.match(r"^#{3,}\s", ln):
+        if md_thematic_break(st) or re.match(r"^#{3,}\s", ln):
             continue
         if not st:
             if para:
@@ -4236,6 +4268,130 @@ def _adopter_sections(text):
         if m:
             out.append(m.group(1).strip())
     return out
+
+
+class MdLine(NamedTuple):
+    """One line of a Markdown text: its one-based number, its text as
+    str.splitlines() yields it, and whether it is a fence line or a line
+    inside a fence (always False when fences are not tracked)."""
+    number: int
+    text: str
+    fenced: bool
+
+
+class MdSection(NamedTuple):
+    """One section of a Markdown text: the heading text and the heading
+    line (both None for the lines before the first heading), then the
+    lines up to the next heading."""
+    heading: str | None
+    line: MdLine | None
+    lines: tuple
+
+
+def _md_flush_text(line):
+    m = re.match(r"^##\s+(.+?)\s*$", line)
+    return m.group(1).strip() if m else None
+
+
+# The level-two heading rules read_markdown_sections accepts. Each maps a
+# raw line to its heading text, or None when the line is not a heading,
+# and each copies the rule one current reader applies:
+# - flush: the line starts with '## ' (the citations register, compliance
+#   matrix and reverse matrix readers, which read their sections through
+#   read_markdown_sections);
+# - flush-text: ^##\s+(.+?)\s*$ on the raw line (the adopter outline,
+#   and read_domain_purpose, which reads its sections through
+#   read_markdown_sections);
+# - stripped: the stripped line starts with '## ' (the adopter metadata
+#   block, and the adopter intro fallback, which reads its preamble
+#   through read_markdown_sections);
+# - stripped-text: ^##\s+(.+?)\s*$ on the stripped line (the adopter
+#   Purpose or Overview search, which reads its sections through
+#   read_markdown_sections).
+MD_HEADING_RULES = {
+    "flush": lambda line: (line[3:].strip() if line.startswith("## ")
+                           else None),
+    "flush-text": _md_flush_text,
+    "stripped": lambda line: (line.strip()[3:].strip()
+                              if line.strip().startswith("## ") else None),
+    "stripped-text": lambda line: _md_flush_text(line.strip()),
+}
+
+# The fence modes read_markdown_sections accepts.
+MD_FENCE_MODES = ("none", "toggle")
+
+
+def read_markdown_sections(text, *, heading, fences):
+    """Split ``text`` into level-two sections. ``heading`` names one rule
+    of MD_HEADING_RULES. ``fences`` is "none" (no fence handling: every
+    line is unfenced and may be a heading) or "toggle" (each
+    _adopter_fence_line line opens or closes a fence whatever its fence
+    character, and neither it nor a line inside the fence is a heading).
+    Element 0 is always the preamble, the lines before the first heading,
+    with heading and line None; every later element is one heading and
+    its lines."""
+    if heading not in MD_HEADING_RULES:
+        raise ValueError(f"unknown Markdown heading rule {heading!r}")
+    if fences not in MD_FENCE_MODES:
+        raise ValueError(f"unknown Markdown fence mode {fences!r}")
+    rule = MD_HEADING_RULES[heading]
+    sections = []
+    title = None
+    title_line = None
+    body = []
+    in_fence = False
+    for number, raw in enumerate(text.splitlines(), 1):
+        fenced = False
+        if fences == "toggle":
+            if _adopter_fence_line(raw):
+                in_fence = not in_fence
+                fenced = True
+            else:
+                fenced = in_fence
+        line = MdLine(number, raw, fenced)
+        found = None if fenced else rule(raw)
+        if found is None:
+            body.append(line)
+            continue
+        sections.append(MdSection(title, title_line, tuple(body)))
+        title, title_line, body = found, line, []
+    sections.append(MdSection(title, title_line, tuple(body)))
+    return sections
+
+
+def md_thematic_break(line):
+    """True when the stripped ``line`` is three or more of one of '-', '*'
+    or '_', with any spaces or tabs between them."""
+    return re.fullmatch(r"([-*_])(?:[ \t]*\1){2,}", line.strip()) is not None
+
+
+def read_markdown_paragraph(lines, start=0):
+    """The first paragraph of ``lines`` from index ``start``, fence-blind.
+    Blank lines and level-three or deeper headings before any text are
+    skipped. The paragraph stops at a blank line or a level-three or
+    deeper heading after text, and, before or after text, at a stripped
+    line starting with '##' then white space or the end of the line
+    (so '## X' stops it, as '##' alone does), or at a line
+    md_thematic_break accepts. A line starting with a single '#' then
+    white space does not stop it and joins it, as it joins the paragraph
+    of _adopter_first_paragraph and the Purpose paragraph of
+    read_domain_purpose; the intro fallback of _adopter_purpose skips
+    such a line instead. Returns the stripped paragraph lines and the
+    index of the line that stopped it (len(lines) when none did)."""
+    para = []
+    i = start
+    while i < len(lines):
+        st = lines[i].strip()
+        if re.match(r"##(?:\s|$)", st) or md_thematic_break(st):
+            break
+        if re.match(r"#{3,}(?:\s|$)", st) or not st:
+            if para:
+                break
+            i += 1
+            continue
+        para.append(st)
+        i += 1
+    return para, i
 
 
 def parse_adopter_docs():
@@ -7859,59 +8015,62 @@ def _parse_citations_register_sections(text, require_heading):
                 "Last verified (UTC)"]
     sections = []
     seen = set()
-    heading = None
-    state = "outside"  # outside -> header -> rows
-    for line in text.splitlines():
-        if line.startswith("## "):
-            heading = line[len("## "):].strip()
-            state = "outside"
-            continue
-        if not line.strip().startswith("|"):
-            state = "outside"
-            continue
-        cells = _xw_table_cells(line)
-        if cells == expected:
-            if heading is None and require_heading:
+    # Sections come from read_markdown_sections with the flush heading
+    # rule and no fence handling; the preamble's heading is None. A
+    # section whose heading repeats the one before it adds its rows to
+    # that group, so adjacent repeated headings merge.
+    for section in read_markdown_sections(text, heading="flush",
+                                          fences="none"):
+        heading = section.heading
+        state = "outside"  # outside -> header -> rows
+        for md_line in section.lines:
+            line = md_line.text
+            if not line.strip().startswith("|"):
+                state = "outside"
+                continue
+            cells = _xw_table_cells(line)
+            if cells == expected:
+                if heading is None and require_heading:
+                    raise BuildError(
+                        "crosswalk: citations register table above the "
+                        "first ## section heading (schema change?)"
+                    )
+                state = "header"
+                continue
+            if state == "header":
+                if not _xw_is_separator(cells):
+                    raise BuildError(
+                        "crosswalk: citations register header not followed "
+                        "by a separator row (schema change?)"
+                    )
+                state = "rows"
+                if not sections or sections[-1][0] != heading:
+                    sections.append((heading, []))
+                continue
+            if state != "rows":
+                continue
+            if len(cells) != len(expected):
                 raise BuildError(
-                    "crosswalk: citations register table above the first "
-                    "## section heading (schema change?)"
+                    "crosswalk: citations register row with "
+                    f"{len(cells)} cell(s) instead of {len(expected)}: "
+                    f"{cells[0] if cells else line!r}"
                 )
-            state = "header"
-            continue
-        if state == "header":
-            if not _xw_is_separator(cells):
+            standard_id = cells[0]
+            if standard_id in seen:
                 raise BuildError(
-                    "crosswalk: citations register header not followed by a "
-                    "separator row (schema change?)"
+                    f"crosswalk: duplicate Standard ID in the citations "
+                    f"register: {standard_id}"
                 )
-            state = "rows"
-            if not sections or sections[-1][0] != heading:
-                sections.append((heading, []))
-            continue
-        if state != "rows":
-            continue
-        if len(cells) != len(expected):
-            raise BuildError(
-                "crosswalk: citations register row with "
-                f"{len(cells)} cell(s) instead of {len(expected)}: "
-                f"{cells[0] if cells else line!r}"
-            )
-        standard_id = cells[0]
-        if standard_id in seen:
-            raise BuildError(
-                f"crosswalk: duplicate Standard ID in the citations register: "
-                f"{standard_id}"
-            )
-        seen.add(standard_id)
-        sections[-1][1].append({
-            "id": standard_id,
-            "version": cells[1],
-            "date": cells[2],
-            # Register-internal notes never reach a page.
-            "topic": _XW_TOPIC_NOTE_RE.sub("", _xw_plain(cells[3])),
-            "upstream": cells[5],
-            "verified": cells[6],
-        })
+            seen.add(standard_id)
+            sections[-1][1].append({
+                "id": standard_id,
+                "version": cells[1],
+                "date": cells[2],
+                # Register-internal notes never reach a page.
+                "topic": _XW_TOPIC_NOTE_RE.sub("", _xw_plain(cells[3])),
+                "upstream": cells[5],
+                "verified": cells[6],
+            })
     if not any(rows for _, rows in sections):
         raise BuildError(
             "crosswalk: citations register parsed to zero rows (schema change?)"
@@ -7961,70 +8120,74 @@ def parse_compliance_matrix(text):
     )
     domains = []
     rows_by_domain = {}
-    domain = None
-    state = "outside"
-    for line in text.splitlines():
-        m = re.match(r"^## (.+) domain\s*$", line)
-        if m:
-            slug = m.group(1).strip().lower().replace(" ", "-")
-            if slug not in DOMAIN_SCOPE:
-                raise BuildError(
-                    f"crosswalk: compliance matrix section '{m.group(1)}' "
-                    "names no DOMAIN_SCOPE domain (renamed domain or schema "
-                    "change?)"
-                )
-            if slug in rows_by_domain:
-                raise BuildError(
-                    f"crosswalk: duplicate compliance matrix section for "
-                    f"domain '{slug}'"
-                )
-            domain = slug
-            domains.append(slug)
-            rows_by_domain[slug] = []
-            state = "outside"
+    # Sections come from read_markdown_sections with the flush heading
+    # rule and no fence handling. Only a heading line '## <name> domain'
+    # opens a domain section; the preamble and every other section are
+    # skipped.
+    for section in read_markdown_sections(text, heading="flush",
+                                          fences="none"):
+        if section.line is None:
             continue
-        if line.startswith("## "):
-            domain = None
-            state = "outside"
+        m = re.match(r"^## (.+) domain\s*$", section.line.text)
+        if not m:
             continue
-        if domain is None or not line.strip().startswith("|"):
-            state = "outside"
-            continue
-        cells = _xw_table_cells(line)
-        if cells == expected_header:
-            state = "header"
-            continue
-        if state == "header":
-            if not _xw_is_separator(cells):
-                raise BuildError(
-                    f"crosswalk: compliance matrix '{domain}' header not "
-                    "followed by a separator row (schema change?)"
-                )
-            state = "rows"
-            continue
-        if state != "rows":
+        name = m.group(1).strip()
+        slug = name.lower().replace(" ", "-")
+        if slug not in DOMAIN_SCOPE:
             raise BuildError(
-                f"crosswalk: compliance matrix table in '{domain}' does not "
-                "open with the pinned column header (schema change?)"
+                f"crosswalk: compliance matrix section '{m.group(1)}' "
+                "names no DOMAIN_SCOPE domain (renamed domain or schema "
+                "change?)"
             )
-        if len(cells) != len(expected_header):
+        if slug in rows_by_domain:
             raise BuildError(
-                f"crosswalk: compliance matrix row in '{domain}' with "
-                f"{len(cells)} cell(s) instead of {len(expected_header)}"
+                f"crosswalk: duplicate compliance matrix section for "
+                f"domain '{slug}'"
             )
-        paths = _xw_doc_paths(
-            cells[2], f"compliance matrix row in '{domain}'"
-        )
-        if len(paths) != 1:
-            raise BuildError(
-                f"crosswalk: compliance matrix row in '{domain}' must cite "
-                f"exactly one document path: {cells[2]!r}"
+        domain = slug
+        domains.append(slug)
+        rows_by_domain[slug] = []
+        state = "outside"
+        for md_line in section.lines:
+            line = md_line.text
+            if not line.strip().startswith("|"):
+                state = "outside"
+                continue
+            cells = _xw_table_cells(line)
+            if cells == expected_header:
+                state = "header"
+                continue
+            if state == "header":
+                if not _xw_is_separator(cells):
+                    raise BuildError(
+                        f"crosswalk: compliance matrix '{domain}' header not "
+                        "followed by a separator row (schema change?)"
+                    )
+                state = "rows"
+                continue
+            if state != "rows":
+                raise BuildError(
+                    f"crosswalk: compliance matrix table in '{domain}' does "
+                    "not open with the pinned column header (schema change?)"
+                )
+            if len(cells) != len(expected_header):
+                raise BuildError(
+                    f"crosswalk: compliance matrix row in '{domain}' with "
+                    f"{len(cells)} cell(s) instead of {len(expected_header)}"
+                )
+            paths = _xw_doc_paths(
+                cells[2], f"compliance matrix row in '{domain}'"
             )
-        rows_by_domain[domain].append({
-            "path": paths[0],
-            "title": cells[1],
-            "cells": dict(zip(CROSSWALK_COMPLIANCE_COLUMNS, cells[3:])),
-        })
+            if len(paths) != 1:
+                raise BuildError(
+                    f"crosswalk: compliance matrix row in '{domain}' must "
+                    f"cite exactly one document path: {cells[2]!r}"
+                )
+            rows_by_domain[domain].append({
+                "path": paths[0],
+                "title": cells[1],
+                "cells": dict(zip(CROSSWALK_COMPLIANCE_COLUMNS, cells[3:])),
+            })
     missing = sorted(set(DOMAIN_SCOPE) - set(rows_by_domain))
     if missing:
         raise BuildError(
@@ -8179,69 +8342,87 @@ def parse_reverse_matrix(text):
     "Alignment type" are instrument sections; a malformed row, a row citing
     no document, a second instrument table under a heading already read (a
     repeated section heading), or an interrupted table (a blank line inside
-    it, or any stray table line after it closes) is a BuildError."""
+    it, or any stray table line after it closes) is a BuildError.
+
+    Sections come from read_markdown_sections with the flush heading rule
+    and no fence handling, and every line is read fence-blind: a heading
+    line is a heading inside a fence too, a table line inside a fence is
+    read as any other, and lines before the first heading are skipped.
+    One check alone reads fences, and only once every line has been read
+    with no refusal: a section whose instrument table lies wholly inside
+    a fence opened and closed within that section
+    (_xw_fenced_instrument_header) is left out before the zero-section
+    and zero-row checks, so a fenced table is not an instrument table."""
     sections = {}
-    heading = None
-    current = None
-    state = "outside"
-    for line in text.splitlines():
-        if line.startswith("## "):
-            heading = line[3:].strip()
-            current = None
-            state = "outside"
+    fenced = []
+    for section in read_markdown_sections(text, heading="flush",
+                                          fences="none"):
+        heading = section.heading
+        if heading is None:
             continue
-        if heading is None or not line.strip().startswith("|"):
-            state = "outside"
-            continue
-        cells = _xw_table_cells(line)
-        if state == "outside" and current is not None:
-            # Inside an instrument section, a table line
-            # after the table closed (a blank line inside the table, a
-            # second table, or a stray row) must never be dropped silently.
-            raise BuildError(
-                f"crosswalk: reverse matrix table under '{heading}' is "
-                "interrupted or carries an unexpected table line"
-            )
-        if (state == "outside" and len(cells) == 3
-                and cells[1] == "Library documents"
-                and cells[2] == "Alignment type"):
-            if heading in sections:
+        current = None
+        state = "outside"
+        for index, md_line in enumerate(section.lines):
+            line = md_line.text
+            if not line.strip().startswith("|"):
+                state = "outside"
+                continue
+            cells = _xw_table_cells(line)
+            if state == "outside" and current is not None:
+                # Inside an instrument section, a table line
+                # after the table closed (a blank line inside the table, a
+                # second table, or a stray row) must never be dropped
+                # silently.
                 raise BuildError(
-                    f"crosswalk: duplicate reverse matrix table under "
-                    f"'{heading}'"
+                    f"crosswalk: reverse matrix table under '{heading}' is "
+                    "interrupted or carries an unexpected table line"
                 )
-            current = {"area_label": cells[0], "rows": []}
-            sections[heading] = current
-            state = "header"
-            continue
-        if state == "header":
-            if not _xw_is_separator(cells):
+            if (state == "outside" and len(cells) == 3
+                    and cells[1] == "Library documents"
+                    and cells[2] == "Alignment type"):
+                if heading in sections:
+                    raise BuildError(
+                        f"crosswalk: duplicate reverse matrix table under "
+                        f"'{heading}'"
+                    )
+                current = {"area_label": cells[0], "rows": []}
+                sections[heading] = current
+                if _xw_fenced_instrument_header(section.lines, index):
+                    fenced.append(heading)
+                state = "header"
+                continue
+            if state == "header":
+                if not _xw_is_separator(cells):
+                    raise BuildError(
+                        f"crosswalk: reverse matrix '{heading}' header not "
+                        "followed by a separator row (schema change?)"
+                    )
+                state = "rows"
+                continue
+            if state != "rows":
+                continue
+            if len(cells) != 3:
                 raise BuildError(
-                    f"crosswalk: reverse matrix '{heading}' header not "
-                    "followed by a separator row (schema change?)"
+                    f"crosswalk: reverse matrix row under '{heading}' with "
+                    f"{len(cells)} cell(s) instead of 3"
                 )
-            state = "rows"
-            continue
-        if state != "rows":
-            continue
-        if len(cells) != 3:
-            raise BuildError(
-                f"crosswalk: reverse matrix row under '{heading}' with "
-                f"{len(cells)} cell(s) instead of 3"
+            paths = _xw_doc_paths(
+                cells[1], f"reverse matrix row under '{heading}'"
             )
-        paths = _xw_doc_paths(
-            cells[1], f"reverse matrix row under '{heading}'"
-        )
-        if not paths:
-            raise BuildError(
-                f"crosswalk: reverse matrix row under '{heading}' cites no "
-                f"parsable document path: {cells[0]!r}"
-            )
-        current["rows"].append({
-            "area": cells[0],
-            "paths": paths,
-            "alignment": cells[2],
-        })
+            if not paths:
+                raise BuildError(
+                    f"crosswalk: reverse matrix row under '{heading}' cites "
+                    f"no parsable document path: {cells[0]!r}"
+                )
+            current["rows"].append({
+                "area": cells[0],
+                "paths": paths,
+                "alignment": cells[2],
+            })
+    # The one fence check. A table is one unbroken run of table lines and a
+    # fence line is never a table line, so a table whose header lies inside
+    # a fence lies wholly inside it.
+    sections = {h: s for h, s in sections.items() if h not in fenced}
     if not sections:
         raise BuildError(
             "crosswalk: reverse matrix parsed to zero instrument sections "
@@ -8254,6 +8435,26 @@ def parse_reverse_matrix(text):
             + ", ".join(empty)
         )
     return sections
+
+
+def _xw_fenced_instrument_header(lines, header_at):
+    """True when the line at index ``header_at`` of one section's lines
+    (MdLine tuples from read_markdown_sections) lies inside a fence opened
+    and closed within that section. A fence is an _adopter_fence_line line
+    paired with the next such line of the section, whatever either fence
+    character, and a fence line left without a pair fences nothing. This
+    is the one fence check of parse_reverse_matrix."""
+    opened = None
+    for index, md_line in enumerate(lines):
+        if not _adopter_fence_line(md_line.text):
+            continue
+        if opened is None:
+            opened = index
+            continue
+        if opened < header_at < index:
+            return True
+        opened = None
+    return False
 
 
 def _xw_split_identifiers(cell):
