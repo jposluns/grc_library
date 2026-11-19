@@ -2,8 +2,8 @@
 
 **Document Title:** Worked Example: Adopting the Library into a Running Programme\
 **Document Type:** Guide\
-**Version:** 1.0.3\
-**Date:** 2026-11-08\
+**Version:** 1.0.4\
+**Date:** 2026-11-19\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/worked-example.md`](../../../../governance/worked-example.md), [`.claude/skills/corpus-management/docs/adopter-guide.md`](adopter-guide.md), [`governance/template-quickstart.md`](../../../../governance/template-quickstart.md), [`governance/template-startup-roadmap.md`](../../../../governance/template-startup-roadmap.md), [`governance/template-implementation-roadmap.md`](../../../../governance/template-implementation-roadmap.md), [`governance/decision-tree.md`](../../../../governance/decision-tree.md)\
@@ -57,7 +57,7 @@ In the second phase ([`governance/template-implementation-roadmap.md`](../../../
 
 [`governance/template-implementation-roadmap.md`](../../../../governance/template-implementation-roadmap.md) phase 3 (days 181 to 365 at the E2 pace) reaches steady state: the adopter deepens the domains its phase 2 self-assessment flagged, introduces a small measurement layer (a handful of programme metrics, not dozens), runs a programme-level governance review, and publishes a year-1 retrospective and a year-2 plan signed off by the governance authority. From there the programme runs on its own cadence.
 
-To stay current with the library the adopter follows the adopter guide's guidance on tracking upstream updates: read the CHANGELOG entry for the period since the last pull, run `.claude/skills/corpus-management/tools/run_all_audits.sh` to confirm the fork is still conformant, and resolve version-monotonicity conflicts by keeping the fork's own version line and recording the upstream version it reconciled against. The adopter guide names the recurring pull cases (merge conflicts in edited artefacts, a new upstream gate the fork trips, and version-monotonicity conflicts); this adopter's customized privacy annexes and role overlays make the merge-conflict case the common one.
+To stay current with the library the adopter follows the adopter guide's guidance on tracking upstream updates: read the CHANGELOG's weekly summaries for the period since the last pull, run `.claude/skills/corpus-management/tools/run_all_audits.sh` to confirm the fork is still conformant, and resolve version-monotonicity conflicts by keeping the fork's own version line and recording the upstream version it reconciled against. The adopter guide names the recurring pull cases (merge conflicts in edited artefacts, a new upstream gate the fork trips, and version-monotonicity conflicts); this adopter's customized privacy annexes and role overlays make the merge-conflict case the common one.
 
 ## Common pitfalls
 

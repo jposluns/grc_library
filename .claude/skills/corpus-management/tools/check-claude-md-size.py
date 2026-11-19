@@ -20,7 +20,7 @@ past, and the whole purpose is to FORCE relocation instead of regrowth. Blocking
 large addition until it is trimmed or relocated is exactly the desired behaviour.
 
 Reads the working-tree file by explicit path (the `.claude/` exempt-dir walk does
-not apply to an explicit-path read), so like D8 it needs no merge base.
+not apply to an explicit-path read), so it needs no merge base.
 
 The startup census also enforces Unicode characters, independently of line count.
 It includes unscoped non-Markdown provenance and reports all CLAUDE files separately.

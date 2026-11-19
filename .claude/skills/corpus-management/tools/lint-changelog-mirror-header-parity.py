@@ -1,58 +1,48 @@
 #!/usr/bin/env python3
-"""CHANGELOG detailed-mirror per-PR header-parity audit (gate 59).
+"""CHANGELOG weekly-range coverage audit against the detailed mirror (gate 59).
 
-The change-tracking discipline keeps two CHANGELOG surfaces in lock-step:
-the adopter-facing root ``.working/CHANGELOG.md`` (compact one-line ``date | version | PR`` entries) and
-the maintainer-grade detailed mirror (full structured entries,
-resolved from the operational store). Delta check D1
-enforces, per commit, that a PR touches the root ``.working/CHANGELOG.md`` (the
-detailed mirror lives in the operational store, cross-repo and outside the
-public diff, so D1 does not require it); it does NOT check that the two carry
-the SAME set of per-PR
-entry headers (matched in BOTH the compact ``**date | version | PR #N**``
-form and the legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form). That cross-commit
-integrity is gate-blind: a later PR's commit can overwrite an earlier
-PR's detailed-mirror header in place, orphaning the earlier bodies under
-the wrong header.
+The public ``.working/CHANGELOG.md`` (the root below) carries weekly summaries only
+(maintainer-directed 2026-11-13): a weekly paragraph headed
+``**Week of YYYY-MM-DD (PRs #FIRST-#LAST)**`` for each completed ISO week, and, for periods
+older than 3 months, a monthly paragraph headed ``**YYYY-MM (PRs #FIRST-#LAST)**``. The
+weekly sections written before then (``## Week of YYYY-MM-DD`` with ``- `` bullets) stay as
+history. Each change's own entry lives in the private per-change record, whose detailed mirror
+(resolved from the operational store) holds one header per PR. Delta check D1 reads only the
+lines a PR adds to the root; it does not check that a weekly or monthly range names the PRs of
+its period.
 
-This gate closes that gap: it parses the per-PR header set from each
-file and requires them to match, so a lost or duplicated detailed-mirror
-header fails the build instead of surfacing only at a later manual sweep.
+This gate closes that gap. With the detailed mirror present, every root weekly or monthly
+heading whose period the mirror holds must name, as its first and last PR, exactly the lowest
+and the highest PR the mirror dates in that period (a week runs Monday to Sunday; a month from
+its first day to its last), so a summary that drops or adds a PR at either end of its range
+fails. A heading whose period the mirror holds no entry for (swept to the private archive, or
+never held) is not compared, with a printed note. Without the mirror (public CI, an adopter
+clone), only the root's own checks run.
 
-It also asserts CROSS-FILE VERSION AGREEMENT: a PR present in
-BOTH files must carry the SAME ``Library Version`` in each. Set parity plus
-per-file monotonicity left this gate-blind, because two files can each be
-independently monotonic while disagreeing on one shared PR's version: the
-root ``.working/CHANGELOG.md`` can carry one version for a PR while the detailed
-mirror carries another, and set parity and monotonicity both still pass. Every compared header carries a parseable
-``X.Y.Z`` version (entry classification, below, fails any other), and a PR
-duplicated within one file is already caught by the duplicate check rather
-than by this join. The 2 version texts must also be identical, so
-``2026.06.9`` in one file against ``2026.6.9`` in the other disagrees.
+It also keeps the mirror's own checks: every mirror line is classified by the mirror rules
+below; a PR header appearing more than once fails; and the mirror's ``Library Version`` values
+must STRICTLY DECREASE top-down (entries are newest-first; versions compare as integer tuples,
+never strings, so ``2026.06.9`` above ``2026.06.10`` is a violation a string compare would
+miss). Gate 13 deliberately skips .working/CHANGELOG.md (no ``Version`` metadata field).
 
-It also asserts Library-Version ORDERING: entries
-are newest-first, so within each file the cutoff-scoped headers'
-``Library Version`` values must be STRICTLY DECREASING top-down (the
-change-tracking rule's "version numbers across CHANGELOG entries
-strictly increase in the order the entries appear" stated for a
-reverse-chronological file). Versions compare as integer tuples, never
-strings (``2026.06.9`` above ``2026.06.10`` is a violation a string
-compare would miss). This is the CHANGELOG version-monotonicity control
-the change-tracking rule describes; gate 13 deliberately skips
-.working/CHANGELOG.md (no ``Version`` metadata field), so without this check
-the described control would exist nowhere.
+No longer covered (the per-PR public lines they read are gone from the root): per-PR header
+parity between the root and the mirror, cross-file Library-Version agreement, the root's own
+Library-Version ordering, and store-scope deferral of another open PR's mirror header (the
+mirror is compared by period, and a period's range is written only after the period ends).
+Residuals: PR numbers are allocated when a pull request opens, not when it merges, so a PR
+numbered inside a range but dated in another period is not flagged; a completed week whose
+public summary has not been written yet is not reported; and a range is compared only with a
+mirror that holds that period.
 
 Repository epoch (the rename to the new repository, ``EPOCH_START`` =
 2026-11-09). Pull-request numbers restarted at #1 on that date, while the old
 repository's records carry numbers up to #3127, so a PR number alone no longer
 names one pull request. The gate therefore reads dates as well as numbers:
 
-- ``CUTOFF_PR`` is 1 and no dynamic floor applies: a line is compared in both
-  files when it fully matches a comparison shape at column 0, is dated on or after
-  ``EPOCH_START``, carries a version at or above ``VERSION_FLOOR`` and passes the
-  rest of entry classification (below); a compared mirror header leaves the
-  comparison only through the deferral exception, with a printed note. The old
-  repository's cutoff, its dynamic floor and its historical exemptions belong to
+- ``CUTOFF_PR`` is 1 and no dynamic floor applies: a mirror line is compared when it fully
+  matches a comparison shape at column 0, is dated on or after ``EPOCH_START``, carries a
+  version at or above ``VERSION_FLOOR`` and passes the rest of entry classification (below).
+  The old repository's cutoff, its dynamic floor and its historical exemptions belong to
   that repository's archived history and do not apply here.
 - Root grammar. The root ``.working/CHANGELOG.md`` is read by a grammar of
   line shapes, not by pattern detection alone; ``main`` removes at most 1 leading byte order
@@ -85,9 +75,10 @@ names one pull request. The gate therefore reads dates as well as numbers:
   can join a digit to one (``3*2026.06.9``). The intro, weekly-bullet and summary-tail rules
   read each line as
   written: nothing is removed first (removing every backtick and every emphasis marker
-  before the read would join ``3*2026.06.9`` into ``32026.06.9``).
-  Above its first ``## Week of`` heading (the whole
-  file when it has none) it must hold only these lines: the ``# Changelog`` title, which must be
+  before the read would join ``3*2026.06.9`` into ``32026.06.9``). The 2 bold
+  delimiters of a weekly or monthly heading (its leading and closing ``**``) are allowed too.
+  Above its first period heading (a ``## Week of`` heading or a weekly or monthly heading; the
+  whole file when it has none) it must hold only these lines: the ``# Changelog`` title, which must be
   its first non-blank line (a root without it fails, and so does a canonical
   per-PR line placed before it); the intro paragraph
   directly after the title (blank lines may come between), each of whose lines starts with a
@@ -106,7 +97,10 @@ names one pull request. The gate therefore reads dates as well as numbers:
   carries one, so the tail would carry a record unread); a non-CalVer ``X.Y.Z`` such as
   ``1.0.2`` is allowed there. In the mirror a canonical line whose summary tail holds an
   ``X.Y.Z`` version and a labelled PR identity naming a number other than the header's PR
-  fails. Header parity compares only the PR number and the version of a
+  fails. A canonical per-PR line in the root fails there as a per-change line
+  (``per_change``): each change's own entry belongs in the private per-change record. Its
+  summary tail is still read by the CalVer rule, so a tail that holds a CalVer library version
+  is named too. The mirror compares only the PR number, the date and the version of a
   canonical line, not the whole line, so every mirror canonical line (a mirror line that
   fully matches the compact comparison shape) meets the same strict character rule as a root
   line, must end at an LF (a line that ``splitlines`` ends at another line boundary fails at
@@ -120,17 +114,24 @@ names one pull request. The gate therefore reads dates as well as numbers:
   a milestone, a weekly roll-up bold line, a table row, a second prose paragraph and an intro
   line holding a version or a PR identity all fail there). A canonical per-PR line is compared
   only when it is dated on or after ``EPOCH_START`` and carries a version at or above
-  ``VERSION_FLOOR``; otherwise it fails as below. At and below the first ``## Week of`` heading
-  the root must hold only ``## Week of YYYY-MM-DD`` headings with a valid date, blank lines and
-  ``- `` bullets that hold no CalVer library version (whether or not a date or a
-  labelled PR goes with it): no ``CALVER_RE`` token, an optional
-  ``v`` or ``V``, then ``20`` and 2 digits, a dot, 1 or 2 digits, a dot and digits, read after
-  the root read. Every per-PR record carries one. A non-CalVer ``X.Y.Z`` such as ``1.0.2``
-  or ``4.0.3`` is allowed, so ``- OWASP ASVS references moved from 4.0.3 to 5.0.0 after the
-  review in PR #1.`` passes. A line that fully matches a comparison shape fails as
-  a per-PR line below the weekly summaries
-  (per-PR lines belong only to the current week), a weekly heading with an invalid date fails
-  as unparseable, and every other line fails with a message naming the allowed lines.
+  ``VERSION_FLOOR``; otherwise it fails as below. At and below the first period heading
+  the root must hold only: ``## Week of YYYY-MM-DD`` headings with a valid date and, under
+  them, ``- `` bullets; weekly headings ``**Week of YYYY-MM-DD (PRs #A-#B)**`` (or ``(PRs
+  #A)``) whose date is a valid Monday, and monthly headings ``**YYYY-MM (PRs #A-#B)**`` with a
+  valid month, each with a range that rises (``#B`` above ``#A``), and, under them, paragraph
+  lines that start with a letter; and blank lines. A bullet or paragraph line holds no CalVer
+  library version (whether or not a date or a labelled PR goes with it): no ``CALVER_RE``
+  token, an optional ``v`` or ``V``, then ``20`` and 2 digits, a dot,
+  1 or 2 digits, a dot and digits, read after the root read. Every per-PR record carries one.
+  A non-CalVer ``X.Y.Z`` such as ``1.0.2`` or ``4.0.3`` is allowed, so ``- OWASP ASVS
+  references moved from 4.0.3 to 5.0.0 after the review in PR #1.`` passes. A line that fully
+  matches a comparison shape, or that opens (after markup only) with a full ``YYYY-MM-DD``
+  date (a per-change entry, a daily summary heading or a daily roll-up), fails as a per-change
+  line in the weekly record (``late``); a period heading with an invalid date fails as
+  unparseable; a weekly heading whose date is not a Monday, or a range that does not rise,
+  fails as a malformed period heading (``period``); the period headings' start dates must
+  strictly decrease top-down (``order``); and every other line fails with a message naming
+  the allowed lines.
 - Mirror classification reads every
   line of the detailed mirror raw and fails closed for each line it detects; it detects entries
   by content, so, unlike the root grammar, it is open-ended. A table row (a line whose first
@@ -238,8 +239,8 @@ names one pull request. The gate therefore reads dates as well as numbers:
   record and fails, whatever its date (an old record dated on the epoch day itself cannot be
   told from a new one by its date).
 - Residuals. The root grammar closes its line shapes: every root line is the title, an intro
-  line, a blank line, a canonical per-PR line, a ``## Week of`` heading or a ``- `` bullet, or it
-  fails. 3 of its rules depend on token detection, so they are only as complete as their
+  line, a blank line, a period heading, a ``- `` bullet under a ``## Week of`` heading or a
+  paragraph line under a weekly or monthly heading, or it fails. 3 of its rules depend on token detection, so they are only as complete as their
   detectors: an intro line passes when the date-like, ``X.Y.Z`` version, CalVer version and PR
   identity detectors find nothing in it, and a ``- `` bullet below the first ``## Week of``
   heading or a canonical line's summary tail in the root passes when ``CALVER_RE`` finds nothing
@@ -270,133 +271,46 @@ names one pull request. The gate therefore reads dates as well as numbers:
   body line that holds a date, a version and a PR identity for another reason (a section number
   such as ``6.1.2`` reads as a version, and a version such as ``2026.12.5`` also reads as a
   dot-joined date).
-- Classification runs on both raw surfaces before store-scope deferral, so an
-  old or unreadable record (by date or by ``VERSION_FLOOR``) can never be
-  deferred into a silent pass, and failing
-  lines are left out of the comparison. The deferral exception for open PRs
-  applies only after it: store scope may defer a mirror header that fully
-  matches a comparison shape and names another open PR, each with a printed
-  note; it never exempts a line from classification. Old records must be
-  archived out of both surfaces (the mirror's go to the private
-  ``changelog-archive/``).
+- Classification runs on both raw surfaces before any comparison, so an
+  old or unreadable record (by date or by ``VERSION_FLOOR``) can never pass silently, and
+  failing lines are left out of the comparison. Old records must be archived out of both
+  surfaces (the mirror's go to the private ``changelog-archive/``).
 - A root or mirror file that cannot be read or is not valid UTF-8 fails the
   gate, naming the file, rather than reading as empty text.
 
 PR numbers cited below without further qualification are old-repository PRs;
 they record why each rule exists.
 
-No floor in the new repository. The old repository scoped the comparison
-to ``max(CUTOFF_PR, oldest PR still in the mirror)``, because its root kept
-every per-PR line while its mirror kept only the current week. That floor let a
-root header with no mirror entry pass whenever the mirror held only a higher or
-open PR, and let a dropped oldest mirror entry pass with no notice. In the new
-repository the root keeps per-PR lines only for the current week, as the mirror
-does: one coupled close-out rolls a completed week up into a summary line in the
-root and sweeps the same week from the mirror to the pushed
-``grc_library_private/changelog-archive/``. Every compared header (see entry
-classification above) is therefore compared in both files, and a root header
-with no mirror counterpart fails whatever the mirror's oldest entry is. (Doing
-only the root roll-up, leaving the mirror full, fails whenever the mirror's
-swept entries stay evaluated: when origin/main's commit subjects carry merge
-evidence for a swept PR (a squash ``(#N)`` or a ``Merge pull request #N``
-subject), when origin/main's root headers name it, or when the git evidence
-(the merge-base changelog, origin/main's changelog or origin/main's log) cannot
-be read, or no declaration or clean-base scope is established, so no entry
-defers. Only when scope is established and none of that evidence protects a
-swept PR does store scope defer its mirror entry as an open PR, with a printed
-note. The coupled tool prevents a root-only roll-up.) Historical parity for
-swept weeks moves to git history and to the private-sibling archive.
-
-The ordering assertion reuses the same scope. The old repository's only
-non-decreasing pairs (its 2026-06-21 window) are dated before ``EPOCH_START``,
-so they fail as old-repository records rather than as ordering violations, and
-no second baseline constant is needed.
-
-Store scope (shared with gate 50 through ``lint_common.store_scope``). The
-detailed mirror lives
-in the operational store every open branch shares, so another open PR's in-flight
-mirror entry would otherwise read as MISSING from this branch's root. A mirror
-record defers only when all of these hold: this branch has a clean-base scope (see
-below) or declares its own PR (the
-single new singular root header naming a PR absent from the merge-base root
-headers, from origin/main's root headers and from origin/main's ``(#N)`` and
-``Merge pull request #N`` commit subjects; no other ref is consulted, and
-historical edits, roll-ups, a merged PR's header, a second new identity, a
-combined identity, an unparseable or unrecognized new header, and a fence or
-comment delimiter at or above the candidate declare nothing); the record's key
-belongs to its complete, unambiguous raw header identity; and the shared flags
-permit deferral, because every named PR exceeds ``max(declared own PR, highest
-root header PR)`` or every named PR is another open PR absent from this branch's
-root headers and from all of that origin/main evidence. A mirror header naming
-the branch's declared own PR is never deferred. One shared,
-case-insensitive grammar reads every PR identity and range, and header ranges
-protect their interiors. The declared own PR and every PR covered by that evidence remain
-evaluated, so a merged PR's mirror entry missing its branch root line still fails.
-D1 can accept a ``Changelog: <one-line-reason>`` trailer instead of a root entry,
-so it does not guarantee a declaration before merge. A clean-base scope declares
-no own PR: the root has a parseable PR ceiling, no new header-like line against the
-merge-base, and no delimiters. Store scope reads historical milestone lines
-already in the merge-base as no new header-like line, but the root grammar fails any milestone
-line in the root, so such a root still fails the gate. Its ceiling is the root maximum. It uses the same
-readable origin/main evidence and protects every merged PR. Because the own PR
-is unknown under clean-base, a trailer-only PR's own mirror entry defers like
-another open PR's until it merges; once origin/main carries its merge subject or
-root header it is evaluated again. A branch that adds its own root header
-declares instead, and its own entry is evaluated. Neither basis, or an
-unreadable merge-base changelog, origin/main changelog or origin/main log,
-disables all deferral and prints a note. origin/main is read offline from the
-local remote-tracking ref, so a PR merged after the last fetch reads as open; its
-deferral is printed like every other. Every deferred header prints its location,
-named PRs and reason.
-
-Both surfaces are read raw, without fence or comment masking, and no comparison
-floor is computed: a post-epoch header leaves the comparison only when store
-scope defers it, and each deferral is printed. An unknown or
-ambiguous boundary, a header-shaped line the boundary grammar cannot read, or a
-fence or comment delimiter disables further mirror deferral, so example records
-and later entries stay evaluated and an unrecognized header is never swallowed
-into the deferred entry above it. Open-PR deferral also reaches entries below the
-own entry. A plain, unmarked header lookalike is indistinguishable from a real
-entry, including inside the own entry, and so is an open PR's header carried onto
-a stacked branch that has not yet written its own entry, which declares; both
-residues are loud, because every deferral note names the entry and the declared
-own PR.
-
-Empty comparison. When the gate compares no PR while a mirror is present (for
-example a weekly-only root with no per-PR header, or a mirror holding only
-deferred entries), it still exits 0 but also prints the shared ``DEGRADED:``
-line through ``lint_common.print_degraded``. The line says that no PR was
-compared and gives the number of deferred mirror headers, so an empty
-comparison is never read as an attestation of parity. When no store supplies
-the mirror, every root check that needs no mirror still runs (the root must be
-readable UTF-8, entry classification, and the root's duplicate and
-ordering checks), so a bad root fails in public CI too; only the checks that need
-the mirror (header parity, version agreement and the mirror's own duplicate and
-ordering checks) are skipped, with the same kind of line.
+Empty comparison. When the gate compares no range while a mirror is present (a root with no
+ranged heading, or a mirror that holds none of the root's periods), it still exits 0 but also
+prints the shared ``DEGRADED:`` line through ``lint_common.print_degraded``, so an empty
+comparison is never read as an attestation of coverage. When no store supplies the mirror,
+every root check that needs no mirror still runs (the root must be readable UTF-8 and follow
+its grammar), so a bad root fails in public CI too; only the range comparison and the mirror's
+own checks are skipped, with the same kind of line.
 
 Exit codes:
-    0   the per-PR header multisets of the post-epoch headers match, each
-        file's Library Versions strictly decrease, and every entry candidate
-        fully matches a comparison shape or a named exempt shape and is not
-        an old-repository record (with a DEGRADED line when no PR was
-        compared or no mirror is present)
-    1   one or more headers are missing, extra or duplicated, an entry
-        candidate is dated before EPOCH_START, carries a version below
-        VERSION_FLOOR, carries an unparseable date, matches no comparison or
-        exempt shape at column 0 or names more than 1 PR,
-        a Library Version is out of order (equal or increasing top-down), a
-        root line above the first ## Week of heading is outside the root
-        grammar, a root line at or below that heading is not a ## Week of
-        heading with a valid date, a blank line or a "- " bullet that holds
-        no CalVer library version, the root does not start with the
-        # Changelog title, a root line or a mirror canonical line holds a
-        character or an HTML character reference the strict character rule
-        refuses, a mirror canonical line ends at a line boundary other than LF,
-        a canonical line's summary
-        tail holds a CalVer
-        library version (root) or names another PR's record (mirror), or
-        the root or mirror file cannot be
-        read as UTF-8 text
+    0   every compared root weekly or monthly range covers exactly the mirror's PRs for
+        its period, the mirror's Library Versions strictly decrease and no mirror PR
+        header is duplicated, the root follows its grammar, and every mirror entry
+        candidate fully matches a comparison shape or a named exempt shape and is not
+        an old-repository record (with a DEGRADED line when no range was compared or no
+        mirror is present)
+    1   a compared range names other first or last PRs than the mirror holds for its
+        period, a mirror header is duplicated, an entry candidate is dated before
+        EPOCH_START, carries a version below VERSION_FLOOR, carries an unparseable
+        date, matches no comparison or exempt shape at column 0 or names more than 1
+        PR, a mirror Library Version is out of order (equal or increasing top-down),
+        the root holds a per-change line (a canonical per-PR line, or a line that opens
+        with a full date), a root line above the first period heading is outside the
+        root grammar, a root line at or below it is not an allowed weekly-record line,
+        a weekly heading's date is not a Monday or a range does not rise, the period
+        headings' start dates do not strictly decrease, the root does not start with
+        the # Changelog title, a root line or a mirror canonical line holds a character
+        or an HTML character reference the strict character rule refuses, a mirror
+        canonical line ends at a line boundary other than LF, a canonical line's
+        summary tail holds a CalVer library version (root) or names another PR's
+        record (mirror), or the root or mirror file cannot be read as UTF-8 text
     2   an explicit --root is not a directory holding both inputs
 """
 
@@ -411,7 +325,8 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack .claude/skills/corpus-management/tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, changelog_entry_boundary, changelog_header_prs, print_degraded, require_dir, resolve_working, store_deferral_note, store_deferral_flags, store_scope  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, changelog_entry_boundary, changelog_header_prs, print_degraded, require_dir, resolve_working  # noqa: E402  # grc-config/store, stays local
+from changelog_diff import DATED_LINE_RE, MONTHLY_HEADER_RE, WEEKLY_HEADER_RE, period_range  # noqa: E402  # the public weekly-record shapes D1 and D7 share
 
 # Paths of the two surfaces, relative to the repository root.
 ROOT_CHANGELOG_REL = ".working/CHANGELOG.md"
@@ -424,13 +339,13 @@ CUTOFF_PR = 1
 
 # The new repository's first day. A dated header-like line dated before it is an
 # old-repository record that must be archived; the gate fails on it before any
-# deferral is considered.
+# comparison is made.
 EPOCH_START = "2026-11-09"
 EPOCH_START_DATE = datetime.date.fromisoformat(EPOCH_START)
 
 # The first Library Version shipped by a new-repository PR (main starts at 2026.11.65). A
 # line that fully matches a comparison shape with a version below it is an old-repository
-# record, whatever its date, and fails before any deferral: a date alone cannot tell an old
+# record, whatever its date, and fails before any comparison: a date alone cannot tell an old
 # record dated on EPOCH_START from a new one.
 VERSION_FLOOR = "2026.11.66"
 VERSION_FLOOR_TUPLE = tuple(int(part) for part in VERSION_FLOOR.split("."))
@@ -680,16 +595,20 @@ EXPECTED_SHAPES = ("**YYYY-MM-DD | X.Y.Z | PR #N** (optionally followed by \" - 
 ROOT_TITLE = "# Changelog"
 INTRO_START_RE = re.compile(r"[^\W\d_]")
 WEEK_PREFIX = "## Week of"
-ROOT_EXPECTED_SHAPE = ("**YYYY-MM-DD | X.Y.Z | PR #N** at column 0 (optionally followed by "
-                       "\" - <summary>\"), with a valid ISO date, a parseable X.Y.Z version and "
-                       "1 PR number of 1 or more; the root accepts no other per-PR shape")
+ROOT_EXPECTED_SHAPE = ("a weekly heading **Week of YYYY-MM-DD (PRs #A-#B)** or a monthly heading "
+                       "**YYYY-MM (PRs #A-#B)**, with its paragraph; the root accepts no per-PR "
+                       "shape, not even the canonical **YYYY-MM-DD | X.Y.Z | PR #N** at column 0, "
+                       "since each change's own entry belongs in the private per-change record")
 ROOT_GRAMMAR = ("the # Changelog title as the first non-blank line, the intro paragraph directly "
                 "after it (lines that start "
                 "with a letter and hold no date-like token, no X.Y.Z version, no CalVer library "
-                "version and no numbered PR identity), blank lines and per-PR lines in the canonical shape "
-                + ROOT_EXPECTED_SHAPE)
-ROOT_WEEKLY_LINES = ("## Week of YYYY-MM-DD headings with a valid date, blank lines and \"- \" "
-                     "bullets that hold no CalVer library version (such as 2026.11.67 or "
+                "version and no numbered PR identity) and blank lines; the public file carries "
+                "weekly summaries only, so no per-PR line belongs there: " + ROOT_EXPECTED_SHAPE)
+ROOT_WEEKLY_LINES = ("## Week of YYYY-MM-DD headings with a valid date and \"- \" bullets under "
+                     "them, **Week of YYYY-MM-DD (PRs #A-#B)** headings dated on a Monday and "
+                     "**YYYY-MM (PRs #A-#B)** headings, each with a rising range, and paragraph "
+                     "lines under them that start with a letter, and blank lines; no bullet or "
+                     "paragraph line holds a CalVer library version (such as 2026.11.67 or "
                      "v2026.11.67; a version such as 1.0.2 is allowed)")
 
 # A PR number token, used to name the PRs of a failing candidate in its message.
@@ -712,7 +631,7 @@ def pr_headers(
     With ``root=True`` (the root ``.working/CHANGELOG.md``) the text is split on LF only
     (``lf_lines``), as ``root_findings`` splits it, so the line numbers match the strict
     character rule's; otherwise (the mirror) it is split with ``str.splitlines``, as
-    ``entry_findings`` and the store-scope deferral flags split it.
+    ``entry_findings`` and ``mirror_dated_records`` split it.
     """
     records: list[tuple[int, int, tuple[int, int, int] | None, str]] = []
     lines = lf_lines(text) if root else text.splitlines()
@@ -785,6 +704,9 @@ def root_character_findings(line: str) -> list[tuple[int, str]]:
     canonical = COMPACT_HEADER_RE.match(line)
     delimiters = ({0, 1, canonical.end(5), canonical.end(5) + 1} if canonical is not None
                   else set())
+    if canonical is None and (WEEKLY_HEADER_RE.match(line) or MONTHLY_HEADER_RE.match(line)):
+        # The 2 bold delimiters of a weekly or monthly period heading.
+        delimiters = {0, 1, len(line) - 2, len(line) - 1}
     hits = []
     for index, char in enumerate(line):
         if char in ROOT_ALLOWED_CHARS or (char == "*" and index in delimiters):
@@ -968,6 +890,14 @@ class EntryFindings:
         self.tail: list[tuple[int, int, list[int]]] = []
         self.calver_tail: list[tuple[int, int, list[str]]] = []
         self.chars: list[tuple[int, int, str]] = []
+        # The root alone: a canonical per-PR line above the first period heading
+        # (``(lineno, line)``), a malformed period heading (``(lineno, line, reason)``), a period
+        # heading out of order (``(lineno, line, previous lineno)``), and the valid ranged period
+        # headings, for the mirror comparison (``(lineno, label, start, end, first, last)``).
+        self.per_change: list[tuple[int, str]] = []
+        self.period: list[tuple[int, str, str]] = []
+        self.order: list[tuple[int, str, int]] = []
+        self.periods: list[tuple[int, str, datetime.date, datetime.date, int, int]] = []
 
     def lines(self) -> set[int]:
         """Every failing line number, left out of the comparison."""
@@ -976,7 +906,9 @@ class EntryFindings:
                 | {hit[0] for hit in self.multi} | {hit[0] for hit in self.floor}
                 | {hit[0] for hit in self.grammar} | {hit[0] for hit in self.late}
                 | {hit[0] for hit in self.weekly} | {hit[0] for hit in self.tail}
-                | {hit[0] for hit in self.calver_tail} | {hit[0] for hit in self.chars})
+                | {hit[0] for hit in self.calver_tail} | {hit[0] for hit in self.chars}
+                | {hit[0] for hit in self.per_change} | {hit[0] for hit in self.period}
+                | {hit[0] for hit in self.order})
 
     def __bool__(self) -> bool:
         return bool(self.lines())
@@ -1102,33 +1034,53 @@ def entry_findings(text: str) -> EntryFindings:
     return found
 
 
+def _is_period_heading(line: str) -> bool:
+    """A line that opens the period region: a ``## Week of`` heading, or a full weekly or
+    monthly period heading."""
+    return (line.startswith(WEEK_PREFIX) or WEEKLY_HEADER_RE.match(line) is not None
+            or MONTHLY_HEADER_RE.match(line) is not None)
+
+
+def _month_end(start: datetime.date) -> datetime.date:
+    """The last day of ``start``'s month."""
+    following = (start.replace(day=28) + datetime.timedelta(days=4)).replace(day=1)
+    return following - datetime.timedelta(days=1)
+
+
 def root_findings(text: str) -> EntryFindings:
-    """Check the root ``text`` against the root grammar; fail every other line.
+    """Check the root ``text`` against the root grammar of the weekly public record; fail every
+    other line.
 
     ``main`` removes at most 1 leading byte order mark, once, before it calls this:
     this function removes none, so a byte order mark left in ``text`` fails line 1 by the
     strict character rule. The text is split on LF only (``lf_lines``). Every line that is
     not blank then meets the strict character rule (an allowlist): each
-    character outside ``ROOT_ALLOWED_CHARS``, each ``*`` other than a canonical header's 2 bold
-    delimiters and each HTML character reference fails as ``chars``, with its column
-    (``root_character_findings``). The intro,
-    weekly-bullet and summary-tail rules read each line as written, and every other line
-    through the mirror rules. Above the first ``## Week of``
-    heading (the whole file when it has none) only these lines pass: the ``# Changelog`` title as
-    the first non-blank line (when the first non-blank line of the file is anything
-    else, that line fails as ``grammar``, and an empty root fails at line 1), the intro paragraph directly after it (blank lines may come
+    character outside ``ROOT_ALLOWED_CHARS``, each ``*`` other than the 2 bold delimiters of a
+    canonical header or of a weekly or monthly heading, and each HTML character reference fails
+    as ``chars``, with its column (``root_character_findings``). The intro, bullet, paragraph
+    and summary-tail rules read each line as written, and every other line through the mirror
+    rules. Above the first period heading (``_is_period_heading``; the whole file when it has
+    none) only these lines pass: the ``# Changelog`` title as the first non-blank line (when the
+    first non-blank line of the file is anything else, that line fails as ``grammar``, and an
+    empty root fails at line 1), the intro paragraph directly after it (blank lines may come
     between; each line starts with a letter and holds no date-like token, no ``X.Y.Z`` version,
     no CalVer library version and no numbered PR identity (``PR_ANY_RE``: a labelled PR identity
-    or a bare ``#N``)), blank lines (empty or only spaces and tabs) and canonical per-PR lines
-    (``COMPACT_HEADER_RE`` in full, then the mirror rules' date and ``VERSION_FLOOR`` checks, and
-    a summary tail that holds no CalVer library version, else ``calver_tail``). Every
-    other line there fails: with its mirror-rule failure when the
-    mirror rules fail it, otherwise as ``old`` when its first date is before ``EPOCH_START``, and
-    otherwise as ``grammar``. At and below that heading only ``## Week of`` headings with a
-    valid date, blank lines and ``- `` bullets for which ``calver_versions`` is empty (no
-    CalVer library version, which replaces the earlier version-with-date and
-    version-with-labelled-PR rules) pass: a comparison-shape line fails as ``late``, a weekly heading with an invalid date as
-    ``unparseable`` and every other line as ``weekly``.
+    or a bare ``#N``)) and blank lines (empty or only spaces and tabs). A canonical per-PR line
+    there fails as ``per_change`` (after the mirror rules' date and ``VERSION_FLOOR`` checks,
+    which fail it first when they apply), and its summary tail is still read by the CalVer rule
+    (``calver_tail``). Every other line there fails: with its mirror-rule failure when the
+    mirror rules fail it, otherwise as ``old`` when its first date is before ``EPOCH_START``,
+    and otherwise as ``grammar``. At and below the first period heading only these lines pass:
+    blank lines; ``## Week of`` headings with a valid date, and ``- `` bullets under them for
+    which ``calver_versions`` is empty; weekly headings (``WEEKLY_HEADER_RE``) whose date is a
+    valid Monday and monthly headings (``MONTHLY_HEADER_RE``) with a valid month, each with a
+    range that rises, and paragraph lines under them that start with a letter and for which
+    ``calver_versions`` is empty. A comparison-shape line, or a line that opens with a full
+    date (``DATED_LINE_RE``: a per-change entry, a daily heading or roll-up), fails as ``late``;
+    a period heading with an invalid date as ``unparseable``; a weekly heading not dated on a
+    Monday, or a range that does not rise, as ``period``; a period heading whose start date is
+    not strictly before the one above it as ``order``; and every other line as ``weekly``. The
+    valid ranged headings are recorded in ``periods`` for the mirror comparison.
     """
     found = EntryFindings()
     lines = lf_lines(text)
@@ -1136,7 +1088,7 @@ def root_findings(text: str) -> EntryFindings:
         if line.strip(" \t"):
             found.chars.extend((lineno, column, what)
                                for column, what in root_character_findings(line))
-    week = next((i for i, line in enumerate(lines) if line.startswith(WEEK_PREFIX)), len(lines))
+    week = next((i for i, line in enumerate(lines) if _is_period_heading(line)), len(lines))
     state = "start"  # start, then title, then intro, then body
     untitled = None  # the first non-blank line when it is not the title
     for index, line in enumerate(lines[:week]):
@@ -1165,6 +1117,7 @@ def root_findings(text: str) -> EntryFindings:
             continue
         canonical = COMPACT_HEADER_RE.match(line)
         if canonical:
+            found.per_change.append((lineno, line))
             versions = root_tail_versions(line, canonical)
             if versions:
                 found.calver_tail.append((lineno, int(canonical.group(5)), versions))
@@ -1175,25 +1128,66 @@ def root_findings(text: str) -> EntryFindings:
         else:
             found.grammar.append((lineno, line))
     if state == "start":
-        # No non-blank line above the first ## Week of heading: the title is missing.
+        # No non-blank line above the first period heading: the title is missing.
         untitled = (week + 1, lines[week]) if week < len(lines) else (1, "")
-    if untitled is not None and untitled[0] not in found.lines():
+    # A per-change line that stands where the title belongs is named twice: as a per-change
+    # line and as the missing title.
+    if untitled is not None and untitled[0] not in (
+            found.lines() - {hit[0] for hit in found.per_change}):
         found.grammar.append(untitled)
+    section = None  # "legacy" under a ## Week of heading, "period" under a weekly or monthly one
+    previous: tuple[int, datetime.date] | None = None  # the heading above and its start date
     for index in range(week, len(lines)):
         lineno, line = index + 1, lines[index]
-        if HEADER_RE.match(line) or COMPACT_HEADER_RE.match(line):
+        if HEADER_RE.match(line) or COMPACT_HEADER_RE.match(line) or DATED_LINE_RE.match(line):
             found.late.append((lineno, line))
             continue
         if line.strip(" \t") == "":
             continue
+        start = end = None
         heading = WEEK_HEADING_RE.match(line)
+        weekly = WEEKLY_HEADER_RE.match(line)
+        monthly = MONTHLY_HEADER_RE.match(line)
         if heading:
-            if _valid_date(heading.group(1)) is None:
+            start = _valid_date(heading.group(1))
+            if start is None:
                 found.unparseable.append((lineno, heading.group(1)))
+                section = None
+                continue
+            section = "legacy"
+        elif weekly or monthly:
+            if weekly:
+                start = _valid_date(weekly.group(1))
+                token = weekly.group(1)
+            else:
+                start = _valid_date(monthly.group(1) + "-01")
+                token = monthly.group(1)
+            if start is None:
+                found.unparseable.append((lineno, token))
+                section = None
+                continue
+            section = "period"
+            first, last = period_range(weekly or monthly)
+            if (weekly or monthly).group(3) and last <= first:
+                found.period.append((lineno, line, "its PR range does not rise"))
+                continue
+            if weekly and start.weekday() != 0:
+                found.period.append((lineno, line, f"{token} is not a Monday (an ISO week "
+                                                    "starts on a Monday)"))
+                continue
+            end = start + datetime.timedelta(days=6) if weekly else _month_end(start)
+            found.periods.append((lineno, line.strip("*"), start, end, first, last))
+        elif section == "legacy" and line.startswith("- ") and not calver_versions(line):
             continue
-        if line.startswith("- ") and not calver_versions(line):
+        elif (section == "period" and INTRO_START_RE.match(line)
+              and not calver_versions(line)):
             continue
-        found.weekly.append((lineno, line))
+        else:
+            found.weekly.append((lineno, line))
+            continue
+        if previous is not None and not start < previous[1]:
+            found.order.append((lineno, line, previous[0]))
+        previous = (lineno, start)
     return found
 
 
@@ -1310,20 +1304,39 @@ def print_entry_failures(where: str, found: EntryFindings,
         )
     if found.grammar:
         print(
-            f"FAIL: line(s) in {where} above its first {WEEK_PREFIX} heading are outside the "
+            f"FAIL: line(s) in {where} above its first period heading are outside the "
             f"root grammar (that region must hold only {ROOT_GRAMMAR}): "
             + ", ".join(f"line {lineno} ({line!r})" for lineno, line in found.grammar)
         )
+    if found.per_change:
+        print(
+            f"FAIL: per-PR line(s) in {where} sit in the public weekly record; it carries weekly "
+            "and monthly summaries only (maintainer-directed 2026-11-13), and each change's own "
+            "entry belongs in the private per-change record: "
+            + ", ".join(f"line {lineno} ({line!r})" for lineno, line in found.per_change)
+        )
     if found.late:
         print(
-            f"FAIL: per-PR line(s) in {where} sit at or below its first {WEEK_PREFIX} heading; "
-            "per-PR lines belong only to the current week, above the weekly summaries, in the "
-            f"canonical shape {ROOT_EXPECTED_SHAPE}: "
+            f"FAIL: per-PR line(s) in {where} sit at or below its first period heading; the "
+            "public weekly record carries no per-change line (a per-PR entry, a daily heading or "
+            "a daily roll-up), only weekly and monthly summaries: "
             + ", ".join(f"line {lineno} ({line!r})" for lineno, line in found.late)
+        )
+    if found.period:
+        print(
+            f"FAIL: period heading(s) in {where} are malformed: "
+            + ", ".join(f"line {lineno} ({line!r}: {reason})" for lineno, line, reason in found.period)
+        )
+    if found.order:
+        print(
+            f"FAIL: period heading(s) in {where} are out of order; the periods are newest-first, "
+            "so each heading's start date must be strictly before the one above it: "
+            + ", ".join(f"line {lineno} ({line!r}, below line {above})"
+                        for lineno, line, above in found.order)
         )
     if found.weekly:
         print(
-            f"FAIL: line(s) in {where} at or below its first {WEEK_PREFIX} heading are outside "
+            f"FAIL: line(s) in {where} at or below its first period heading are outside "
             f"the root grammar (that region must hold only {ROOT_WEEKLY_LINES}): "
             + ", ".join(f"line {lineno} ({line!r})" for lineno, line in found.weekly)
         )
@@ -1410,49 +1423,51 @@ def ordering_violations(
     return violations
 
 
-def version_mismatches(
-    root_records: list[tuple[int, int, tuple[int, int, int] | None, str]],
-    mirror_records: list[tuple[int, int, tuple[int, int, int] | None, str]],
-) -> list[tuple[int, str, str]]:
-    """PRs present in BOTH files whose Library Versions DIFFER.
-
-    Returns ``(pr, root_version_text, mirror_version_text)`` triples, ordered by
-    PR. In the earlier repository the gate checked set parity of PR numbers and
-    strict monotonicity WITHIN each file, but never that a PR present in both
-    carried the SAME version in each, so a mirror could record a version that
-    was never shipped while both files stayed independently monotonic and their
-    PR sets matched (there, one PR's root and README entries both said
-    2026.07.642 while the mirror said 2026.07.641).
-
-    Two deliberate exclusions, and 1 tightening:
-
-    - A record whose version did not parse carries ``None``, which the caller
-      already tolerates for the ordering assertion; such a pair is SKIPPED here
-      too rather than reported, so this check cannot start failing on a shape the
-      rest of the gate accepts.
-    - The version texts must also be identical, so a zero-padded part on one
-      side only (``2026.06.9`` against ``2026.6.9``) is a disagreement.
-    - A PR appearing MORE THAN ONCE in either file is already a failure via the
-      existing duplicate checks, so this join assumes at most one record per PR
-      per file and reads the FIRST if that assumption is ever violated. It
-      therefore adds no new policy for duplicates and cannot mask them: the
-      duplicate check fires independently in the same run.
-    """
-    root_by_pr: dict[int, tuple[tuple[int, int, int] | None, str]] = {}
-    for _lineno, pr, version, version_text in root_records:
-        root_by_pr.setdefault(pr, (version, version_text))
-    mismatches: list[tuple[int, str, str]] = []
-    seen: set[int] = set()
-    for _lineno, pr, version, version_text in mirror_records:
-        if pr in seen or pr not in root_by_pr:
+def mirror_dated_records(
+    text: str, skip: set[int], cutoff: int = CUTOFF_PR,
+) -> list[tuple[int, int, datetime.date]]:
+    """``(lineno, pr, date)`` for each mirror comparison-shape line not in ``skip`` (the lines
+    entry classification failed), over the ``splitlines()`` view ``pr_headers`` and
+    ``entry_findings`` use, with a PR number at or above ``cutoff``."""
+    records: list[tuple[int, int, datetime.date]] = []
+    for lineno, line in enumerate(text.splitlines(), start=1):
+        if lineno in skip:
             continue
-        seen.add(pr)
-        root_version, root_text = root_by_pr[pr]
-        if root_version is None or version is None:
+        m = HEADER_RE.match(line) or COMPACT_HEADER_RE.match(line)
+        if not m or int(m.group(5)) < cutoff:
             continue
-        if root_version != version or root_text != version_text:
-            mismatches.append((pr, root_text, version_text))
-    return sorted(mismatches)
+        date = _valid_date(m.group(1))
+        if date is not None:
+            records.append((lineno, int(m.group(5)), date))
+    return records
+
+
+def range_mismatches(
+    periods: list[tuple[int, str, datetime.date, datetime.date, int, int]],
+    records: list[tuple[int, int, datetime.date]],
+) -> tuple[list[str], int, list[str]]:
+    """``(mismatches, compared, notes)`` for the root's ranged period headings against the
+    mirror's dated PR records. A heading is compared when the mirror dates at least 1 PR in its
+    period; it passes when its first and last PR are the lowest and the highest of those PRs.
+    A heading whose period the mirror holds nothing for is a note, not a comparison."""
+    mismatches: list[str] = []
+    notes: list[str] = []
+    compared = 0
+    for lineno, label, start, end, first, last in periods:
+        prs = sorted({pr for _, pr, date in records if start <= date <= end})
+        if not prs:
+            notes.append(f"note: root line {lineno} ({label}) was not compared: the detailed "
+                         f"mirror holds no PR dated {start.isoformat()} to {end.isoformat()}")
+            continue
+        compared += 1
+        if (first, last) != (prs[0], prs[-1]):
+            held = f"#{prs[0]}" if len(prs) == 1 else f"#{prs[0]}-#{prs[-1]}"
+            mismatches.append(
+                f"line {lineno} ({label}) names #{first}" + ("" if first == last else f"-#{last}")
+                + f", but the detailed mirror's PRs dated {start.isoformat()} to "
+                f"{end.isoformat()} are {held} ({len(prs)} PR(s): "
+                + ", ".join(f"#{pr}" for pr in prs) + ")")
+    return mismatches, compared, notes
 
 
 def main(argv: list[str]) -> int:
@@ -1479,78 +1494,50 @@ def main(argv: list[str]) -> int:
             print(f"ERROR: --root {args.root}: required input(s) missing: {', '.join(missing)}",
                   file=sys.stderr)
             return 2
-        scope_root = root
     else:
         root_changelog = REPO_ROOT / ROOT_CHANGELOG_REL
         # The store holds the .working/ tree's files at its root, so the lookup takes the
         # mirror's path below .working/ from the one constant --root also reads.
         resolved = resolve_working(DETAILED_MIRROR_REL[len(".working/"):])
         if resolved is None:
-            # The detailed mirror is maintainer-only working state. Once `.working/` moves
-            # to the operational store it is absent in public CI and adopter clones; on the
-            # maintainer's machine the operational store (or the private-sibling fallback)
-            # supplies it and per-PR header parity, version agreement, and ordering are all
-            # enforced. Every root check that needs no mirror runs here too (a readable
-            # UTF-8 root, entry classification, and the root's duplicate and ordering
-            # checks), so a bad root fails in CI.
+            # The detailed mirror is maintainer-only working state, absent in public CI and
+            # adopter clones; on the maintainer's machine the operational store (or the
+            # private-sibling fallback) supplies it and the range comparison and the mirror's
+            # own checks run. Every root check that needs no mirror runs here too (a readable
+            # UTF-8 root that follows its grammar), so a bad root fails in CI.
             root_text, root_err = read_surface(root_changelog)
             if root_text is None:
                 print_unreadable_files([(f"root {ROOT_CHANGELOG_REL}", root_err)])
                 return 1
             root_text = strip_bom(root_text)  # at most 1 byte order mark, once
             root_found = root_findings(root_text)
-            root_skip = root_found.lines()
-            root_records = [r for r in pr_headers(root_text, cutoff=CUTOFF_PR, root=True)
-                            if r[0] not in root_skip]
-            root_counts = Counter(pr for _, pr, _, _ in root_records)
-            dup_root = sorted(n for n, c in root_counts.items() if c > 1)
-            order_root = ordering_violations(root_records)
-            if root_found or dup_root or order_root:
+            if root_found:
                 print_entry_failures(f"root {ROOT_CHANGELOG_REL}", root_found, ROOT_EXPECTED_SHAPE)
-                if dup_root:
-                    print(
-                        "FAIL: PR header(s) appearing more than once in root "
-                        f".working/CHANGELOG.md (>= #{CUTOFF_PR}): "
-                        + ", ".join(f"#{n}" for n in dup_root)
-                    )
-                if order_root:
-                    print(
-                        f"FAIL: root .working/CHANGELOG.md Library Version ordering violated "
-                        f"(>= #{CUTOFF_PR}):"
-                    )
-                    for v in order_root:
-                        print(f"  {v}")
                 print(
                     "\nOld-repository records dated before EPOCH_START "
-                    f"{EPOCH_START} must be archived out of the root .working/CHANGELOG.md, "
-                    "every dated header must carry a valid YYYY-MM-DD date in a shape gate 59 "
-                    "can compare, with one header per PR, and the root's Library Versions must "
-                    "strictly decrease top-down. Above its first ## Week of heading the root "
-                    "must hold only the lines of the root grammar, and at or below it only "
-                    f"{ROOT_WEEKLY_LINES}."
+                    f"{EPOCH_START} must be archived out of the root .working/CHANGELOG.md, and "
+                    "the root carries weekly summaries only (maintainer-directed 2026-11-13). "
+                    "Above its first period heading the root must hold only the lines of the "
+                    f"root grammar, and at or below it only {ROOT_WEEKLY_LINES}."
                 )
                 return 1
             print(
                 "OK: the detailed CHANGELOG mirror is not present "
-                "(maintainer-only working state; skipping the header-parity "
-                "audit in public CI / adopter clone). The root CHANGELOG passed the "
-                "epoch, header-shape, duplicate and ordering checks."
+                "(maintainer-only working state; skipping the weekly-range comparison "
+                "in public CI / adopter clone). The root CHANGELOG passed the "
+                "weekly-record grammar, epoch and period-order checks."
             )
             print_degraded(
                 "gate 59",
-                "gate 59 skipped the root/detailed-mirror CHANGELOG header-parity and "
-                "version-agreement checks and the mirror's own checks (no private store "
-                "supplies the detailed mirror); only the root's own checks ran, so this "
-                "pass attests nothing about header parity."
+                "gate 59 skipped the root/detailed-mirror weekly-range comparison and the "
+                "mirror's own checks (no private store supplies the detailed mirror); only "
+                "the root's own checks ran, so this pass attests nothing about range coverage."
             )
             return 0
         detailed_mirror = resolved
-        scope_root = REPO_ROOT
 
-    # Both surfaces are read RAW (no example masking anywhere in the store scope), exactly as
-    # the pre-store-scope gate read them, so no record can be removed from evaluation by a
-    # mask. No floor is computed: every post-epoch header is compared in both files, and only
-    # store-scope deferral below removes a mirror header, with a note.
+    # Both surfaces are read RAW (no example masking), so no record can be removed from
+    # evaluation by a mask.
     root_text, root_err = read_surface(root_changelog)
     mirror_text, mirror_err = read_surface(detailed_mirror)
     unreadable_files = [(where, err) for where, err in (
@@ -1562,114 +1549,53 @@ def main(argv: list[str]) -> int:
     root_text = strip_bom(root_text)  # at most 1 byte order mark, once
     mirror_text = strip_bom(mirror_text)  # as for the root
     cutoff = CUTOFF_PR
-    # Entry classification, on the raw surfaces and BEFORE any deferral: the root must follow
+    # Entry classification, on the raw surfaces and BEFORE the comparison: the root must follow
     # its grammar (root_findings) and every mirror entry candidate must fully match a
-    # comparison shape or a named exempt shape; an old-repository record
-    # (dated before EPOCH_START), an unparseable date, a PR below CUTOFF_PR, a legacy line
-    # naming more than 1 PR and every other shape fail here, so none can be deferred into a
-    # silent pass. Failing lines are left out of the comparison so they cannot mask a new PR.
+    # comparison shape or a named exempt shape; an old-repository record (dated before
+    # EPOCH_START), an unparseable date, a PR below CUTOFF_PR, a legacy line naming more than 1
+    # PR and every other shape fail here. Failing lines are left out of the comparison.
     root_found = root_findings(root_text)
     mirror_found = entry_findings(mirror_text)
-    root_skip = root_found.lines()
     mirror_skip = mirror_found.lines()
-    root_records = [r for r in pr_headers(root_text, cutoff=cutoff, root=True)
-                    if r[0] not in root_skip]
-    scope = store_scope(root_text, repo_root=scope_root)
-    if scope.note:
-        print(f"note: {scope.note}")
-    mirror_lines = mirror_text.splitlines()
-    flags = store_deferral_flags(mirror_lines, scope)
-    mirror_records: list[tuple[int, int, tuple[int, int, int] | None, str]] = []
-    deferred = 0
-    for record in pr_headers(mirror_text, cutoff=cutoff):
-        if record[0] in mirror_skip:
-            continue  # already a failure (entry classification); never offered to deferral
-        # Deferral is decided from EVERY PR the header line names (the shared parser), never from
-        # this gate's single-PR record, and only when that record's own key is AMONG them (one
-        # PR-key rule for the record and the deferral decision; a greedy-parsed key outside the
-        # PR cell, or a line the shared parser cannot read, is ambiguous and kept, fail closed).
-        # record[0] is the 1-based line number pr_headers assigned over the same splitlines()
-        # view; a deferred header defers every PR it names, and the note reports them all.
-        # The branch's declared own PR is never deferred, whatever the shared flags say.
-        line_deferred, line_prs = flags[record[0] - 1]
-        own = scope.own_pr is not None and scope.own_pr in line_prs
-        if line_deferred and record[1] in line_prs and not own:
-            print(store_deferral_note(line_prs, scope, str(detailed_mirror), record[0]))
-            deferred += 1
-        else:
-            mirror_records.append(record)
-    root_counts = Counter(pr for _, pr, _, _ in root_records)
+    mirror_records = [r for r in pr_headers(mirror_text, cutoff=cutoff) if r[0] not in mirror_skip]
     mirror_counts = Counter(pr for _, pr, _, _ in mirror_records)
-
-    missing = sorted(set(root_counts) - set(mirror_counts))
-    extra = sorted(set(mirror_counts) - set(root_counts))
-    dup_root = sorted(n for n, c in root_counts.items() if c > 1)
     dup_mirror = sorted(n for n, c in mirror_counts.items() if c > 1)
-    order_root = ordering_violations(root_records)
     order_mirror = ordering_violations(mirror_records)
-    version_diff = version_mismatches(root_records, mirror_records)
+    mismatches, compared, notes = range_mismatches(
+        root_found.periods, mirror_dated_records(mirror_text, mirror_skip, cutoff))
+    for note in notes:
+        print(note)
 
-    problems = (root_found or mirror_found or missing or extra or dup_root or dup_mirror
-                or order_root or order_mirror or version_diff)
+    problems = root_found or mirror_found or dup_mirror or order_mirror or mismatches
     if not problems:
-        shared = len(set(root_counts))
         print(
-            f"OK: root and detailed-mirror CHANGELOG per-PR headers match "
-            f"for all {shared} PR(s) at or above #{cutoff}, each "
-            f"file's Library Versions strictly decrease top-down, and every "
-            f"shared PR carries the SAME Library Version in both files."
+            f"OK: every compared root weekly or monthly range ({compared} compared) covers "
+            f"exactly the detailed mirror's PRs for its period, the mirror's Library Versions "
+            f"strictly decrease top-down, and no mirror PR header (>= #{cutoff}) is duplicated."
         )
-        if shared == 0:
+        if compared == 0:
             print_degraded(
                 "gate 59",
-                "gate 59 compared no PR: no per-PR header dated on or after "
-                f"{EPOCH_START} was left to compare in either file after store-scope "
-                f"deferral ({deferred} detailed-mirror header(s) deferred); this pass "
-                "attests nothing about header parity."
+                "gate 59 compared no weekly or monthly range: the root holds no ranged period "
+                f"heading whose period the detailed mirror holds ({len(notes)} heading(s) not "
+                "held by the mirror); this pass attests nothing about range coverage."
             )
         return 0
 
     print_entry_failures(f"root {ROOT_CHANGELOG_REL}", root_found, ROOT_EXPECTED_SHAPE)
     print_entry_failures(f"the detailed mirror ({detailed_mirror})", mirror_found)
-    if version_diff:
+    if mismatches:
         print(
-            "FAIL: PR(s) present in BOTH files with DIFFERENT Library Versions "
-            "(the mirror and the root must agree; the shipped version is the one "
-            "in README.md at that PR's merge commit): "
-            + ", ".join(
-                f"#{pr} root={root_text} mirror={mirror_text}"
-                for pr, root_text, mirror_text in version_diff
-            )
-        )
-    if missing:
-        print(
-            "FAIL: PR header(s) present in root .working/CHANGELOG.md but MISSING from the "
-            f"detailed mirror (>= #{cutoff}): "
-            + ", ".join(f"#{n}" for n in missing)
-        )
-    if extra:
-        print(
-            "FAIL: PR header(s) present in the detailed mirror but MISSING from root "
-            f".working/CHANGELOG.md (>= #{cutoff}): "
-            + ", ".join(f"#{n}" for n in extra)
-        )
-    if dup_root:
-        print(
-            "FAIL: PR header(s) appearing more than once in root .working/CHANGELOG.md "
-            f"(>= #{cutoff}): " + ", ".join(f"#{n}" for n in dup_root)
+            "FAIL: root .working/CHANGELOG.md weekly or monthly range(s) do not cover exactly "
+            "the detailed mirror's PRs for their period (the first and last PR named must be "
+            "the lowest and the highest PR the mirror dates in that period): "
+            + "; ".join(mismatches)
         )
     if dup_mirror:
         print(
             "FAIL: PR header(s) appearing more than once in the detailed mirror "
             f"(>= #{cutoff}): " + ", ".join(f"#{n}" for n in dup_mirror)
         )
-    if order_root:
-        print(
-            f"FAIL: root .working/CHANGELOG.md Library Version ordering violated "
-            f"(>= #{cutoff}):"
-        )
-        for v in order_root:
-            print(f"  {v}")
     if order_mirror:
         print(
             f"FAIL: detailed-mirror Library Version ordering violated "
@@ -1678,16 +1604,14 @@ def main(argv: list[str]) -> int:
         for v in order_mirror:
             print(f"  {v}")
     print(
-        "\nThe root .working/CHANGELOG.md and its maintainer-grade detailed mirror "
-        "must carry the same "
-        "per-PR header set, with each file's Library Versions strictly "
-        "decreasing top-down. Add the missing entry, reconcile the duplicated / "
-        "orphaned header, or re-version the out-of-order entry so the two "
-        "surfaces stay in lock-step. Old-repository records dated before "
-        f"EPOCH_START {EPOCH_START} must be archived out of both surfaces, and every "
-        "dated header must carry a valid YYYY-MM-DD date in a shape gate 59 can compare, "
-        "with one header per PR. Above its first ## Week of heading the root must hold only "
-        f"the lines of the root grammar, and at or below it only {ROOT_WEEKLY_LINES}."
+        "\nThe root .working/CHANGELOG.md carries weekly summaries only (maintainer-directed "
+        "2026-11-13): each weekly or monthly heading's range must name exactly the lowest and "
+        "the highest PR the detailed mirror dates in its period, and the mirror's Library "
+        "Versions must strictly decrease top-down with one header per PR. Old-repository "
+        f"records dated before EPOCH_START {EPOCH_START} must be archived out of both surfaces, "
+        "and every dated mirror header must carry a valid YYYY-MM-DD date in a shape gate 59 "
+        "can compare. Above its first period heading the root must hold only the lines of the "
+        f"root grammar, and at or below it only {ROOT_WEEKLY_LINES}."
     )
     return 1
 

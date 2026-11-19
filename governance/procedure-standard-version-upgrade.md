@@ -2,8 +2,8 @@
 
 **Document Title:** Standard Version Upgrade Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
-**Date:** 2026-11-12\
+**Version:** 1.0.6\
+**Date:** 2026-11-19\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/procedure-library-quality-and-review-cadence.md`](procedure-library-quality-and-review-cadence.md), [`.claude/skills/corpus-management/specs/specification-audit-programme.md`](../.claude/skills/corpus-management/specs/specification-audit-programme.md), [`governance/specification-ingestion.md`](specification-ingestion.md), [`README.md`](../README.md)\
@@ -82,7 +82,7 @@ Run the standards-currency audit ([`.claude/skills/corpus-management/tools/lint-
 
 ### Step 7: Record the campaign
 
-Add a CHANGELOG entry covering the upgrade: the summary in [`.working/CHANGELOG.md`](../.working/CHANGELOG.md) and, where the detailed private copy is present, the matching entry in that copy, per the change-tracking discipline. Where the substantive rewrites span more than one commit or pull request, the campaign is multi-PR: record a backlog item tracking the remaining locations so the campaign is not left half-applied. When the last location lands, close the backlog item and rotate it to the closed-item ledger. A single positional-only bump that touches one register row and a handful of markers is a single PR and needs only its CHANGELOG entry.
+Record the upgrade in the change's entry in the private per-change record, per the change-tracking discipline; the public [`.working/CHANGELOG.md`](../.working/CHANGELOG.md) carries weekly summaries only, and the week's summary covers the upgrade once the week has ended. Where the substantive rewrites span more than one commit or pull request, the campaign is multi-PR: record a backlog item tracking the remaining locations so the campaign is not left half-applied. When the last location lands, close the backlog item and rotate it to the closed-item ledger. A single positional-only bump that touches one register row and a handful of markers is a single PR and needs only its change entry.
 
 ---
 
@@ -91,7 +91,7 @@ Add a CHANGELOG entry covering the upgrade: the summary in [`.working/CHANGELOG.
 | Role | Responsibility |
 | --- | --- |
 | Governance Library Maintainer | Decides whether to adopt a new edition; approves the campaign; performs or directs the publisher-source confirmation (Step 1) and the verification capture (Step 5), which the citation-verification methodology assigns to a human verifier. |
-| AI assistant (under maintainer direction) | Prepares the corpus sweep (Step 2), the classification worklist (Step 3), and the mechanical positional updates (Step 4); drafts the register and CHANGELOG edits for the maintainer to confirm; runs the standards-currency gate (Step 6). |
+| AI assistant (under maintainer direction) | Prepares the corpus sweep (Step 2), the classification worklist (Step 3), and the mechanical positional updates (Step 4); drafts the register edits and the change entry for the maintainer to confirm; runs the standards-currency gate (Step 6). |
 
 The human-versus-AI split for the publisher-source capture in Steps 1 and 5 follows [`specification-citation-verification.md`](specification-citation-verification.md) §3: the AI prepares and records, the human captures the primary publisher text.
 

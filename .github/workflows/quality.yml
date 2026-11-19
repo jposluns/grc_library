@@ -11,7 +11,8 @@ permissions:
 jobs:
   # The one pull-request job. It runs only the CI subset of corpus gates that
   # the audit programme specification's ci-pr-subset block names, in section 6
-  # order, then the 13 per-PR delta gates. The full gate suite runs on the
+  # order, then the web generator health check (python3 .web/build.py --check,
+  # not a section 6 gate) and the 12 per-PR delta gates. The full gate suite runs on the
   # local server, which posts the local-quality commit status that merge
   # requires; the scheduled full sweep stays in nightly-sweep.yml. Gate 35
   # checks that the steps below equal the subset exactly and that the runner
@@ -66,8 +67,14 @@ jobs:
       - name: Corpus-management generated outputs in sync
         run: python3 .claude/skills/corpus-management/tools/build-corpus-management.py --check --release-delta
 
+      - name: Baseline-pin integrity audit
+        run: python3 .claude/skills/corpus-management/tools/lint-baseline-pin.py
+
       - name: Public hooks syntax and registration-parity audit
         run: python3 .claude/skills/corpus-management/tools/lint-hooks-syntax.py
+
+      - name: Web generator health check
+        run: python3 .web/build.py --check
 
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
@@ -92,10 +99,6 @@ jobs:
       - name: CHANGELOG length-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 .claude/skills/corpus-management/tools/check-changelog-length-on-pr.py
-
-      - name: Daily-changelog-rollup reminder
-        if: github.event_name == 'pull_request'
-        run: python3 .claude/skills/corpus-management/tools/check-daily-changelog-rollup.py
 
       - name: Retired-section-orphan check
         if: github.event_name == 'pull_request'

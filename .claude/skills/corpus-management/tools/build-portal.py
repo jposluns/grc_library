@@ -38,8 +38,9 @@ SCORECARD = REPO_ROOT / "governance" / "maturity-scorecard.md"
 # force the generator-output drift gates (33 and 34) to flap on every
 # PR that bumps the library version. Bump this constant manually when
 # the metadata schema itself changes (e.g. a new required field, a
-# rewritten Overview, an audience added or removed) and capture the
-# bump in .working/CHANGELOG.md.
+# rewritten Overview, an audience added or removed) and record the
+# bump in the change's private per-change entry (the public
+# .working/CHANGELOG.md carries weekly summaries only).
 PORTAL_METADATA_VERSION = "1.3.2"
 SCORECARD_METADATA_VERSION = "1.0.2"
 

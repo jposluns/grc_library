@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Verify a PR that asserts it closes a TODO item also rotates it to DONE (delta gate D5).
 
-This is the PR-time, CHANGELOG-asserts-closure half of the TODO/DONE rotation
+This is the PR-time, closure-assertion half of the TODO/DONE rotation
 bookkeeping-parity gate family. Its static companion is the corpus gate
 "Backlog marked-done audit" (gate 57, `lint-todo-marked-done.py`), which flags
 an item self-marked done IN PLACE. This check covers the case gate 57 cannot
-see: a PR that CLOSES a TODO item (its CHANGELOG says so) but never edits
+see: a PR that CLOSES a TODO item (its commit message or CHANGELOG says so) but never edits
 `.working/TODO.md` at all, so there is nothing self-marked for the static gate
 to catch. That failure mode occurred in the earlier repository: the PR that
 built gate 56 asserted a "closing TODO §" closure but omitted the rotation, and
@@ -18,20 +18,38 @@ the operational store (both cross-repo, outside the public diff). Since the
 working-state move to the private sibling on 2026-07-29, the DONE ledger has
 been outside the public diff (it later moved to the operational store), so this
 gate enforces only the public index rotation (`.working/TODO.md` present on a
-closure) surface: if any line ADDED to the root CHANGELOG asserts a TODO-item
-closure, the PR's changed-file set must include `.working/TODO.md` (index row);
-the detail block rotates in the private sibling, outside the public diff.
+closure) surface: if a line ADDED to the root CHANGELOG, or a line of a commit
+message in the PR range, asserts a TODO-item closure, or a commit message in the
+range carries a ``Closes-Backlog: <id>`` trailer, the PR's changed-file set must
+include `.working/TODO.md` (index row); the detail block rotates in the private
+sibling, outside the public diff.
+
+What it reads. Under the weekly-only public changelog rule, ``.working/CHANGELOG.md``
+carries weekly summaries only and delta check D1 refuses a per-change line there, so
+an ordinary PR adds no changelog line for this gate to read. D5 therefore reads three
+sources, all from the local repository (no store and no network, so CI and the
+pre-push run read the same thing): the lines the PR adds to ``.working/CHANGELOG.md``
+(so a weekly-summary PR stays covered); every line of every commit message in the PR
+range (merge-base to head), matched against the same closure forms; and the
+structured trailer
+
+    Closes-Backlog: <id>
+
+one backlog id per trailer line, the id in the backlog index's own form (such as
+``2.25.3``, ``P-1.2`` or ``TF-4``; ``lint_common.TODO_ID_RE``). Every
+``Closes-Backlog:`` line counts as a closure assertion, even when its value is not one
+id in that form (fail-closed; the failure message then says so).
 
 Trigger (broadened 2026-06-30 to three forms, 2026-07-02 to six, 2026-07-03 to
 seven, 2026-07-06 to eight, and 2026-08-01 to nine, each chosen to stay
-false-positive-free; see ``CLOSURE_PATTERNS``): an added CHANGELOG line
-matching any of (1) the canonical section form ``clos(e|es|ed|ing) [the] TODO
+false-positive-free; see ``CLOSURE_PATTERNS``): an added CHANGELOG line or a
+commit-message line matching any of (1) the canonical section form ``clos(e|es|ed|ing) [the] TODO
 §`` (e.g. "closing TODO §N.M"); (2) the coded-id major-closure marker, a
 two-to-four-letter uppercase id then uppercase CLOSED (e.g. "FR-N CLOSED",
 "GR-N CLOSED"; widened from the FR-only form, and note the wider id class
 brushes the NIST-style control-id families, an accepted collision surface
-bounded by the added-CHANGELOG-lines-only scan and the standalone
-uppercase-CLOSED flag); (3) the explicit backlog-item form ``clos(e|es|ed|ing)
+bounded by the scan of added CHANGELOG lines and range commit messages only and
+the standalone uppercase-CLOSED flag); (3) the explicit backlog-item form ``clos(e|es|ed|ing)
 the <...> (backlog item | TODO item | directive | bullet(s))`` (e.g. "closes
 the maintainer-directed ... validation directive", the prose-named shape;
 "bullet(s)" and the decimal-dot tolerance added 2026-07-03 after a mirror
@@ -80,11 +98,23 @@ Opt-out / exemption: any commit in the PR range carrying a
 
     TodoRotation: <one-line-reason>
 
-trailer satisfies the gate. This covers (a) a CHANGELOG entry that NARRATES a
-past closure (e.g. quoting "closing TODO §X" while describing a prior PR), which
+trailer satisfies the gate. This covers (a) a CHANGELOG entry or commit message that
+NARRATES a past closure (e.g. quoting "closing TODO §X" while describing a prior PR), which
 would otherwise false-trigger, and (b) the session-closing handoff-PR case (the
 shared handoff-exemption logic of the bookkeeping-parity gate family). The
-trailer is the same proven shape as the ``Changelog:`` opt-out of delta gate D1.
+trailer is a one-line ``Key: reason`` commit trailer read from any commit in the PR range.
+
+Coverage kept across the weekly-only changelog. At main d7387bf3 D5 read its nine
+closure forms and its opt-out against the lines a PR added to the CHANGELOG; an
+ordinary PR now adds none, so each case is caught on a commit message of the PR range
+(no changelog line added) and, for a weekly-summary PR, on an added summary line. The
+cases are tested in TodoRotationOnPrDeltaTests (tests/test_linters.py). Switching off
+closure reading from commit messages (the TodoRotation: trailer still read) is expected
+to fail every case there whose closure, the Closes-Backlog: trailer included, is stated
+only in a commit message, and no case whose closure is an added changelog line; that set
+is held once as FAIL_WITHOUT_COMMIT_MESSAGE_READING in that class, where a test derives
+it by running the cases with that reading off and asserts the two are equal. No case is
+left uncovered. What the move changes is stated under Known residuals.
 
 Usage:
     # In CI (uses GITHUB_BASE_REF):
@@ -95,8 +125,9 @@ Usage:
     python3 .claude/skills/corpus-management/tools/check-todo-rotation-on-pr.py origin/main HEAD
 
 Exit codes:
-    0 : no closure assertion in the added CHANGELOG lines, OR .working/TODO.md is in the
-        diff (the public index rotated), OR an opt-out trailer is present.
+    0 : no closure assertion in the added CHANGELOG lines or in the commit messages of
+        the PR range, OR .working/TODO.md is in the diff (the public index rotated), OR
+        an opt-out trailer is present.
     1 : a closure is asserted but .working/TODO.md is missing from the diff (the public
         index row was not rotated).
     2 : invocation or environment error (cannot determine base/head, git failure,
@@ -116,7 +147,12 @@ Exit codes:
         CANNOT-EVALUATE: base and head resolve to the same commit, or the
         range changes no file (an empty diff), so nothing was evaluated.
 
-Known residuals: git failing to run at all (OSError) on the one
+Known residuals: the nine closure forms were census-tested against changelog history,
+not commit-message history, so a commit message that narrates a past closure in one of
+those forms fails until a TodoRotation: trailer opts out; a closure stated only in a
+pull request's title or description, never in a commit message or an added changelog
+line, is not read (a squash merge's message is written after this gate runs). Git
+failing to run at all (OSError) on the one
 top-level read degrades to a placeholder and skips the top-level comparison
 (the git-directory checks still run). D5 runs git from the current
 directory, so it also refuses (fail-closed) where git's top level is not this
@@ -138,7 +174,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import REPO_ROOT, require_own_git_dir, resolve_base_ref  # noqa: E402
+from lint_common import REPO_ROOT, TODO_ID_RE, require_own_git_dir, resolve_base_ref  # noqa: E402
 
 CHANGELOG_PATHS = (".working/CHANGELOG.md",)
 TODO_PATH = ".working/TODO.md"
@@ -151,8 +187,8 @@ TODO_PATH = ".working/TODO.md"
 # and now lives in the operational store, so it is a cross-repo surface invisible to a public
 # PR diff. This gate therefore requires the PUBLIC rotation surface: the .working/TODO.md index-row
 # edit (the per-item detail block rotates in the private sibling, cross-repo, outside this diff).
-# (The closure-assertion scan reads only the root .working/CHANGELOG.md; the detailed mirror is
-# likewise private now.)
+# (The closure-assertion scan reads the lines a PR adds to the root .working/CHANGELOG.md and
+# the commit messages of the PR range; the detailed mirror is private.)
 
 
 # Closure-assertion phrasings, broadened 2026-06-30 beyond the original `TODO §`
@@ -286,6 +322,13 @@ TRAILER_PATTERN = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 
+# The structured closure trailer: one backlog id per trailer line. Any value counts as a
+# closure assertion (fail-closed); TODO_ID_RE only words the failure message.
+CLOSES_BACKLOG_PATTERN = re.compile(
+    r"^[ \t]*Closes-Backlog:[ \t]*(.*?)[ \t]*$",
+    re.IGNORECASE | re.MULTILINE,
+)
+
 
 def asserts_todo_closure(added_lines: list[str]) -> str | None:
     """Return the first added line that asserts a TODO-item closure, or None.
@@ -296,6 +339,23 @@ def asserts_todo_closure(added_lines: list[str]) -> str | None:
     for line in added_lines:
         if any(pat.search(line) for pat in CLOSURE_PATTERNS):
             return line
+    return None
+
+
+def commit_message_closure(messages: list[tuple[str, str]]) -> tuple[str, str] | None:
+    """Return ``(sha, line)`` for the first commit message that asserts a TODO-item closure.
+
+    ``messages`` holds ``(sha, full message)`` pairs of the PR range. A message asserts a
+    closure when it carries a ``Closes-Backlog:`` trailer line or when any of its lines
+    matches ``CLOSURE_PATTERNS``. Pure helper (no git), unit-tested directly.
+    """
+    for sha, body in messages:
+        trailer = CLOSES_BACKLOG_PATTERN.search(body)
+        if trailer:
+            return sha, trailer.group(0).strip()
+        line = asserts_todo_closure(body.splitlines())
+        if line is not None:
+            return sha, line
     return None
 
 
@@ -454,9 +514,30 @@ def main(argv: list[str]) -> int:
         )
         return 2
 
+    # The commit messages of the PR range are read on every run: since the weekly-only
+    # public changelog they are where an ordinary PR states a closure, and they carry the
+    # opt-out trailer. Only the local repository is read (no store, no network).
+    try:
+        commit_shas = git("log", "--format=%H", f"{merge_base}..{head}").splitlines()
+        messages = [(sha, git("log", "-1", "--format=%B", sha)) for sha in commit_shas]
+    except subprocess.CalledProcessError as exc:
+        print(f"ERROR: git log failed: {exc}", file=sys.stderr)
+        return 2
+    except (OSError, UnicodeDecodeError) as exc:
+        print(f"ERROR: the commit messages of {merge_base}..{head} could not be read: {exc}",
+              file=sys.stderr)
+        return 2
+
     closure_line = asserts_todo_closure(added_changelog_lines(merge_base, head))
+    source = "an added CHANGELOG line"
     if closure_line is None:
-        print("OK: no TODO-item closure asserted in the added CHANGELOG lines.")
+        found = commit_message_closure(messages)
+        if found is not None:
+            source = f"the message of commit {found[0][:8]}"
+            closure_line = found[1]
+    if closure_line is None:
+        print("OK: no TODO-item closure asserted in the added CHANGELOG lines or in the "
+              "commit messages of the PR range.")
         return 0
 
     # 2026-08 migration: the per-item DETAIL (TODO-REFERENCE.md) is PRIVATE now,
@@ -466,20 +547,15 @@ def main(argv: list[str]) -> int:
     missing_rotation = [p for p in (TODO_PATH,) if p not in changed]
     if not missing_rotation:
         print(
-            f"OK: CHANGELOG asserts a TODO-item closure and {TODO_PATH} is in the diff "
+            f"OK: {source} asserts a TODO-item closure and {TODO_PATH} is in the diff "
             f"(the public index row rotated); the item's detail block rotates in the private "
             f"sibling and the DONE ledger in the operational store (cross-repo, not in the public diff)."
         )
         return 0
 
     # Closure asserted but a rotation surface is missing: check the opt-out trailer.
-    try:
-        commit_shas = git("log", "--format=%H", f"{merge_base}..{head}").splitlines()
-    except subprocess.CalledProcessError as exc:
-        print(f"ERROR: git log failed: {exc}", file=sys.stderr)
-        return 2
-    for sha in commit_shas:
-        match = TRAILER_PATTERN.search(git("log", "-1", "--format=%B", sha))
+    for sha, body in messages:
+        match = TRAILER_PATTERN.search(body)
         if match:
             print(
                 f"OK: commit {sha[:8]} carries opt-out trailer: "
@@ -488,20 +564,24 @@ def main(argv: list[str]) -> int:
             return 0
 
     print(
-        f"FAIL: an added CHANGELOG line asserts a TODO-item closure but the diff "
+        f"FAIL: {source} asserts a TODO-item closure but the diff "
         f"does not rotate the public index: {' and '.join(missing_rotation)} not in the diff. "
         f"A closure deletes the item's index row from {TODO_PATH} (the detail block rotates "
         f"in the private sibling).",
         file=sys.stderr,
     )
     print(f"  asserting line: {closure_line.strip()[:160]}", file=sys.stderr)
+    trailer = CLOSES_BACKLOG_PATTERN.fullmatch(closure_line.strip())
+    if trailer and not TODO_ID_RE.match(trailer.group(1)):
+        print("  (its value is not one backlog id in the index's form; it still counts as "
+              "a closure assertion)", file=sys.stderr)
     print("", file=sys.stderr)
     print(
         "When a PR closes a TODO item, delete its index row from .working/TODO.md (the "
         "change-tracking rotation discipline; the per-item detail block lands in the private "
         "sibling and the paired DONE ledger row in the operational store, cross-repo and not "
         "in the public diff). If "
-        "the CHANGELOG line merely narrates a past closure, add a 'TodoRotation: <reason>' "
+        "the line merely narrates a past closure, add a 'TodoRotation: <reason>' "
         "trailer to any commit to opt out.",
         file=sys.stderr,
     )

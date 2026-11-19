@@ -5,7 +5,8 @@ For each in-scope linter, this module constructs a minimal synthetic
 fixture appropriate to each linter's target surface (Markdown for the
 corpus linters, Python source for the gate-94/95 code linters) that
 should trigger exactly one rule, invokes the
-linter against the fixture, and asserts the linter exits non-zero.
+linter against the fixture, and asserts the linter exits with its
+findings code (1 unless a test names another code).
 
 The tests catch a class of defect that no other gate in the audit
 programme catches: a regression in the linter's own detection logic.
@@ -624,10 +625,13 @@ class LinterTestCase(unittest.TestCase):
                 checked = call(twin.replace("{probe}", token))
                 # The engine quotes the identifier it reports ('V9.9.9'); match that exactly, so a
                 # longer identifier sharing the prefix is not taken as the probe.
-                if checked.returncode == 0 or f"'{token}'" not in checked.stdout:
+                # The twin must exit with the findings code 1 (every run callable is a --strict
+                # run): a cannot-run exit that still prints the token is not a report.
+                if checked.returncode != 1 or f"'{token}'" not in checked.stdout:
                     self.fail(
                         f"TEST-PROBE-CONTROL: {family} {token!r}: the run callable did not report "
-                        f"it in the twin (exit {checked.returncode})\n{checked.stdout}{checked.stderr}"
+                        f"it in the twin (exit {checked.returncode}, expected exit 1)\n"
+                        f"{checked.stdout}{checked.stderr}"
                     )
                 result = call(template.replace("{probe}", token))
                 if result.returncode != 0:
@@ -678,11 +682,35 @@ class LinterTestCase(unittest.TestCase):
         self,
         result: subprocess.CompletedProcess,
         expected_in_output: str | None = None,
+        *,
+        expected_code: int = 1,
     ) -> None:
-        """Assert the linter exited non-zero. Optionally match an output substring."""
+        """Assert the linter exited with its findings code. Optionally match an output substring.
+
+        The findings code is 1 unless the caller passes expected_code for a linter that reports
+        findings with another code. That code must be 1 or more: exit 0 is a clean run, never a
+        findings code, so a lower expected_code is refused with ValueError before the result is
+        read. Any other non-zero exit fails too: exit 2 is the cannot-run
+        code of most linters (a missing or unreadable input, a usage error), so accepting any
+        non-zero exit let a test pass when the linter scanned nothing. Not every linter keeps
+        that split: lint-version-date-consistency.py exits 1 when its default changelog or
+        readme cannot be read (2 only for a file named with --changelog or --readme), so a
+        test of that linter on its default inputs cannot tell an unreadable input from a
+        finding by the exit code alone."""
+        if expected_code < 1:
+            raise ValueError(
+                f"assertLinterFails: expected_code must be 1 or more, got {expected_code}; exit 0 "
+                f"is a clean run, not a findings code (assert a clean run with "
+                f"assertEqual(result.returncode, 0))"
+            )
         if result.returncode == 0:
             self.fail(
-                f"linter exited 0 but should have failed.\n"
+                f"linter exited 0, expected exit {expected_code}.\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+            )
+        if result.returncode != expected_code:
+            self.fail(
+                f"linter exited {result.returncode}, expected exit {expected_code}.\n"
                 f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
             )
         if expected_in_output is not None:
@@ -696,6 +724,19 @@ class LinterTestCase(unittest.TestCase):
 
 class MetadataLinterTests(LinterTestCase):
     """.claude/skills/corpus-management/tools/lint-metadata.py"""
+
+    def test_assert_linter_fails_refuses_an_expected_code_below_one(self) -> None:
+        # Exit 0 is a clean run, never a findings code: a call naming expected_code=0 could
+        # never pass (the exit-0 check fails first) and read "linter exited 0, expected exit
+        # 0", so the helper refuses a code below 1 before it reads the result.
+        for code in (0, -1):
+            for returncode in (0, 1):
+                with self.subTest(expected_code=code, returncode=returncode):
+                    result = subprocess.CompletedProcess([], returncode, "", "")
+                    with self.assertRaises(ValueError) as caught:
+                        self.assertLinterFails(result, expected_code=code)
+                    self.assertIn(f"expected_code must be 1 or more, got {code}",
+                                  str(caught.exception))
 
     def test_missing_metadata_block_flagged(self) -> None:
         fixture = self.make_fixture(
@@ -7097,6 +7138,31 @@ class VersionBumpRecencyTests(LinterTestCase):
             self.assertNotIn("FAIL", result.stdout, mode)
             self.assertNotIn("OK:", result.stdout, mode)
 
+    @unittest.skipIf(os.geteuid() == 0, "root ignores file permission bits")
+    def test_unreadable_fixture_is_not_taken_as_a_finding(self) -> None:
+        # An unreadable fixture makes the linter exit 2 (cannot read a path), not its
+        # findings exit 1. assertLinterFails requires the findings code, so a linter
+        # test whose fixture cannot be read now fails instead of passing on that
+        # exit 2, as it did while any non-zero exit was accepted.
+        root = self._recency_bom_repo([{
+            "clean.md": "# Clean\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
+            "sealed.md": "# Sealed\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
+        }])
+        (root / "sealed.md").chmod(0o000)
+        self.addCleanup((root / "sealed.md").chmod, 0o644)
+        try:
+            (root / "sealed.md").read_bytes()
+        except PermissionError:
+            pass
+        else:
+            self.skipTest("a mode-000 file is still readable here (a capability or ACL "
+                          "grants it), so the case cannot be set up")
+        result = self._run_recency_bom(root, "sealed.md")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        with self.assertRaises(self.failureException) as caught:
+            self.assertLinterFails(result)
+        self.assertIn("linter exited 2, expected exit 1", str(caught.exception))
+
 
 def _assert_historical_blob_missing(test: unittest.TestCase, clone: Path, first: str) -> None:
     """Verify a partial-clone fixture without reading or fetching its historical blob."""
@@ -8571,9 +8637,11 @@ class DeltaGateRepoTestCase(unittest.TestCase):
             capture_output=True, text=True, cwd=str(tmp),
         )
 
-    # notes.md in _run_gate_on_link: an added dash line and a 120-word compact entry.
+    # notes.md in _run_gate_on_link: an added dash line, a 120-word per-change entry and a
+    # 150-word weekly paragraph.
     LINKED_BODY = ("# Notes\n\nNew entry \u2014 dash.\n\n**2026-07-17 | 2026.07.476 | PR #988** - "
-                   + " ".join(["word"] * 120) + ".\n")
+                   + " ".join(["word"] * 120) + ".\n\n**Week of 2026-07-13 (PRs #980-#988)**\n\n"
+                   + " ".join(["word"] * 150) + ".\n")
 
     def _run_gate_on_link(self, script_name, kind, modified=False, config=()):
         """Run ``script_name`` on a head whose .working/CHANGELOG.md is a symbolic link to notes.md
@@ -8669,84 +8737,131 @@ class DeltaGateRepoTestCase(unittest.TestCase):
 
 
 class ChangelogOnPrTests(DeltaGateRepoTestCase):
-    """.claude/skills/corpus-management/tools/check-changelog-on-pr.py (delta gate D1)."""
+    """.claude/skills/corpus-management/tools/check-changelog-on-pr.py (delta gate D1).
+
+    The public .working/CHANGELOG.md carries weekly summaries only (maintainer-directed
+    2026-11-13). D1 no longer requires a pull request to touch it; it refuses a pull request
+    that adds a per-change entry line, a daily summary heading or any other line that is not
+    part of a weekly or monthly paragraph (the preamble above the first period section aside).
+    """
 
     SCRIPT = "check-changelog-on-pr.py"
-    BASE = {
-        "foo.md": "# Foo\n\nA.\n",
-        ".working/CHANGELOG.md": "# Changelog\n\nOld entry.\n",
-        ".working/changelog-details/CHANGELOG-detailed.md": "# Detailed\n\nOld entry.\n",
-    }
+    PUBLIC = ("# Changelog\n\nIntro line.\n\n"
+              "**Week of 2026-11-02 (PRs #10-#14)**\n\nOld weekly summary.\n\n"
+              "## Week of 2026-10-26\n\n- Legacy bullet.\n")
+    BASE = {"foo.md": "# Foo\n\nA.\n", ".working/CHANGELOG.md": PUBLIC}
+    ENTRY = "**2026-11-13 | 2026.11.94 | PR #30** - tools: a per-change entry."
 
-    def test_content_change_without_changelog_flagged(self) -> None:
-        tmp, base_sha, shutil = self._build_repo(
-            self.BASE, {"foo.md": "# Foo\n\nB.\n"}
-        )
+    def _gate(self, public=None, message="Second", base=None):
+        head = {"foo.md": "# Foo\n\nB.\n"}
+        if public is not None:
+            head[".working/CHANGELOG.md"] = public
+        tmp, base_sha, shutil = self._build_repo(base or self.BASE, head, head_message=message)
         try:
-            result = self._run_gate(self.SCRIPT, tmp, base_sha)
-            self.assertEqual(
-                result.returncode, 1,
-                f"D1 should FAIL when the root .working/CHANGELOG.md is not in the diff; got "
-                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-            )
-            self.assertIn(".working/CHANGELOG.md is not in the diff", result.stderr)
+            return self._run_gate(self.SCRIPT, tmp, base_sha)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
-    def test_both_changelog_surfaces_changed_passes(self) -> None:
-        tmp, base_sha, shutil = self._build_repo(
-            self.BASE,
-            {
-                "foo.md": "# Foo\n\nB.\n",
-                ".working/CHANGELOG.md": "# Changelog\n\nNew entry.\n\nOld entry.\n",
-                ".working/changelog-details/CHANGELOG-detailed.md": (
-                    "# Detailed\n\nNew entry.\n\nOld entry.\n"
-                ),
-            },
-        )
-        try:
-            result = self._run_gate(self.SCRIPT, tmp, base_sha)
-            self.assertEqual(
-                result.returncode, 0,
-                f"D1 should PASS when both CHANGELOG surfaces move; got "
-                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-            )
-        finally:
-            shutil.rmtree(tmp, ignore_errors=True)
+    def _after_intro(self, added):
+        return self.PUBLIC.replace("Intro line.\n\n", "Intro line.\n\n" + added, 1)
 
-    def test_root_changelog_only_passes(self) -> None:
-        # Post-.working-move: D1 is root-CHANGELOG-only; the detailed mirror lives in the
-        # operational store (cross-repo, invisible to a public diff), so a root-only edit passes.
-        tmp, base_sha, shutil = self._build_repo(
-            self.BASE,
-            {".working/CHANGELOG.md": "# Changelog\n\nNew entry.\n\nOld entry.\n"},
-        )
-        try:
-            result = self._run_gate(self.SCRIPT, tmp, base_sha)
-            self.assertEqual(
-                result.returncode, 0,
-                f"D1 should PASS on a root-only CHANGELOG edit (mirror is now private); got "
-                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-            )
-        finally:
-            shutil.rmtree(tmp, ignore_errors=True)
+    def _assert_refused(self, result, needle):
+        self.assertEqual(
+            result.returncode, 1,
+            f"D1 should FAIL; got {result.returncode}.\nstdout:\n{result.stdout}\n"
+            f"stderr:\n{result.stderr}")
+        self.assertIn(needle, result.stderr)
 
-    def test_opt_out_trailer_accepted(self) -> None:
-        # Back-compat: a `Changelog:` commit trailer opts the PR out.
-        tmp, base_sha, shutil = self._build_repo(
-            self.BASE,
-            {"foo.md": "# Foo\n\nB.\n"},
-            head_message="Tweak foo\n\nChangelog: skip (reason: fixture)",
-        )
-        try:
-            result = self._run_gate(self.SCRIPT, tmp, base_sha)
-            self.assertEqual(
-                result.returncode, 0,
-                f"D1 should PASS on an opt-out trailer; got "
-                f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-            )
-        finally:
-            shutil.rmtree(tmp, ignore_errors=True)
+    def _assert_passes(self, result):
+        self.assertEqual(
+            result.returncode, 0,
+            f"D1 should PASS; got {result.returncode}.\nstdout:\n{result.stdout}\n"
+            f"stderr:\n{result.stderr}")
+
+    def test_content_change_without_changelog_passes(self) -> None:
+        # The weekly model: a pull request need not touch the public changelog; its record goes
+        # to the private per-change record.
+        result = self._gate()
+        self._assert_passes(result)
+        self.assertIn(".working/CHANGELOG.md not modified", result.stdout)
+
+    def test_added_per_change_entry_fails(self) -> None:
+        result = self._gate(self._after_intro(self.ENTRY + "\n\n"))
+        self._assert_refused(result, ".working/CHANGELOG.md:5: per-change entry")
+
+    def test_a_changelog_trailer_does_not_excuse_a_per_change_entry(self) -> None:
+        result = self._gate(self._after_intro(self.ENTRY + "\n\n"),
+                            message="Second\n\nChangelog: skip (reason: fixture)")
+        self._assert_refused(result, "per-change entry")
+
+    def test_added_daily_heading_fails(self) -> None:
+        result = self._gate(self._after_intro(
+            "**2026-11-12 (PRs #16-#29)**\n\nA daily summary.\n\n"))
+        self._assert_refused(result, ".working/CHANGELOG.md:5: daily summary heading")
+        self.assertIn(".working/CHANGELOG.md:7: not part of a weekly or monthly paragraph",
+                      result.stderr)
+
+    def test_added_weekly_paragraph_passes(self) -> None:
+        self._assert_passes(self._gate(self._after_intro(
+            "**Week of 2026-11-09 (PRs #1-#29)**\n\nA weekly summary. It has two sentences.\n\n")))
+
+    def test_added_single_pr_weekly_paragraph_passes(self) -> None:
+        self._assert_passes(self._gate(self._after_intro(
+            "**Week of 2026-11-09 (PRs #1)**\n\nA weekly summary.\n\n")))
+
+    def test_added_monthly_paragraph_passes(self) -> None:
+        self._assert_passes(self._gate(
+            self.PUBLIC + "\n**2026-08 (PRs #1-#9)**\n\nA monthly summary.\n"))
+
+    def test_editing_weekly_and_legacy_weekly_lines_passes(self) -> None:
+        public = self.PUBLIC.replace("Old weekly summary.", "Corrected weekly summary.").replace(
+            "- Legacy bullet.", "- Corrected legacy bullet.")
+        self._assert_passes(self._gate(public))
+
+    def test_preamble_edit_passes(self) -> None:
+        self._assert_passes(self._gate(self.PUBLIC.replace("Intro line.", "A reworded intro.")))
+
+    def test_scaffold_bullet_and_scaffold_comment_fail(self) -> None:
+        public = self.PUBLIC.replace(
+            "Old weekly summary.\n",
+            "Old weekly summary.\n- PR #30: raw per-change material.\n"
+            "<!-- TIER-SCAFFOLD: author a summary. -->\n")
+        result = self._gate(public)
+        self._assert_refused(result, ".working/CHANGELOG.md:8: per-change entry")
+        self.assertIn(".working/CHANGELOG.md:9: unauthored scaffold", result.stderr)
+
+    def test_text_continuing_a_per_change_entry_fails(self) -> None:
+        base_public = self.PUBLIC.replace(
+            "Intro line.\n\n", "Intro line.\n\n**2026-11-12 | 2026.11.93 | PR #29** - old.\n\n", 1)
+        head_public = base_public.replace("PR #29** - old.\n", "PR #29** - old.\nMore detail.\n", 1)
+        result = self._gate(head_public, base={**self.BASE, ".working/CHANGELOG.md": base_public})
+        self._assert_refused(
+            result, ".working/CHANGELOG.md:6: not part of a weekly or monthly paragraph")
+
+    def test_entry_after_a_unicode_line_break_fails(self) -> None:
+        # The line is classified at its start and after every str.splitlines() boundary, so a
+        # per-change entry after a CR, U+2028 or U+0085 inside a weekly line is still found.
+        for separator in ("\r", "\u2028", "\u0085"):
+            with self.subTest(separator=ascii(separator)):
+                public = self.PUBLIC.replace(
+                    "Old weekly summary.\n", "Old weekly summary." + separator + self.ENTRY + "\n")
+                self._assert_refused(self._gate(public), "per-change entry")
+
+    def test_bold_line_that_is_not_a_period_heading_fails(self) -> None:
+        for heading in ("**Week of 2026-11-09**", "**Week of 2026-11-09 (PRs #29-#1)**",
+                        "### Week of 2026-11-09"):
+            with self.subTest(heading=heading):
+                result = self._gate(self._after_intro(heading + "\n\nA summary.\n\n"))
+                self._assert_refused(
+                    result, ".working/CHANGELOG.md:5: a heading that is not a weekly or monthly")
+
+    def test_a_linked_changelog_exits_2(self) -> None:
+        for kind in ("symlink", "gitlink"):
+            with self.subTest(kind=kind):
+                result = self._run_gate_on_link(self.SCRIPT, kind)
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("ERROR: the .working/CHANGELOG.md diff could not be read: "
+                              ".working/CHANGELOG.md has mode", result.stderr)
 
 
 class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
@@ -11210,6 +11325,165 @@ class VersionBumpOnPrTests(DeltaGateRepoTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class ReadmeVersionRiseOnPrTests(DeltaGateRepoTestCase):
+    """.claude/skills/corpus-management/tools/lint-version-date-consistency.py --base
+    (gate 29's README version-floor check): in the PR range,
+    the README Library Version at head is not below the merge base's, compared as
+    (year, month, patch), and an unchanged version passes; a README without the field
+    at either end fails, naming it."""
+
+    SCRIPT = "lint-version-date-consistency.py"
+
+    @staticmethod
+    def _readme(version, body="A."):
+        field = f"**Library Version:** {version}\\\n" if version else ""
+        return f"# Library\n\n{field}**Date:** 2026-11-13\n\n{body}\n"
+
+    def _check(self, base_readme, head_readme):
+        import subprocess as sp
+
+        base_files = {} if base_readme is None else {"README.md": base_readme}
+        head_files = {"README.md": head_readme}
+        tmp, base_sha, shutil = self._build_repo(dict(base_files, **{"other.md": "x\n"}),
+                                                 head_files)
+        try:
+            return sp.run(
+                [sys.executable, "-I", str(SKILL_ROOT / "tools" / self.SCRIPT),
+                 "--base", base_sha, "--head", "HEAD"],
+                capture_output=True, text=True, cwd=str(tmp), timeout=120,
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def assertRise(self, result, code, *needles):
+        out = result.stdout + result.stderr
+        self.assertEqual(result.returncode, code, out)
+        for needle in needles:
+            self.assertIn(needle, out)
+
+    def test_patch_rise_passes(self) -> None:
+        self.assertRise(self._check(self._readme("2026.11.93"), self._readme("2026.11.94")),
+                        0, "OK: README.md Library Version 2026.11.94")
+
+    def test_unchanged_version_passes(self) -> None:
+        self.assertRise(self._check(self._readme("2026.11.93"),
+                                    self._readme("2026.11.93", "B.")), 0, "OK:")
+
+    def test_patch_fall_flagged(self) -> None:
+        self.assertRise(self._check(self._readme("2026.11.94"), self._readme("2026.11.93")),
+                        1, "2026.11.93 at the head", "below 2026.11.94 at the merge base")
+
+    def test_month_change_with_patch_reset_passes(self) -> None:
+        self.assertRise(self._check(self._readme("2026.10.250"), self._readme("2026.11.0")),
+                        0, "OK: README.md Library Version 2026.11.0")
+
+    def test_earlier_month_flagged(self) -> None:
+        self.assertRise(self._check(self._readme("2026.11.3"), self._readme("2026.10.300")),
+                        1, "2026.10.300 at the head", "below 2026.11.3 at the merge base")
+
+    def test_field_missing_at_head_flagged(self) -> None:
+        self.assertRise(self._check(self._readme("2026.11.93"), self._readme(None)),
+                        1, "README.md at the head (", "it has no field")
+
+    def test_field_missing_at_merge_base_flagged(self) -> None:
+        self.assertRise(self._check(self._readme(None), self._readme("2026.11.93")),
+                        1, "README.md at the merge base (", "it has no field")
+        self.assertRise(self._check(None, self._readme("2026.11.93")),
+                        1, "README.md at the merge base (", "there is no README.md")
+
+    # The tool's refusals, quoted exactly as it prints them.
+    BASE_REFUSAL = ("ERROR: --base runs the README version-floor check alone, which reads "
+                    "README.md from git at both ends; it takes no --changelog or --readme.")
+    HEAD_REFUSAL = "ERROR: --head needs --base; nothing would be verified."
+
+    def test_base_with_changelog_or_readme_or_head_alone_refused(self) -> None:
+        import subprocess as sp
+
+        # A range that resolves and a README whose head version is higher, so without
+        # its refusal each --base case would run the check and pass (exit 0); the
+        # control run shows it.
+        tmp, base_sha, shutil = self._build_repo(
+            {"README.md": self._readme("2026.11.93"), ".working/CHANGELOG.md": "# Changelog\n"},
+            {"README.md": self._readme("2026.11.94")})
+        tool = str(SKILL_ROOT / "tools" / self.SCRIPT)
+        rng = ["--base", base_sha, "--head", "HEAD"]
+
+        def run(args):
+            return sp.run([sys.executable, "-I", tool, *args], capture_output=True,
+                          text=True, cwd=str(tmp), timeout=120)
+
+        try:
+            self.assertRise(run(rng), 0, "OK: README.md Library Version 2026.11.94")
+            for args, refusal in ((rng + ["--readme", "README.md"], self.BASE_REFUSAL),
+                                  (rng + ["--changelog", ".working/CHANGELOG.md"],
+                                   self.BASE_REFUSAL),
+                                  (["--head", "HEAD"], self.HEAD_REFUSAL)):
+                with self.subTest(args=args):
+                    self.assertRise(run(args), 2, refusal)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_pr_time_runner_wires_the_check_with_the_range(self) -> None:
+        runner = (SKILL_ROOT / "tools" / "run-pr-time-checks.sh").read_text(encoding="utf-8")
+        self.assertIn('run_check "Gate 29 README version-floor check" \\\n'
+                      '    python3 .claude/skills/corpus-management/tools/'
+                      'lint-version-date-consistency.py --base "${BASE_REF}" '
+                      '--head "${HEAD_REF}"\n', runner)
+
+    def test_pr_time_runner_reaches_the_check_and_reports_its_result(self) -> None:
+        # The text assertion above still passes when the runner exits before the
+        # check, so this runs the real runner in a fixture repository. Every other
+        # tool it names is a silent exit-0 stub; the check and its imports are byte
+        # copies. A fall below the merge base must surface as the check's FAIL line
+        # and fail the runner; an unchanged version must surface as its OK line.
+        import re
+        import subprocess as sp
+
+        runner_text = (SKILL_ROOT / "tools" / "run-pr-time-checks.sh").read_text(
+            encoding="utf-8")
+        real = ("run-pr-time-checks.sh", self.SCRIPT, "lint_common.py", "changelog_diff.py")
+        # Only the tools the runner starts, not ones its comments name.
+        stubs = sorted(set(re.findall(
+            r"^ +python3 \.claude/skills/corpus-management/tools/([\w.-]+\.py)",
+            runner_text, re.MULTILINE)) - set(real))
+        self.assertTrue(stubs, runner_text)
+        label = "Gate 29 README version-floor check"
+        for base_version, head_version, code, needles in (
+                ("2026.11.94", "2026.11.93", 1,
+                 ("FAIL (rc=1)", "below 2026.11.94 at the merge base")),
+                ("2026.11.93", "2026.11.93", 0,
+                 ("OK: README.md Library Version 2026.11.93 at the head",))):
+            with self.subTest(base=base_version, head=head_version):
+                tmp, base_sha, shutil = self._build_repo(
+                    {"README.md": self._readme(base_version)},
+                    {"README.md": self._readme(head_version, "B.")})
+                try:
+                    tools = fixture_tools(tmp, *real)
+                    for stub in stubs:
+                        (tools / stub).write_text("raise SystemExit(0)\n", encoding="utf-8")
+                    env = dict(os.environ)
+                    env.update(BASE_REF=base_sha, HEAD_REF="HEAD")
+                    r = sp.run(["bash", str(tools / "run-pr-time-checks.sh")],
+                               capture_output=True, text=True, cwd=str(tmp), env=env,
+                               timeout=300)
+                    out = f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}"
+                    self.assertEqual(r.returncode, code, out)
+                    lines = [ln for ln in r.stdout.splitlines() if ln.startswith(label)]
+                    self.assertEqual(len(lines), 1, out)
+                    for needle in needles:
+                        self.assertIn(needle, r.stdout, out)
+                    # The check's own output starts on its label's line, and the runner's
+                    # OK or FAIL (rc=N) follows on a line of its own. On a failure the
+                    # output runs on: the FAIL finding, a blank line and the check's
+                    # FAIL: summary line come before the runner's FAIL (rc=1). Only the
+                    # check fails, and every stub reports OK.
+                    self.assertEqual(r.stdout.count("FAIL (rc="), code, out)
+                    self.assertEqual(sum(ln.endswith(" ... OK") for ln in r.stdout.splitlines()),
+                                     len(stubs), out)
+                finally:
+                    shutil.rmtree(tmp, ignore_errors=True)
+
+
 class ChangelogDashOnPrTests(DeltaGateRepoTestCase):
     """.claude/skills/corpus-management/tools/check-changelog-dash-on-pr.py (delta gate D3)."""
 
@@ -11261,6 +11535,20 @@ class ChangelogDashOnPrTests(DeltaGateRepoTestCase):
             )
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_added_weekly_paragraph_dash_flagged(self) -> None:
+        # The weekly public record: a dash in an added weekly paragraph line fails.
+        tmp, base_sha, shutil = self._build_repo(
+            {".working/CHANGELOG.md": "# Changelog\n\nClean line.\n"},
+            {".working/CHANGELOG.md": "# Changelog\n\nClean line.\n\n"
+             "**Week of 2026-11-09 (PRs #1-#29)**\n\nA weekly summary \u2013 with an en dash.\n"},
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("A weekly summary \u2013 with an en dash.", result.stderr)
 
     def test_changelog_not_modified_passes(self) -> None:
         tmp, base_sha, shutil = self._build_repo(
@@ -11426,16 +11714,23 @@ class ChangelogDashOnPrTests(DeltaGateRepoTestCase):
 
 
 class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
-    """.claude/skills/corpus-management/tools/check-changelog-length-on-pr.py (delta gate D7)."""
+    """.claude/skills/corpus-management/tools/check-changelog-length-on-pr.py (delta gate D7).
+
+    D7 judges each weekly or monthly paragraph of the public .working/CHANGELOG.md that a pull
+    request adds or changes: at most 4 sentences, at most 140 words, no sentence over 45 words.
+    A per-change entry is not D7's to measure (D1 refuses it in the public file)."""
 
     SCRIPT = "check-changelog-length-on-pr.py"
+    HEADER = "**Week of 2026-07-13 (PRs #980-#988)**"
+    KEY = "Week of 2026-07-13 (PRs #980-#988)"
     ENTRY = "**2026-07-17 | 2026.07.476 | PR #988** - "
-    LONG = " ".join(["word"] * 120) + "."
+    LONG = " ".join(["word"] * 150) + "."
 
-    def _run(self, added, env=None, config=(), subdir=False):
+    def _run(self, added, env=None, config=(), subdir=False, base_body="x1\n\nx2\n",
+             head_prefix="y1\n\n"):
         tmp, base_sha, shutil = self._build_repo(
-            {".working/CHANGELOG.md": "# Changelog\n\nx1\n\nx2\n"},
-            {".working/CHANGELOG.md": "# Changelog\n\ny1\n\n" + added + "\n"},
+            {".working/CHANGELOG.md": "# Changelog\n\n" + base_body},
+            {".working/CHANGELOG.md": "# Changelog\n\n" + head_prefix + added + "\n"},
         )
         try:
             for key, value in config:
@@ -11449,61 +11744,85 @@ class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
-    def _assert_over_length(self, added, env=None, config=(), subdir=False):
+    def _assert_over_length(self, added, env=None, config=(), subdir=False,
+                            pattern=r"Week of 2026-07-13 \(PRs #980-#988\): 15[01] words > 140"):
         result = self._run(added, env=env, config=config, subdir=subdir)
         self.assertEqual(
             result.returncode, 1,
-            f"D7 should FAIL on an over-length added entry; got {result.returncode}.\n"
+            f"D7 should FAIL on an over-length weekly paragraph; got {result.returncode}.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
-        self.assertRegex(result.stderr, r"PR #988: 12[01] words > 100")
+        self.assertRegex(result.stderr, pattern)
 
-    def test_short_entry_passes_and_long_entry_fails(self) -> None:
-        # Controls: the fixture's verdict turns on the entry's length alone.
-        result = self._run(self.ENTRY + "A short summary.")
+    def test_short_paragraph_passes_and_long_paragraph_fails(self) -> None:
+        # Controls: the fixture's verdict turns on the paragraph's length alone.
+        result = self._run(self.HEADER + "\n\nA short weekly summary. It has two sentences.")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self._assert_over_length(self.ENTRY + self.LONG)
+        self._assert_over_length(self.HEADER + "\n\n" + self.LONG)
 
-    def test_an_entry_split_by_a_unicode_line_break_is_measured_whole(self) -> None:
-        # In the earlier repository D7 split the diff text with splitlines(), so a CR, U+2028 or
-        # U+0085 inside an added entry cut its summary short (the rest lost its "+" marker), and
-        # an entry that starts after one lost its "+" marker entirely. Both failed there before
-        # the fix (exit 0) for each separator.
+    def test_four_sentences_at_the_ceilings_pass(self) -> None:
+        sentence = " ".join(["word"] * 35) + "."
+        result = self._run(self.HEADER + "\n\n" + " ".join([sentence] * 4))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_a_fifth_sentence_fails(self) -> None:
+        result = self._run(self.HEADER + "\n\nOne. Two. Three. Four. Five.")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(self.KEY + ": 5 sentences > 4", result.stderr)
+
+    def test_a_dense_run_on_sentence_fails(self) -> None:
+        run_on = " ".join(["clause"] * 50) + "."
+        result = self._run(self.HEADER + "\n\n" + run_on)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(self.KEY + ": longest sentence 50 > 45", result.stderr)
+
+    def test_monthly_paragraph_is_judged(self) -> None:
+        self._assert_over_length("**2026-03 (PRs #50-#60)**\n\n" + self.LONG,
+                                 pattern=r"2026-03 \(PRs #50-#60\): 150 words > 140")
+
+    def test_a_changed_body_line_judges_the_whole_paragraph(self) -> None:
+        # Only the new body line is added; the header and the first body line are context, and
+        # the paragraph is measured whole (2 + 150 words).
+        result = self._run(self.LONG, base_body=self.HEADER + "\n\nShort body.\n",
+                           head_prefix=self.HEADER + "\n\nShort body.\n")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(self.KEY + ": 152 words > 140", result.stderr)
+
+    def test_a_per_change_entry_is_not_measured(self) -> None:
+        # D1 refuses a per-change entry in the public file; D7 measures weekly and monthly
+        # paragraphs only.
+        result = self._run(self.ENTRY + self.LONG)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("no weekly or monthly paragraph added or changed", result.stdout)
+
+    def test_a_paragraph_split_by_a_unicode_line_break_is_measured_whole(self) -> None:
+        # The head file is read with LF line ends and each line is split again at every
+        # str.splitlines() boundary, so a header or body after a CR, U+2028 or U+0085 is read,
+        # and the body is measured to the end of its section.
         for separator in ("\r", "\u2028", "\u0085"):
-            for added in (self.ENTRY + "Short." + separator + self.LONG,
-                          "Lead." + separator + self.ENTRY + self.LONG):
+            for added in (self.HEADER + separator + "Short." + separator + self.LONG,
+                          "Lead." + separator + self.HEADER + separator + self.LONG):
                 with self.subTest(separator=ascii(separator), added=added[:12]):
                     self._assert_over_length(added)
 
     def test_an_added_line_starting_plus_plus_is_read(self) -> None:
-        # In the earlier repository D7 skipped every diff line starting "+++", so before the fix
-        # this line was skipped whole (exit 0). A line whose text starts with "++" is not itself
-        # a compact entry (ENTRY_RE starts at "**"), so the pure "++" escape is tested on D3;
-        # here the entry after a CR in such a line is checked. Mutation killed: skipping "+++"
-        # lines inside a hunk.
-        self._assert_over_length("++ lead\r" + self.ENTRY + self.LONG)
+        # A diff line "+++..." inside a hunk is an added line; the paragraph after a CR in such
+        # a line is measured.
+        self._assert_over_length("++ lead\r" + self.HEADER + "\r" + self.LONG)
 
-    def test_git_diff_opts_in_the_environment_cannot_hide_an_entry(self) -> None:
-        # As for D3, GIT_DIFF_OPTS=--unified=3 with diff.suppressBlankEmpty=true puts an empty
-        # blank-context line before the entry; the entry is still measured. A pin: it also
-        # passed in the earlier repository before the fix; AddedLineDiffTests kills the
-        # GIT_DIFF_OPTS mutation.
-        self._assert_over_length(self.ENTRY + self.LONG, env={"GIT_DIFF_OPTS": "--unified=3"},
+    def test_git_diff_opts_in_the_environment_cannot_hide_a_paragraph(self) -> None:
+        self._assert_over_length(self.HEADER + "\n\n" + self.LONG,
+                                 env={"GIT_DIFF_OPTS": "--unified=3"},
                                  config=(("diff.suppressBlankEmpty", "true"),))
 
     def test_a_run_from_a_subdirectory_reads_the_root_changelog(self) -> None:
-        # As for D3, in the earlier repository a run from a subdirectory read no
-        # .working/CHANGELOG.md (exit 0, "not modified"), with and without diff.relative=true; both
-        # failed there before the fix.
         for config in ((), (("diff.relative", "true"),)):
             with self.subTest(config=config):
-                self._assert_over_length(self.ENTRY + self.LONG, config=config, subdir=True)
+                self._assert_over_length(self.HEADER + "\n\n" + self.LONG, config=config,
+                                         subdir=True)
 
-    def test_rename_and_copy_settings_cannot_hide_an_entry(self) -> None:
-        # A new .working/CHANGELOG.md copied or renamed from another file is measured under
-        # diff.renames=copies and diff.renames=true. A pin, as for D3: it also passed in the
-        # earlier repository before the fix, because D7 diffs .working/CHANGELOG.md alone.
-        body = "# Notes\n\n" + self.ENTRY + self.LONG + "\n"
+    def test_rename_and_copy_settings_cannot_hide_a_paragraph(self) -> None:
+        body = "# Notes\n\n" + self.HEADER + "\n\n" + self.LONG + "\n"
         for key, value in (("diff.renames", "copies"), ("diff.renames", "true")):
             for head, deleted in (({"notes.md": body + "More.\n", ".working/CHANGELOG.md": body}, ()),
                                   ({".working/CHANGELOG.md": body}, ("notes.md",))):
@@ -11516,7 +11835,7 @@ class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
                     finally:
                         shutil.rmtree(tmp, ignore_errors=True)
                     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
-                    self.assertIn("PR #988: 120 words > 100", result.stderr)
+                    self.assertIn(self.KEY + ": 150 words > 140", result.stderr)
 
     def test_an_unreadable_diff_exits_2(self) -> None:
         # A diff the shared parser cannot read exactly is one ERROR line and exit 2, not a pass.
@@ -11535,18 +11854,13 @@ class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
         self.assertIn("ERROR: the .working/CHANGELOG.md diff could not be read", result.stderr)
 
-    def test_literal_pathspecs_in_the_environment_cannot_hide_an_entry(self) -> None:
-        # As for D3, in the earlier repository GIT_LITERAL_PATHSPECS=1 made the ":(top)" pathspec
-        # name no file, so D7 printed "OK: .working/CHANGELOG.md not modified" (exit 0) from the
-        # root and from a subdirectory; both failed there before the fix.
+    def test_literal_pathspecs_in_the_environment_cannot_hide_a_paragraph(self) -> None:
         for subdir in (False, True):
             with self.subTest(subdir=subdir):
-                self._assert_over_length(self.ENTRY + self.LONG,
+                self._assert_over_length(self.HEADER + "\n\n" + self.LONG,
                                          env={"GIT_LITERAL_PATHSPECS": "1"}, subdir=subdir)
 
     def test_a_linked_changelog_exits_2(self) -> None:
-        # As for D3, in the earlier repository a .working/CHANGELOG.md linked to a file holding an
-        # over-length entry passed (exit 0); each row failed there before the fix.
         for kind in ("symlink", "gitlink"):
             with self.subTest(kind=kind):
                 result = self._run_gate_on_link(self.SCRIPT, kind)
@@ -11556,9 +11870,6 @@ class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
                 self.assertEqual(len(result.stderr.splitlines()), 1, result.stderr)
 
     def test_a_changelog_linked_at_the_base_and_unchanged_exits_2(self) -> None:
-        # As for D3, a .working/CHANGELOG.md already linked at the base and unchanged was not in
-        # the diff, so in the earlier repository an over-length entry added to notes.md alone
-        # passed (exit 0). Mutation killed (both rows): refuse_links returning without a check.
         for kind, mode in (("symlink", "120000"), ("gitlink", "160000")):
             with self.subTest(kind=kind):
                 result = self._run_gate_on_unchanged_link(self.SCRIPT, kind)
@@ -11568,10 +11879,6 @@ class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
                 self.assertEqual(len(result.stderr.splitlines()), 1, result.stderr)
 
     def test_git_selecting_another_repository_exits_2(self) -> None:
-        # As for D3, in the earlier repository a GIT_DIR naming a sibling clone at the base
-        # printed "OK: .working/CHANGELOG.md not modified" (exit 0). Mutation killed (sibling
-        # row): check_git_selects_root returning without a check. The controls still measure the
-        # entry.
         for which in ("sibling", "own", None):
             with self.subTest(git_dir=which):
                 result = self._run_gate_with_git_dir(self.SCRIPT, which)
@@ -11581,7 +11888,73 @@ class ChangelogLengthOnPrTests(DeltaGateRepoTestCase):
                                      r"unset GIT_DIR or GIT_WORK_TREE and rerun\.\n$")
                 else:
                     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
-                    self.assertIn("PR #988: 120 words > 100", result.stderr)
+                    self.assertIn(self.KEY + ": 150 words > 140", result.stderr)
+
+
+class PublicChangelogProjectionTests(unittest.TestCase):
+    """.claude/skills/corpus-management/tools/build-public-changelog.py: the public record is
+    weekly summaries only (maintainer-directed 2026-11-13), so the projection has no same-day or
+    daily tier and leaves the current, unfinished week out."""
+
+    TOOL = ".claude/skills/corpus-management/tools/build-public-changelog.py"
+    SOURCE = (
+        "# Changelog\n\nintro line\n\n"
+        "**2026-07-15 | 2026.07.9 | PR #100** - recent one.\n\n"
+        "**2026-07-14 | 2026.07.8 | PR #99** - recent two.\n\n"
+        "**2026-07-08 | 2026.07.7 | PR #98** - last week a.\n\n"
+        "**2026-07-06 | 2026.07.6 | PR #97** - last week b.\n\n"
+        "**2026-03-10 | 2026.03.1 | PR #50** - old one.\n"
+    )
+
+    def _mod(self):
+        return load_linter_module(self.TOOL, "build_public_changelog_weekly_only")
+
+    def _project(self):
+        mod = self._mod()
+        _, entries = mod.parse_entries(self.SOURCE)
+        as_of = mod.datetime.date(2026, 7, 15)
+        window = mod.datetime.date(2026, 4, 13)
+        return mod, entries, mod.project(entries, as_of, mod.monday_of(as_of), window)
+
+    def test_projection_has_no_same_day_or_daily_tier(self) -> None:
+        _, _, body = self._project()
+        self.assertNotIn("PR #100", body)
+        self.assertNotIn("PR #99", body)
+        self.assertNotIn("**2026-07-14 (", body)
+        self.assertIn("**Week of 2026-07-06 (PRs #97-#98)**", body)
+        self.assertIn("**2026-03 (PRs #50)**", body)
+
+    def test_current_week_is_counted_as_pending(self) -> None:
+        mod, entries, _ = self._project()
+        as_of = mod.datetime.date(2026, 7, 15)
+        counts = mod.plan_counts(entries, as_of, mod.monday_of(as_of),
+                                 mod.datetime.date(2026, 4, 13))
+        self.assertEqual(counts, {"pending": 2, "weekly": 2, "monthly": 1})
+
+    def test_condense_mode_is_retired(self) -> None:
+        result = run_linter(self.TOOL, "--condense-completed-week")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("unrecognized arguments: --condense-completed-week", result.stderr)
+
+    def test_emit_refuses_the_public_changelog(self) -> None:
+        # In-process, with the module's repository root pointed at a temporary tree, so a tool
+        # that does not refuse writes only the temporary copy.
+        import contextlib
+        import io
+        import tempfile
+        mod = self._mod()
+        with tempfile.TemporaryDirectory() as tmp:
+            public = Path(tmp) / ".working" / "CHANGELOG.md"
+            public.parent.mkdir()
+            public.write_text(self.SOURCE, encoding="utf-8")
+            mod.REPO_ROOT = Path(tmp)
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                rc = mod.main(["--emit", str(public), "--as-of", "2026-07-15"])
+            self.assertEqual(rc, 2, err.getvalue())
+            self.assertEqual(public.read_text(encoding="utf-8"), self.SOURCE)
+            self.assertIn("refusing to write the scaffold over the public changelog",
+                          err.getvalue())
 
 
 class AddedLineDiffTests(DeltaGateRepoTestCase):
@@ -11890,6 +12263,231 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
             )
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+    # The public changelog carries weekly summaries only and D1 refuses a per-change line
+    # there, so an ordinary PR adds no changelog line: D5 also reads the commit messages of
+    # the PR range and the Closes-Backlog: <id> trailer.
+    OTHER_CHANGE = {"docs/note.md": "a change outside the backlog\n"}
+    ROTATED_INDEX = {".working/TODO.md": "# TODO\n\n- item two\n"}
+
+    def _gate_on(self, head_files, head_message):
+        tmp, base_sha, shutil = self._build_repo(self.BASE, head_files, head_message=head_message)
+        try:
+            return self._run_gate(self.SCRIPT, tmp, base_sha)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_commit_message_closure_without_rotation_flagged(self) -> None:
+        result = self._gate_on(self.OTHER_CHANGE,
+                               "Finish the cleanup\n\nCloses TODO 4.9: the cleanup item is done.")
+        self.assertEqual(
+            result.returncode, 1,
+            f"D5 should FAIL on a commit-message closure without the index rotation; got "
+            f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("FAIL: the message of commit ", result.stderr)
+        self.assertIn("asserting line: Closes TODO 4.9: the cleanup item is done.", result.stderr)
+
+    def test_commit_message_closure_with_rotation_passes(self) -> None:
+        result = self._gate_on({**self.OTHER_CHANGE, **self.ROTATED_INDEX},
+                               "Finish the cleanup\n\nCloses TODO 4.9: the cleanup item is done.")
+        self.assertEqual(
+            result.returncode, 0,
+            f"D5 should PASS on a commit-message closure that rotates the index; got "
+            f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK: the message of commit ", result.stdout)
+
+    def test_closes_backlog_trailer_without_rotation_flagged(self) -> None:
+        result = self._gate_on(self.OTHER_CHANGE, "Finish the cleanup\n\nCloses-Backlog: 4.9")
+        self.assertEqual(
+            result.returncode, 1,
+            f"D5 should FAIL on a Closes-Backlog trailer without the index rotation; got "
+            f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("asserting line: Closes-Backlog: 4.9", result.stderr)
+        self.assertNotIn("not one backlog id", result.stderr)
+
+    def test_commit_message_closure_opt_out_trailer_passes(self) -> None:
+        result = self._gate_on(
+            self.OTHER_CHANGE,
+            "Narrate the earlier PR, which closes TODO 4.9\n\nTodoRotation: narration only (fixture)")
+        self.assertEqual(
+            result.returncode, 0,
+            f"D5 should PASS on a TodoRotation opt-out trailer; got "
+            f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("opt-out trailer", result.stdout)
+
+    def test_weekly_summary_closure_line_without_rotation_flagged(self) -> None:
+        weekly = ("# Changelog\n\n**Week of 2026-11-09 (PRs #1-#3)**\n\n"
+                  "The week closes TODO 4.9, the cleanup item.\n\nOld entry.\n")
+        result = self._gate_on({".working/CHANGELOG.md": weekly}, "Weekly summary")
+        self.assertEqual(
+            result.returncode, 1,
+            f"D5 should FAIL on a weekly-summary closure line without the index rotation; got "
+            f"{result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("FAIL: an added CHANGELOG line ", result.stderr)
+
+    # Each closure form and the opt-out D5 read in an added CHANGELOG line at main d7387bf3,
+    # caught on a commit message of the PR range with no changelog line added. Each line matches
+    # its own form only (asserted below). Which cases fail when commit-message reading is
+    # switched off is derived and asserted by
+    # test_commit_message_reading_off_fails_exactly_these_cases.
+    FORM_LINES = {
+        1: "Closes TODO §4.9, the cleanup item.",
+        2: "FR-58 CLOSED: the cleanup work is complete.",
+        3: "Closes the cleanup backlog item.",
+        4: "The section-4.9 remainder closed with this change.",
+        5: "items 11 and 12 closed with this change.",
+        6: "The cleanup entry rotated to the DONE ledger.",
+        7: "TODO section 4.9 is CLOSED with this change.",
+        8: "TODO 4.9 closed with this change.",
+        9: "Closes TODO 4.9: the cleanup item.",
+    }
+
+    def _assert_commit_form_flagged(self, form):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("_d5_forms", SKILL_ROOT / "tools" / self.SCRIPT)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        line = self.FORM_LINES[form]
+        matched = [n for n, pat in enumerate(mod.CLOSURE_PATTERNS, 1) if pat.search(line)]
+        self.assertEqual(matched, [form], f"the fixture line must match form {form} only")
+        result = self._gate_on(self.OTHER_CHANGE, "Finish the cleanup\n\n" + line)
+        self.assertEqual(
+            result.returncode, 1,
+            f"D5 should FAIL on a form-{form} closure in a commit message without the index "
+            f"rotation; got {result.returncode}.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("FAIL: the message of commit ", result.stderr)
+        self.assertIn("asserting line: " + line, result.stderr)
+
+    def test_case_form1_section_sign_in_commit_message_flagged(self) -> None:
+        self._assert_commit_form_flagged(1)
+
+    def test_case_form2_coded_id_closed_in_commit_message_flagged(self) -> None:
+        self._assert_commit_form_flagged(2)
+
+    def test_case_form3_backlog_item_in_commit_message_flagged(self) -> None:
+        self._assert_commit_form_flagged(3)
+
+    def test_case_form4_section_token_in_commit_message_flagged(self) -> None:
+        self._assert_commit_form_flagged(4)
+
+    def test_case_form5_item_numbers_in_commit_message_flagged(self) -> None:
+        self._assert_commit_form_flagged(5)
+
+    def test_case_form6_rotation_in_commit_message_flagged(self) -> None:
+        self._assert_commit_form_flagged(6)
+
+    def test_case_form7_todo_section_in_commit_message_flagged(self) -> None:
+        self._assert_commit_form_flagged(7)
+
+    def test_case_form8_bare_todo_in_commit_message_flagged(self) -> None:
+        self._assert_commit_form_flagged(8)
+
+    def test_case_form9_verb_first_in_commit_message_flagged(self) -> None:
+        self._assert_commit_form_flagged(9)
+
+    def test_case_opt_out_honoured_for_commit_message_closure(self) -> None:
+        # The opt-out case: a message narrating an earlier closure fails without the trailer and
+        # passes with it, the trailer read from the same range.
+        line = self.FORM_LINES[1]
+        flagged = self._gate_on(self.OTHER_CHANGE, "Narrate an earlier PR\n\n" + line)
+        self.assertEqual(
+            flagged.returncode, 1,
+            f"D5 should FAIL on the narration without the opt-out trailer; got "
+            f"{flagged.returncode}.\nstdout:\n{flagged.stdout}\nstderr:\n{flagged.stderr}",
+        )
+        opted = self._gate_on(
+            self.OTHER_CHANGE,
+            "Narrate an earlier PR\n\n" + line + "\n\nTodoRotation: narration of an earlier PR (fixture)")
+        self.assertEqual(
+            opted.returncode, 0,
+            f"D5 should PASS on the TodoRotation opt-out trailer; got "
+            f"{opted.returncode}.\nstdout:\n{opted.stdout}\nstderr:\n{opted.stderr}",
+        )
+        self.assertIn("opt-out trailer: 'TodoRotation: narration of an earlier PR (fixture)'",
+                      opted.stdout)
+
+    def test_case_forms_in_weekly_summary_line_flagged(self) -> None:
+        # The other new input: each form in a line a weekly-summary PR adds to the changelog.
+        for form, line in self.FORM_LINES.items():
+            with self.subTest(form=form):
+                weekly = ("# Changelog\n\n**Week of 2026-11-09 (PRs #1-#3)**\n\n" + line
+                          + "\n\nOld entry.\n")
+                result = self._gate_on({".working/CHANGELOG.md": weekly}, "Weekly summary")
+                self.assertEqual(
+                    result.returncode, 1,
+                    f"D5 should FAIL on a form-{form} weekly-summary line without the index "
+                    f"rotation; got {result.returncode}.\nstdout:\n{result.stdout}\n"
+                    f"stderr:\n{result.stderr}",
+                )
+                self.assertIn("FAIL: an added CHANGELOG line ", result.stderr)
+                self.assertIn("asserting line: " + line, result.stderr)
+
+    # The cases of this class that fail when D5 stops reading a closure from commit messages
+    # (the TodoRotation: opt-out trailer still read): every case whose closure, the
+    # Closes-Backlog: trailer included, is stated only in a commit message. A case whose
+    # closure is an added changelog line still passes. Held here once; the test below derives
+    # the set by running the cases and asserts it equals this one.
+    FAIL_WITHOUT_COMMIT_MESSAGE_READING = frozenset({
+        "test_case_form1_section_sign_in_commit_message_flagged",
+        "test_case_form2_coded_id_closed_in_commit_message_flagged",
+        "test_case_form3_backlog_item_in_commit_message_flagged",
+        "test_case_form4_section_token_in_commit_message_flagged",
+        "test_case_form5_item_numbers_in_commit_message_flagged",
+        "test_case_form6_rotation_in_commit_message_flagged",
+        "test_case_form7_todo_section_in_commit_message_flagged",
+        "test_case_form8_bare_todo_in_commit_message_flagged",
+        "test_case_form9_verb_first_in_commit_message_flagged",
+        "test_case_opt_out_honoured_for_commit_message_closure",
+        "test_closes_backlog_trailer_without_rotation_flagged",
+        "test_commit_message_closure_opt_out_trailer_passes",
+        "test_commit_message_closure_with_rotation_passes",
+        "test_commit_message_closure_without_rotation_flagged",
+    })
+
+    def test_commit_message_reading_off_fails_exactly_these_cases(self) -> None:
+        # Switch closure reading from commit messages off in the fixture copy of D5 only (the
+        # shipped file is untouched, and the opt-out trailer loop still reads every message),
+        # run every other case of this class against that copy, and compare the cases that
+        # fail with the set held above. A case that starts or stops depending on
+        # commit-message reading changes the derived set, so this test then fails.
+        own = "test_commit_message_reading_off_fails_exactly_these_cases"
+        reading = "        found = commit_message_closure(messages)\n"
+        source = (SKILL_ROOT / "tools" / self.SCRIPT).read_text(encoding="utf-8")
+        self.assertEqual(source.count(reading), 1, "the switch must replace exactly one line of D5")
+        switched = source.replace(reading, "        found = None\n")
+
+        class ReadingOff(TodoRotationOnPrDeltaTests):
+            def _run_gate(self, script_name, tmp, base_sha):
+                import subprocess as sp
+
+                tools = fixture_tools(tmp, "lint_common.py", script_name)
+                (tools / script_name).write_text(switched, encoding="utf-8")
+                return sp.run(
+                    [sys.executable, str(tools / script_name), base_sha, "HEAD"],
+                    capture_output=True, text=True, cwd=str(tmp),
+                )
+
+        names = [n for n in unittest.TestLoader().getTestCaseNames(ReadingOff) if n != own]
+        result = unittest.TestResult()
+        unittest.TestSuite(ReadingOff(n) for n in names).run(result)
+        self.assertEqual(result.testsRun, len(names))
+        self.assertEqual(result.skipped, [])
+        failed = {getattr(test, "test_case", test)._testMethodName
+                  for test, _ in result.failures + result.errors}
+        expected = set(self.FAIL_WITHOUT_COMMIT_MESSAGE_READING)
+        self.assertEqual(
+            failed, expected,
+            f"with commit-message reading off, failing but not held: {sorted(failed - expected)}; "
+            f"held but passing: {sorted(expected - failed)}",
+        )
+        self.assertTrue(set(names) - failed, "every case failed; the switch proves nothing")
+
 
 class CollapsedRangeRefusalTests(unittest.TestCase):
     """The range-taking delta gates refuse a collapsed or net-empty named
@@ -13472,17 +14070,17 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # range and reports their verdicts, then refuses the range-taking
         # gates and exits 2 (fail closed), telling the operator of a no-commit
         # branch to commit before pushing. The real runner script runs against
-        # a fixture clone with stub copies of the five range-free gate tools,
+        # a fixture clone with stub copies of the four range-free gate tools,
         # so the test is hermetic and pins the runner's own tool wiring (a
         # renamed tool breaks a stub's OK line). D14 (the class-completeness
         # attestation) is retired, as lint-audit-gate-parity.py records, so
-        # the runner must not run it.
+        # the runner must not run it; D8 (the daily-changelog-rollup reminder) is
+        # retired too.
         import subprocess as sp
 
         tmp, git = self._repo()
         tools = fixture_tools(tmp, "run-pr-time-checks.sh")
         for stub in (
-            "check-daily-changelog-rollup.py",      # D8
             "check-claude-md-size.py",              # D10
             "lint-todo-staleness.py",               # gate 45
             "lint-version-bump-recency.py",         # gate 40
@@ -13501,10 +14099,11 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertIn("CANNOT-EVALUATE", r.stderr)
         self.assertIn("commit the change first and push after", r.stderr)
         self.assertIn("refused, not run", r.stderr)
-        for name in ("D8 ", "D10 ", "Gate 45", "Gate 40", "Gate 31"):
+        for name in ("D10 ", "Gate 45", "Gate 40", "Gate 31"):
             self.assertIn(name, r.stdout, f"range-free gate did not run.\n{r.stdout}")
-        self.assertEqual(r.stdout.count("... OK"), 5, r.stdout)
+        self.assertEqual(r.stdout.count("... OK"), 4, r.stdout)
         self.assertNotIn("D14", r.stdout)
+        self.assertNotIn("D8 ", r.stdout)
         self.assertNotIn("D1 ", r.stdout)
         self.assertNotIn("D12", r.stdout)
         self.assertNotIn("D15", r.stdout)
@@ -14429,12 +15028,12 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         # backslashreplace prints the undecodable byte as \udcff.
         own_repo = ("repo=" + os.fsdecode(top)).encode("utf-8", "backslashreplace").decode("utf-8")
         for directory, script, verdict in (
-            (tools, "check-changelog-on-pr.py", "OK: .working/CHANGELOG.md is in the diff"),
+            (tools, "check-changelog-on-pr.py", "added .working/CHANGELOG.md line(s) belong to the weekly record"),
             (tools, "check-version-bump-on-pr.py", "OK: 0 changed versioned document(s)"),
             (tools, "check-changelog-dash-on-pr.py", "OK: no em/en dashes"),
             (tools, "check-date-cobump-on-pr.py", "OK: 0 document(s) bumped Version"),
             (own, "check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
-            (tools, "check-changelog-length-on-pr.py", "OK: no compact root .working/CHANGELOG.md"),
+            (tools, "check-changelog-length-on-pr.py", "OK: no weekly or monthly paragraph added or changed"),
             (tools, "check-narrative-corpus-mixed-diff-on-pr.py", "neither surface touched"),
             (tools, "check-alignment-register-on-pr.py", "is absent at feat; nothing to check"),
             (own, "check-retired-section-orphan-on-pr.py", "D9 OK: no TODO section closed"),
@@ -14519,7 +15118,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         git("commit", "-q", "-am", "feat: a change")
         tools, own = SKILL_ROOT / "tools", self._own_copies(tmp)
         for directory, script, verdict in (
-            (tools, "check-changelog-on-pr.py", "OK: .working/CHANGELOG.md is in the diff"),
+            (tools, "check-changelog-on-pr.py", "added .working/CHANGELOG.md line(s) belong to the weekly record"),
             (own, "check-todo-rotation-on-pr.py", "OK: no TODO-item closure asserted"),
             (own, "check-retired-section-orphan-on-pr.py", "D9 OK: no TODO section closed"),
         ):
@@ -14873,7 +15472,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         self.assertEqual(git("merge-base", "--all", "origin/main", "feat"),
                          git("rev-parse", "origin/main"))
         verdicts = {
-            "check-changelog-on-pr.py": "OK: .working/CHANGELOG.md is in the diff",
+            "check-changelog-on-pr.py": "added .working/CHANGELOG.md line(s) belong to the weekly record",
             "check-version-bump-on-pr.py": "OK: 1 changed versioned document(s)",
             "check-narrative-corpus-mixed-diff-on-pr.py": "OK: corpus document(s) changed",
             d15: "D15 WARN security/standard-example.md",
@@ -14920,7 +15519,7 @@ class CollapsedRangeRefusalTests(unittest.TestCase):
         git("commit", "-q", "-am", "feat: the change")
         d15 = "check-alignment-register-on-pr.py"
         verdicts = {
-            "check-changelog-on-pr.py": "OK: .working/CHANGELOG.md is in the diff",
+            "check-changelog-on-pr.py": "added .working/CHANGELOG.md line(s) belong to the weekly record",
             "check-version-bump-on-pr.py": "OK: 1 changed versioned document(s)",
             "check-narrative-corpus-mixed-diff-on-pr.py": "OK: corpus document(s) changed",
             d15: "D15 WARN security/standard-example.md",
@@ -16761,14 +17360,13 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("RESULT blocking-wait False [('untimed-wait-acts-on-term:probe-exit-wait-timeout', False)]",
                       result.stdout, detail)
 
-    def test_run_shell_stubbed_session_scan_reads_a_non_utf8_command_name(self) -> None:
-        """_session_members read /proc/<pid>/stat as strict UTF-8 and caught only OSError, so one process on the
-        host whose command name held a byte that is not UTF-8 (0xff) raised UnicodeDecodeError, which failed the
-        tool's self-test and SelfTestTempdirTests. The scan and _fixture_identity beside it run here over
-        a fake /proc: a session leader named with 0xff, a member whose name holds 0xfe and a closing parenthesis,
-        a process of another session, an entry without a stat file and a non-numeric entry. The scan returns the
-        (pid, state) pairs of the session and _fixture_identity the leader's start time; neither raises. The third
-        read, SIGNAL_PROBE's registered_watch, runs in the next test."""
+    def test_run_shell_stubbed_session_scan_and_fixture_identity_read_a_non_utf8_command_name(self) -> None:
+        """_session_members and _fixture_identity each read /proc/<pid>/stat, whose command name may hold any
+        byte, including one that is not UTF-8 and a closing parenthesis. Both run here over a fake /proc: a
+        session leader named with 0xff, a member whose name holds 0xfe and a closing parenthesis, a process of
+        another session, an entry without a stat file and a non-numeric entry. The scan returns the (pid, state)
+        pairs of the session and _fixture_identity the leader's start time; neither raises. SIGNAL_PROBE's
+        registered_watch, the third read, has its own test in this class."""
         tail = b" 0 -1 4194304 0 0 0 0 0 0 0 0 20 0 1 0 %d 0 0\n"
         entries = {
             "41": b"41 (bad\xff name) S 1 41 41" + tail % 5001,
@@ -16813,20 +17411,19 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn('RESULT _fixture_identity "5001"\n', result.stdout, detail)
 
     def test_run_shell_stubbed_signal_probe_registers_a_watcher_with_a_non_utf8_command_name(self) -> None:
-        """The third /proc/<pid>/stat read this fix made lenient is SIGNAL_PROBE's registered_watch, which
-        reads the fixture watcher's start time and writes "<pid> <start time> <dump fd>" to the registry
-        descriptor. That read sits inside "except Exception: pass", so a strict decode of a command name holding
-        0xff did not raise: it left the watcher unregistered, and the test above still passed with only this read
-        reverted. Here the tool's own SIGNAL_PROBE text runs as _sigterm_cleanup_check runs it
-        (python -I -B -c, then the tool path and the ready, hold, dump and registry descriptors), except that the
-        path names a stand-in for the tool. The stand-in supplies the four names the probe takes from the tool
-        (run, _fixture_watch, _Terminated and _self_test_limits): its _fixture_watch returns watcher pid 41
-        without forking; its _self_test_limits calls _fixture_watch through its module globals on entry, as the
-        tool's does through _fixture_lifetime, and so reaches registered_watch; its run reports its call; and it
-        binds the probe's global name open (not builtins.open) to a function that serves /proc paths from a fake
-        /proc in which 41's command name holds 0xff and a closing parenthesis. The probe exits 0 after calling
-        run, registered_watch returns the watcher after one read, of /proc/41/stat, and the registry receives
-        "41 5001 <dump fd>"."""
+        """SIGNAL_PROBE's registered_watch reads the fixture watcher's start time from /proc/<pid>/stat and
+        writes "<pid> <start time> <dump fd>" to the registry descriptor. The read sits inside "except Exception:
+        pass", so a strict decode of a command name holding 0xff would not raise: it would leave the watcher
+        unregistered, which only the registry content shows. Here the tool's own SIGNAL_PROBE text runs as
+        _sigterm_cleanup_check runs it (python -I -B -c, then the tool path and the ready, hold, dump and registry
+        descriptors), except that the path names a stand-in for the tool. The stand-in supplies the four names the
+        probe takes from the tool (run, _fixture_watch, _Terminated and _self_test_limits): its _Terminated is an
+        Exception, as the tool's is; its _fixture_watch returns watcher pid 41 without forking; its
+        _self_test_limits calls _fixture_watch through its module globals on entry, as the tool's does through
+        _fixture_lifetime, and so reaches registered_watch; its run reports its call; and it binds the probe's
+        global name open (not builtins.open) to a function that serves /proc paths from a fake /proc in which 41's
+        command name holds 0xff and a closing parenthesis. The probe exits 0 after calling run, registered_watch
+        returns the watcher after one read, of /proc/41/stat, and the registry receives "41 5001 <dump fd>"."""
         tail = b" 0 -1 4194304 0 0 0 0 0 0 0 0 20 0 1 0 %d 0 0\n"
         standin = (
             "import contextlib, sys\n"
@@ -16837,7 +17434,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             "    assert path.startswith('/proc/'), path\n"
             "    return real_open(ROOT + path[len('/proc'):], *args, **kwargs)\n"
             "sys.modules['__main__'].open = probe_open\n"
-            "class _Terminated(BaseException):\n"
+            "class _Terminated(Exception):\n"
             "    pass\n"
             "@contextlib.contextmanager\n"
             "def _self_test_limits():\n"
@@ -16887,6 +17484,4709 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertEqual(out["rc"], 0, detail)
         self.assertEqual(out["stdout"], "WATCH (41, 'writer') ['/proc/41/stat']\nRUN ('hold',)\n", detail)
         self.assertEqual(out["registry"], f"41 5001 {out['dump_fd']}\n", detail)
+
+    def test_run_shell_stubbed_session_members_raises_on_an_unparsable_stat_line(self) -> None:
+        """_session_members does not read a /proc entry whose stat line it cannot parse as an exited process: it
+        raises _UnparsableStat naming that entry and carrying the members it did read, so its callers fail closed.
+        _fixture_identity reads that entry as having no start time and does not raise. Each case runs over its
+        own fake /proc holding a session leader (41, named with 0xff), a member whose name holds 0xfe and a
+        closing parenthesis (42), a process of another session (43) and entry 46, whose stat line has no closing
+        parenthesis, ends at the closing parenthesis, has fewer than four fields after it or has a session field
+        that is not a number. The scan of session 41 raises _UnparsableStat naming /proc/46/stat, with members 41
+        and 42, in every case, and _fixture_identity(46) returns None."""
+        tail = b" 0 -1 4194304 0 0 0 0 0 0 0 0 20 0 1 0 %d 0 0\n"
+        cases = {
+            "no-paren": b"46 noparen R 41 41 41" + tail % 5006,
+            "cut-at-paren": b"46 (cut)",
+            "short-after-paren": b"46 (short) R 41\n",
+            "non-numeric-session": b"46 (nan) R 41 41 zz" + tail % 5006,
+        }
+        driver = (
+            "import json, os, runpy, sys, types\n"
+            "t = runpy.run_path(sys.argv[1])\n"
+            "real_open = open\n"
+            "for case in sorted(os.listdir(sys.argv[2])):\n"
+            "    root = os.path.join(sys.argv[2], case)\n"
+            "    def fake_open(path, *args, **kwargs):\n"
+            "        assert path.startswith('/proc/'), path\n"
+            "        return real_open(root + path[len('/proc'):], *args, **kwargs)\n"
+            "    def listdir(path):\n"
+            "        assert path == '/proc', path\n"
+            "        return os.listdir(root)\n"
+            "    for name, arg in (('_session_members', 41), ('_fixture_identity', 46)):\n"
+            "        fn = t[name]\n"
+            "        g = dict(fn.__globals__)\n"
+            "        g.update(open=fake_open, os=types.SimpleNamespace(listdir=listdir))\n"
+            "        call = types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)\n"
+            "        try:\n"
+            "            value = call(arg)\n"
+            "        except Exception as exc:\n"
+            "            members = json.dumps(sorted(getattr(exc, 'members', [])))\n"
+            "            print('RESULT', case, name, 'raised', type(exc).__name__, exc, members)\n"
+            "        else:\n"
+            "            print('RESULT', case, name, json.dumps(sorted(value) if isinstance(value, list) else value))\n"
+        )
+        with tempfile.TemporaryDirectory(prefix="session-scan-unparsable-test-") as tmp:
+            for case, line in cases.items():
+                entries = {
+                    "41": b"41 (bad\xff name) S 1 41 41" + tail % 5001,
+                    "42": b"42 (x) \xfe) R 41 41 41" + tail % 5002,
+                    "43": b"43 (other) S 1 43 99" + tail % 5003,
+                    "46": line,
+                }
+                for entry, data in entries.items():
+                    (Path(tmp) / case / entry).mkdir(parents=True)
+                    (Path(tmp) / case / entry / "stat").write_bytes(data)
+            result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                         str(SKILL_ROOT / "tools" / "run-shell-stubbed.py"), tmp], timeout=120)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        for case in cases:
+            with self.subTest(case):
+                self.assertIn(f"RESULT {case} _session_members raised _UnparsableStat unparsable stat line, "
+                              f'session unknown: /proc/46/stat [[41, "S"], [42, "R"]]\n', result.stdout, detail)
+                self.assertIn(f"RESULT {case} _fixture_identity null\n", result.stdout, detail)
+
+    def _run_shell_stubbed_unparsable_member(self, body: str, states=("S", "R")):
+        """Runs body in a driver over a fake /proc holding a session leader (41), a member whose name holds
+        0xfe and a closing parenthesis (42), a process of another session (43) and entry 46, a member whose
+        stat line is cut before its session field; states gives the states of 41 and 42. The driver binds t,
+        the tool's globals; clone(name, **bound), a clone of the named tool function with bound added to its
+        globals; scan, a clone of _session_members that reads the fake /proc; sends, a list; and kill, a
+        stand-in for os.kill that appends [pid, signal name] to sends and sets the state in that pid's fake
+        stat line to T for SIGSTOP and Z for SIGKILL. Returns the driver's completed process."""
+        tail = b" 0 -1 4194304 0 0 0 0 0 0 0 0 20 0 1 0 %d 0 0\n"
+        entries = {
+            "41": b"41 (lead) %s 1 41 41" % states[0].encode() + tail % 5001,
+            "42": b"42 (x) \xfe) %s 41 41 41" % states[1].encode() + tail % 5002,
+            "43": b"43 (other) S 1 43 99" + tail % 5003,
+            "46": b"46 (member) S 41 41\n",
+        }
+        driver = (
+            "import json, os, runpy, signal, sys, types\n"
+            "t = runpy.run_path(sys.argv[1])\n"
+            "root = sys.argv[2]\n"
+            "real_open = open\n"
+            "def fake_open(path, *args, **kwargs):\n"
+            "    assert path.startswith('/proc/'), path\n"
+            "    return real_open(root + path[len('/proc'):], *args, **kwargs)\n"
+            "def listdir(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return os.listdir(root)\n"
+            "def clone(name, **bound):\n"
+            "    fn = t[name]\n"
+            "    g = dict(fn.__globals__)\n"
+            "    g.update(bound)\n"
+            "    return types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)\n"
+            "scan = clone('_session_members', open=fake_open, os=types.SimpleNamespace(listdir=listdir))\n"
+            "sends = []\n"
+            "def kill(pid, sig):\n"
+            "    sends.append([pid, signal.Signals(sig).name])\n"
+            "    path = os.path.join(root, str(pid), 'stat')\n"
+            "    with real_open(path, 'rb') as fh:\n"
+            "        head, rest = fh.read().rsplit(b')', 1)\n"
+            "    state = {signal.SIGSTOP: b'T', signal.SIGKILL: b'Z'}[sig]\n"
+            "    with real_open(path, 'wb') as fh:\n"
+            "        fh.write(head + b') ' + state + rest[2:])\n"
+        ) + body
+        with tempfile.TemporaryDirectory(prefix="session-scan-caller-test-") as tmp:
+            for entry, data in entries.items():
+                (Path(tmp) / entry).mkdir()
+                (Path(tmp) / entry / "stat").write_bytes(data)
+            return self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                       str(SKILL_ROOT / "tools" / "run-shell-stubbed.py"), tmp], timeout=120)
+
+    def test_run_shell_stubbed_session_survivors_count_an_unparsable_stat_line(self) -> None:
+        """_session_survivors counts the pid of an entry whose stat line it cannot parse as a survivor, since its
+        process is not known to have exited. Over the fake /proc of _run_shell_stubbed_unparsable_member, with
+        the leader (41) and member 42 zombies, a clone of _session_survivors reading it returns [46] after a
+        0.2 s timeout, where reading the cut line as an exited process returns no survivor."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "survivors = clone('_session_survivors', _session_members=scan)(41, timeout=0.2)\n"
+            "print('RESULT', json.dumps(survivors))\n", states=("Z", "Z"))
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT [46]\n", detail)
+
+    def test_run_shell_stubbed_kill_session_reports_an_unparsable_stat_line_not_contained(self) -> None:
+        """_kill_session does not report a session contained while an entry whose stat line it cannot parse
+        remains, and never signals that entry. Over the fake /proc of _run_shell_stubbed_unparsable_member, a
+        clone of _kill_session whose os.kill is the driver's kill stops and kills the leader (41) and member 42,
+        which become zombies, sends nothing to 46, and returns False, where reading the cut line as an exited
+        process returns True."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "contained = clone('_kill_session', _session_members=scan, os=types.SimpleNamespace(kill=kill))(41)\n"
+            "print('RESULT', json.dumps(contained), json.dumps(sorted(sends)))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT false [[41, "SIGKILL"], [41, "SIGSTOP"], [41, "SIGSTOP"], [42, "SIGKILL"], '
+                         '[42, "SIGSTOP"], [42, "SIGSTOP"]]\n', detail)
+
+    def test_run_shell_stubbed_fixture_watch_holds_on_an_unparsable_stat_line(self) -> None:
+        """The fixture watcher does not end its watch while an entry whose stat line it cannot parse remains, and
+        never signals that entry. A clone of _fixture_watch runs its watcher's code in this process: its os.fork
+        returns 0, its os.pipe returns a pipe holding the registration "41 5001", its _fixture_identity returns
+        "5001", its os.kill is the driver's kill, its os._exit raises, and its clock advances 1 s per read with
+        sleep doing nothing. Over the fake /proc of _run_shell_stubbed_unparsable_member it stops and kills the
+        leader (41) and member 42, sends nothing to 46, and exits only once its clock reaches TEST_WAIT, where
+        reading the cut line as an exited process ends the watch on the next pass."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "class Exited(BaseException):\n"
+            "    pass\n"
+            "def _exit(status):\n"
+            "    raise Exited(status)\n"
+            "clock = [0.0]\n"
+            "def monotonic():\n"
+            "    clock[0] += 1.0\n"
+            "    return clock[0]\n"
+            "r, w = os.pipe()\n"
+            "os.write(w, b'41 5001\\n')\n"
+            "fake_os = types.SimpleNamespace(pipe=lambda: (r, w), fork=lambda: 0, close=os.close,\n"
+            "                                setsid=lambda: None, read=os.read, kill=kill, _exit=_exit)\n"
+            "watch = clone('_fixture_watch', os=fake_os, _session_members=scan,\n"
+            "              _fixture_identity=lambda pid: '5001',\n"
+            "              time=types.SimpleNamespace(monotonic=monotonic, sleep=lambda seconds: None))\n"
+            "try:\n"
+            "    watch()\n"
+            "except Exited:\n"
+            "    pass\n"
+            "os.close(r)\n"
+            "print('RESULT', json.dumps(sorted(sends)), json.dumps(clock[0] >= t['TEST_WAIT']))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT [[41, "SIGKILL"], [41, "SIGSTOP"], [42, "SIGKILL"], [42, "SIGSTOP"]] true\n',
+                         detail)
+
+    def test_run_shell_stubbed_main_exits_3_on_an_unparsable_stat_line(self) -> None:
+        """An _UnparsableStat raised in the grace loop reaches main through run and ends the run with exit code 3
+        and one standard error line naming the /proc entry and the shell and saying containment could not be
+        shown, after the session kill and the reap have run. A clone of main calls a clone of run whose
+        _run_shells is a clone whose grace loop reads the fake /proc of _run_shell_stubbed_unparsable_member,
+        so it raises for entry 46; its Popen records the shell. Its _kill_session reads the shell's real
+        session with the tool's own _session_members (the real /proc), calls the tool's own _kill_session with
+        the real session id, which reads the real /proc too, and reads the session again. The real shell runs
+        "sleep 30 & true", so a background member is alive in the real session when the kill runs. The driver
+        exits with main's return value: 3, with the kill called once, for the shell's session, finding a live
+        member, returning True and leaving none alive, and the shell reaped with status 0, where an uncaught
+        _UnparsableStat ends the driver with a traceback and exit 1."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "created, kills = [], []\n"
+            "class Shell(subprocess.Popen):\n"
+            "    def __init__(self, *args, **kwargs):\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "        created.append(self)\n"
+            "def kill_session(sid):\n"
+            "    before = t['_live'](t['_session_members'](sid))\n"
+            "    contained = t['_kill_session'](sid)\n"
+            "    kills.append([sid, bool(before), contained, t['_live'](t['_session_members'](sid))])\n"
+            "    return contained\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', _session_members=scan, _kill_session=kill_session, subprocess=popen)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    rc = main(['--shell', 'bash', 'sleep 30 & true'])\n"
+            "finally:\n"
+            "    print('RESULT', json.dumps([k[0] == created[0].pid for k in kills]),\n"
+            "          json.dumps([k[1:] for k in kills]), json.dumps([p.returncode for p in created]),\n"
+            "          flush=True)\n"
+            "sys.exit(rc)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 3, detail)
+        self.assertEqual(result.stderr, "ERROR: unparsable stat line, session unknown: /proc/46/stat; "
+                                        "containment of the bash run could not be shown\n", detail)
+        self.assertEqual(result.stdout, "RESULT [true] [[true, true, []]] [0]\n", detail)
+
+    def test_run_shell_stubbed_held_command_check_fails_named_on_an_unparsable_stat_line(self) -> None:
+        """The held-command check of _untimed_wait_term_check returns the named failure
+        held-command-session-unknown, never a pass, when its session scan raises _UnparsableStat. A clone of the
+        check runs over the fake /proc of _run_shell_stubbed_unparsable_member: its Popen is a stand-in probe
+        (pid 41) that writes "sid 41" and "idle" to the readiness pipe and records signals, its wchan read
+        returns do_wait, and its _kill_session and _procs_under only record or return nothing, so no real
+        process is signalled. The check returns False with that one failure, sends no SIGTERM to the probe
+        (only the kill of its own cleanup), and still runs the session kill for 41, where an uncaught
+        _UnparsableStat leaves no failure recorded."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "signals, killed = [], []\n"
+            "class Probe:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        os.write(int(argv[-1]), b'sid 41\\nidle\\n')\n"
+            "    def poll(self):\n"
+            "        return self.returncode\n"
+            "    def send_signal(self, sig):\n"
+            "        signals.append(signal.Signals(sig).name)\n"
+            "    def kill(self):\n"
+            "        signals.append('kill')\n"
+            "        self.returncode = -9\n"
+            "    def wait(self, timeout=None):\n"
+            "        return self.returncode\n"
+            "popen = types.SimpleNamespace(Popen=Probe, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "check = clone('_untimed_wait_term_check', subprocess=popen, _session_members=scan,\n"
+            "              _probe_main_wchan=lambda pid: 'do_wait', _kill_session=killed.append,\n"
+            "              _procs_under=lambda paths: [])\n"
+            "failures = []\n"
+            "try:\n"
+            "    outcome = check(failures, timeout=5)\n"
+            "except Exception as exc:\n"
+            "    outcome = 'raised ' + type(exc).__name__\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(failures), json.dumps(signals), json.dumps(killed))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, 'RESULT false [["untimed-wait-acts-on-term:held-command-session-unknown", '
+                                        'false]] ["kill"] [41]\n', detail)
+
+    def test_run_shell_stubbed_main_names_an_unparsable_stat_line_read_only_in_the_kill(self) -> None:
+        """An unparsable stat line that only the session kill reads is reported as that line, not as processes
+        still alive at the kill deadline: main exits 3 with one standard error line naming /proc/46/stat and the
+        shell, and no report. A clone of main calls a clone of run whose _run_shells reads the real /proc in its
+        grace loop (the real shell runs true and is reaped by then, so its session is empty) and whose
+        _kill_session is a clone of the tool's own reading the fake /proc of _run_shell_stubbed_unparsable_member
+        with the real session id: no entry there is in that session and entry 46 cannot be parsed, so the kill
+        signals nothing and returns False on its first pass, with no process known to be alive and no deadline
+        reached. Reporting it as processes still alive prints "== bash rc=0" and that warning instead."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "kills = []\n"
+            "fake_kill = clone('_kill_session', _session_members=scan, os=types.SimpleNamespace(kill=kill))\n"
+            "def kill_session(sid):\n"
+            "    kills.append(fake_kill(sid))\n"
+            "    return kills[-1]\n"
+            "shells = clone('_run_shells', _kill_session=kill_session)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    rc = main(['--shell', 'bash', 'true'])\n"
+            "finally:\n"
+            "    print('RESULT', json.dumps(kills), json.dumps(sends), flush=True)\n"
+            "sys.exit(rc)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 3, detail)
+        self.assertEqual(result.stdout, "RESULT [false] []\n", detail)
+        self.assertEqual(result.stderr, "ERROR: unparsable stat line, session unknown: /proc/46/stat; "
+                                        "containment of the bash run could not be shown\n", detail)
+
+    def test_run_shell_stubbed_main_prints_only_earlier_shells_reports_on_an_unparsable_stat_line(self) -> None:
+        """With two shells, an unparsable stat line in one shell's cleanup does not drop the report of an
+        earlier shell that finished, and the shell whose cleanup read it has no report: main prints only the
+        earlier shells' reports, then one standard error line naming the /proc entry,
+        the shell and each later shell, which is not started, and returns 3. A clone of main calls a clone of
+        run whose _run_shells reads the real /proc in its grace loop for every shell but one and, for that one,
+        the fake /proc of _run_shell_stubbed_unparsable_member, which raises for entry 46; its Popen records
+        each shell, the real shells run "echo hi" and the kill is the tool's own. With the line in the second
+        shell (sh), the bash report is printed and the ERROR line names sh; with it in the first (bash), nothing
+        is printed on standard output, sh is not started and the ERROR line says so."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import contextlib, io, subprocess\n"
+            "created = []\n"
+            "class Shell(subprocess.Popen):\n"
+            "    def __init__(self, *args, **kwargs):\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "        created.append(self)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "for raise_in in (2, 1):\n"
+            "    created.clear()\n"
+            "    def members(sid):\n"
+            "        return scan(sid) if len(created) == raise_in else t['_session_members'](sid)\n"
+            "    shells = clone('_run_shells', _session_members=members, subprocess=popen)\n"
+            "    main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "    out, err = io.StringIO(), io.StringIO()\n"
+            "    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):\n"
+            "        rc = main(['echo hi'])\n"
+            "    print('RESULT', json.dumps([raise_in, rc, [p.returncode for p in created],\n"
+            "                                out.getvalue(), err.getvalue()]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        line = ("ERROR: unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the {} run could not be shown")
+        self.assertEqual(result.stdout, "".join("RESULT " + json.dumps(case) + "\n" for case in (
+            [2, 3, [0, 0], "== bash rc=0\n-- stdout\n| hi\n", line.format("sh") + "\n"],
+            [1, 3, [0], "", line.format("bash") + "; the sh run was not started\n"])), detail)
+
+    def test_run_shell_stubbed_termination_keeps_its_exit_over_an_unparsable_stat_line(self) -> None:
+        """An unparsable stat line read in a shell's cleanup while a termination is already propagating does not
+        replace it: the tool's _Terminated leaves main, as it would without the line, with the entry and the
+        shell added to it as a note, and the kill and the reap still run. A clone of main calls a clone of run
+        whose _run_shells reads the fake /proc of _run_shell_stubbed_unparsable_member in its grace loop, so it
+        raises for entry 46; its Popen is the real one, except that its first wait, once the real shell (running
+        true) has exited, raises _Terminated(15), as the SIGTERM handler would; its _kill_session records the
+        session and calls the tool's own. Replacing the termination with the line makes main return 3."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "created, kills = [], []\n"
+            "class Shell(subprocess.Popen):\n"
+            "    def __init__(self, *args, **kwargs):\n"
+            "        self.terminated = False\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "        created.append(self)\n"
+            "    def wait(self, timeout=None):\n"
+            "        status = super().wait(timeout)\n"
+            "        if not self.terminated:\n"
+            "            self.terminated = True\n"
+            "            raise t['_Terminated'](15)\n"
+            "        return status\n"
+            "def kill_session(sid):\n"
+            "    kills.append(sid)\n"
+            "    return t['_kill_session'](sid)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', _session_members=scan, _kill_session=kill_session, subprocess=popen)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    outcome = ['returned', main(['--shell', 'bash', 'true'])]\n"
+            "except Exception as exc:\n"
+            "    outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(len(created) == 1 and kills == [created[0].pid]),\n"
+            "      json.dumps([p.returncode for p in created]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT ["_Terminated", [15], ["unparsable stat line, session unknown: /proc/46/stat; '
+                         'containment of the bash run could not be shown"]] true [0]\n', detail)
+
+    def test_run_shell_stubbed_kill_session_deadline_return_reports_an_unparsable_stat_line(self) -> None:
+        """_kill_session's return at its deadline does not report a session contained while an entry whose stat
+        line it cannot parse remains. Over the fake /proc of _run_shell_stubbed_unparsable_member, a clone of
+        _kill_session runs with a clock that reads 0 until its first sleep; its os.kill passes SIGSTOP to the
+        driver's kill and only records SIGKILL; its sleep makes each recorded SIGKILL take effect (the state
+        becomes Z) and moves the clock to the five-second deadline. So the leader (41) and member 42 are
+        stopped, then killed, and die only on the last pass; the loop then ends at the deadline, and the final
+        read finds them zombies and entry 46 unknown. It returns False with the clock at 5.0, where dropping
+        "not unknown and" from that return gives True; it stores [46] in _KILL_UNKNOWN[41], where a return
+        that stores nothing leaves _run_shells no entry to report; and it stores nothing in _KILL_ALIVE, as
+        no member it read is alive."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "clock, deferred = [0.0], []\n"
+            "def kill_later(pid, sig):\n"
+            "    if sig == signal.SIGKILL:\n"
+            "        sends.append([pid, 'SIGKILL'])\n"
+            "        deferred.append(pid)\n"
+            "    else:\n"
+            "        kill(pid, sig)\n"
+            "def sleep(seconds):\n"
+            "    for pid in deferred:\n"
+            "        path = os.path.join(root, str(pid), 'stat')\n"
+            "        with real_open(path, 'rb') as fh:\n"
+            "            head, rest = fh.read().rsplit(b')', 1)\n"
+            "        with real_open(path, 'wb') as fh:\n"
+            "            fh.write(head + b') Z' + rest[2:])\n"
+            "    deferred.clear()\n"
+            "    clock[0] = 5.0\n"
+            "fake_time = types.SimpleNamespace(monotonic=lambda: clock[0], sleep=sleep)\n"
+            "contained = clone('_kill_session', _session_members=scan, os=types.SimpleNamespace(kill=kill_later),\n"
+            "                  time=fake_time)(41)\n"
+            "print('RESULT', json.dumps(contained), json.dumps(sorted(sends)), json.dumps(clock[0]),\n"
+            "      json.dumps(t['_KILL_UNKNOWN'].get(41)), json.dumps(t.get('_KILL_ALIVE', {}).get(41)))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT false [[41, "SIGKILL"], [41, "SIGSTOP"], [41, "SIGSTOP"], [42, "SIGKILL"], '
+                         '[42, "SIGSTOP"], [42, "SIGSTOP"]] 5.0 [46] null\n', detail)
+
+    def test_run_shell_stubbed_fallback_sweep_kills_readable_members_on_an_unparsable_stat_line(self) -> None:
+        """The fallback sweep of _run_shells, run when the shell is still unreaped after the session kill, still
+        SIGKILLs the live members its scan did read when that scan meets an unparsable stat line, never signals
+        that entry, and then raises the _UnparsableStat naming it, with the shell set. A clone of _run_shells
+        runs with no real process: its Popen is a stand-in shell (pid 41) whose waits time out until the group
+        kill; its _kill_session only records; its os.killpg records the group kill; its os.kill is the driver's
+        kill; and its session scan reads nothing until the group kill, then the fake /proc of
+        _run_shell_stubbed_unparsable_member, which raises for entry 46 with live members 41 and 42. The clone
+        raises _UnparsableStat naming /proc/46/stat for bash, after SIGKILLs to 41 and 42 and none to 46, and
+        reaps the shell, where a sweep that lets the scan raise kills no member."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "kills, waits = [], []\n"
+            "def grouped():\n"
+            "    return any(send[1] == 'killpg SIGKILL' for send in sends)\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if not grouped():\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        self.returncode = -9\n"
+            "        return -9\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "def members(sid):\n"
+            "    return scan(sid) if grouped() else []\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=kill)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=members,\n"
+            "               _kill_session=lambda sid: kills.append(sid) or True)\n"
+            "try:\n"
+            "    shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "    outcome = ['returned']\n"
+            "except Exception as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, 'shell', None)]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(sends), json.dumps(kills), json.dumps(waits))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, 'RESULT ["_UnparsableStat", "unparsable stat line, session unknown: '
+                                        '/proc/46/stat", "bash"] [[41, "killpg SIGKILL"], [41, "SIGKILL"], '
+                                        '[42, "SIGKILL"]] [41] [30, 2.0, 2.0]\n', detail)
+
+    def test_run_shell_stubbed_kill_session_deadline_return_records_members_still_alive(self) -> None:
+        """_kill_session's return at its deadline, with an entry whose stat line it cannot parse left and
+        members it read still alive, stores both: the entry in _KILL_UNKNOWN and the live members in
+        _KILL_ALIVE, so _run_shells can report the line and say processes were still alive. Over the fake
+        /proc of _run_shell_stubbed_unparsable_member, a clone of _kill_session runs with a clock that reads 0
+        until its first sleep; its os.kill passes SIGSTOP to the driver's kill and only records SIGKILL, which
+        never takes effect; its sleep moves the clock to the five-second deadline. So the leader (41) and
+        member 42 are stopped, are sent SIGKILL and are still stopped at the final read, which finds entry 46
+        unknown. It returns False with the clock at 5.0 and stores [46] in _KILL_UNKNOWN[41] and 41 and 42 in
+        _KILL_ALIVE[41], where a deadline return that keeps no live member stores nothing in _KILL_ALIVE."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "clock = [0.0]\n"
+            "def kill_later(pid, sig):\n"
+            "    if sig == signal.SIGKILL:\n"
+            "        sends.append([pid, 'SIGKILL'])\n"
+            "    else:\n"
+            "        kill(pid, sig)\n"
+            "def sleep(seconds):\n"
+            "    clock[0] = 5.0\n"
+            "fake_time = types.SimpleNamespace(monotonic=lambda: clock[0], sleep=sleep)\n"
+            "fake_os = types.SimpleNamespace(kill=kill_later)\n"
+            "contained = clone('_kill_session', _session_members=scan, os=fake_os, time=fake_time)(41)\n"
+            "print('RESULT', json.dumps(contained), json.dumps(sorted(sends)), json.dumps(clock[0]),\n"
+            "      json.dumps(t['_KILL_UNKNOWN'].get(41)),\n"
+            "      json.dumps(sorted(t.get('_KILL_ALIVE', {}).get(41, []))))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT false [[41, "SIGKILL"], [41, "SIGSTOP"], [41, "SIGSTOP"], [42, "SIGKILL"], '
+                         '[42, "SIGSTOP"], [42, "SIGSTOP"]] 5.0 [46] [41, 42]\n', detail)
+
+    def test_run_shell_stubbed_main_names_members_still_alive_beside_an_unparsable_stat_line(self) -> None:
+        """When the session kill returns at its deadline with an entry whose stat line it cannot parse left
+        and members it read still alive, main's one standard error line names the entry, says processes of
+        the run were still alive at the kill deadline and names the shell, and main exits 3. A clone of main
+        calls a clone of run whose _run_shells reads the real /proc in its grace loop (the real shell runs
+        true and is reaped by then) and whose _kill_session runs a clone of the tool's own over the fake /proc
+        of _run_shell_stubbed_unparsable_member for session 41, with a clock that reaches the deadline at its
+        first sleep and an os.kill under which SIGKILL never takes effect, then files what that clone stored
+        for 41 under the real session id. Reporting only the line leaves the still-alive part out."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "clock, kills = [0.0], []\n"
+            "def kill_later(pid, sig):\n"
+            "    if sig == signal.SIGKILL:\n"
+            "        sends.append([pid, 'SIGKILL'])\n"
+            "    else:\n"
+            "        kill(pid, sig)\n"
+            "def sleep(seconds):\n"
+            "    clock[0] = 5.0\n"
+            "fake_time = types.SimpleNamespace(monotonic=lambda: clock[0], sleep=sleep)\n"
+            "fake_os = types.SimpleNamespace(kill=kill_later)\n"
+            "fake_kill = clone('_kill_session', _session_members=scan, os=fake_os, time=fake_time)\n"
+            "def kill_session(sid):\n"
+            "    kills.append(fake_kill(41))\n"
+            "    for name in ('_KILL_UNKNOWN', '_KILL_ALIVE'):\n"
+            "        if name in t and 41 in t[name]:\n"
+            "            t[name][sid] = t[name].pop(41)\n"
+            "    return kills[-1]\n"
+            "shells = clone('_run_shells', _kill_session=kill_session)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    rc = main(['--shell', 'bash', 'true'])\n"
+            "finally:\n"
+            "    print('RESULT', json.dumps(kills), json.dumps(len(sends)), flush=True)\n"
+            "sys.exit(rc)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 3, detail)
+        self.assertEqual(result.stdout, "RESULT [false] 6\n", detail)
+        self.assertEqual(result.stderr, "ERROR: unparsable stat line, session unknown: /proc/46/stat; "
+                                        "processes of this run were still alive at the kill deadline; "
+                                        "containment of the bash run could not be shown\n", detail)
+
+    def test_run_shell_stubbed_main_names_a_failed_reap_beside_an_unparsable_stat_line(self) -> None:
+        """When only the session kill reads an unparsable stat line and the shell is never reaped, with no
+        exception propagating, main's one standard error line names the entry, says the shell could not be
+        reaped after the fallback SIGKILL and names the shell, and main exits 3. A clone of main calls a clone
+        of run whose _run_shells runs with no real process: its Popen is a stand-in shell (pid 41) whose
+        every wait times out; its session scan reads nothing; its os.killpg records the group kill; and its
+        _kill_session stores [46] in _KILL_UNKNOWN for the session and returns False, as the tool's own does
+        when only it reads the line. Dropping the failed reap leaves it out of the line."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits = []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "def kill_session(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [46]\n"
+            "    return False\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=kill)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill_session)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    rc = main(['--shell', 'bash', 'true'])\n"
+            "finally:\n"
+            "    print('RESULT', json.dumps(sends), json.dumps(waits), flush=True)\n"
+            "sys.exit(rc)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 3, detail)
+        self.assertEqual(result.stdout, 'RESULT [[41, "killpg SIGKILL"]] [30, 2.0, 2.0]\n', detail)
+        self.assertEqual(result.stderr, "ERROR: unparsable stat line, session unknown: /proc/46/stat; "
+                                        "shell could not be reaped after fallback SIGKILL; "
+                                        "containment of the bash run could not be shown\n", detail)
+
+    def test_run_shell_stubbed_kill_line_is_noted_on_an_exception_raised_in_the_reap(self) -> None:
+        """An unparsable stat line only the session kill read is not lost when the reap after the kill
+        raises: it is added as a note to that exception, which keeps propagating. A clone of _run_shells runs
+        with no real process: its Popen is a stand-in shell (pid 41) whose wait for the command times out;
+        its session scan reads nothing; its os.killpg records the group kill; and its _kill_session stores
+        [46] in _KILL_UNKNOWN for the session and returns False. In case wait, the first wait after the kill
+        raises KeyboardInterrupt, as SIGINT's default handler would; in case killpg, that wait times out and
+        the fallback's group kill raises PermissionError. In both, the next wait reaps the shell and the
+        exception leaves the clone with the entry and the shell as its note, where settling the line only
+        when the reap raised nothing leaves it with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, case = [], ['']\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if len(waits) == 2 and case[0] == 'wait':\n"
+            "            raise KeyboardInterrupt\n"
+            "        if len(waits) == 3:\n"
+            "            self.returncode = -9\n"
+            "            return -9\n"
+            "        raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "    if case[0] == 'killpg':\n"
+            "        raise PermissionError(1, 'Operation not permitted')\n"
+            "def kill_session(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [46]\n"
+            "    return False\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=kill)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill_session)\n"
+            "for case[0] in ('wait', 'killpg'):\n"
+            "    waits.clear()\n"
+            "    sends.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(sends), json.dumps(waits))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f'RESULT {case} {json.dumps([name, [note]])} [[41, "killpg SIGKILL"]] [30, 2.0, 2.0]\n'
+            for case, name in (("wait", "KeyboardInterrupt"), ("killpg", "PermissionError"))), detail)
+
+    def test_run_shell_stubbed_deferred_termination_carries_an_unparsable_stat_line(self) -> None:
+        """A SIGTERM deferred during a shell's cleanup and raised after it, over the _UnparsableStat that
+        cleanup raised, carries the entry and the shell as a note, as a termination already propagating when
+        the line is read does. A clone of main calls a clone of run whose _run_shells reads the fake /proc of
+        _run_shell_stubbed_unparsable_member in its grace loop, so it raises for entry 46; the real shell runs
+        true; its _kill_session calls the tool's own _on_signal with SIGTERM, which the active deferral
+        records, then the tool's own kill. The _Terminated(15) raised at the end of the shell leaves main with
+        that note, after the kill and the reap, where raising it with no note loses the entry and the shell."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "created, kills = [], []\n"
+            "class Shell(subprocess.Popen):\n"
+            "    def __init__(self, *args, **kwargs):\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "        created.append(self)\n"
+            "def kill_session(sid):\n"
+            "    kills.append(sid)\n"
+            "    t['_on_signal'](15, None)\n"
+            "    return t['_kill_session'](sid)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', _session_members=scan, _kill_session=kill_session, subprocess=popen)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    outcome = ['returned', main(['--shell', 'bash', 'true'])]\n"
+            "except Exception as exc:\n"
+            "    outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(len(created) == 1 and kills == [created[0].pid]),\n"
+            "      json.dumps([p.returncode for p in created]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT ["_Terminated", [15], ["unparsable stat line, session unknown: /proc/46/stat; '
+                         'containment of the bash run could not be shown"]] true [0]\n', detail)
+
+    def test_run_shell_stubbed_main_merges_unparsable_stat_lines_read_at_two_points_of_a_cleanup(self) -> None:
+        """Entries whose stat lines cannot be parsed, read both in the grace loop and in the session kill of
+        the same shell, end the run with one standard error line naming each entry once and the containment
+        text once, and main exits 3. A clone of main calls a clone of run whose _run_shells reads the fake
+        /proc of _run_shell_stubbed_unparsable_member in its grace loop, so it raises for entry 46; the real
+        shell runs true; its _kill_session calls the tool's own kill on the real session, then stores only
+        [47] in _KILL_UNKNOWN for the session and returns False, as if the kill had read 47 alone. The line
+        names 46 and 47, so the two lists are merged: adding the kill's entries as a note gives the
+        containment text twice, and keeping only the kill's list drops 46."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "created, kills = [], []\n"
+            "class Shell(subprocess.Popen):\n"
+            "    def __init__(self, *args, **kwargs):\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "        created.append(self)\n"
+            "def kill_session(sid):\n"
+            "    kills.append(t['_kill_session'](sid))\n"
+            "    t['_KILL_UNKNOWN'][sid] = [47]\n"
+            "    return False\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', _session_members=scan, _kill_session=kill_session, subprocess=popen)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    rc = main(['--shell', 'bash', 'true'])\n"
+            "finally:\n"
+            "    print('RESULT', json.dumps(kills), json.dumps([p.returncode for p in created]), flush=True)\n"
+            "sys.exit(rc)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 3, detail)
+        self.assertEqual(result.stdout, "RESULT [true] [0]\n", detail)
+        self.assertEqual(result.stderr, "ERROR: unparsable stat line, session unknown: /proc/46/stat, "
+                                        "/proc/47/stat; containment of the bash run could not be shown\n", detail)
+
+    def test_run_shell_stubbed_main_names_members_alive_at_the_kill_deadline_beside_a_grace_loop_line(self) -> None:
+        """When the grace loop reads an unparsable stat line and the session kill, reading no such line itself,
+        returns at its deadline with members still alive, main's one standard error line still says processes
+        of the run were still alive at the kill deadline, and main exits 3. A clone of main calls a clone of
+        run whose _run_shells reads the fake /proc of _run_shell_stubbed_unparsable_member in its grace loop,
+        so it raises for entry 46; the real shell runs true. Its _kill_session runs a clone of the tool's own
+        for session 41 over that fake /proc without entry 46 (as if its process had exited), with a clock that
+        reaches the deadline at its first sleep and an os.kill under which SIGKILL never takes effect, then
+        files what that clone stored for 41 under the real session id. Storing live members only when an
+        unknown entry is left, or stating them only beside a line the kill read, leaves the still-alive part
+        out."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "clock, kills, created = [0.0], [], []\n"
+            "class Shell(subprocess.Popen):\n"
+            "    def __init__(self, *args, **kwargs):\n"
+            "        super().__init__(*args, **kwargs)\n"
+            "        created.append(self)\n"
+            "def kill_later(pid, sig):\n"
+            "    if sig == signal.SIGKILL:\n"
+            "        sends.append([pid, 'SIGKILL'])\n"
+            "    else:\n"
+            "        kill(pid, sig)\n"
+            "def sleep(seconds):\n"
+            "    clock[0] = 5.0\n"
+            "def listdir_without_46(path):\n"
+            "    return [entry for entry in listdir(path) if entry != '46']\n"
+            "scan_without_46 = clone('_session_members', open=fake_open,\n"
+            "                        os=types.SimpleNamespace(listdir=listdir_without_46))\n"
+            "fake_time = types.SimpleNamespace(monotonic=lambda: clock[0], sleep=sleep)\n"
+            "fake_kill = clone('_kill_session', _session_members=scan_without_46,\n"
+            "                  os=types.SimpleNamespace(kill=kill_later), time=fake_time)\n"
+            "def kill_session(sid):\n"
+            "    kills.append(fake_kill(41))\n"
+            "    for name in ('_KILL_UNKNOWN', '_KILL_ALIVE'):\n"
+            "        if name in t and 41 in t[name]:\n"
+            "            t[name][sid] = t[name].pop(41)\n"
+            "    return kills[-1]\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', _session_members=scan, _kill_session=kill_session, subprocess=popen)\n"
+            "main = clone('main', run=clone('run', _run_shells=shells))\n"
+            "try:\n"
+            "    rc = main(['--shell', 'bash', 'true'])\n"
+            "finally:\n"
+            "    print('RESULT', json.dumps(kills), json.dumps(len(sends)),\n"
+            "          json.dumps([p.returncode for p in created]), flush=True)\n"
+            "sys.exit(rc)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 3, detail)
+        self.assertEqual(result.stdout, "RESULT [false] 6 [0]\n", detail)
+        self.assertEqual(result.stderr, "ERROR: unparsable stat line, session unknown: /proc/46/stat; "
+                                        "processes of this run were still alive at the kill deadline; "
+                                        "containment of the bash run could not be shown\n", detail)
+
+    def test_run_shell_stubbed_propagating_exception_carries_one_note_per_shell(self) -> None:
+        """A KeyboardInterrupt or _Terminated already propagating through a shell's cleanup carries one note
+        for that shell, naming each entry and the containment text once, when unparsable stat lines are read
+        at two points of the cleanup. A clone of _run_shells runs with no real process: its Popen is a
+        stand-in shell (pid 41) whose wait for the command raises the case's exception (KeyboardInterrupt, as
+        SIGINT's default handler would, or the tool's _Terminated(15)) and whose next wait reaps it; its grace
+        loop reads the fake /proc of _run_shell_stubbed_unparsable_member, which raises for entry 46; and its
+        _kill_session stores [46, 47] in _KILL_UNKNOWN and [41] in _KILL_ALIVE for the session and returns
+        False, as if the kill had read 46 again and 47 as well with a member alive at its deadline. The
+        exception leaves the clone with one note, where adding a note at each point gives two, naming 46
+        twice and the containment text twice."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, case = [], [None]\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if len(waits) == 1:\n"
+            "            raise case[0]\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def kill_session(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [46, 47]\n"
+            "    t['_KILL_ALIVE'][sid] = [41]\n"
+            "    return False\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan, _kill_session=kill_session)\n"
+            "for case[0] in (KeyboardInterrupt(), t['_Terminated'](15)):\n"
+            "    waits.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', json.dumps(outcome), json.dumps(waits))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat, /proc/47/stat; "
+                "processes of this run were still alive at the kill deadline; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {json.dumps([name, [note]])} [30, 2.0]\n"
+            for name in ("KeyboardInterrupt", "_Terminated")), detail)
+
+    def test_run_shell_stubbed_grace_loop_line_is_noted_on_an_exception_raised_after_it(self) -> None:
+        """An unparsable stat line the grace loop read and raised is not lost when an exception raised after
+        it in the same cleanup replaces it: that exception keeps propagating with the entry and the shell as
+        its note. A clone of _run_shells runs with no real process: its Popen is a stand-in shell (pid 41)
+        whose wait for the command returns; its session scan reads the fake /proc of
+        _run_shell_stubbed_unparsable_member once, in the grace loop, which raises for entry 46, and nothing
+        after; its os.killpg records the group kill. In case kill, its _kill_session raises PermissionError
+        and the next wait reaps the shell; in case wait, the first wait after the kill raises
+        KeyboardInterrupt; in case killpg, that wait times out and the fallback's group kill raises
+        PermissionError. In those two the next wait reaps the shell. In each case the exception leaves the
+        clone with the note, where leaving the line only as its context gives it no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, scans, case = [], [], ['']\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if len(waits) == 1:\n"
+            "            return 0\n"
+            "        if len(waits) == 2 and case[0] == 'wait':\n"
+            "            raise KeyboardInterrupt\n"
+            "        if len(waits) == 2 and case[0] == 'killpg':\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        self.returncode = -9\n"
+            "        return -9\n"
+            "def members(sid):\n"
+            "    scans.append(sid)\n"
+            "    return scan(sid) if len(scans) == 1 else []\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "    if case[0] == 'killpg':\n"
+            "        raise PermissionError(1, 'Operation not permitted')\n"
+            "def kill_session(sid):\n"
+            "    if case[0] == 'kill':\n"
+            "        raise PermissionError(1, 'Operation not permitted')\n"
+            "    return True\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=kill)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=members,\n"
+            "               _kill_session=kill_session)\n"
+            "for case[0] in ('kill', 'wait', 'killpg'):\n"
+            "    waits.clear()\n"
+            "    scans.clear()\n"
+            "    sends.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(sends), json.dumps(waits))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        group = '[[41, "killpg SIGKILL"]]'
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {case} {json.dumps([name, [note]])} {sends} {waits}\n"
+            for case, name, sends, waits in (
+                ("kill", "PermissionError", "[]", "[30, 2.0]"),
+                ("wait", "KeyboardInterrupt", group, "[30, 2.0, 2.0]"),
+                ("killpg", "PermissionError", group, "[30, 2.0, 2.0]"))), detail)
+
+    def test_run_shell_stubbed_line_is_noted_on_an_exception_raised_at_the_end_of_the_shell(self) -> None:
+        """An unparsable stat line a shell's cleanup raised is not lost when the temp dir removal or the mask
+        restore after the cleanup raises: that exception keeps propagating with the entry and the shell as its
+        note. A clone of _run_shells runs with no real process: its Popen is a stand-in shell (pid 41) whose
+        every wait reaps it; its grace loop reads the fake /proc of _run_shell_stubbed_unparsable_member, which
+        raises for entry 46; its _kill_session returns True. In case restore, its signal module raises
+        KeyboardInterrupt after the second SIG_SETMASK, the mask restore after the cleanup, as a SIGINT
+        blocked during the cleanup and delivered there would; in case rmtree, its _rmtree removes the temp dir
+        and raises OSError. In both the exception leaves the clone with the note, where leaving the line only
+        as its context gives it no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "case, setmasks = [''], []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def pthread_sigmask(self, how, mask):\n"
+            "        previous = signal.pthread_sigmask(how, mask)\n"
+            "        if how == signal.SIG_SETMASK:\n"
+            "            setmasks.append(how)\n"
+            "            if case[0] == 'restore' and len(setmasks) == 2:\n"
+            "                raise KeyboardInterrupt\n"
+            "        return previous\n"
+            "def rmtree(path):\n"
+            "    t['_rmtree'](path)\n"
+            "    if case[0] == 'rmtree':\n"
+            "        raise OSError(39, 'Directory not empty')\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, signal=SignalModel(), _session_members=scan,\n"
+            "               _kill_session=lambda sid: True, _rmtree=rmtree)\n"
+            "for case[0] in ('restore', 'rmtree'):\n"
+            "    setmasks.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(len(setmasks)))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {case} {json.dumps([name, [note]])} 2\n"
+            for case, name in (("restore", "KeyboardInterrupt"), ("rmtree", "OSError"))), detail)
+
+    def test_run_shell_stubbed_caller_handled_line_is_not_noted_on_a_later_exception(self) -> None:
+        """A run called while its caller handles an _UnparsableStat an earlier run raised for the same shell
+        does not carry that earlier line onto an exception raised in its own cleanup: the walk along the
+        __context__ chain stops at the caller's own handled exception. A driver handles an _UnparsableStat
+        naming entry 99 with shell set to bash, and calls a clone of _run_shells with no real process: its
+        Popen is a stand-in shell (pid 41) whose every wait reaps it; its session scan reads nothing, so the
+        run reads no line of its own; its _kill_session returns True; and its signal module raises
+        KeyboardInterrupt after the second SIG_SETMASK, the mask restore after the cleanup, as a SIGINT
+        blocked during the cleanup and delivered there would. That KeyboardInterrupt has the caller's
+        exception as its context, and leaves the clone with no note, where a walk that does not stop at the
+        caller's exception notes entry 99 and the bash run on it; the caller's exception is unchanged."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "setmasks = []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def pthread_sigmask(self, how, mask):\n"
+            "        previous = signal.pthread_sigmask(how, mask)\n"
+            "        if how == signal.SIG_SETMASK:\n"
+            "            setmasks.append(how)\n"
+            "            if len(setmasks) == 2:\n"
+            "                raise KeyboardInterrupt\n"
+            "        return previous\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, signal=SignalModel(), _session_members=lambda sid: [],\n"
+            "               _kill_session=lambda sid: True)\n"
+            "earlier = t['_UnparsableStat'](['99'], [])\n"
+            "earlier.shell, earlier.results = 'bash', []\n"
+            "try:\n"
+            "    raise earlier\n"
+            "except t['_UnparsableStat'] as caller:\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', []), exc.__context__ is caller]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(len(setmasks)),\n"
+            "      json.dumps([str(earlier), earlier.entries, earlier.shell, getattr(earlier, '__notes__', [])]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT ["KeyboardInterrupt", [], true] 2 '
+                         '["unparsable stat line, session unknown: /proc/99/stat", ["99"], "bash", []]\n', detail)
+
+    def test_run_shell_stubbed_line_is_not_merged_into_the_callers_handled_line(self) -> None:
+        """A run called while its caller handles an _UnparsableStat an earlier run raised for the same shell
+        raises a new _UnparsableStat for a line of its own, with shell set, and leaves the caller's exception
+        unchanged: the caller's own handled exception is checked before a merge into an _UnparsableStat of
+        the same shell. A driver handles an _UnparsableStat naming entry 99 with shell set to bash, and calls
+        a clone of _run_shells with no real process: its Popen is a stand-in shell (pid 41) whose every wait
+        reaps it; its grace loop reads the fake /proc of _run_shell_stubbed_unparsable_member, which raises
+        for entry 46; its _kill_session returns True. The clone raises an _UnparsableStat naming only
+        /proc/46/stat, with shell bash and the run's results list set, and the caller's exception still names
+        only entry 99, where checking the merge first folds entry 46 into the caller's exception and the run
+        then ends in UnboundLocalError."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan, _kill_session=lambda sid: True)\n"
+            "earlier = t['_UnparsableStat'](['99'], [])\n"
+            "earlier.shell, earlier.results = 'bash', []\n"
+            "results = []\n"
+            "try:\n"
+            "    raise earlier\n"
+            "except t['_UnparsableStat'] as caller:\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, results)\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, 'entries', None),\n"
+            "                   getattr(exc, 'shell', None), getattr(exc, 'results', None) is results,\n"
+            "                   getattr(exc, '__notes__', []), exc is caller]\n"
+            "print('RESULT', json.dumps(outcome),\n"
+            "      json.dumps([str(earlier), earlier.entries, earlier.shell, getattr(earlier, '__notes__', [])]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT ["_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat", '
+                         '["46"], "bash", true, [], false] '
+                         '["unparsable stat line, session unknown: /proc/99/stat", ["99"], "bash", []]\n', detail)
+
+    def test_run_shell_stubbed_kill_session_keeps_an_unparsable_stat_line_gone_by_a_later_scan(self) -> None:
+        """_kill_session does not report a session contained when one of its scans reads an entry whose stat
+        line it cannot parse and a later scan no longer finds it: every such entry any of its scans read is
+        kept to the return. Over the fake /proc of _run_shell_stubbed_unparsable_member, a clone of
+        _kill_session whose os.kill is the driver's kill reads through a scan that shows entry 46 at one read
+        only and renames it away (to gone-46, not a pid entry) for every other: in case stop, the first read,
+        in the stopping phase; in case kill, the third read, the first of the killing phase. In each case it
+        stops and kills the leader (41) and member 42, sends nothing to 46, returns False and stores [46] in
+        _KILL_UNKNOWN[41], where keeping only the last scan's entries returns True and stores nothing."""
+        outputs, details = [], []
+        for present in (1, 3):
+            result = self._run_shell_stubbed_unparsable_member(
+                f"present, reads = {present}, []\n"
+                "def flaky(sid):\n"
+                "    reads.append(sid)\n"
+                "    here, away = os.path.join(root, '46'), os.path.join(root, 'gone-46')\n"
+                "    if len(reads) == present:\n"
+                "        if os.path.exists(away):\n"
+                "            os.rename(away, here)\n"
+                "    elif os.path.exists(here):\n"
+                "        os.rename(here, away)\n"
+                "    return scan(sid)\n"
+                "contained = clone('_kill_session', _session_members=flaky, os=types.SimpleNamespace(kill=kill))(41)\n"
+                "print('RESULT', json.dumps(contained), json.dumps(sorted(sends)), "
+                "json.dumps(t['_KILL_UNKNOWN'].get(41)))\n")
+            detail = f"\ncase {present} stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+            self.assertEqual(result.returncode, 0, detail)
+            outputs.append(result.stdout)
+            details.append(detail)
+        expected = ('RESULT false [[41, "SIGKILL"], [41, "SIGSTOP"], [41, "SIGSTOP"], [42, "SIGKILL"], '
+                    '[42, "SIGSTOP"], [42, "SIGSTOP"]] [46]\n')
+        self.assertEqual(outputs, [expected, expected], "".join(details))
+
+    def test_run_shell_stubbed_fallback_sweep_line_is_noted_on_an_interrupted_member_signal(self) -> None:
+        """An exception that interrupts the fallback sweep's member signalling, after the sweep's scan met an
+        unparsable stat line, carries that line as a note. The clone of _run_shells is the one of
+        test_run_shell_stubbed_fallback_sweep_kills_readable_members_on_an_unparsable_stat_line, except that
+        its os.kill records the signal and raises KeyboardInterrupt, as a SIGINT delivered while the members
+        are signalled would. The KeyboardInterrupt leaves the clone with one note naming /proc/46/stat and the
+        bash run, after the group kill, one SIGKILL (to 41) and the reap, where settling the line only once
+        the signalling is done loses it."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "kills, waits = [], []\n"
+            "def grouped():\n"
+            "    return any(send[1] == 'killpg SIGKILL' for send in sends)\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if not grouped():\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        self.returncode = -9\n"
+            "        return -9\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "def interrupted(pid, sig):\n"
+            "    sends.append([pid, signal.Signals(sig).name])\n"
+            "    raise KeyboardInterrupt\n"
+            "def members(sid):\n"
+            "    return scan(sid) if grouped() else []\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=interrupted)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=members,\n"
+            "               _kill_session=lambda sid: kills.append(sid) or True)\n"
+            "try:\n"
+            "    shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(sends), json.dumps(kills), json.dumps(waits))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, 'RESULT ["KeyboardInterrupt", ["unparsable stat line, session unknown: '
+                                        '/proc/46/stat; containment of the bash run could not be shown"]] '
+                                        '[[41, "killpg SIGKILL"], [41, "SIGKILL"]] [41] [30, 2.0, 2.0]\n', detail)
+
+    def test_run_shell_stubbed_deferred_termination_does_not_note_the_callers_handled_line(self) -> None:
+        """A SIGTERM deferred during a run called while its caller handles an _UnparsableStat an earlier run
+        raised for bash, and raised by a drain once the run is done, does not carry that earlier line as a
+        note: the caller's own handled exception is not this run's. A driver handles an _UnparsableStat naming
+        entry 99 with shell set to bash, and calls a clone of run whose _run_shells is a clone with no real
+        process: its Popen is a stand-in shell (pid 41) whose every wait reaps it, and its session scan reads
+        nothing, so the run reads no line of its own. In case shell, its _kill_session calls the tool's own
+        _on_signal with SIGTERM, which the active deferral records, so the drain at the end of the shell
+        raises it; in case run, the run's signal module calls _on_signal with SIGTERM once it has restored the
+        SIGHUP handler, so the run's own drain raises it. Each ends in _Terminated(15) with no note, where a
+        drain that does not exclude the caller's exception notes entry 99 and the bash run on it; the
+        caller's exception is unchanged."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def kill_with_term(sid):\n"
+            "    t['_on_signal'](signal.SIGTERM, None)\n"
+            "    return True\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def signal(self, sig, handler):\n"
+            "        previous = signal.signal(sig, handler)\n"
+            "        if sig == signal.SIGHUP and handler is not t['_on_signal']:\n"
+            "            t['_on_signal'](signal.SIGTERM, None)\n"
+            "        return previous\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "outcomes = []\n"
+            "for case in ('shell', 'run'):\n"
+            "    shells = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "                   _kill_session=kill_with_term if case == 'shell' else (lambda sid: True))\n"
+            "    run = clone('run', _run_shells=shells, signal=SignalModel() if case == 'run' else signal)\n"
+            "    earlier = t['_UnparsableStat'](['99'], [])\n"
+            "    earlier.shell, earlier.results = 'bash', []\n"
+            "    try:\n"
+            "        raise earlier\n"
+            "    except t['_UnparsableStat']:\n"
+            "        try:\n"
+            "            run('true', shells=('bash',))\n"
+            "            outcome = [case, 'returned']\n"
+            "        except BaseException as exc:\n"
+            "            outcome = [case, type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "    outcomes.append(outcome + [str(earlier), getattr(earlier, '__notes__', [])])\n"
+            "print('RESULT', json.dumps(outcomes))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout,
+                         'RESULT [["shell", "_Terminated", [15], [], '
+                         '"unparsable stat line, session unknown: /proc/99/stat", []], '
+                         '["run", "_Terminated", [15], [], '
+                         '"unparsable stat line, session unknown: /proc/99/stat", []]]\n', detail)
+
+    def test_run_shell_stubbed_kill_line_is_noted_when_the_kill_itself_raises(self) -> None:
+        """An unparsable stat line the session kill read is not lost when the kill itself raises before it
+        returns: the kill stores the entry as soon as a scan reads it, and the exception, which keeps
+        propagating, gets the entry and the shell as a note. A clone of _run_shells runs with no real
+        process: its Popen is a stand-in shell (pid 41) whose every wait reaps it; its grace loop reads
+        nothing; and its _kill_session is a clone of the tool's own whose scan raises for entry 46 with a
+        running member 100, and whose os.kill records the signal and raises PermissionError in case
+        PermissionError and KeyboardInterrupt in case KeyboardInterrupt. Each exception leaves the clone with
+        that note, after one SIGSTOP to 100, where storing the entry only when the kill returns, or reading
+        it only after the kill returns, leaves the exception with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "case = ['']\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def kill_scan(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(100, 'S')])\n"
+            "def refused(pid, sig):\n"
+            "    sends.append([pid, signal.Signals(sig).name])\n"
+            "    if case[0] == 'PermissionError':\n"
+            "        raise PermissionError(1, 'Operation not permitted')\n"
+            "    raise KeyboardInterrupt\n"
+            "kill_session = clone('_kill_session', _session_members=kill_scan,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill_session)\n"
+            "for case[0] in ('PermissionError', 'KeyboardInterrupt'):\n"
+            "    sends.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(sends))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f'RESULT {case} {json.dumps([case, [note]])} [[100, "SIGSTOP"]]\n'
+            for case in ("PermissionError", "KeyboardInterrupt")), detail)
+
+    def test_run_shell_stubbed_interrupted_fallback_sweep_keeps_the_grace_loop_line(self) -> None:
+        """An exception that interrupts the fallback sweep's member signalling, after the sweep's scan met an
+        unparsable stat line, ends the run with one note naming that entry and the one the grace loop read
+        earlier, each once. A clone of _run_shells runs with no real process: its Popen is a stand-in shell
+        (pid 41) whose waits time out until the group kill and then reap it; its session scan raises for
+        entry 46 in the grace loop and for entry 47, with live member 200, in the fallback sweep; its
+        _kill_session returns True; and its os.kill records the signal and raises KeyboardInterrupt. The
+        KeyboardInterrupt leaves the clone with one note naming /proc/47/stat, /proc/46/stat and the bash
+        run, after the group kill, one SIGKILL (to 200) and the reap, where taking only the first line found
+        along the exception chain names 47 alone."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, phase = [], ['grace']\n"
+            "def grouped():\n"
+            "    return any(send[1] == 'killpg SIGKILL' for send in sends)\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if not grouped():\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        self.returncode = -9\n"
+            "        return -9\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "def interrupted(pid, sig):\n"
+            "    sends.append([pid, signal.Signals(sig).name])\n"
+            "    raise KeyboardInterrupt\n"
+            "def members(sid):\n"
+            "    if phase[0] == 'grace':\n"
+            "        raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "    raise t['_UnparsableStat'](['47'], [(200, 'S')])\n"
+            "def kill_session(sid):\n"
+            "    phase[0] = 'kill'\n"
+            "    return True\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=interrupted)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=members,\n"
+            "               _kill_session=kill_session)\n"
+            "try:\n"
+            "    shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(sends), json.dumps(waits))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, 'RESULT ["KeyboardInterrupt", ["unparsable stat line, session unknown: '
+                                        '/proc/47/stat, /proc/46/stat; containment of the bash run could not '
+                                        'be shown"]] [[41, "killpg SIGKILL"], [200, "SIGKILL"]] [30, 2.0, 2.0]\n',
+                         detail)
+
+    def test_run_shell_stubbed_second_deferred_termination_keeps_the_line(self) -> None:
+        """A second SIGTERM, deferred while run restores its handlers and raised by its drain over a
+        termination that already carries an unparsable stat line, carries that line as well. A clone of run
+        calls a clone of _run_shells with no real process: its Popen is a stand-in shell (pid 41) whose every
+        wait reaps it; its grace loop raises for entry 46; and its _kill_session calls the tool's own
+        _on_signal with SIGTERM, which the active deferral records, so the drain at the end of the shell
+        raises _Terminated(15) with the entry and the shell as its note. The run's signal module calls
+        _on_signal with SIGTERM once it has restored the SIGHUP handler, so the run's own drain raises a
+        second _Terminated(15) over the first. That one leaves the run with the same note. run's own except
+        carries the same line, so this test also passes with a drain that notes only an active
+        _UnparsableStat; test_run_shell_stubbed_drain_deferral_walks_the_chain pins the drain's walk."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "def kill_with_term(sid):\n"
+            "    t['_on_signal'](signal.SIGTERM, None)\n"
+            "    return True\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def signal(self, sig, handler):\n"
+            "        previous = signal.signal(sig, handler)\n"
+            "        if sig == signal.SIGHUP and handler is not t['_on_signal']:\n"
+            "            t['_on_signal'](signal.SIGTERM, None)\n"
+            "        return previous\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=kill_with_term)\n"
+            "run = clone('run', _run_shells=shells, signal=SignalModel())\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    first = exc.__context__\n"
+            "    outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', []),\n"
+            "               type(first).__name__, list(getattr(first, 'args', [])), getattr(first, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(["_Terminated", [15], [note],
+                                                                "_Terminated", [15], [note]]) + "\n", detail)
+
+    def test_run_shell_stubbed_run_cleanup_raise_keeps_the_line(self) -> None:
+        """An exception that run's own cleanup raises (a handler restore or the final drain) over a termination
+        that already carries an unparsable stat line, with no second deferred signal to follow, carries that
+        line as well. A clone of run calls a clone of _run_shells with no real process: its Popen is a
+        stand-in shell (pid 41) whose every wait reaps it; its grace loop raises for entry 46; and its
+        _kill_session stores entry 47 as one the kill read, then calls the tool's own _on_signal with SIGTERM,
+        which the active deferral records, so the drain at the end of the shell raises _Terminated(15) with
+        both entries and the shell as its note. The run's signal module raises KeyboardInterrupt instead of
+        restoring the handler of the case's name (SIGINT, SIGTERM or SIGHUP), and in case drain the run's own
+        drain raises KeyboardInterrupt once it has run. Each KeyboardInterrupt leaves the run with that note,
+        naming each entry once, where carrying the line only on a second deferred termination leaves it with
+        none. In case caller, run is called while its caller handles an _UnparsableStat an earlier run raised
+        for the same shell (entry 99) and the SIGINT restore raises: the note names 46 and 47 only, and the
+        caller's exception gets no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "case = ['']\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "def kill_with_term(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [47]\n"
+            "    t['_on_signal'](signal.SIGTERM, None)\n"
+            "    return False\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def signal(self, sig, handler):\n"
+            "        if handler is not t['_on_signal'] and signal.Signals(sig).name == case[0]:\n"
+            "            raise KeyboardInterrupt\n"
+            "        return signal.signal(sig, handler)\n"
+            "drains = []\n"
+            "def drain(caller_exception=None):\n"
+            "    drains.append(caller_exception)\n"
+            "    t['_drain_deferral'](caller_exception)\n"
+            "    if case[0] == 'drain' and len(drains) == 2:\n"
+            "        raise KeyboardInterrupt\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=kill_with_term, _drain_deferral=drain)\n"
+            "run = clone('run', _run_shells=shells, signal=SignalModel(), _drain_deferral=drain)\n"
+            "for name in ('SIGINT', 'SIGTERM', 'SIGHUP', 'drain', 'caller'):\n"
+            "    case[0] = 'SIGINT' if name == 'caller' else name\n"
+            "    drains.clear()\n"
+            "    caller = None\n"
+            "    try:\n"
+            "        if name == 'caller':\n"
+            "            earlier = t['_UnparsableStat'](['99'], [])\n"
+            "            earlier.shell, earlier.results = 'bash', []\n"
+            "            try:\n"
+            "                raise earlier\n"
+            "            except BaseException as handled:\n"
+            "                caller = handled\n"
+            "                run('true', shells=('bash',))\n"
+            "        else:\n"
+            "            run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    if caller is not None:\n"
+            "        outcome.append(getattr(caller, '__notes__', []))\n"
+            "    print('RESULT', name, json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat, /proc/47/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {name} {json.dumps(['KeyboardInterrupt', [note]] + ([[]] if name == 'caller' else []))}\n"
+            for name in ("SIGINT", "SIGTERM", "SIGHUP", "drain", "caller")), detail)
+
+    def test_run_shell_stubbed_interrupted_scan_keeps_the_entry_it_read(self) -> None:
+        """An interrupt raised inside a session scan after the scan has read an unparsable stat line does not
+        lose that entry: the scan records it as it reads it, and the KeyboardInterrupt keeps propagating as
+        itself, with the entry and the shell as its note. The scan is a clone of the tool's own
+        _session_members over a /proc listing of 46 and 47, where 46's stat line is cut before its session
+        field and opening /proc/47/stat raises KeyboardInterrupt. A clone of _run_shells runs with no real
+        process: its Popen is a stand-in shell (pid 41) whose every wait reaps it. In case grace its grace
+        loop uses that scan and its _kill_session returns True; in case kill its grace loop reads nothing and
+        its _kill_session is a clone of the tool's own whose scan is that scan and whose os.kill fails the
+        test; in case run a clone of run calls the case grace clone. Each case ends with KeyboardInterrupt
+        with that note and leaves no armed session, where keeping the entries only in the scan's local list
+        ends each with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46', '47']\n"
+            "def interrupting_open(path, *args, **kwargs):\n"
+            "    if path == '/proc/47/stat':\n"
+            "        raise KeyboardInterrupt\n"
+            "    return fake_open(path, *args, **kwargs)\n"
+            "interrupted = clone('_session_members', open=interrupting_open,\n"
+            "                    os=types.SimpleNamespace(listdir=listing))\n"
+            "def refused(pid, sig):\n"
+            "    raise AssertionError('no member may be signalled')\n"
+            "kill_session = clone('_kill_session', _session_members=interrupted,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "grace = clone('_run_shells', subprocess=popen, _session_members=interrupted,\n"
+            "              _kill_session=lambda sid: True)\n"
+            "kill = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "             _kill_session=kill_session)\n"
+            "run = clone('run', _run_shells=grace)\n"
+            "calls = {'grace': lambda: grace('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'kill': lambda: kill('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'run': lambda: run('true', shells=('bash',))}\n"
+            "for name in ('grace', 'kill', 'run'):\n"
+            "    try:\n"
+            "        calls[name]()\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', name, json.dumps(outcome), json.dumps(sorted(t.get('_SCAN_UNREAD', {}))))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {name} {json.dumps(['KeyboardInterrupt', [note]])} []\n"
+            for name in ("grace", "kill", "run")), detail)
+
+    def test_run_shell_stubbed_kill_second_loop_store_keeps_the_entry(self) -> None:
+        """An unparsable stat line that only a scan of the session kill's second loop reads is not lost when a
+        signal in that loop raises: the second loop stores the entry after its scan, before it signals. A
+        clone of _run_shells runs with no real process: its Popen is a stand-in shell (pid 41) whose every
+        wait reaps it; its grace loop reads nothing; and its _kill_session is a clone of the tool's own whose
+        first scan reads nothing (so the first loop stores nothing and ends) and whose later scans raise for
+        entry 47 with a stopped member 100, and whose os.kill records the signal and raises PermissionError in
+        case PermissionError and KeyboardInterrupt in case KeyboardInterrupt. Each exception leaves the clone
+        with that note, after two scans and one SIGSTOP to 100, where dropping only the second loop's store
+        leaves it with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "case, scans = [''], []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def kill_scan(sid):\n"
+            "    scans.append(sid)\n"
+            "    if len(scans) == 1:\n"
+            "        return []\n"
+            "    raise t['_UnparsableStat'](['47'], [(100, 'T')])\n"
+            "def refused(pid, sig):\n"
+            "    sends.append([pid, signal.Signals(sig).name])\n"
+            "    if case[0] == 'PermissionError':\n"
+            "        raise PermissionError(1, 'Operation not permitted')\n"
+            "    raise KeyboardInterrupt\n"
+            "kill_session = clone('_kill_session', _session_members=kill_scan,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill_session)\n"
+            "for case[0] in ('PermissionError', 'KeyboardInterrupt'):\n"
+            "    sends.clear()\n"
+            "    scans.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(sends), len(scans))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/47/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f'RESULT {case} {json.dumps([case, [note]])} [[100, "SIGSTOP"]] 2\n'
+            for case in ("PermissionError", "KeyboardInterrupt")), detail)
+
+    def test_run_shell_stubbed_caller_reraise_over_a_run_line_is_a_stated_residual(self) -> None:
+        """The stated residual: when run's cleanup re-raises the caller's own handled exception over a line of
+        the run, that exception ends the run with no note and carries none of the run's entries, which remain
+        only along its __context__ chain; and the module docstring, run's cleanup comment and _run_shells'
+        cleanup comment each state it. A clone of run is called while its caller handles a RuntimeError, and
+        calls a clone of _run_shells with no real process: its Popen is a stand-in shell (pid 41) whose every
+        wait reaps it, its grace loop raises for entry 46 and its _kill_session returns True. The run's signal
+        module raises the caller's RuntimeError instead of restoring SIGINT. The run ends with that same
+        RuntimeError, with no note, whose __context__ is the line naming /proc/46/stat; the statement appears
+        once in the tool source, in its module docstring, and the cleanup comments of run and of _run_shells
+        each name exit table row X5."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "caller = RuntimeError('caller')\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def signal(self, sig, handler):\n"
+            "        if sig == signal.SIGINT and handler is not t['_on_signal']:\n"
+            "            raise caller\n"
+            "        return signal.signal(sig, handler)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells, signal=SignalModel())\n"
+            "try:\n"
+            "    try:\n"
+            "        raise caller\n"
+            "    except RuntimeError:\n"
+            "        run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    context = exc.__context__\n"
+            "    outcome = [type(exc).__name__, exc is caller, getattr(exc, '__notes__', []),\n"
+            "               type(context).__name__, str(context), getattr(context, '__notes__', [])]\n"
+            "phrase = \"re-raised over a line of the run is exit table row X5\"\n"
+            "with real_open(sys.argv[1], encoding='utf-8') as fh:\n"
+            "    source = fh.read()\n"
+            "run_src = source.split('\\ndef run(', 1)[1].split('\\ndef _run_shells(', 1)[0]\n"
+            "shells_src = source.split('\\ndef _run_shells(', 1)[1].split('\\ndef _printable(', 1)[0]\n"
+            "flat = lambda s: ' '.join(s.replace('#', ' ').split())\n"
+            "named = ['are exit table row X5.' in flat(run_src), 'run) is exit table row X5.' in flat(shells_src)]\n"
+            "print('RESULT', json.dumps(outcome), source.count(phrase), phrase in t['__doc__'], json.dumps(named))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["RuntimeError", True, [], "_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat",
+             []]) + " 1 True [true, true]\n", detail)
+
+    def test_run_shell_stubbed_settlement_raise_keeps_the_entries(self) -> None:
+        """An exception raised while the innermost finally of _run_shells settles the entries the kill or a scan
+        recorded, after it has taken them from _KILL_UNKNOWN and _SCAN_UNREAD, does not lose them: it keeps
+        propagating as itself, with the entries and the shell as its note, and leaves no record behind. A
+        clone of _run_shells runs with no real process: its Popen is a stand-in shell (pid 41) whose every
+        wait reaps it, and its grace loop reads nothing. Its _kill_session stores entry 47 in _KILL_UNKNOWN and
+        returns False in case kill, records entry 46 in _SCAN_UNREAD and returns True in case scan, and does
+        both in case both. A stand-in for a caller's signal handler raises KeyboardInterrupt at the first call
+        of _carry_shell_lines (point carry) or of _settle_unparsable (point settle), then delegates. Each case
+        ends with that KeyboardInterrupt with the one note and with no record left, where popping the records
+        before the settlement ends each with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "case, point, raised = [''], [''], []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def kill_session(sid):\n"
+            "    if case[0] in ('kill', 'both'):\n"
+            "        t['_KILL_UNKNOWN'][sid] = [47]\n"
+            "    if case[0] in ('scan', 'both'):\n"
+            "        t['_SCAN_UNREAD'][sid].append(46)\n"
+            "    return case[0] == 'scan'\n"
+            "def handler_at(name):\n"
+            "    real = t[name]\n"
+            "    def call(*args):\n"
+            "        if point[0] == name and not raised:\n"
+            "            raised.append(name)\n"
+            "            raise KeyboardInterrupt('caller handler')\n"
+            "        return real(*args)\n"
+            "    return call\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill_session,\n"
+            "               _carry_shell_lines=handler_at('_carry_shell_lines'),\n"
+            "               _settle_unparsable=handler_at('_settle_unparsable'))\n"
+            "for point[0] in ('_carry_shell_lines', '_settle_unparsable'):\n"
+            "    for case[0] in ('kill', 'scan', 'both'):\n"
+            "        raised.clear()\n"
+            "        try:\n"
+            "            shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "            outcome = ['returned']\n"
+            "        except BaseException as exc:\n"
+            "            outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "        left = [sorted(t[name]) for name in ('_KILL_UNKNOWN', '_SCAN_UNREAD', '_KILL_ALIVE')]\n"
+            "        print('RESULT', point[0], case[0], json.dumps(outcome), json.dumps(raised), json.dumps(left))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        named = {"kill": "/proc/47/stat", "scan": "/proc/46/stat", "both": "/proc/47/stat, /proc/46/stat"}
+        expected = ""
+        for point in ("_carry_shell_lines", "_settle_unparsable"):
+            for case in ("kill", "scan", "both"):
+                note = (f"unparsable stat line, session unknown: {named[case]}; "
+                        "containment of the bash run could not be shown")
+                expected += (f"RESULT {point} {case} "
+                             f"{json.dumps(['KeyboardInterrupt', ['caller handler'], [note]])} "
+                             f"{json.dumps([point])} [[], [], []]\n")
+        self.assertEqual(result.stdout, expected, detail)
+
+    def test_run_shell_stubbed_scan_interrupted_at_the_close_keeps_the_entry(self) -> None:
+        """An interrupt raised as a session scan closes the stat file of an entry it has read does not lose that
+        entry when its line cannot be parsed, and does not record it when its line parses: the scan records the
+        entry as soon as its read returns, before the close and the parse, and drops it once the line parses.
+        The scan is a clone of the tool's own _session_members over a /proc listing of one entry, whose file's
+        close raises KeyboardInterrupt once the file is closed: entry 46, whose stat line is cut before its
+        session field, or entry 43, a process of another session whose line parses. A clone of _run_shells runs
+        with no real process: its Popen is a stand-in shell (pid 41) whose every wait reaps it. In case grace
+        its grace loop uses that scan and its _kill_session returns True; in case kill its grace loop reads
+        nothing and its _kill_session is a clone of the tool's own whose scan is that scan and whose os.kill
+        fails the test; in case run a clone of run calls the case grace clone. Over 46 each case ends with
+        KeyboardInterrupt with the entry and the shell as its note, where recording the entry only once its
+        parse has failed, after the close, ends each with no note; over 43 each ends with no note. None leaves
+        an armed session."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "only = ['']\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return [only[0]]\n"
+            "class InterruptedClose:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return self.fh.__enter__()\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        self.fh.__exit__(*exc_info)\n"
+            "        raise KeyboardInterrupt('at the close')\n"
+            "def closing_open(path, *args, **kwargs):\n"
+            "    return InterruptedClose(fake_open(path, *args, **kwargs))\n"
+            "interrupted = clone('_session_members', open=closing_open,\n"
+            "                    os=types.SimpleNamespace(listdir=listing))\n"
+            "def refused(pid, sig):\n"
+            "    raise AssertionError('no member may be signalled')\n"
+            "kill_session = clone('_kill_session', _session_members=interrupted,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "grace = clone('_run_shells', subprocess=popen, _session_members=interrupted,\n"
+            "              _kill_session=lambda sid: True)\n"
+            "kill = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "             _kill_session=kill_session)\n"
+            "run = clone('run', _run_shells=grace)\n"
+            "calls = {'grace': lambda: grace('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'kill': lambda: kill('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'run': lambda: run('true', shells=('bash',))}\n"
+            "for only[0] in ('46', '43'):\n"
+            "    for name in ('grace', 'kill', 'run'):\n"
+            "        try:\n"
+            "            calls[name]()\n"
+            "            outcome = ['returned']\n"
+            "        except BaseException as exc:\n"
+            "            outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "        print('RESULT', only[0], name, json.dumps(outcome), json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {entry} {name} {json.dumps(['KeyboardInterrupt', ['at the close'], notes])} []\n"
+            for entry, notes in (("46", [note]), ("43", [])) for name in ("grace", "kill", "run")), detail)
+
+    def test_run_shell_stubbed_timeout_after_the_read_propagates_and_keeps_the_entry(self) -> None:
+        """An OSError raised once a session scan's read has returned, such as the TimeoutError of a caller's
+        SIGALRM handler at the close or during the parse, is not taken as an exited process: it propagates, and
+        the entry the read recorded is not removed, so the run is not reported contained and the caller's
+        exception is not swallowed. The scan is a clone of the tool's own _session_members over a /proc listing
+        of one entry, entry 46 (its stat line cut before its session field) or entry 43 (a process of another
+        session whose line parses); at point close its file's close raises TimeoutError once the file is
+        closed, and at point parse the line it reads raises TimeoutError as it is split. As in the close test,
+        case grace uses that scan in a clone of _run_shells' grace loop, case kill in a clone of the tool's own
+        _kill_session, and case run calls the case grace clone through a clone of run. Each ends with that
+        TimeoutError: with the entry and the shell as its note over 46; with no note over 43 at the close,
+        where the line parsed before the close; and with 43 as its note during the parse, the stated
+        fail-closed residual. None leaves an armed session. Catching OSError around the close and the parse,
+        and removing the recorded entry there, ends each case returned and contained."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "only, point = [''], ['']\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return [only[0]]\n"
+            "class Cut(str):\n"
+            "    def rsplit(self, *args):\n"
+            "        raise TimeoutError('during the parse')\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        return Cut(line) if point[0] == 'parse' else line\n"
+            "class Timed:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        self.fh.__exit__(*exc_info)\n"
+            "        if point[0] == 'close':\n"
+            "            raise TimeoutError('at the close')\n"
+            "def timed_open(path, *args, **kwargs):\n"
+            "    return Timed(fake_open(path, *args, **kwargs))\n"
+            "timed = clone('_session_members', open=timed_open,\n"
+            "              os=types.SimpleNamespace(listdir=listing))\n"
+            "def refused(pid, sig):\n"
+            "    raise AssertionError('no member may be signalled')\n"
+            "kill_session = clone('_kill_session', _session_members=timed,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "grace = clone('_run_shells', subprocess=popen, _session_members=timed,\n"
+            "              _kill_session=lambda sid: True)\n"
+            "kill = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "             _kill_session=kill_session)\n"
+            "run = clone('run', _run_shells=grace)\n"
+            "calls = {'grace': lambda: grace('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'kill': lambda: kill('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'run': lambda: run('true', shells=('bash',))}\n"
+            "for point[0] in ('close', 'parse'):\n"
+            "    for only[0] in ('46', '43'):\n"
+            "        for name in ('grace', 'kill', 'run'):\n"
+            "            try:\n"
+            "                results = calls[name]()\n"
+            "                outcome = ['returned', [r['contained'] for r in results]]\n"
+            "            except BaseException as exc:\n"
+            "                outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "            print('RESULT', point[0], only[0], name, json.dumps(outcome),\n"
+            "                  json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+
+        def note(entry):
+            return (f"unparsable stat line, session unknown: /proc/{entry}/stat; "
+                    "containment of the bash run could not be shown")
+
+        # An entry whose parse the raise cut short has no parse result recorded, and the note says so.
+        def unread(entry):
+            return (f"stat line parse result not recorded before an interruption, session unknown: /proc/{entry}/stat; "
+                    "containment of the bash run could not be shown")
+        cases = (("close", "46", "at the close", [note("46")]), ("close", "43", "at the close", []),
+                 ("parse", "46", "during the parse", [unread("46")]),
+                 ("parse", "43", "during the parse", [unread("43")]))
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {point} {entry} {name} {json.dumps(['TimeoutError', [message], notes])} []\n"
+            for point, entry, message, notes in cases for name in ("grace", "kill", "run")), detail)
+
+    def test_run_shell_stubbed_interrupted_final_carry_keeps_the_note(self) -> None:
+        """An exception that interrupts run's final carry of the run's lines as notes does not end the run with
+        no note: the carry is made again onto that exception, whose __context__ chain holds the first. A clone
+        of run calls a clone of _run_shells with no real process: its Popen is a stand-in shell (pid 41) whose
+        every wait reaps it, its grace loop reads the fake /proc, whose entry 46 cannot be parsed, and its
+        _kill_session returns True, so _run_shells raises the line naming /proc/46/stat. The run's signal
+        module raises RuntimeError instead of restoring SIGINT, and the first call of run's
+        _carry_shell_lines raises KeyboardInterrupt, as a caller's signal handler would there. The run ends
+        with that KeyboardInterrupt with the entry and the shell as its one note and leaves no armed session,
+        where the unprotected carry ends it with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def signal(self, sig, handler):\n"
+            "        if sig == signal.SIGINT and handler is not t['_on_signal']:\n"
+            "            raise RuntimeError('restore')\n"
+            "        return signal.signal(sig, handler)\n"
+            "raised = []\n"
+            "def carry(*args):\n"
+            "    if not raised:\n"
+            "        raised.append(True)\n"
+            "        raise KeyboardInterrupt('at the carry')\n"
+            "    return t['_carry_shell_lines'](*args)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells, signal=SignalModel(), _carry_shell_lines=carry)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(raised), json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(["KeyboardInterrupt", ["at the carry"], [note]])
+                         + " [true] []\n", detail)
+
+    def test_run_shell_stubbed_termination_after_a_caller_reraise_is_a_stated_exit(self) -> None:
+        """The stated exit: a SIGTERM deferred during the cleanup and drained after the cleanup re-raised the
+        caller's own handled exception over a line of the run ends the run as the run's own _Terminated with
+        no note, chained over the caller's exception, whose __context__ alone holds the line; and the module
+        docstring states it. A clone of run is called while its caller handles a RuntimeError, and calls a
+        clone of _run_shells with no real process: its Popen is a stand-in shell (pid 41) whose every wait
+        reaps it, its grace loop raises for entry 46 and its _kill_session returns True. The run's signal
+        module records a pending SIGTERM in the deferral and raises the caller's RuntimeError instead of
+        restoring SIGINT, so run's drain raises _Terminated(15)."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "caller = RuntimeError('caller')\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def signal(self, sig, handler):\n"
+            "        if sig == signal.SIGINT and handler is not t['_on_signal']:\n"
+            "            t['_DEFERRED']['pending'] = signal.SIGTERM\n"
+            "            raise caller\n"
+            "        return signal.signal(sig, handler)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells, signal=SignalModel())\n"
+            "try:\n"
+            "    try:\n"
+            "        raise caller\n"
+            "    except RuntimeError:\n"
+            "        run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    line = caller.__context__\n"
+            "    outcome = [type(exc).__name__, [int(arg) for arg in exc.args], getattr(exc, '__notes__', []),\n"
+            "               exc.__context__ is caller, type(line).__name__, str(line)]\n"
+            "phrase = \"or by the drain of run after its handler restores\"\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(t['_DEFERRED']), phrase in t['__doc__'])\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["_Terminated", [15], [], True, "_UnparsableStat",
+             "unparsable stat line, session unknown: /proc/46/stat"])
+            + " " + json.dumps({"active": False, "pending": None}) + " True\n", detail)
+
+    def test_run_shell_stubbed_kill_scan_after_a_skipped_arm_keeps_the_entry(self) -> None:
+        """An exception that skips the grace loop's arm of the shell's session does not leave the kill's scans
+        unarmed: _run_shells renews the arm with setdefault before the kill, so an entry an interrupted kill
+        scan read is still settled. The arm is modelled by a _SCAN_UNREAD stand-in, a dict whose item
+        assignment raises KeyboardInterrupt (an interrupt landing at the arm), bound in clones of _run_shells,
+        _shell_unread and the scan. A clone of _run_shells runs with no real process: its Popen is a stand-in
+        shell (pid 41) whose every wait reaps it, its grace loop reads nothing and its _kill_session is a clone
+        of the tool's own whose scan, a clone of _session_members over a /proc listing of entry 46 alone (its
+        line cut before its session field), raises KeyboardInterrupt as it closes that entry's file. The run
+        ends with that KeyboardInterrupt, with the entry and the shell as its note, and leaves no armed
+        session, where a kill scan left unarmed loses the entry and ends it with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class Arm(dict):\n"
+            "    def __setitem__(self, key, value):\n"
+            "        raise KeyboardInterrupt('at the arm')\n"
+            "armed = Arm()\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class InterruptedClose:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return self.fh.__enter__()\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        self.fh.__exit__(*exc_info)\n"
+            "        raise KeyboardInterrupt('at the close')\n"
+            "def closing_open(path, *args, **kwargs):\n"
+            "    return InterruptedClose(fake_open(path, *args, **kwargs))\n"
+            "interrupted = clone('_session_members', open=closing_open, _SCAN_UNREAD=armed,\n"
+            "                    os=types.SimpleNamespace(listdir=listing))\n"
+            "def refused(pid, sig):\n"
+            "    raise AssertionError('no member may be signalled')\n"
+            "kill_session = clone('_kill_session', _session_members=interrupted,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill_session, _SCAN_UNREAD=armed,\n"
+            "               _shell_unread=clone('_shell_unread', _SCAN_UNREAD=armed))\n"
+            "try:\n"
+            "    shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(sorted(armed)))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(["KeyboardInterrupt", ["at the close"], [note]])
+                         + " []\n", detail)
+
+    def test_run_shell_stubbed_kill_reraising_the_caller_exception_raises_the_line(self) -> None:
+        """The stated exit: the caller's own handled exception re-raised during the shell's kill, over a line
+        the grace loop read, does not end the run; the line is raised, with the shell set, chained over it. A
+        clone of run is called while its caller handles a RuntimeError, and calls a clone of _run_shells with no
+        real process: its Popen is a stand-in shell (pid 41) whose every wait reaps it, its grace loop reads
+        the fake /proc, whose entry 46 cannot be parsed, and its _kill_session raises the caller's RuntimeError.
+        The run ends with an _UnparsableStat naming /proc/46/stat, for bash, with no note, whose __context__ is
+        the caller's RuntimeError, and leaves no armed session; the module docstring states the exit."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "caller = RuntimeError('caller')\n"
+            "def kill_session(sid):\n"
+            "    raise caller\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan,\n"
+            "               _kill_session=kill_session)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "try:\n"
+            "    try:\n"
+            "        raise caller\n"
+            "    except RuntimeError:\n"
+            "        run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, 'shell', None),\n"
+            "               getattr(exc, '__notes__', []), exc.__context__ is caller]\n"
+            "phrase = 'exit table row X18 when re-raised during the shell'\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(sorted(t['_SCAN_UNREAD'])), phrase in t['__doc__'])\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat", "bash", [], True])
+            + " [] True\n", detail)
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("X18 | caller-handler residual, as observed: the caller's own handled exception re-raised "
+                      "during a shell's kill, reap or settlement, "
+                      "over a line of that shell | _UnparsableStat for that shell, chained over the caller's exception "
+                      "| the line names the entries and the shell | nothing | runs | restored", doc)
+
+    def test_run_shell_stubbed_handler_error_during_the_parse_propagates_and_keeps_the_entry(self) -> None:
+        """Pins an observation of the caller-handler residual (outside the exit table), not a defined exit.
+        A ValueError or IndexError raised during a session scan's parse by anything other than the line itself,
+        such as a caller's signal handler, is not taken as an unparsable line: it propagates with the entry
+        noted, and the entry stays recorded. The scan is a clone of the tool's own _session_members over a /proc
+        listing of one entry, entry 46 (its stat line cut before its session field) or entry 43 (a process of
+        another session whose line parses), whose read returns a line that raises ValueError or IndexError as it
+        is split. As in the timeout test, case grace uses that scan in a clone of _run_shells' grace loop, case
+        kill in a clone of the tool's own _kill_session, and case run calls the case grace clone through a clone
+        of run. Each ends with that exception, with the entry and the shell as its note (over 43 too, the
+        stated fail-closed residual), and none leaves an armed session, where catching ValueError and IndexError
+        around the parse names the entry as unparsable and ends each case with _UnparsableStat."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "only, kind = [''], ['']\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return [only[0]]\n"
+            "def handler():\n"
+            "    raise {'value': ValueError, 'index': IndexError}[kind[0]]('from a handler')\n"
+            "class Cut(str):\n"
+            "    def rsplit(self, *args):\n"
+            "        handler()\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        return Cut(self.fh.read())\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        return self.fh.__exit__(*exc_info)\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "handled = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "def refused(pid, sig):\n"
+            "    raise AssertionError('no member may be signalled')\n"
+            "kill_session = clone('_kill_session', _session_members=handled,\n"
+            "                     os=types.SimpleNamespace(kill=refused))\n"
+            "grace = clone('_run_shells', subprocess=popen, _session_members=handled,\n"
+            "              _kill_session=lambda sid: True)\n"
+            "kill = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "             _kill_session=kill_session)\n"
+            "run = clone('run', _run_shells=grace)\n"
+            "calls = {'grace': lambda: grace('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'kill': lambda: kill('true', ('bash',), ('gh', 'git'), 30, []),\n"
+            "         'run': lambda: run('true', shells=('bash',))}\n"
+            "for kind[0] in ('value', 'index'):\n"
+            "    for only[0] in ('46', '43'):\n"
+            "        for name in ('grace', 'kill', 'run'):\n"
+            "            try:\n"
+            "                results = calls[name]()\n"
+            "                outcome = ['returned', [r['contained'] for r in results]]\n"
+            "            except BaseException as exc:\n"
+            "                outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "            print('RESULT', kind[0], only[0], name, json.dumps(outcome),\n"
+            "                  json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+
+        # The raise comes during the parse, so no parse result was recorded for the entry, and the note says so.
+        def note(entry):
+            return (f"stat line parse result not recorded before an interruption, session unknown: /proc/{entry}/stat; "
+                    "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {kind} {entry} {name} {json.dumps([error, ['from a handler'], [note(entry)]])} []\n"
+            for kind, error in (("value", "ValueError"), ("index", "IndexError"))
+            for entry in ("46", "43") for name in ("grace", "kill", "run")), detail)
+
+    def test_run_shell_stubbed_handler_timeout_during_a_wait_propagates_with_the_line(self) -> None:
+        """Pins an observation of the caller-handler residual (outside the exit table), not a defined exit.
+        A subprocess.TimeoutExpired that a caller's signal handler raises during a wait of the shell is not
+        taken as that wait timing out: it propagates, with the shell's line noted on it, once the cleanup has
+        run; one the wait itself raises still is its timeout. A clone of _run_shells runs with no real process:
+        its Popen is a stand-in shell (pid 41) whose waits return 0, reaping it except in case fallback, where
+        the first two leave it unreaped; its grace loop reads the fake /proc, whose entry 46 cannot be parsed;
+        its _kill_session returns True; and its os.killpg and os.kill only record. In cases main (timeout 30),
+        untimed (timeout None), reap and fallback, the first, first, second or third wait calls a handler
+        function that raises TimeoutExpired('handler', 5), as a caller's SIGALRM handler run inside the wait
+        would. Each ends with that TimeoutExpired, with the entry and the shell as its note, and leaves no armed
+        session, where taking it as the wait's own timeout ends each with the _UnparsableStat naming 46. In
+        case own, the first wait (timeout 30) raises TimeoutExpired itself, and the run ends with that
+        _UnparsableStat."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, case = [], ['']\n"
+            "at = {'main': 1, 'untimed': 1, 'reap': 2, 'fallback': 3, 'own': 1}\n"
+            "def handler():\n"
+            "    raise subprocess.TimeoutExpired('handler', 5)\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if len(waits) == at[case[0]]:\n"
+            "            if case[0] == 'own':\n"
+            "                raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "            handler()\n"
+            "        if case[0] != 'fallback' or len(waits) > 2:\n"
+            "            self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class OsModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(os, name)\n"
+            "    def killpg(self, pid, sig):\n"
+            "        sends.append([pid, 'killpg'])\n"
+            "    def kill(self, pid, sig):\n"
+            "        sends.append([pid, 'kill'])\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan,\n"
+            "               _kill_session=lambda sid: True, os=OsModel())\n"
+            "for case[0] in ('main', 'untimed', 'reap', 'fallback', 'own'):\n"
+            "    del waits[:]\n"
+            "    Shell.returncode = None\n"
+            "    timeout = None if case[0] == 'untimed' else 30\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), timeout, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(waits),\n"
+            "          json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {case} {json.dumps(outcome)} {json.dumps(waits)} []\n" for case, outcome, waits in (
+                ("main", ["TimeoutExpired", [note]], [30, 2.0]),
+                ("untimed", ["TimeoutExpired", [note]], [1.0, 2.0]),
+                ("reap", ["TimeoutExpired", [note]], [30, 2.0]),
+                ("fallback", ["TimeoutExpired", [note]], [30, 2.0, 2.0]),
+                ("own", ["_UnparsableStat", []], [30, 2.0]))), detail)
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("X15 | a subprocess.TimeoutExpired during a wait of the shell, or in the try around it | taken "
+                      "as that wait timing out only when the wait itself raised it (inferred: also when a handler with "
+                      "no Python frame of its own raises it); otherwise outside the exit table (the caller-handler "
+                      "residual; observed: that exception, once the cleanup has run) | the "
+                      "shell's line, if any, noted on it | nothing | runs | restored", doc)
+
+    def test_run_shell_stubbed_run_shells_drain_after_a_caller_reraise_is_a_stated_exit(self) -> None:
+        """The stated exit of the drain of _run_shells: a SIGTERM deferred during the cleanup and drained by
+        _run_shells after the temp dir removal re-raised the caller's own handled exception over a line of the
+        run ends the run as the run's own _Terminated with no note, chained over the caller's exception, whose
+        __context__ alone holds the line; and the module docstring states it for both drains. A clone of run is
+        called while its caller handles a RuntimeError, and calls a clone of _run_shells with no real process:
+        its Popen is a stand-in shell (pid 41) whose every wait reaps it, its grace loop raises for entry 46,
+        its _kill_session returns True, and its _rmtree removes the temp dir, records a pending SIGTERM in the
+        deferral and raises the caller's RuntimeError. The run ends with _Terminated(15) and leaves the deferral
+        inactive with nothing pending."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "caller = RuntimeError('caller')\n"
+            "removed = []\n"
+            "def rmtree(path):\n"
+            "    t['_rmtree'](path)\n"
+            "    removed.append(not os.path.exists(path))\n"
+            "    t['_DEFERRED']['pending'] = signal.SIGTERM\n"
+            "    raise caller\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True, _rmtree=rmtree)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "try:\n"
+            "    try:\n"
+            "        raise caller\n"
+            "    except RuntimeError:\n"
+            "        run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    line = caller.__context__\n"
+            "    outcome = [type(exc).__name__, [int(arg) for arg in exc.args], getattr(exc, '__notes__', []),\n"
+            "               exc.__context__ is caller, type(line).__name__, str(line)]\n"
+            "phrase = 'by the drain of _run_shells after the temp dir removal and the mask restore'\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(removed), json.dumps(t['_DEFERRED']),\n"
+            "      json.dumps(sorted(t['_SCAN_UNREAD'])), phrase in t['__doc__'])\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["_Terminated", [15], [], True, "_UnparsableStat",
+             "unparsable stat line, session unknown: /proc/46/stat"])
+            + " [true] " + json.dumps({"active": False, "pending": None}) + " [] True\n", detail)
+
+    def test_run_shell_stubbed_retry_jump_back_window_is_stated(self) -> None:
+        """The retry jump-back window of run's final carry is stated, not closed, with its outcome and the
+        reason: the module docstring says an exception raised at that jump ends the run with no note, that its
+        __context__ is the exception the final carry began with, whose chain holds the lines, and why it is not
+        closed; run's comment says the same. The retry is still a loop whose try ends before its jump back.
+        The final carry of _run_shells is stated the same way, in the docstring and beside its except clause."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = tool.split('"""', 2)[1]
+        for phrase in ("or in the retry's except body (its store of the exception that interrupted the carry), both "
+                       "outside the\n",
+                       "retry's try, is exit table row X11. A handler around that jump would need a jump back of its "
+                       "own, outside\n"):
+            self.assertIn(phrase, doc)
+        self.assertIn("# row X11. Stated, not closed: any handler around this jump needs a\n", tool)
+        for phrase in ("That retry covers run's own carry only: an exception raised during the final carry of "
+                       "_run_shells (its\n",
+                       "_carry_shell_lines(late, ...) at the end of a shell's cleanup; a signal handler run there, for "
+                       "example)\nis exit table row X10.\n",
+                       "of _run_shells passes through that finally unchanged only when run's cleanup completes normally "
+                       "(a\n",
+                       "pending deferred signal makes _drain_deferral raise a termination that replaces it, and the "
+                       "line is\n"):
+            self.assertIn(phrase, doc)
+        self.assertIn("            except BaseException as late:\n"
+                      "                # An exception raised during this carry (a signal handler run there, for\n"
+                      "                # example) is exit table row X10. Stated, not closed: this carry has no\n", tool)
+        self.assertEqual(tool.count("            while True:\n                try:\n"
+                                    "                    shells_met, exc, seen = [], carried, set()\n"), 1)
+
+    def test_run_shell_stubbed_record_pop_raise_keeps_the_line(self) -> None:
+        """An exception raised in the finally that pops a shell's records, once the settlement has raised that
+        shell's unparsable stat line, leaves the run with that line as its note. A clone of
+        run calls a clone of _run_shells with no real process: its Popen is a stand-in shell (pid 41) whose
+        every wait reaps it, its grace loop raises for entry 46, its _kill_session returns True and its
+        _SCAN_UNREAD is a dict whose pop raises KeyboardInterrupt. The run ends with that KeyboardInterrupt,
+        noted with entry 46 and the shell and chained over the line, where a carry that covers only the
+        cleanup's own body ends it with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class PopRaises(dict):\n"
+            "    def pop(self, *args):\n"
+            "        raise KeyboardInterrupt('record pop')\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True, _SCAN_UNREAD=PopRaises())\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "               type(exc.__context__).__name__]\n"
+            "print('RESULT', json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = "unparsable stat line, session unknown: /proc/46/stat; containment of the bash run could not be shown"
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["KeyboardInterrupt", "record pop", [note], "_UnparsableStat"]) + "\n", detail)
+
+    def test_run_shell_stubbed_output_close_raise_keeps_the_line(self) -> None:
+        """An exception raised as a shell's captured output files close, once the settlement has raised that
+        shell's unparsable stat line, leaves the run with that line as its note. The clones
+        of run and _run_shells are those of test_run_shell_stubbed_record_pop_raise_keeps_the_line with the
+        tool's own _SCAN_UNREAD; the open of _run_shells opens each file for writing through a wrapper whose
+        exit closes it and then, for the case's file (stdout or stderr), raises KeyboardInterrupt. Each case
+        ends with that KeyboardInterrupt, noted with entry 46 and the shell and chained over the line, where
+        a carry that covers only the cleanup's own body ends it with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "case = ['']\n"
+            "class Closing:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return self.fh\n"
+            "    def __exit__(self, *exc):\n"
+            "        self.fh.close()\n"
+            "        if self.fh.name.endswith('/' + case[0]):\n"
+            "            raise KeyboardInterrupt(case[0] + ' close')\n"
+            "def opener(path, *args, **kwargs):\n"
+            "    fh = real_open(path, *args, **kwargs)\n"
+            "    return Closing(fh) if args[:1] == ('w',) else fh\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True, open=opener)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "for name in ('stdout', 'stderr'):\n"
+            "    case[0] = name\n"
+            "    try:\n"
+            "        run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "                   type(exc.__context__).__name__]\n"
+            "    print('RESULT', name, json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = "unparsable stat line, session unknown: /proc/46/stat; containment of the bash run could not be shown"
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {name} " + json.dumps(["KeyboardInterrupt", name + " close", [note], "_UnparsableStat"]) + "\n"
+            for name in ("stdout", "stderr")), detail)
+
+    def test_run_shell_stubbed_final_carry_raise_with_no_pending_signal_ends_with_no_note(self) -> None:
+        """The stated exit of a raise during the final carry of _run_shells when no deferred signal is pending,
+        so run's cleanup completes normally: a clone of run calls a clone of
+        _run_shells with no real process (the stand-ins of test_run_shell_stubbed_record_pop_raise_keeps_the_line,
+        with the tool's own _SCAN_UNREAD); its grace loop raises for entry 46, its _rmtree removes the temp dir
+        and then raises KeyboardInterrupt('removal'), and its _carry_shell_lines raises
+        KeyboardInterrupt('final carry') when handed that removal exception, as a signal handler run during the
+        final carry would. As the module docstring states, the new exception replaces late and ends the run
+        with no note, run's carry does not reach it, and the line stays on its __context__ chain: the removal
+        exception, with no note, chained over the _UnparsableStat for entry 46."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "real_rmtree, real_carry = t['_rmtree'], t['_carry_shell_lines']\n"
+            "def rmtree(path):\n"
+            "    real_rmtree(path)\n"
+            "    raise KeyboardInterrupt('removal')\n"
+            "def carry(active, shell, caller_exception):\n"
+            "    if isinstance(active, KeyboardInterrupt) and str(active) == 'removal':\n"
+            "        raise KeyboardInterrupt('final carry')\n"
+            "    return real_carry(active, shell, caller_exception)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True, _rmtree=rmtree, _carry_shell_lines=carry)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "def chain(exc):\n"
+            "    out = []\n"
+            "    while exc is not None:\n"
+            "        out.append([type(exc).__name__, getattr(exc, '__notes__', [])])\n"
+            "        exc = exc.__context__\n"
+            "    return out\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [str(exc), str(exc.__context__), chain(exc)]\n"
+            "    line = exc.__context__.__context__\n"
+            "    outcome.append(getattr(line, 'entries', None) or list(line.args[:1]))\n"
+            "print('RESULT', json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["final carry", "removal",
+             [["KeyboardInterrupt", []], ["KeyboardInterrupt", []], ["_UnparsableStat", []]],
+             ["46"]]) + "\n", detail)
+
+    def test_run_shell_stubbed_final_carry_raise_under_a_raising_handler_restore_is_noted(self) -> None:
+        """Row X10's handler-restore case: the final carry of _run_shells raises as in
+        test_run_shell_stubbed_final_carry_raise_with_no_pending_signal_ends_with_no_note, and run's restore of
+        the SIGINT handler raises RuntimeError('restore') (run is cloned with a stand-in signal module that keeps
+        handlers in a dict). That RuntimeError replaces the final carry's exception, run's carry catches it and
+        notes the line on it, and its chain holds the final carry's exception, the removal exception and the
+        _UnparsableStat for entry 46. The row states this outcome."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("a handler restore of run that raises replaces it the same way, and run's carry notes the line "
+                      "on that exception, row X3)", doc)
+        self.assertIn("X3 | an unparsable stat line while an exception of the run's own propagates | that exception | "
+                      "one note per shell naming the entries | nothing, except that an exception raised in the "
+                      "settlement's finally while it pops the five records (_KILL_UNKNOWN, _SCAN_UNREAD, "
+                      "_KILL_ALIVE, _SCAN_UNPARSED and _SCAN_PARSED_LATER, in that order) leaves each record it "
+                      "had not yet popped | runs | restored", doc)
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "real_rmtree, real_carry = t['_rmtree'], t['_carry_shell_lines']\n"
+            "def rmtree(path):\n"
+            "    real_rmtree(path)\n"
+            "    raise KeyboardInterrupt('removal')\n"
+            "def carry(active, shell, caller_exception):\n"
+            "    if isinstance(active, KeyboardInterrupt) and str(active) == 'removal':\n"
+            "        raise KeyboardInterrupt('final carry')\n"
+            "    return real_carry(active, shell, caller_exception)\n"
+            "class Handlers:\n"
+            "    SIGINT, SIGTERM, SIGHUP = signal.SIGINT, signal.SIGTERM, signal.SIGHUP\n"
+            "    def __init__(self):\n"
+            "        self.table = {self.SIGINT: 'int', self.SIGTERM: 'term', self.SIGHUP: 'hup'}\n"
+            "    def getsignal(self, sig):\n"
+            "        return self.table[sig]\n"
+            "    def signal(self, sig, handler):\n"
+            "        if sig == self.SIGINT and handler == 'int':\n"
+            "            raise RuntimeError('restore')\n"
+            "        old, self.table[sig] = self.table[sig], handler\n"
+            "        return old\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True, _rmtree=rmtree, _carry_shell_lines=carry)\n"
+            "run = clone('run', _run_shells=shells, signal=Handlers())\n"
+            "def chain(exc):\n"
+            "    out = []\n"
+            "    while exc is not None:\n"
+            "        out.append([type(exc).__name__, str(exc), getattr(exc, '__notes__', [])])\n"
+            "        exc = exc.__context__\n"
+            "    return out\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = chain(exc)\n"
+            "print('RESULT', json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = "unparsable stat line, session unknown: /proc/46/stat; containment of the bash run could not be shown"
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            [["RuntimeError", "restore", [note]], ["KeyboardInterrupt", "final carry", []],
+             ["KeyboardInterrupt", "removal", []],
+             ["_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat", []]]) + "\n", detail)
+
+    def test_run_shell_stubbed_raise_in_the_carry_retry_except_body_is_a_stated_exit(self) -> None:
+        """Row X11, its except-body case, driven: run's restore of the SIGINT handler raises
+        RuntimeError('restore') over an exception of _run_shells that carries the line of entry 46, so run's
+        carry begins with it; the carry raises KeyboardInterrupt('carry') once, and a trace function raises
+        RuntimeError('except body') at the line event of the retry's except body (its store of that
+        KeyboardInterrupt). The run ends with that RuntimeError, no note, chained over the KeyboardInterrupt,
+        whose __context__ is the exception the carry began with; the row states this outcome. The jump back
+        itself, which a line event does not reach, is not driven here."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("X11 | at the jump back to run's carry retry, or in that retry's except body | that exception | "
+                      "no note; its __context__ chain holds the exception the final carry began with", doc)
+        result = self._run_shell_stubbed_unparsable_member(
+            "def shells(*args):\n"
+            "    line = t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "    line.shell, line.results = 'bash', []\n"
+            "    try:\n"
+            "        raise line\n"
+            "    except BaseException:\n"
+            "        raise KeyboardInterrupt('shells')\n"
+            "class Handlers:\n"
+            "    SIGINT, SIGTERM, SIGHUP = signal.SIGINT, signal.SIGTERM, signal.SIGHUP\n"
+            "    def __init__(self):\n"
+            "        self.table = {self.SIGINT: 'int', self.SIGTERM: 'term', self.SIGHUP: 'hup'}\n"
+            "    def getsignal(self, sig):\n"
+            "        return self.table[sig]\n"
+            "    def signal(self, sig, handler):\n"
+            "        if sig == self.SIGINT and handler == 'int':\n"
+            "            raise RuntimeError('restore')\n"
+            "        old, self.table[sig] = self.table[sig], handler\n"
+            "        return old\n"
+            "real_carry = t['_carry_shell_lines']\n"
+            "calls = []\n"
+            "def carry(active, shell, caller_exception):\n"
+            "    calls.append(str(active))\n"
+            "    if len(calls) == 1:\n"
+            "        raise KeyboardInterrupt('carry')\n"
+            "    return real_carry(active, shell, caller_exception)\n"
+            "run = clone('run', _run_shells=shells, signal=Handlers(), _carry_shell_lines=carry)\n"
+            "source = open(sys.argv[1], encoding='utf-8').read().splitlines()\n"
+            "store = [n + 1 for n, text in enumerate(source) if text.strip() == 'carried = again']\n"
+            "assert len(store) == 1, store\n"
+            "def local(frame, event, arg):\n"
+            "    if event == 'line' and frame.f_lineno == store[0]:\n"
+            "        sys.settrace(None)\n"
+            "        frame.f_trace = None\n"
+            "        raise RuntimeError('except body')\n"
+            "    return local\n"
+            "def tracer(frame, event, arg):\n"
+            "    return local if frame.f_code is run.__code__ else None\n"
+            "def chain(exc):\n"
+            "    out = []\n"
+            "    while exc is not None:\n"
+            "        out.append([type(exc).__name__, str(exc), getattr(exc, '__notes__', [])])\n"
+            "        exc = exc.__context__\n"
+            "    return out\n"
+            "sys.settrace(tracer)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = chain(exc)\n"
+            "finally:\n"
+            "    sys.settrace(None)\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(calls))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            [["RuntimeError", "except body", []], ["KeyboardInterrupt", "carry", []],
+             ["RuntimeError", "restore", []], ["KeyboardInterrupt", "shells", []],
+             ["_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat", []]])
+            + " " + json.dumps(["restore"]) + "\n", detail)
+
+    def test_run_shell_stubbed_raise_between_popen_and_the_try_is_a_stated_exit(self) -> None:
+        """Row X16, driven: a clone of run calls a clone of _run_shells whose Popen is a stand-in shell (pid 41)
+        that records each wait, whose _kill_session records each call and whose _rmtree records the removal; a
+        trace function raises KeyboardInterrupt('window') at the line event of the statement between Popen and
+        the try that follows, as a caller's handler for another signal could. The run ends with that
+        KeyboardInterrupt and no note; the shell is neither killed nor reaped, the temp dir is removed, the
+        caller's mask is back and the records are empty, as the row states."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("X16 | a trace function raising after Popen has "
+                      "created the shell and before the try that follows, or a signal handler or trace function "
+                      "raising after the entry to that try's finally and before the protected try in it "
+                      "(inferred from the control flow for a signal handler; the stand-in case, a trace function "
+                      "raising at either point, is driven by its tests) | that exception, or one chained over it, "
+                      "no result | none | nothing | the shell is neither killed with its session nor reaped; the temp "
+                      "dir removal, mask restore and drain still run | restored", doc)
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, kills, removed = [], [], []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "real_rmtree = t['_rmtree']\n"
+            "def rmtree(path):\n"
+            "    real_rmtree(path)\n"
+            "    removed.append(not os.path.exists(path))\n"
+            "def kill_session(sid):\n"
+            "    kills.append(sid)\n"
+            "    return True\n"
+            "shells = clone('_run_shells', subprocess=popen, _kill_session=kill_session, _rmtree=rmtree)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "source = open(sys.argv[1], encoding='utf-8').read().splitlines()\n"
+            "window = [n + 1 for n, text in enumerate(source) if text.strip() == 'timed_out = \"\"']\n"
+            "assert len(window) == 1, window\n"
+            "def local(frame, event, arg):\n"
+            "    if event == 'line' and frame.f_lineno == window[0]:\n"
+            "        sys.settrace(None)\n"
+            "        frame.f_trace = None\n"
+            "        raise KeyboardInterrupt('window')\n"
+            "    return local\n"
+            "def tracer(frame, event, arg):\n"
+            "    return local if frame.f_code is shells.__code__ else None\n"
+            "mask_before = signal.pthread_sigmask(signal.SIG_BLOCK, [])\n"
+            "sys.settrace(tracer)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "finally:\n"
+            "    sys.settrace(None)\n"
+            "mask_after = signal.pthread_sigmask(signal.SIG_BLOCK, [])\n"
+            "print('RESULT', json.dumps(outcome), json.dumps([waits, kills, removed]),\n"
+            "      mask_before == mask_after, json.dumps([t['_SCAN_UNREAD'], t['_KILL_UNKNOWN']]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(["KeyboardInterrupt", "window", []]) + " "
+                         + json.dumps([[], [], [True]]) + " True " + json.dumps([{}, {}]) + "\n", detail)
+
+    def test_run_shell_stubbed_cleanup_deadline_reasons_and_bound(self) -> None:
+        """The reason _cleanup_deadline_check returns for each outcome, and the hang bound it gives the outer
+        supervisor. A clone of the check runs with no real process: its clock is a counter that starts at
+        100.0, its _supervise_test is a stand-in that advances the clock by the calibration time for the
+        calibration call and by 5.0 for the wrapper call, writes the ready file (sid 4242 and a time 1.25 s
+        after the wrapper call starts) when the case asks for it, and returns the case's (rc, failure, clean).
+        A failure with no ready file written is the before-kill stage. Once the ready file was written, a
+        failure naming the check in flight is the outer deadline even when a cleanup suffix follows, and a
+        failure naming only a cleanup or an unverified cleanup is the cleanup stage. The calibration reason
+        carries only rc, failure, clean and elapsed. The bound is the base
+        plus the scale times the calibration time, capped, and the outer ceiling is that bound plus 7.0."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import tempfile as real_tempfile\n"
+            "now = [100.0]\n"
+            "clock = types.SimpleNamespace(monotonic=lambda: now[0])\n"
+            "files = []\n"
+            "def named(*args, **kwargs):\n"
+            "    files.append(real_tempfile.NamedTemporaryFile())\n"
+            "    return files[-1]\n"
+            "def check(calibration, outcome, ready, measured=0.5):\n"
+            "    calls = []\n"
+            "    def supervise(callback, ceiling, name, cleanup_wait=None, report=True):\n"
+            "        calls.append([name, ceiling, cleanup_wait, report])\n"
+            "        if name == 'cleanup-hang-calibration':\n"
+            "            now[0] += measured\n"
+            "            return calibration\n"
+            "        if ready:\n"
+            "            files[-1].write(('4242 %.3f' % (now[0] + 1.25)).encode())\n"
+            "            files[-1].flush()\n"
+            "        now[0] += 5.0\n"
+            "        return outcome\n"
+            "    now[0] = 100.0\n"
+            "    probe = clone('_cleanup_deadline_check', _supervise_test=supervise, time=clock,\n"
+            "                  tempfile=types.SimpleNamespace(NamedTemporaryFile=named))\n"
+            "    return [probe(), calls]\n"
+            "ok, wrap = (0, None, True), 'cleanup-hang-regression-wrapper'\n"
+            "cases = [\n"
+            "    check((1, None, True), ok, True),\n"
+            "    check(ok, (1, wrap + ':in-flight=unrecorded', True), False),\n"
+            "    check(ok, (1, wrap + ':in-flight=cleanup-hang', True), True),\n"
+            "    check(ok, (1, wrap + ':in-flight=cleanup-hang:cleanup', False), True),\n"
+            "    check(ok, (2, None, True), True),\n"
+            "    check(ok, (3, None, True), True),\n"
+            "    check(ok, (1, wrap + ':cleanup', False), True),\n"
+            "    check(ok, (1, wrap + ':cleanup-unverified', False), True),\n"
+            "    check(ok, (0, None, True), True),\n"
+            "    check(ok, (0, None, True), True, measured=6.0),\n"
+            "    check(ok, (2, None, True), True, measured=10.0),\n"
+            "]\n"
+            "print('RESULT', json.dumps(cases))\n"
+            "print('DOC', ' '.join(t['_cleanup_deadline_check'].__doc__.split()))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        wrap = "cleanup-hang-regression-wrapper"
+        calibration = ["cleanup-hang-calibration", 30.0, 5.0, False]
+        def calls(ceiling):
+            return [calibration, [wrap, ceiling, 5.0, False]]
+        def reason(stage, rc, failure, clean, ready_at, hang="5.00", measured="0.50", elapsed="5.50"):
+            return (f"stage={stage} rc={rc} failure={failure} clean={clean} elapsed={elapsed}s "
+                    f"ready-at={ready_at} hang-limit={hang}s calibration={measured}s")
+        expected = [
+            ["stage=calibration rc=1 failure=None clean=True elapsed=0.50s", [calibration]],
+            [reason("before-kill", 1, wrap + ":in-flight=unrecorded", True, "never"), calls(12.0)],
+            [reason("outer-deadline", 1, wrap + ":in-flight=cleanup-hang", True, "1.75s"), calls(12.0)],
+            [reason("outer-deadline", 1, wrap + ":in-flight=cleanup-hang:cleanup", False, "1.75s"), calls(12.0)],
+            [reason("inner-deadline-missing", 2, None, True, "1.75s"), calls(12.0)],
+            [reason("inner-deadline-unnamed", 3, None, True, "1.75s"), calls(12.0)],
+            [reason("cleanup", 1, wrap + ":cleanup", False, "1.75s"), calls(12.0)],
+            [reason("cleanup", 1, wrap + ":cleanup-unverified", False, "1.75s"), calls(12.0)],
+            ["", calls(12.0)],
+            ["", calls(34.0)],
+            [reason("inner-deadline-missing", 2, None, True, "11.25s", hang="30.00", measured="10.00",
+                    elapsed="15.00"), calls(37.0)],
+        ]
+        lines = result.stdout.splitlines()
+        self.assertEqual(len(lines), 2, detail)
+        self.assertEqual(lines[0], "RESULT " + json.dumps(expected), detail)
+        self.assertIn("a reason naming the stage reached (calibration, before-kill, outer-deadline, cleanup, "
+                      "inner-deadline-missing, inner-deadline-unnamed or probe-exit-N, N being the probe's exit "
+                      "code)", lines[1], detail)
+
+    def test_run_shell_stubbed_settlement_except_raise_is_a_stated_exit(self) -> None:
+        """The stated exit of a second raise inside the settlement's except clause: a clone of run calls a
+        clone of _run_shells with no real process (the stand-ins of
+        test_run_shell_stubbed_record_pop_raise_keeps_the_line); its grace loop raises for entry 46, its
+        _kill_session records entry 47 in the tool's _SCAN_UNREAD only, its _shell_unread raises
+        KeyboardInterrupt('settlement') at its first call (the settlement's read of the records), and its
+        _carry_shell_lines raises KeyboardInterrupt('settlement except') when handed that exception (the
+        except clause's carry). As the module docstring states, the second exception replaces the one the
+        except was carrying, the finally pops the five records, so entry 47, which the records alone held,
+        is lost, and the line already raised along its chain (entry 46) is carried by the per-shell carry:
+        the run ends with the second KeyboardInterrupt, noted with entry 46 and the shell only, and no record
+        is left for the shell."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "def kill_session(sid):\n"
+            "    t['_SCAN_UNREAD'].setdefault(sid, []).append('47')\n"
+            "    return True\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "real_unread, real_carry = t['_shell_unread'], t['_carry_shell_lines']\n"
+            "first = []\n"
+            "def unread(sid):\n"
+            "    if not first:\n"
+            "        first.append(sid)\n"
+            "        raise KeyboardInterrupt('settlement')\n"
+            "    return real_unread(sid)\n"
+            "def carry(active, shell, caller_exception):\n"
+            "    if isinstance(active, KeyboardInterrupt) and str(active) == 'settlement':\n"
+            "        raise KeyboardInterrupt('settlement except')\n"
+            "    return real_carry(active, shell, caller_exception)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=kill_session, _shell_unread=unread, _carry_shell_lines=carry)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "def chain(exc):\n"
+            "    out = []\n"
+            "    while exc is not None:\n"
+            "        out.append(type(exc).__name__)\n"
+            "        exc = exc.__context__\n"
+            "    return out\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [str(exc), getattr(exc, '__notes__', []), str(exc.__context__), chain(exc)]\n"
+            "records = [41 in t[name] for name in ('_KILL_UNKNOWN', '_SCAN_UNREAD', '_KILL_ALIVE')]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(records), first)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = "unparsable stat line, session unknown: /proc/46/stat; containment of the bash run could not be shown"
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["settlement except", [note], "settlement",
+             ["KeyboardInterrupt", "KeyboardInterrupt", "_UnparsableStat"]])
+            + " " + json.dumps([False, False, False]) + " [41]\n", detail)
+        self.assertNotIn("/proc/47/stat", result.stdout, detail)
+
+    def test_run_shell_stubbed_docstrings_carry_no_backlog_or_round_tags(self) -> None:
+        """The module docstring and the _own_wait_timeout docstring of run-shell-stubbed.py keep their
+        technical text with no backlog tag, no round letter tag and no revision-history sentence about what an
+        earlier round listed."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        docs = [tool.split('"""', 2)[1], tool.split("def _own_wait_timeout(", 1)[1].split('"""', 2)[1]]
+        for doc in docs:
+            self.assertNotRegex(doc, r"\b3b8[0-9]{2}\b")
+            self.assertNotRegex(doc, r"\b[Rr]ound\s+z[a-z]\b")
+            self.assertNotRegex(doc, r"\bzd\s+listed\b")
+        self.assertIn("a caller's frame whose local variable self is bound to the shell does not qualify, and\n",
+                      docs[0])
+        self.assertIn("named self alone, which a caller's frame can bind to p, does not qualify it. A deadline",
+                      docs[1])
+        self.assertIn("not by a signal handler run during it. Popen.wait raises its own", docs[1])
+
+    def test_run_shell_stubbed_comments_and_tests_carry_no_backlog_or_round_tags(self) -> None:
+        """The code comments of run-shell-stubbed.py and the source of every run_shell_stubbed method of this
+        class (docstrings, comments, subTest labels and assertion strings) keep their technical text with no
+        backlog tag, no round letter tag and no revision-history phrase about what an earlier round listed or
+        took as closed."""
+        import inspect
+        tag = re.compile(r"\b3b8[0-9]{2}\b|\b[Rr]ound\s+z[a-z]\b|\bz[a-z]\s+(?:listed|took)\b")
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        comments = [line.strip() for line in tool.splitlines() if line.lstrip().startswith("#")]
+        self.assertGreater(len(comments), 20)
+        for line in comments:
+            with self.subTest(comment=line):
+                self.assertIsNone(tag.search(line))
+        for phrase in ("# One carry for every exit. An exception already in",
+                       "# only, not the final carry of _run_shells, which is exit table row X10.",
+                       "# example) is exit table row X10. Stated, not closed: this carry has no",
+                       "# retry, and a retry's own jump back would be such a point again (exit table",
+                       "# row X12)."):
+            self.assertIn(phrase, comments)
+        names = sorted(n for n in vars(type(self)) if "run_shell_stubbed" in n)
+        self.assertGreater(len(names), 10)
+        for name in names:
+            with self.subTest(method=name):
+                self.assertIsNone(tag.search(inspect.getsource(getattr(type(self), name))))
+
+    def test_run_shell_stubbed_pass_through_sentences_carry_the_cleanup_qualifier(self) -> None:
+        """Every sentence of run-shell-stubbed.py, in its module docstring or its comments, saying that an
+        exception coming out of _run_shells passes through run's finally unchanged says it holds only when run's
+        cleanup completes normally, and that a pending deferred signal makes _drain_deferral raise a termination
+        that replaces that exception. The docstring states it once, in row X10, and the two comments that
+        stated it point to that row instead, as does the row its handler-restore case."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        comments = " ".join(" ".join(line.strip().lstrip("#").split())
+                            for line in tool.splitlines() if line.lstrip().startswith("#"))
+        claim = re.compile(r"passes through (?:that|the) finally (?:above )?unchanged")
+        qualifier = " only when run's cleanup completes normally"
+        self.assertIn("This retry covers this carry only, not the final carry of _run_shells, which is exit "
+                      "table row X10.", comments)
+        self.assertIn("An exception raised during this carry (a signal handler run there, for example) is exit "
+                      "table row X10.", comments)
+        self.assertIn("then noted on that termination; a handler restore of run that raises replaces it the same "
+                      "way, and run's carry notes the line on that exception, row X3)", doc)
+        for text, expected in ((doc, 1), (comments, 0)):
+            found = list(claim.finditer(text))
+            self.assertEqual(len(found), expected)
+            for match in found:
+                with self.subTest(sentence=text[match.start():match.end() + len(qualifier)]):
+                    self.assertEqual(text[match.end():match.end() + len(qualifier)], qualifier)
+                    self.assertIn("a pending deferred signal makes _drain_deferral raise a termination that "
+                                  "replaces it", text[match.end():match.end() + 200])
+
+    def test_run_shell_stubbed_iteration_carry_and_settlement_residual_are_stated(self) -> None:
+        """The module docstring states the per-shell carry of an exception already in flight
+        and lists the settlement-except residual: an exception raised inside
+        the settlement's except before its carry is done replaces it, and entries the records alone held are
+        lost when the finally pops them. The comment beside that except points to the docstring, and the carry
+        reads the exception in flight at the top of the per-shell cleanup, before the temp dir removal."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        for phrase in ("An exception of the run's own that leaves a shell's iteration already in flight (one raised in "
+                       "the finally that pops the shell's records, or at the close of its captured output files, for "
+                       "example) is carried that shell's lines at the top of the per-shell cleanup, before the temp dir "
+                       "removal (exit table row X3)",
+                       "An exception raised inside the settlement's except clause before its carry is done is exit "
+                       "table row X6.",
+                       "X6 | inside the settlement's except clause, before its carry is done | the new exception | no "
+                       "note for entries the records alone held; lines already raised along its chain are noted on it by the "
+                       "per-shell carry"):
+            self.assertIn(phrase, doc)
+        self.assertIn("# is exit table row X6, and a trace function raising at the try\n", tool)
+        self.assertEqual(tool.count("                        in_flight = sys.exception()\n"
+                                    "                        if in_flight is not None and in_flight is not "
+                                    "caller_exception:\n"
+                                    "                            _carry_shell_lines(in_flight, shell, "
+                                    "caller_exception)\n"
+                                    "                    finally:\n"
+                                    "                        _rmtree(tmp)\n"), 1)
+
+    def test_run_shell_stubbed_exit_statements_point_to_the_exit_table(self) -> None:
+        """The exits of a shell's cleanup in run-shell-stubbed.py are stated once, in the exit table of the
+        module docstring (rows X1 to X18); every other comment or docstring names a row instead. Each
+        pointer ("exit table row X8", "exit table rows X6 and X7") must name a row the table has, and no
+        text outside the module docstring may state an outcome the table owns: that the three signals stay
+        blocked in the calling thread, that a cleanup is skipped, that entries are left only in the
+        records, that the records are popped whether or not the entries were settled or carried, or that an
+        exception loses the entries, ends the run with no note, carries no note or none of the run's entries,
+        replaces late, is left without the note, takes a line as its note or always survives. The earlier
+        checks stay: no sentence says the records are popped only
+        once the entries are settled, and loss-denial wording (never, not, cannot, no longer, no, nothing,
+        none or a word ending in n't followed within four words, with spaces or commas between them, by
+        lost, lose or loses; without loss; is never dropped) is rejected anywhere in the tool's text, as no
+        recorded entry is safe from rows X6 and X7. The sentences at the arm of _SCAN_UNREAD, in the
+        _shell_unread docstring and in the _kill_session docstring are pinned with their pointers."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        flat = " ".join(" ".join(line.strip().lstrip("#").split()) for line in tool.splitlines())
+        module_doc = tool.split('"""', 2)[1]
+        table = module_doc.split("\nExit table.", 1)[1].split("\n\n", 1)[0]
+        rows = re.findall(r"^(X\d+) \|", table, re.MULTILINE)
+        self.assertEqual(rows, [f"X{n}" for n in range(1, 19)])
+        for claim in ("does not lose", "pops the three only once the entries are settled",
+                      "and only then pops it", "once the reap has run and the entries are settled"):
+            with self.subTest(claim=claim):
+                self.assertNotIn(claim, flat)
+        outside = tool.replace(module_doc, "", 1)
+        flat_outside = " ".join(" ".join(line.strip().lstrip("#").split()) for line in outside.splitlines())
+        pointer = re.compile(r"\bexit table rows? (X\d+(?:(?:, | and | or )X\d+)*)")
+        named = pointer.findall(flat_outside)
+        self.assertGreaterEqual(len(named), 6, named)
+        for ids in named:
+            for row in re.findall(r"X\d+", ids):
+                with self.subTest(pointer=ids, row=row):
+                    self.assertIn(row, rows)
+        outcome = re.compile(r"\bstays? blocked in the calling thread\b"
+                             r"|\bskips? the (?:whole |per-shell )?cleanup\b"
+                             r"|\bcleanup (?:of that shell )?is skipped\b"
+                             r"|\bonly in the (?:module's )?records\b"
+                             r"|\bwhether or not (?:they|the entries) were settled or carried\b"
+                             r"|\bloses (?:it|them|those|the entries)\b"
+                             r"|\bends the run with no note\b|\bcarries no note\b|\breplaces late\b"
+                             r"|\bwithout the note\b|\bcarries none of the run's entries\b"
+                             r"|\bas its note\b|\balways survives?\b", re.IGNORECASE)
+        for sample in ("SIGHUP, SIGINT and SIGTERM stay blocked in the calling thread",
+                       "skips the per-shell cleanup", "leaves them only in the records",
+                       "pops it whether or not they were settled or carried", "loses the entries",
+                       "that exception ends the run with no note", "the exception carries no note",
+                       "replaces late and ends the run", "the line is left without the note",
+                       "carries none of the run's entries", "with the entries and the shell as its note",
+                       "Settled _SCAN_UNREAD entries always survive every cleanup exception."):
+            with self.subTest(outcome=sample):
+                self.assertIsNotNone(outcome.search(sample))
+        found = outcome.search(flat_outside)
+        self.assertIsNone(found, found and flat_outside[max(0, found.start() - 200):found.end() + 40])
+        unread = " ".join(tool.split("def _shell_unread(", 1)[1].split('"""', 2)[1].split())
+        self.assertIn("pops the three, then _SCAN_UNPARSED and _SCAN_PARSED_LATER, in the settlement's finally "
+                      "once that finally is entered; see exit table rows X6 and X7.", unread)
+        self.assertIn("pops it in the settlement's finally once that finally is entered (exit table rows X6 and "
+                      "X7).", flat)
+        self.assertIn("this scan removes an entry only if this scan recorded it, once its line parses, and on no "
+                      "other path (an entry an earlier scan recorded stays recorded, so the run fails closed). A "
+                      "later exception is exit table row X3, subject to exit table rows X6, X7 and X12.", flat)
+        members = " ".join(tool.split("def _session_members(", 1)[1].split('"""', 2)[1].split())
+        for sentence in ("(a later exception in the cleanup is exit table row X3, subject to exit table rows X6, X7 "
+                         "and X12)",
+                         "The window between the read's return and the append is exit table row X13, the "
+                         "parse of a line that parses and the removal after it exit table row X17, and an "
+                         "OSError of the open or the read exit table row X14."):
+            with self.subTest(members=sentence[:40]):
+                self.assertIn(sentence, members)
+        self.assertIn("The caller-handler residual, not an exit table row (row X16 covers a trace function "
+                      "here): a Python signal handler the caller installed for a signal other "
+                      "than the three can run between Popen and the try below, and Popen's own error path "
+                      "neither kills nor waits for a child it created (read in the Python 3.14.4 source).",
+                      flat)
+        denial = re.compile(r"\b(?:never|not|cannot|no longer|no|nothing|none|\w+n't)(?:[\s,]+[\w'-]+){0,4}?"
+                            r"[\s,]+(?:lost|lose|loses)\b|\bwithout (?:any )?loss\b"
+                            r"|\b(?:is|are) (?:never|not) dropped\b", re.IGNORECASE)
+        for sample in ("is never lost", "A settled _SCAN_UNREAD entry cannot ever be lost.",
+                       "is not at any point lost", "won't be lost", "no longer gets lost",
+                       "A settled _SCAN_UNREAD entry is never, under any circumstances, lost.",
+                       "Settled below, so no recorded entry is lost.", "nothing is lost",
+                       "none of them is lost"):
+            with self.subTest(sample=sample):
+                self.assertIsNotNone(denial.search(sample))
+        found = denial.search(flat)
+        self.assertIsNone(found, found and flat[max(0, found.start() - 200):found.end() + 40])
+        kill = " ".join(tool.split("def _kill_session(", 1)[1].split('"""', 2)[1].split())
+        self.assertIn("and _run_shells settles both once the reap has run, subject to exit table rows X6 and "
+                      "X7.", kill)
+        self.assertIn("so one an interrupted scan read is settled by the finally below once the reap has run, "
+                      "subject to exit table rows X6 and X7.", flat)
+
+    def test_run_shell_stubbed_caller_reraise_at_record_pop_or_output_close_is_a_stated_exit(self) -> None:
+        """The stated exit of a caller re-raise in a shell's iteration: when the finally that pops a shell's
+        records, or the close of its captured stdout, re-raises the caller's own handled exception once the
+        settlement has raised that shell's unparsable stat line, that exception ends the run with no note and
+        the line is its __context__ alone; the module docstring names both points in the caller re-raise
+        residual and limits the per-shell carry to the run's own exceptions. The
+        clones are those of test_run_shell_stubbed_record_pop_raise_keeps_the_line, called while the caller
+        handles a RuntimeError, with a records dict whose pop, or an output wrapper whose close, raises it."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "caller = RuntimeError('caller')\n"
+            "class PopRaises(dict):\n"
+            "    def pop(self, *args):\n"
+            "        raise caller\n"
+            "class Closing:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return self.fh\n"
+            "    def __exit__(self, *exc):\n"
+            "        self.fh.close()\n"
+            "        if self.fh.name.endswith('/stdout'):\n"
+            "            raise caller\n"
+            "def opener(path, *args, **kwargs):\n"
+            "    fh = real_open(path, *args, **kwargs)\n"
+            "    return Closing(fh) if args[:1] == ('w',) else fh\n"
+            "for name, bound in (('pop', {'_SCAN_UNREAD': PopRaises()}), ('close', {'open': opener})):\n"
+            "    caller.__context__ = None\n"
+            "    shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "                   _kill_session=lambda sid: True, **bound)\n"
+            "    run = clone('run', _run_shells=shells)\n"
+            "    try:\n"
+            "        try:\n"
+            "            raise caller\n"
+            "        except RuntimeError:\n"
+            "            run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, exc is caller, getattr(exc, '__notes__', []),\n"
+            "                   type(exc.__context__).__name__, str(exc.__context__)]\n"
+            "    print('RESULT', name, json.dumps(outcome))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        expected = json.dumps(["RuntimeError", True, [], "_UnparsableStat",
+                               "unparsable stat line, session unknown: /proc/46/stat"])
+        self.assertEqual(result.stdout, f"RESULT pop {expected}\nRESULT close {expected}\n", detail)
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        for phrase in ("re-raised over a line of the run is exit table row X5 when a step after that shell's kill, reap "
+                       "and settlement re-raises it (the finally that pops that shell's records or the close of its "
+                       "captured output files, the temp dir removal, the mask restore or a drain of _run_shells, or a "
+                       "handler restore or the drain of run)",
+                       "An exception of the run's own that leaves a shell's iteration already in flight",
+                       "The caller's own handled exception re-raised at either of those points is exit table row X5.",
+                       "X5 | caller-handler residual, as observed: the caller's own handled exception re-raised after "
+                       "a shell's settlement (record pop, output "
+                       "close, temp dir removal, mask restore, a drain or a handler restore of run), or a deferred "
+                       "SIGTERM or SIGHUP drained, or another exception of the run's own raised, after such a re-raise | "
+                       "that exception, or the run's own _Terminated or that other exception chained over the caller's "
+                       "| no note; the line only on the __context__ chain of the caller's exception | nothing | runs | "
+                       "restored"):
+            self.assertIn(phrase, doc)
+
+    def test_run_shell_stubbed_own_exception_after_a_caller_reraise_is_a_stated_exit(self) -> None:
+        """The stated exit of a run's own exception after a caller re-raise: once the finally that pops a shell's
+        records has re-raised the caller's own handled exception over that shell's unparsable stat line, a
+        KeyboardInterrupt the temp dir removal raises ends the run with no note, chained over the caller's
+        exception, whose __context__ alone holds the line; the module docstring states the window.
+        The clones are those of
+        test_run_shell_stubbed_caller_reraise_at_record_pop_or_output_close_is_a_stated_exit in its pop case,
+        with an _rmtree that removes the temp dir and then raises KeyboardInterrupt."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "caller = RuntimeError('caller')\n"
+            "class PopRaises(dict):\n"
+            "    def pop(self, *args):\n"
+            "        raise caller\n"
+            "removed = []\n"
+            "def rmtree(path):\n"
+            "    t['_rmtree'](path)\n"
+            "    removed.append(not os.path.exists(path))\n"
+            "    raise KeyboardInterrupt('removal')\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True, _SCAN_UNREAD=PopRaises(), _rmtree=rmtree)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "try:\n"
+            "    try:\n"
+            "        raise caller\n"
+            "    except RuntimeError:\n"
+            "        run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "               exc.__context__ is caller, getattr(caller, '__notes__', []),\n"
+            "               type(caller.__context__).__name__]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(removed))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["KeyboardInterrupt", "removal", [], True, [], "_UnparsableStat"]) + " [true]\n", detail)
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("or any other exception of the run's own raised after it (a KeyboardInterrupt of the temp dir "
+                      "removal, or of a SIGINT delivered at the mask restore, for example), as the walks of "
+                      "_carry_shell_lines and of run's carry stop at the caller's exception", doc)
+
+    def test_run_shell_stubbed_cleanup_entry_trace_raise_is_a_stated_exit(self) -> None:
+        """The stated exit of a raise at cleanup entry: a trace function that raises KeyboardInterrupt at the
+        line event of the try that opens the per-shell cleanup of _run_shells, or of the try that opens the
+        finally body of run, once the settlement has raised the shell's unparsable stat line, ends the run with
+        that KeyboardInterrupt with no note, chained over the line; the module docstring states the window.
+        The clones are those of
+        test_run_shell_stubbed_record_pop_raise_keeps_the_line with the tool's own records, and the trace
+        function fires once, only in the code object of the named function at that line."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        shells_try = ("            try:\n                try:\n                    try:\n"
+                      "                        # One carry for every exit.")
+        run_try = ("        try:\n            try:\n"
+                   "                if threading.current_thread() is threading.main_thread():\n"
+                   "                    # Residual: TERM/HUP handled between these stores raises\n")
+        self.assertEqual(tool.count(shells_try), 1)
+        self.assertEqual(tool.count(run_try), 1)
+        targets = [["_run_shells", tool[:tool.index(shells_try)].count("\n") + 1],
+                   ["run", tool[:tool.index(run_try)].count("\n") + 1]]
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "targets = " + json.dumps(targets) + "\n"
+            "for name, line in targets:\n"
+            "    fired = []\n"
+            "    code = t[name].__code__\n"
+            "    def tracer(frame, event, arg):\n"
+            "        if frame.f_code is not code:\n"
+            "            return None\n"
+            "        if event == 'line' and frame.f_lineno == line and not fired:\n"
+            "            fired.append(line)\n"
+            "            raise KeyboardInterrupt('entry ' + name)\n"
+            "        return tracer\n"
+            "    sys.settrace(tracer)\n"
+            "    try:\n"
+            "        run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "                   type(exc.__context__).__name__]\n"
+            "    finally:\n"
+            "        sys.settrace(None)\n"
+            "    print('RESULT', name, json.dumps(outcome), json.dumps(fired))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {name} " + json.dumps(["KeyboardInterrupt", "entry " + name, [], "_UnparsableStat"])
+            + f" [{line}]\n" for name, line in targets), detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("A trace function (sys.settrace) that raises at the line event of the try that opens the "
+                      "per-shell cleanup of _run_shells is exit table row X8; at the line event of the try that opens "
+                      "the finally body of run, or of the try nested directly in it (the try around the activation, "
+                      "observed on Python 3.14.4), row X9", doc)
+
+    def test_run_shell_stubbed_run_activation_try_trace_raise_is_a_stated_exit(self) -> None:
+        """The stated exit of a raise at the try nested in run's finally body: a trace function that raises
+        KeyboardInterrupt at the line event of the try around the activation, the try nested directly in the one
+        that opens the finally body of run, once the settlement has raised the shell's unparsable stat line, ends
+        the run with that KeyboardInterrupt with no note, chained over the line, although the try whose except
+        BaseException clause makes run's carry encloses it; the module docstring states the exit. The clones are
+        those of test_run_shell_stubbed_cleanup_entry_trace_raise_is_a_stated_exit, and the trace function
+        fires once, only in the code object of run at that line."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        run_try = ("        try:\n            try:\n"
+                   "                if threading.current_thread() is threading.main_thread():\n"
+                   "                    # Residual: TERM/HUP handled between these stores raises\n")
+        self.assertEqual(tool.count(run_try), 1)
+        line = tool[:tool.index(run_try)].count("\n") + 2
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "line = " + str(line) + "\n"
+            "fired = []\n"
+            "code = t['run'].__code__\n"
+            "def tracer(frame, event, arg):\n"
+            "    if frame.f_code is not code:\n"
+            "        return None\n"
+            "    if event == 'line' and frame.f_lineno == line and not fired:\n"
+            "        fired.append(line)\n"
+            "        raise KeyboardInterrupt('activation try')\n"
+            "    return tracer\n"
+            "sys.settrace(tracer)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "               type(exc.__context__).__name__]\n"
+            "finally:\n"
+            "    sys.settrace(None)\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(fired))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(
+            ["KeyboardInterrupt", "activation try", [], "_UnparsableStat"]) + f" [{line}]\n", detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("or of the try nested directly in it (the try around the activation, observed on Python 3.14.4), "
+                      "row X9", doc)
+        self.assertIn("X9 | a trace function at the line event of the try that opens run's finally body, or of the try "
+                      "nested directly in it | the trace's exception, no result | no note; the line on its __context__ "
+                      "chain | nothing | ran before it (inferred); run's handler restores and drain are skipped, so "
+                      "on the main thread _on_signal stays the SIGTERM and SIGHUP handler (run called on another "
+                      "thread installs no handler, so the caller's own stay) | restored by that cleanup "
+                      "(inferred)", doc)
+
+    def test_run_shell_stubbed_final_carry_sentence_names_the_except_body_exit(self) -> None:
+        """The module docstring's sentence on run's final carry does not claim without exception that a raise
+        during that carry keeps the lines: it points to the class of exits, and its residual names the retry's
+        except body beside the jump back to the retry as a point outside the retry's try."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("An exception raised while run makes its final carry of the lines as notes is carried again by "
+                      "the retry of that carry, onto that exception, whose chain holds the first (exit table row X3)", doc)
+        self.assertIn("or in the retry's except body (its store of the exception that interrupted the carry), both "
+                      "outside the retry's try, is exit table row X11.", doc)
+
+    def test_run_shell_stubbed_caller_timeout_with_a_local_self_is_not_the_wait_own(self) -> None:
+        """A subprocess.TimeoutExpired that a caller's callback raises during the shell's second wait, from a
+        Python frame whose local variable self is bound to the shell, is not taken as that wait timing out: the
+        wait's own frame is identified by its code object, so the exception propagates with the shell's line
+        noted on it, where a check of a local named self takes it as the wait's own and ends the run with the
+        _UnparsableStat naming 46 and no note. The clone of _run_shells is that of
+        test_run_shell_stubbed_handler_timeout_during_a_wait_propagates_with_the_line. In case collision the
+        second wait calls callback(shell), which binds self = shell and raises TimeoutExpired('caller alarm', 5);
+        in case own the first wait raises TimeoutExpired itself and the run ends with that _UnparsableStat."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, case = [], ['']\n"
+            "at = {'collision': 2, 'own': 1}\n"
+            "def callback(shell):\n"
+            "    self = shell\n"
+            "    raise subprocess.TimeoutExpired('caller alarm', 5)\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if len(waits) == at[case[0]]:\n"
+            "            if case[0] == 'own':\n"
+            "                raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "            callback(self)\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class OsModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(os, name)\n"
+            "    def killpg(self, pid, sig):\n"
+            "        sends.append([pid, 'killpg'])\n"
+            "    def kill(self, pid, sig):\n"
+            "        sends.append([pid, 'kill'])\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan,\n"
+            "               _kill_session=lambda sid: True, os=OsModel())\n"
+            "for case[0] in ('collision', 'own'):\n"
+            "    del waits[:]\n"
+            "    Shell.returncode = None\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(waits),\n"
+            "          json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        lines = result.stdout.splitlines()
+        self.assertEqual(len(lines), 2, detail)
+        collision = json.loads(lines[0].split(" ", 2)[2].rsplit(" ", 3)[0])
+        self.assertTrue(lines[0].startswith("RESULT collision "), detail)
+        self.assertEqual(collision[0], "TimeoutExpired", detail)
+        self.assertIn("caller alarm", collision[1], detail)
+        self.assertEqual(collision[2], [note], detail)
+        self.assertTrue(lines[0].endswith(" [30, 2.0] []"), detail)
+        own = json.loads(lines[1].split(" ", 2)[2].rsplit(" ", 3)[0])
+        self.assertTrue(lines[1].startswith("RESULT own "), detail)
+        self.assertEqual([own[0], own[2]], ["_UnparsableStat", []], detail)
+        self.assertTrue(lines[1].endswith(" [30, 2.0] []"), detail)
+
+    def test_run_shell_stubbed_handler_timeout_through_a_shell_wait_is_not_the_wait_own(self) -> None:
+        """A subprocess.TimeoutExpired that a caller's handler raises during the shell's second wait through
+        one of the shell's own wait methods, or re-raises from such a wait, is not taken as that wait timing
+        out: its traceback then holds the handler's frame between the shell's frames, so the exception
+        propagates with the shell's line noted on it, where a check of the innermost frame alone takes it as
+        the wait's own and ends the run with the _UnparsableStat naming 46 and no note. The clone of
+        _run_shells is that of test_run_shell_stubbed_handler_timeout_during_a_wait_propagates_with_the_line,
+        and a wait with timeout 0 raises TimeoutExpired itself. In case nested the second wait calls
+        handler(shell), which calls shell.wait(timeout=0) and lets its TimeoutExpired propagate; in case saved
+        the handler catches that TimeoutExpired and raises the saved object; in case own the first wait raises
+        TimeoutExpired itself and the run ends with that _UnparsableStat."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, case, saved = [], [''], []\n"
+            "at = {'nested': 2, 'saved': 2, 'own': 1}\n"
+            "def handler(shell):\n"
+            "    if case[0] == 'nested':\n"
+            "        shell.wait(timeout=0)\n"
+            "    try:\n"
+            "        shell.wait(timeout=0)\n"
+            "    except subprocess.TimeoutExpired as exc:\n"
+            "        saved.append(exc)\n"
+            "    raise saved[-1]\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if timeout == 0:\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        if len(waits) == at[case[0]]:\n"
+            "            if case[0] == 'own':\n"
+            "                raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "            handler(self)\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class OsModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(os, name)\n"
+            "    def killpg(self, pid, sig):\n"
+            "        sends.append([pid, 'killpg'])\n"
+            "    def kill(self, pid, sig):\n"
+            "        sends.append([pid, 'kill'])\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=scan,\n"
+            "               _kill_session=lambda sid: True, os=OsModel())\n"
+            "for case[0] in ('nested', 'saved', 'own'):\n"
+            "    del waits[:]\n"
+            "    Shell.returncode = None\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', json.dumps([case[0], outcome, waits, sorted(t['_SCAN_UNREAD'])]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        lines = result.stdout.splitlines()
+        self.assertEqual(len(lines), 3, detail)
+        self.assertTrue(all(line.startswith("RESULT [") for line in lines), detail)
+        outcomes = [json.loads(line[len("RESULT "):]) for line in lines]
+        timed_out = "Command 'shell' timed out after 0 seconds"
+        for index, case in enumerate(("nested", "saved")):
+            with self.subTest(case=case):
+                self.assertEqual(outcomes[index], [case, ["TimeoutExpired", timed_out, [note]], [30, 2.0, 0], []],
+                                 detail)
+        own = outcomes[2]
+        self.assertEqual([own[0], own[1][0], own[1][2], own[2], own[3]],
+                         ["own", "_UnparsableStat", [], [30, 2.0], []], detail)
+
+    def test_run_shell_stubbed_handler_timeout_at_the_mask_restore_is_not_the_wait_own(self) -> None:
+        """A subprocess.TimeoutExpired that a caller's handler raises through one of the shell's own wait methods
+        while _run_shells restores the spawn mask, inside the try around the wait and before the wait begins, is
+        not taken as the command timing out: the frame right after the catching frame of _run_shells is then
+        the signal module's, not one of the shell's, so the exception propagates with the shell's line noted on
+        it, where a check that skips every frame before the first of the shell's takes it as the wait's own and
+        ends the run with the _UnparsableStat naming 46 and no note. The clone of _run_shells is that of
+        test_run_shell_stubbed_handler_timeout_through_a_shell_wait_is_not_the_wait_own, with a signal module
+        whose first SIG_SETMASK (the mask restore at the top of that try) calls handler(), as a signal delivered
+        at that restore would, and a wait with timeout 0 raises TimeoutExpired itself. In case restore the
+        handler calls shell.wait(timeout=0) and lets its TimeoutExpired propagate; in case own no handler runs,
+        the first wait raises TimeoutExpired itself and the run ends with that _UnparsableStat."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, case, made, setmasks = [], [''], [], []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        made.append(self)\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if timeout == 0 or (case[0] == 'own' and len(waits) == 1):\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def handler():\n"
+            "    made[-1].wait(timeout=0)\n"
+            "class SignalModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(signal, name)\n"
+            "    def pthread_sigmask(self, how, mask):\n"
+            "        previous = signal.pthread_sigmask(how, mask)\n"
+            "        if how == signal.SIG_SETMASK:\n"
+            "            setmasks.append(how)\n"
+            "            if case[0] == 'restore' and len(setmasks) == 1:\n"
+            "                handler()\n"
+            "        return previous\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "class OsModel:\n"
+            "    def __getattr__(self, name):\n"
+            "        return getattr(os, name)\n"
+            "    def killpg(self, pid, sig):\n"
+            "        sends.append([pid, 'killpg'])\n"
+            "    def kill(self, pid, sig):\n"
+            "        sends.append([pid, 'kill'])\n"
+            "shells = clone('_run_shells', subprocess=popen, signal=SignalModel(), _session_members=scan,\n"
+            "               _kill_session=lambda sid: True, os=OsModel())\n"
+            "for case[0] in ('restore', 'own'):\n"
+            "    del waits[:], made[:], setmasks[:]\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', json.dumps([case[0], outcome, waits, sorted(t['_SCAN_UNREAD'])]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        lines = result.stdout.splitlines()
+        self.assertEqual(len(lines), 2, detail)
+        self.assertTrue(all(line.startswith("RESULT [") for line in lines), detail)
+        outcomes = [json.loads(line[len("RESULT "):]) for line in lines]
+        timed_out = "Command 'shell' timed out after 0 seconds"
+        self.assertEqual(outcomes[0], ["restore", ["TimeoutExpired", timed_out, [note]], [0, 2.0], []], detail)
+        own = outcomes[1]
+        self.assertEqual([own[0], own[1][0], own[1][2], own[2], own[3]],
+                         ["own", "_UnparsableStat", [], [30, 2.0], []], detail)
+
+    def test_run_shell_stubbed_settlement_entry_trace_raise_is_a_stated_exit(self) -> None:
+        """The stated exit of a raise at the entry to a shell's settlement: once the session kill has
+        recorded an unparsable stat entry that no exception carries yet, a trace function that raises
+        KeyboardInterrupt at the line event of the try that opens the settlement in _run_shells ends the run
+        with that KeyboardInterrupt with no note and no __context__, the entry left only in _KILL_UNKNOWN;
+        the module docstring states the class of such exits and that it fails closed only in that the run
+        does not report contained. The clones are those of
+        test_run_shell_stubbed_cleanup_entry_trace_raise_is_a_stated_exit, with a scan that finds no member
+        and a kill stand-in that records entry 46, and the trace function fires once, only in the code
+        object of _run_shells at that line."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        settle_try = ("try:\n" + " " * 48 + "kill_unknown, kill_alive = _shell_unread(p.pid)\n"
+                      + " " * 48 + "active = sys.exception()\n")
+        self.assertEqual(tool.count(settle_try), 1)
+        line = tool[:tool.index(settle_try)].count("\n") + 1
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def kill(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [46]\n"
+            "    return False\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=lambda sid: [],\n"
+            "               _kill_session=kill)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            f"line = {line}\n"
+            "fired = []\n"
+            "code = t['_run_shells'].__code__\n"
+            "def tracer(frame, event, arg):\n"
+            "    if frame.f_code is not code:\n"
+            "        return None\n"
+            "    if event == 'line' and frame.f_lineno == line and not fired:\n"
+            "        fired.append(line)\n"
+            "        raise KeyboardInterrupt('settlement entry')\n"
+            "    return tracer\n"
+            "sys.settrace(tracer)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "               exc.__context__ is None]\n"
+            "finally:\n"
+            "    sys.settrace(None)\n"
+            "print('RESULT ' + json.dumps([outcome, sorted(t['_KILL_UNKNOWN'].items()), fired]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [text[len("RESULT "):] for text in result.stdout.splitlines() if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        outcome, kill_unknown, fired = json.loads(found[0])
+        self.assertEqual(outcome, ["KeyboardInterrupt", "settlement entry", [], True], detail)
+        self.assertEqual(kill_unknown, [[41, [46]]], detail)
+        self.assertEqual(fired, [line], detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("A signal handler or trace function raising at any other point of the cleanup or of a final "
+                      "carry is exit table row X12, and at the entry to a shell's settlement row X7.", doc)
+        self.assertIn("X12 | a signal handler or trace function at any other point outside a carry's handler, once a "
+                      "line of the run has been raised | that exception, no result | no note; the entry can drop from "
+                      "the chain", doc)
+
+    def test_run_shell_stubbed_settlement_and_cleanup_entry_trace_raise_skip_the_cleanup(self) -> None:
+        """A trace function that raises KeyboardInterrupt at the line event of the try that opens a shell's
+        settlement, or of the try that opens the per-shell cleanup of _run_shells, skips that shell's whole
+        cleanup: the temp dir removal, the signal mask restore and the drain of _run_shells never run, so
+        SIGHUP, SIGINT and SIGTERM stay blocked in the calling thread. At the settlement entry with an
+        exception already in flight (a KeyboardInterrupt a grace-loop scan raised after recording entry 46),
+        the trace's KeyboardInterrupt has that exception as its __context__, neither carries a note, and the
+        entry stays in _SCAN_UNREAD. A control run with no trace function removes the temp dir, restores the
+        mask and drains. The module docstring, the _kill_session docstring and the comments state it."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        settle_try = ("try:\n" + " " * 48 + "kill_unknown, kill_alive = _shell_unread(p.pid)\n"
+                      + " " * 48 + "active = sys.exception()\n")
+        shells_try = ("            try:\n                try:\n                    try:\n"
+                      "                        # One carry for every exit.")
+        for anchor in (settle_try, shells_try):
+            self.assertEqual(tool.count(anchor), 1, anchor)
+        settle_line = tool[:tool.index(settle_try)].count("\n") + 1
+        cleanup_line = tool[:tool.index(shells_try)].count("\n") + 1
+        cases = [["settle", settle_line], ["settle-in-flight", settle_line], ["cleanup", cleanup_line],
+                 ["control", None]]
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess, tempfile\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "def record_kill(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [46]\n"
+            "    return False\n"
+            "hits = []\n"
+            "def scan_raises(sid):\n"
+            "    if sid in t['_SCAN_UNREAD'] and not hits:\n"
+            "        hits.append(sid)\n"
+            "        t['_SCAN_UNREAD'][sid].append(46)\n"
+            "        raise KeyboardInterrupt('scan')\n"
+            "    return []\n"
+            "def mkdtemp(prefix):\n"
+            "    return tempfile.mkdtemp(prefix=prefix, dir=root)\n"
+            "def names(sigs):\n"
+            "    return sorted(signal.Signals(s).name for s in t['_CLEANUP_SIGNALS'] if s in sigs)\n"
+            "for name, line in " + repr(cases) + ":\n"
+            "    for record in (t['_KILL_UNKNOWN'], t['_SCAN_UNREAD'], t['_KILL_ALIVE']):\n"
+            "        record.clear()\n"
+            "    removed, drains, fired = [], [], []\n"
+            "    def rm(path):\n"
+            "        removed.append(path)\n"
+            "        t['_rmtree'](path)\n"
+            "    def drain(caller_exception=None):\n"
+            "        drains.append(1)\n"
+            "        return t['_drain_deferral'](caller_exception)\n"
+            "    members = scan_raises if name == 'settle-in-flight' else (lambda sid: [])\n"
+            "    kill = (lambda sid: True) if name == 'settle-in-flight' else record_kill\n"
+            "    shells = clone('_run_shells', subprocess=popen, _session_members=members, _kill_session=kill,\n"
+            "                   _rmtree=rm, _drain_deferral=drain,\n"
+            "                   tempfile=types.SimpleNamespace(mkdtemp=mkdtemp))\n"
+            "    run = clone('run', _run_shells=shells)\n"
+            "    code = t['_run_shells'].__code__\n"
+            "    def tracer(frame, event, arg):\n"
+            "        if frame.f_code is not code:\n"
+            "            return None\n"
+            "        if event == 'line' and frame.f_lineno == line and not fired:\n"
+            "            fired.append(line)\n"
+            "            raise KeyboardInterrupt(name + ' entry')\n"
+            "        return tracer\n"
+            "    saved = signal.pthread_sigmask(signal.SIG_BLOCK, ())\n"
+            "    if line is not None:\n"
+            "        sys.settrace(tracer)\n"
+            "    try:\n"
+            "        run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        ctx = exc.__context__\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "                   None if ctx is None else [type(ctx).__name__, str(ctx),\n"
+            "                                             getattr(ctx, '__notes__', [])]]\n"
+            "    finally:\n"
+            "        sys.settrace(None)\n"
+            "    blocked = names(signal.pthread_sigmask(signal.SIG_SETMASK, saved))\n"
+            "    print('RESULT ' + json.dumps([name, outcome[0], outcome[1:] if line else [], len(removed),\n"
+            "                                  len(drains), blocked, sorted(t['_SCAN_UNREAD'].items()),\n"
+            "                                  sorted(t['_KILL_UNKNOWN'].items()), fired]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        cut = ["SIGHUP", "SIGINT", "SIGTERM"]
+        self.assertEqual(found, [
+            ["settle", "KeyboardInterrupt", ["settle entry", [], None], 0, 0, cut, [[41, []]], [[41, [46]]],
+             [settle_line]],
+            ["settle-in-flight", "KeyboardInterrupt", ["settle-in-flight entry", [],
+                                                       ["KeyboardInterrupt", "scan", []]],
+             0, 0, cut, [[41, [46]]], [], [settle_line]],
+            ["cleanup", "KeyboardInterrupt", ["cleanup entry", [], ["_UnparsableStat", found[2][2][2][1], []]],
+             0, 0, cut, [], [], [cleanup_line]],
+            ["control", "_UnparsableStat", [], 1, 1, [], [], [], []],
+        ], detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        kill = " ".join(tool.split("def _kill_session(", 1)[1].split('"""', 2)[1].split())
+        flat = " ".join(" ".join(line.strip().lstrip("#").split()) for line in tool.splitlines())
+        self.assertIn("of _run_shells is exit table row X8;", doc)
+        self.assertIn("and at the entry to a shell's settlement row X7.", doc)
+        self.assertIn("X7 | a trace function at the line event of the try that opens the settlement, after a scan "
+                      "recorded an unparsable entry no exception carries yet | the trace's exception, no result | "
+                      "no note; its __context__ is the exception already in flight, if any, which carries no note "
+                      "either | each entry stays in whichever record held it (_SCAN_UNREAD, _KILL_UNKNOWN or both), as "
+                      "the settlement's finally is never entered | skipped | main thread: blocked", doc)
+        self.assertIn("X8 | a trace function at the line event of the try that opens the per-shell cleanup of "
+                      "_run_shells | the trace's exception, no result | no note; the line on its __context__ "
+                      "chain | nothing, popped by the settlement | skipped | main thread: blocked", doc)
+        self.assertIn("and _run_shells settles both once the reap has run, subject to exit table rows X6 and "
+                      "X7.", kill)
+        self.assertIn("settled by the finally below once the reap has run, subject to exit table rows X6 and "
+                      "X7.", flat)
+        self.assertIn("before the settlement begins, is exit table row X7;", flat)
+        self.assertIn("A trace function raising at the try that opens this cleanup is exit table row X8.", flat)
+
+    def test_run_shell_stubbed_exit_table_trace_rows_off_the_main_thread(self) -> None:
+        """Exit table rows X7, X8 and X2 driven on a worker thread with the stand-ins of
+        test_run_shell_stubbed_settlement_and_cleanup_entry_trace_raise_skip_the_cleanup: a trace function
+        raising KeyboardInterrupt at the try that opens the settlement (row X7, with and without a scan's
+        KeyboardInterrupt in flight) or the per-shell cleanup (row X8) skips the cleanup and leaves the
+        records as the rows state, but none of SIGHUP, SIGINT and SIGTERM is blocked afterwards, as the run
+        blocks them only on the main thread, and the drain of _run_shells, which runs only on the main
+        thread, is never called. The control run (row X2) removes the temp dir. Rows X7 and X8 state the
+        main-thread condition."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        settle_try = ("try:\n" + " " * 48 + "kill_unknown, kill_alive = _shell_unread(p.pid)\n"
+                      + " " * 48 + "active = sys.exception()\n")
+        shells_try = ("            try:\n                try:\n                    try:\n"
+                      "                        # One carry for every exit.")
+        for anchor in (settle_try, shells_try):
+            self.assertEqual(tool.count(anchor), 1, anchor)
+        settle_line = tool[:tool.index(settle_try)].count("\n") + 1
+        cleanup_line = tool[:tool.index(shells_try)].count("\n") + 1
+        cases = [["settle", settle_line], ["settle-in-flight", settle_line], ["cleanup", cleanup_line],
+                 ["control", None]]
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess, tempfile, threading\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "def record_kill(sid):\n"
+            "    t['_KILL_UNKNOWN'][sid] = [46]\n"
+            "    return False\n"
+            "hits = []\n"
+            "def scan_raises(sid):\n"
+            "    if sid in t['_SCAN_UNREAD'] and not hits:\n"
+            "        hits.append(sid)\n"
+            "        t['_SCAN_UNREAD'][sid].append(46)\n"
+            "        raise KeyboardInterrupt('scan')\n"
+            "    return []\n"
+            "def mkdtemp(prefix):\n"
+            "    return tempfile.mkdtemp(prefix=prefix, dir=root)\n"
+            "def names(sigs):\n"
+            "    return sorted(signal.Signals(s).name for s in t['_CLEANUP_SIGNALS'] if s in sigs)\n"
+            "def body():\n"
+            "  for name, line in " + repr(cases) + ":\n"
+            "    for record in (t['_KILL_UNKNOWN'], t['_SCAN_UNREAD'], t['_KILL_ALIVE']):\n"
+            "        record.clear()\n"
+            "    removed, drains, fired = [], [], []\n"
+            "    def rm(path):\n"
+            "        removed.append(path)\n"
+            "        t['_rmtree'](path)\n"
+            "    def drain(caller_exception=None):\n"
+            "        drains.append(1)\n"
+            "        return t['_drain_deferral'](caller_exception)\n"
+            "    members = scan_raises if name == 'settle-in-flight' else (lambda sid: [])\n"
+            "    kill = (lambda sid: True) if name == 'settle-in-flight' else record_kill\n"
+            "    shells = clone('_run_shells', subprocess=popen, _session_members=members, _kill_session=kill,\n"
+            "                   _rmtree=rm, _drain_deferral=drain,\n"
+            "                   tempfile=types.SimpleNamespace(mkdtemp=mkdtemp))\n"
+            "    run = clone('run', _run_shells=shells)\n"
+            "    code = t['_run_shells'].__code__\n"
+            "    def tracer(frame, event, arg):\n"
+            "        if frame.f_code is not code:\n"
+            "            return None\n"
+            "        if event == 'line' and frame.f_lineno == line and not fired:\n"
+            "            fired.append(line)\n"
+            "            raise KeyboardInterrupt(name + ' entry')\n"
+            "        return tracer\n"
+            "    saved = signal.pthread_sigmask(signal.SIG_BLOCK, ())\n"
+            "    if line is not None:\n"
+            "        sys.settrace(tracer)\n"
+            "    try:\n"
+            "        run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        ctx = exc.__context__\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "                   None if ctx is None else [type(ctx).__name__, str(ctx),\n"
+            "                                             getattr(ctx, '__notes__', [])]]\n"
+            "    finally:\n"
+            "        sys.settrace(None)\n"
+            "    blocked = names(signal.pthread_sigmask(signal.SIG_SETMASK, saved))\n"
+            "    print('RESULT ' + json.dumps([name, outcome[0], outcome[1:] if line else [], len(removed),\n"
+            "                                  len(drains), blocked, sorted(t['_SCAN_UNREAD'].items()),\n"
+            "                                  sorted(t['_KILL_UNKNOWN'].items()), fired]), flush=True)\n"
+            "worker = threading.Thread(target=body)\n"
+            "worker.start()\n"
+            "worker.join()\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 4, detail)
+        self.assertEqual(found, [
+            ["settle", "KeyboardInterrupt", ["settle entry", [], None], 0, 0, [], [[41, []]], [[41, [46]]],
+             [settle_line]],
+            ["settle-in-flight", "KeyboardInterrupt", ["settle-in-flight entry", [],
+                                                       ["KeyboardInterrupt", "scan", []]],
+             0, 0, [], [[41, [46]]], [], [settle_line]],
+            ["cleanup", "KeyboardInterrupt", ["cleanup entry", [], ["_UnparsableStat", found[2][2][2][1], []]],
+             0, 0, [], [], [], [cleanup_line]],
+            ["control", "_UnparsableStat", [], 1, 0, [], [], [], []],
+        ], detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("\"main thread: blocked\" means the three stay blocked when run was called from the main "
+                      "thread, while a caller on another thread never had them blocked by the run, so its mask is "
+                      "unchanged.", doc)
+        self.assertIn("(_SCAN_UNREAD, _KILL_UNKNOWN or both), as the settlement's finally is never entered | skipped | "
+                      "main thread: blocked X8 |", doc)
+        self.assertIn("nothing, popped by the settlement | skipped | main thread: blocked X9 |", doc)
+
+    def test_run_shell_stubbed_exit_table_scan_window_and_handler_oserror_rows(self) -> None:
+        """Exit table rows X13 and X14 driven through the tool's own _session_members over the stand-in /proc,
+        listing entry 46 only (its stat line cut before its session field), in a clone of _run_shells called
+        through a clone of run. Case read-return: the stand-in read returns the line and then raises
+        KeyboardInterrupt, as a signal handler run as the read returns would (row X13): the run ends with that
+        KeyboardInterrupt with no note, as the scan never recorded the entry. Case open: the stand-in open
+        raises TimeoutError, as a caller's SIGALRM handler inside the open would (row X14): the scan takes it
+        as the open's failure and skips the entry as exited, so the run returns and reports contained. The
+        control reads the line and ends with _UnparsableStat (row X2). No case leaves an entry in
+        _SCAN_UNREAD. Rows X13 to X16 are in the table with these outcomes."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "mode = ['']\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        if mode[0] == 'read-return':\n"
+            "            raise KeyboardInterrupt('as the read returns')\n"
+            "        return line\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        return self.fh.__exit__(*exc_info)\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    if mode[0] == 'open':\n"
+            "        raise TimeoutError('inside the open')\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "members = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "for mode[0] in ('read-return', 'open', 'control'):\n"
+            "    for record in (t['_KILL_UNKNOWN'], t['_SCAN_UNREAD'], t['_KILL_ALIVE']):\n"
+            "        record.clear()\n"
+            "    try:\n"
+            "        results = run('true', shells=('bash',))\n"
+            "        outcome = ['returned', [r['contained'] for r in results], []]\n"
+            "    except BaseException as exc:\n"
+            "        shown = [str(exc)] if isinstance(exc, KeyboardInterrupt) else []\n"
+            "        outcome = [type(exc).__name__, shown, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT ' + json.dumps([mode[0]] + outcome + [sorted(t['_SCAN_UNREAD'].items())]),\n"
+            "          flush=True)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(found, [
+            ["read-return", "KeyboardInterrupt", ["as the read returns"], [], []],
+            ["open", "returned", [True], [], []],
+            ["control", "_UnparsableStat", [], [], []],
+        ], detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        for row in ("X13 | a signal handler run as a session scan's read returns, before _session_members "
+                    "records the entry (inferred from the control flow for a signal handler; the stand-in case, "
+                    "an exception the read raises as it returns, is driven by its test) | that exception, no "
+                    "result | no note "
+                    "for that entry, unless a later scan of the cleanup (the kill's or the fallback sweep's) "
+                    "reads it again, which records it and has it noted on that exception | nothing: the "
+                    "interrupted scan had not yet recorded it, and a later scan's record is popped by the "
+                    "settlement | runs | restored",
+                    "X14 | an OSError (TimeoutError included) raised inside a call the "
+                    "cleanup takes an OSError from as its own: the open or the read of a scan, a signal the "
+                    "fallback sweep sends, the ProcessLookupError of a signal the kill sends or of the reap's "
+                    "group kill, the first temp dir removal attempt | no exception from it: it is taken as that "
+                    "call's failure (a scan skips the entry as exited) | none | the skipped entry is not "
+                    "recorded | runs | restored",
+                    "X15 | a subprocess.TimeoutExpired during a wait of the shell, or in the try around it | taken "
+                    "as that wait timing out only when the wait itself raised it (inferred: also when a handler with "
+                    "no Python frame of its own raises it); otherwise outside the exit table (the caller-handler "
+                    "residual; observed: that exception, once the cleanup has run) | the "
+                    "shell's line, if any, noted on it | nothing | runs | restored",
+                    "X16 | a trace function raising after Popen has "
+                    "created the shell and before the try that follows, or a signal handler or trace function "
+                    "raising after the entry to that try's finally and before the protected try in it "
+                    "(inferred from the control flow for a signal handler; the stand-in case, a trace function "
+                    "raising at either point, is driven by its tests) | that exception, or one chained over "
+                    "it, no result | none | nothing | the shell is neither killed with its session nor reaped; "
+                    "the temp dir removal, mask restore and drain still run | restored"):
+            with self.subTest(row=row[:3]):
+                self.assertIn(row, doc)
+
+    def test_run_shell_stubbed_cleanup_scan_reads_again_an_entry_an_interrupted_scan_had_not_recorded(self) -> None:
+        """Exit table row X13, its later-scan clause, driven with the tool's own _kill_session (not stubbed) over
+        the stand-in /proc, listing entry 46 only (its stat line cut before its session field), in a clone of
+        _run_shells called through a clone of run. The stand-in read of the grace loop's first scan returns the
+        line and then raises KeyboardInterrupt, as a signal handler run as the read returns would, before the
+        scan records the entry; every later read returns the line. The kill's scans read entry 46 again, record
+        it and cannot parse it, so the run ends with that KeyboardInterrupt noted with entry 46 and the shell,
+        sends no signal (no member is read) and leaves no record. Where a later scan of the session skips an
+        entry an earlier scan read, the run ends with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "reads, between = [], []\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        reads.append(line)\n"
+            "        if len(reads) == 2:\n"
+            "            between.append({str(k): list(v) for k, v in t['_SCAN_UNREAD'].items()})\n"
+            "        if len(reads) == 1:\n"
+            "            raise KeyboardInterrupt('as the read returns')\n"
+            "        return line\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        return self.fh.__exit__(*exc_info)\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "members = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "kill_session = clone('_kill_session', _session_members=members, os=types.SimpleNamespace(kill=kill))\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=kill_session)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "print('RESULT', json.dumps(outcome), json.dumps(sends), json.dumps(len(reads) > 1),\n"
+            "      json.dumps([t['_SCAN_UNREAD'], t['_KILL_UNKNOWN'], t['_KILL_ALIVE']]), json.dumps(between))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = "unparsable stat line, session unknown: /proc/46/stat; containment of the bash run could not be shown"
+        # Between the interrupted scan and the cleanup scan the record is armed and empty: the interrupted
+        # scan had not recorded entry 46.
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(["KeyboardInterrupt", "as the read returns", [note]])
+                         + " [] true " + json.dumps([{}, {}, {}]) + " " + json.dumps([{"41": []}]) + "\n",
+                         detail)
+
+    def _run_shell_stubbed_interrupted_first_scan(self, interrupt: str, own_kill: bool, stale: bool = False):
+        """Drives a clone of run over a clone of _run_shells whose Popen is a stand-in shell (pid 41) that every
+        wait reaps, with the tool's own _session_members over the stand-in /proc listing entry 46 only. The
+        grace loop's first scan is interrupted by KeyboardInterrupt: during the parse (interrupt 'parse': the
+        read returns a line whose split raises, as a signal handler run during the parse would) or at the
+        close (interrupt 'close': the cut line is parsed and found unparsable, then the close raises). Every
+        later read returns a line that parses, of another session (46). With own_kill the tool's own
+        _kill_session runs over the same scan; otherwise the kill is a stand-in that returns True and reads
+        nothing. Interrupt 'none' interrupts nothing: the first read returns the cut line, found unparsable.
+        With stale, _SCAN_UNPARSED and _SCAN_PARSED_LATER hold entry 46 for pid 41 before the run, as an
+        earlier shell with the same process id could leave them. Prints the outcome, the number of reads,
+        _SCAN_UNREAD as the second read returned, the signals sent, the five records afterwards
+        (_SCAN_UNREAD, _KILL_UNKNOWN, _KILL_ALIVE, _SCAN_UNPARSED and _SCAN_PARSED_LATER), _SCAN_UNPARSED
+        and _SCAN_PARSED_LATER as the first read returned, and _SCAN_PARSED_LATER each time the settlement
+        reads the parse records."""
+        return self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            f"interrupt, own_kill = {interrupt!r}, {own_kill!r}\n"
+            "reads, between, first, settled = [], [], [], []\n"
+            f"if {stale!r}:\n"
+            "    t['_SCAN_UNPARSED'][41] = [46]\n"
+            "    t['_SCAN_PARSED_LATER'][41] = [46]\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class Line(str):\n"
+            "    def rsplit(self, *args, **kwargs):\n"
+            "        raise KeyboardInterrupt('during the parse')\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        reads.append(line)\n"
+            "        if len(reads) == 1:\n"
+            "            first.append([{str(k): list(v) for k, v in t[name].items()}\n"
+            "                          for name in ('_SCAN_UNPARSED', '_SCAN_PARSED_LATER')])\n"
+            "        if len(reads) == 2:\n"
+            "            between.append({str(k): list(v) for k, v in t['_SCAN_UNREAD'].items()})\n"
+            "        if len(reads) > 1:\n"
+            "            return '46 (sh) S 1 46 46 0 -1'\n"
+            "        return Line(line) if interrupt == 'parse' else line\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        self.fh.__exit__(*exc_info)\n"
+            "        if interrupt == 'close' and len(reads) == 1:\n"
+            "            raise KeyboardInterrupt('at the close')\n"
+            "        return False\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "members = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "if own_kill:\n"
+            "    kill_session = clone('_kill_session', _session_members=members,\n"
+            "                         os=types.SimpleNamespace(kill=kill))\n"
+            "else:\n"
+            "    kill_session = lambda sid: True\n"
+            "real_unparsed = t['_unparsed_entries']\n"
+            "def unparsed_entries(sid, kill_unknown):\n"
+            "    settled.append({str(k): list(v) for k, v in t['_SCAN_PARSED_LATER'].items()})\n"
+            "    return real_unparsed(sid, kill_unknown)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=kill_session, _unparsed_entries=unparsed_entries)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "print('RESULT ' + json.dumps([outcome, len(reads), between, sends,\n"
+            "      [t['_SCAN_UNREAD'], t['_KILL_UNKNOWN'], t['_KILL_ALIVE'], t.get('_SCAN_UNPARSED', {}),\n"
+            "       t.get('_SCAN_PARSED_LATER', {})], first, settled]))\n")
+
+    def test_run_shell_stubbed_note_names_an_entry_read_but_not_parsed_before_an_interruption(self) -> None:
+        """A scan that recorded entry 46 as its read returned and was interrupted during the parse never parsed
+        the line, so the run's note names the entry as a stat line parse result not recorded before an interruption,
+        not as an unparsable stat line, and the run still ends with that KeyboardInterrupt (not shown
+        contained). The kill is a stand-in that reads nothing, so no later scan parses the line."""
+        result = self._run_shell_stubbed_interrupted_first_scan("parse", False)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        note = ("stat line parse result not recorded before an interruption, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(found[0][0], ["KeyboardInterrupt", "during the parse", [note]], detail)
+        self.assertNotIn("unparsable stat line", found[0][0][2][0], detail)
+        self.assertEqual(found[0][3], [], detail)
+        self.assertEqual(found[0][4], [{}, {}, {}, {}, {}], detail)
+
+    def test_run_shell_stubbed_note_names_an_entry_parsed_and_found_unparsable_as_unparsable(self) -> None:
+        """A scan that recorded entry 46, parsed its cut line and found it unparsable, and was then interrupted
+        at the close, names the entry as an unparsable stat line, not as one whose parse result was not recorded,
+        and the run
+        ends with that KeyboardInterrupt (not shown contained). The kill is a stand-in that reads nothing."""
+        result = self._run_shell_stubbed_interrupted_first_scan("close", False)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        note = "unparsable stat line, session unknown: /proc/46/stat; containment of the bash run could not be shown"
+        self.assertEqual(found[0][0], ["KeyboardInterrupt", "at the close", [note]], detail)
+        self.assertEqual(found[0][3], [], detail)
+        self.assertEqual(found[0][4], [{}, {}, {}, {}, {}], detail)
+
+    def test_run_shell_stubbed_cleanup_scan_reads_again_and_keeps_an_entry_an_earlier_scan_recorded(self) -> None:
+        """An entry an earlier scan recorded stays recorded when a later scan reads it again. The grace loop's
+        first scan records entry 46 as its read returns and is interrupted during the parse; between that scan
+        and the cleanup scan the record holds 46 for the session. The tool's own _kill_session then reads entry
+        46 again (its line now parses, of another session), keeps it recorded, puts it in _SCAN_PARSED_LATER
+        and drops its parse result mark, so the run ends with that KeyboardInterrupt noted with entry 46 as a
+        stat line unparsable or not parsed when recorded, parsed by a later scan (still recorded, so
+        fail-closed), sends no signal and leaves no record. Where a later scan skips an entry already
+        recorded, the kill reads nothing."""
+        result = self._run_shell_stubbed_interrupted_first_scan("parse", True)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        note = ("stat line unparsable or not parsed when recorded, parsed by a later scan: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(found[0][0], ["KeyboardInterrupt", "during the parse", [note]], detail)
+        self.assertNotIn("unparsable stat line", found[0][0][2][0], detail)
+        self.assertGreater(found[0][1], 1, detail)
+        self.assertEqual(found[0][2], [{"41": [46]}], detail)
+        self.assertEqual(found[0][3], [], detail)
+        self.assertEqual(found[0][4], [{}, {}, {}, {}, {}], detail)
+
+    def test_run_shell_stubbed_note_names_an_entry_found_unparsable_and_parsed_by_a_later_scan(self) -> None:
+        """An entry a scan found unparsable and a later scan parsed is named by what happened. The grace loop's
+        first scan records entry 46, parses its cut line and finds it unparsable, and is then interrupted at
+        the close; the tool's own _kill_session reads entry 46 again, its line now parsing, of another
+        session, so the entry stays recorded (fail-closed) and is put in _SCAN_PARSED_LATER. The run ends with
+        that KeyboardInterrupt noted with entry 46 as a stat line unparsable or not parsed when recorded,
+        parsed by a later scan, not as an unparsable stat line, sends no signal and leaves no record. Where
+        the tool keeps no record of an entry a later scan parsed, the note names entry 46 as an unparsable
+        stat line."""
+        result = self._run_shell_stubbed_interrupted_first_scan("close", True)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        note = ("stat line unparsable or not parsed when recorded, parsed by a later scan: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(found[0][0], ["KeyboardInterrupt", "at the close", [note]], detail)
+        self.assertNotIn("unparsable stat line", found[0][0][2][0], detail)
+        self.assertGreater(found[0][1], 1, detail)
+        self.assertEqual(found[0][2], [{"41": [46]}], detail)
+        self.assertEqual(found[0][3], [], detail)
+        self.assertEqual(found[0][4], [{}, {}, {}, {}, {}], detail)
+
+    def test_run_shell_stubbed_arm_resets_the_parse_records_an_earlier_shell_left(self) -> None:
+        """An entry an earlier shell with the same process id left in _SCAN_UNPARSED and _SCAN_PARSED_LATER
+        does not name a fresh entry: the arm resets both with _SCAN_UNREAD. Both records hold entry 46 for
+        pid 41 before the run; the grace loop's first scan records 46 as its read returns and is interrupted
+        during the parse, and the kill is a stand-in that reads nothing, so no scan parses the line. As the
+        first read returns both records are empty for the session, and the run ends with that
+        KeyboardInterrupt noted with entry 46 as a stat line parse result not recorded before an interruption
+        (fail-closed), sends no signal and leaves no record. Where the arm does not reset them, the left
+        entries show as the first read returns and the note names entry 46 as parsed by a later scan."""
+        result = self._run_shell_stubbed_interrupted_first_scan("parse", False, stale=True)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        note = ("stat line parse result not recorded before an interruption, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(found[0][0], ["KeyboardInterrupt", "during the parse", [note]], detail)
+        self.assertNotIn("parsed by a later scan", found[0][0][2][0], detail)
+        self.assertEqual(found[0][3], [], detail)
+        self.assertEqual(found[0][4], [{}, {}, {}, {}, {}], detail)
+        self.assertEqual(found[0][5], [[{"41": []}, {"41": []}]], detail)
+
+    def test_run_shell_stubbed_raised_unparsable_line_keeps_priority_over_a_later_scan_parse(self) -> None:
+        """A line already raised for the shell that names an entry as parsed and found unparsable keeps that
+        name when a later scan parses the entry's line: merge gives found-unparsable priority. The grace
+        loop's first scan records entry 46, parses its cut line, finds it unparsable and raises
+        _UnparsableStat with nothing in flight; the tool's own _kill_session then reads entry 46 again, its
+        line now parsing, of another session, so the entry stays recorded and is put in _SCAN_PARSED_LATER,
+        where the settlement still finds it. The settlement's line names entry 46 as parsed by a later scan
+        and is merged into the raised line, so the run ends with _UnparsableStat naming entry 46 as an
+        unparsable stat line only (exit table row X2), sends no signal and leaves no record. Where merge gave
+        a later scan's parse priority, the run would name entry 46 as parsed by a later scan."""
+        result = self._run_shell_stubbed_interrupted_first_scan("none", True)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 1, detail)
+        self.assertEqual(found[0][0], ["_UnparsableStat", "unparsable stat line, session unknown: /proc/46/stat",
+                                       []], detail)
+        self.assertNotIn("parsed by a later scan", found[0][0][1], detail)
+        self.assertGreater(found[0][1], 1, detail)
+        self.assertEqual(found[0][3], [], detail)
+        self.assertEqual(found[0][4], [{}, {}, {}, {}, {}], detail)
+        self.assertIn({"41": [46]}, found[0][6], detail)
+
+    def test_run_shell_stubbed_later_scan_parse_clears_the_parse_result_mark(self) -> None:
+        """A later scan's parse of an entry an earlier scan recorded drops that entry's parse result mark and
+        keeps the entry recorded. A clone of _session_members over the stand-in /proc (entry 46 only) runs
+        twice for session 41, armed with an empty record: the first scan records 46 as its read returns and is
+        interrupted during the parse (the split raises KeyboardInterrupt), which leaves 46 recorded and
+        marked; the second scan reads 46 again, its line now parsing, of another session, and returns no
+        member. Afterwards 46 is still recorded in _SCAN_UNREAD and no longer marked in _SCAN_UNPARSED. Where
+        only the scan that recorded an entry drops its mark, the mark still holds 46."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "reads = []\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class Line(str):\n"
+            "    def rsplit(self, *args, **kwargs):\n"
+            "        raise KeyboardInterrupt('during the parse')\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        reads.append(line)\n"
+            "        return Line(line) if len(reads) == 1 else '46 (sh) S 1 46 46 0 -1'\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        return self.fh.__exit__(*exc_info)\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "members = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "t['_SCAN_UNREAD'][41] = []\n"
+            "steps = []\n"
+            "for _ in range(2):\n"
+            "    try:\n"
+            "        steps.append(['returned', members(41)])\n"
+            "    except BaseException as exc:\n"
+            "        steps.append([type(exc).__name__, str(exc)])\n"
+            "    steps.append([{str(k): list(v) for k, v in t['_SCAN_UNREAD'].items()},\n"
+            "                  {str(k): list(v) for k, v in t['_SCAN_UNPARSED'].items()}])\n"
+            "print('RESULT ' + json.dumps([steps, len(reads)]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(found, [[[
+            ["KeyboardInterrupt", "during the parse"],
+            [{"41": [46]}, {"41": [46]}],
+            ["returned", []],
+            [{"41": [46]}, {"41": []}],
+        ], 2]], detail)
+
+    def test_run_shell_stubbed_later_scan_parse_records_the_entry_as_parsed_later(self) -> None:
+        """_SCAN_PARSED_LATER holds an entry an earlier scan recorded whose line a later scan parsed, and a scan
+        that finds the line unparsable again takes it out. A clone of _session_members over the stand-in /proc
+        (entry 46 only) runs three times for session 41, armed with an empty record: the first read returns
+        the cut line (found unparsable: _UnparsableStat, 46 recorded, its mark dropped), the second a line
+        that parses, of another session (no member returned, 46 still recorded and now in
+        _SCAN_PARSED_LATER), the third the cut line again (_UnparsableStat, 46 still recorded and out of
+        _SCAN_PARSED_LATER). Where the tool keeps no such record, the second step shows none."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "reads = []\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        reads.append(line)\n"
+            "        return '46 (sh) S 1 46 46 0 -1' if len(reads) == 2 else line\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        return self.fh.__exit__(*exc_info)\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "members = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "t['_SCAN_UNREAD'][41] = []\n"
+            "steps = []\n"
+            "for _ in range(3):\n"
+            "    try:\n"
+            "        steps.append(['returned', members(41)])\n"
+            "    except BaseException as exc:\n"
+            "        steps.append([type(exc).__name__, str(exc)])\n"
+            "    steps.append([{str(k): list(v) for k, v in t['_SCAN_UNREAD'].items()},\n"
+            "                  {str(k): list(v) for k, v in t['_SCAN_UNPARSED'].items()},\n"
+            "                  {str(k): list(v) for k, v in t.get('_SCAN_PARSED_LATER', {}).items()}])\n"
+            "print('RESULT ' + json.dumps([steps, len(reads)]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        unparsable = "unparsable stat line, session unknown: /proc/46/stat"
+        self.assertEqual(found, [[[
+            ["_UnparsableStat", unparsable],
+            [{"41": [46]}, {"41": []}, {"41": []}],
+            ["returned", []],
+            [{"41": [46]}, {"41": []}, {"41": [46]}],
+            ["_UnparsableStat", unparsable],
+            [{"41": [46]}, {"41": []}, {"41": []}],
+        ], 3]], detail)
+
+    def test_run_shell_stubbed_record_pop_raise_leaves_the_records_not_yet_popped(self) -> None:
+        """Exit table row X3, its record-pop clause, driven: a clone of run calls a clone of _run_shells whose
+        Popen is a stand-in shell (pid 41) whose every wait reaps it; its grace loop scans the stand-in /proc
+        (entry 46 only, its stat line cut) through a clone of _session_members, which records 46 in
+        _SCAN_UNREAD; its _kill_session stores [46] in _KILL_UNKNOWN and [42] in _KILL_ALIVE and returns False.
+        The five records are dicts whose pop raises KeyboardInterrupt at the call a case chooses: the
+        settlement's pop of _KILL_UNKNOWN, of _SCAN_UNREAD, of _KILL_ALIVE, of _SCAN_UNPARSED or of
+        _SCAN_PARSED_LATER, which it pops in that order (the first and the third are also popped once before
+        the kill). Each case ends with that KeyboardInterrupt and leaves the shell's session in the record
+        whose pop raised and in each record after it, and in no other; the control raises at no pop, ends with
+        _UnparsableStat (row X2) and leaves no record. Where the settlement pops each record whatever an
+        earlier pop raised, the first case leaves only _KILL_UNKNOWN; where it does not pop
+        _SCAN_PARSED_LATER, the last raising case ends with _UnparsableStat and every case leaves that
+        record."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "case = ['']\n"
+            "class Records(dict):\n"
+            "    def __init__(self, name, raise_at):\n"
+            "        super().__init__()\n"
+            "        self.name, self.raise_at, self.calls = name, raise_at, 0\n"
+            "    def pop(self, *args):\n"
+            "        self.calls += 1\n"
+            "        if case[0] == self.name and self.calls == self.raise_at:\n"
+            "            raise KeyboardInterrupt('record pop')\n"
+            "        return dict.pop(self, *args)\n"
+            "kill_unknown = Records('kill-unknown', 2)\n"
+            "scan_unread = Records('scan-unread', 1)\n"
+            "kill_alive = Records('kill-alive', 2)\n"
+            "scan_unparsed = Records('scan-unparsed', 1)\n"
+            "parsed_later = Records('parsed-later', 1)\n"
+            "records = (kill_unknown, scan_unread, kill_alive, scan_unparsed, parsed_later)\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "members = clone('_session_members', open=fake_open, _SCAN_UNREAD=scan_unread,\n"
+            "                _SCAN_UNPARSED=scan_unparsed, _SCAN_PARSED_LATER=parsed_later,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "def kill_session(sid):\n"
+            "    kill_unknown[sid] = [46]\n"
+            "    kill_alive[sid] = [42]\n"
+            "    return False\n"
+            "unread = clone('_shell_unread', _KILL_UNKNOWN=kill_unknown, _SCAN_UNREAD=scan_unread,\n"
+            "               _KILL_ALIVE=kill_alive)\n"
+            "marked = clone('_unparsed_entries', _SCAN_UNPARSED=scan_unparsed)\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members, _kill_session=kill_session,\n"
+            "               _shell_unread=unread, _unparsed_entries=marked, _KILL_UNKNOWN=kill_unknown,\n"
+            "               _SCAN_UNREAD=scan_unread, _KILL_ALIVE=kill_alive, _SCAN_UNPARSED=scan_unparsed,\n"
+            "               _SCAN_PARSED_LATER=parsed_later)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "for case[0] in ('kill-unknown', 'scan-unread', 'kill-alive', 'scan-unparsed', 'parsed-later',\n"
+            "                'control'):\n"
+            "    for record in records:\n"
+            "        dict.clear(record)\n"
+            "        record.calls = 0\n"
+            "    try:\n"
+            "        run('true', shells=('bash',))\n"
+            "        outcome = ['returned', '']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc) if isinstance(exc, KeyboardInterrupt) else '']\n"
+            "    left = [sorted(record) for record in records]\n"
+            "    print('RESULT ' + json.dumps([case[0]] + outcome + [left]), flush=True)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(found, [
+            ["kill-unknown", "KeyboardInterrupt", "record pop", [[41], [41], [41], [41], [41]]],
+            ["scan-unread", "KeyboardInterrupt", "record pop", [[], [41], [41], [41], [41]]],
+            ["kill-alive", "KeyboardInterrupt", "record pop", [[], [], [41], [41], [41]]],
+            ["scan-unparsed", "KeyboardInterrupt", "record pop", [[], [], [], [41], [41]]],
+            ["parsed-later", "KeyboardInterrupt", "record pop", [[], [], [], [], [41]]],
+            ["control", "_UnparsableStat", "", [[], [], [], [], []]],
+        ], detail)
+
+    def test_run_shell_stubbed_raise_entering_the_cleanup_finally_is_a_stated_exit(self) -> None:
+        """Row X16, its window inside the finally, driven: a clone of run calls a clone of _run_shells whose
+        Popen is a stand-in shell (pid 41) that records each wait, whose session scan and _kill_session record
+        each call and whose _rmtree records the removal; a trace function raises KeyboardInterrupt('window') at
+        the line event of the first statement of the finally that follows the command's wait (reaped = True),
+        before the protected try in it, as a signal handler or trace function could. The run ends with that
+        KeyboardInterrupt and no note; the shell is neither scanned, killed with its session nor reaped (its
+        only wait is the command's own, with the run's timeout), the temp dir is removed, the caller's mask is
+        back, the deferral is inactive and the records are empty, as the row states. Where that statement sits
+        inside the protected try, the kill and the reap run."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "waits, scans, kills, removed = [], [], [], []\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "real_rmtree = t['_rmtree']\n"
+            "def rmtree(path):\n"
+            "    real_rmtree(path)\n"
+            "    removed.append(not os.path.exists(path))\n"
+            "def members(sid):\n"
+            "    scans.append(sid)\n"
+            "    return scan(sid)\n"
+            "def kill_session(sid):\n"
+            "    kills.append(sid)\n"
+            "    return True\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members, _kill_session=kill_session,\n"
+            "               _rmtree=rmtree)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "source = open(sys.argv[1], encoding='utf-8').read().splitlines()\n"
+            "window = [n + 1 for n, text in enumerate(source) if text.strip() == 'reaped = True']\n"
+            "assert len(window) == 1, window\n"
+            "def local(frame, event, arg):\n"
+            "    if event == 'line' and frame.f_lineno == window[0]:\n"
+            "        sys.settrace(None)\n"
+            "        frame.f_trace = None\n"
+            "        raise KeyboardInterrupt('window')\n"
+            "    return local\n"
+            "def tracer(frame, event, arg):\n"
+            "    return local if frame.f_code is shells.__code__ else None\n"
+            "mask_before = signal.pthread_sigmask(signal.SIG_BLOCK, [])\n"
+            "sys.settrace(tracer)\n"
+            "try:\n"
+            "    run('true', shells=('bash',))\n"
+            "    outcome = ['returned']\n"
+            "except BaseException as exc:\n"
+            "    outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', [])]\n"
+            "finally:\n"
+            "    sys.settrace(None)\n"
+            "mask_after = signal.pthread_sigmask(signal.SIG_BLOCK, [])\n"
+            "print('RESULT', json.dumps(outcome), json.dumps([waits, scans, kills, removed]),\n"
+            "      json.dumps([mask_before == mask_after, t['_DEFERRED']['active']]),\n"
+            "      json.dumps([t['_SCAN_UNREAD'], t['_KILL_UNKNOWN'], t['_KILL_ALIVE']]))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertEqual(result.stdout, "RESULT " + json.dumps(["KeyboardInterrupt", "window", []]) + " "
+                         + json.dumps([[30], [], [], [True]]) + " " + json.dumps([True, False]) + " "
+                         + json.dumps([{}, {}, {}]) + "\n", detail)
+
+    def test_run_shell_stubbed_exit_table_parse_window_row(self) -> None:
+        """Exit table row X17 driven through the tool's own _session_members over the stand-in /proc, listing
+        entry 46 only, in a clone of _run_shells called through a clone of run. Case parse: the stand-in read
+        returns a stat line that parses (session 46), whose split raises KeyboardInterrupt, as a signal handler
+        run during the parse would: the scan recorded the entry as its read returned, so the run ends with that
+        KeyboardInterrupt, carrying one note that names the entry as a stat line parse result not recorded before an
+        interruption (fail-closed). The control
+        reads the cut line and ends with _UnparsableStat (row X2). No case leaves an entry in _SCAN_UNREAD.
+        Row X17 is in the table with this outcome."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "mode = ['']\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46']\n"
+            "class Line(str):\n"
+            "    def rsplit(self, *args, **kwargs):\n"
+            "        raise KeyboardInterrupt('during the parse')\n"
+            "class Reader:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def read(self):\n"
+            "        line = self.fh.read()\n"
+            "        if mode[0] == 'parse':\n"
+            "            return Line('46 (sh) S 1 46 46 0 -1')\n"
+            "        return line\n"
+            "class Handled:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return Reader(self.fh.__enter__())\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        return self.fh.__exit__(*exc_info)\n"
+            "def handled_open(path, *args, **kwargs):\n"
+            "    return Handled(fake_open(path, *args, **kwargs))\n"
+            "members = clone('_session_members', open=handled_open,\n"
+            "                os=types.SimpleNamespace(listdir=listing))\n"
+            "shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "               _kill_session=lambda sid: True)\n"
+            "run = clone('run', _run_shells=shells)\n"
+            "for mode[0] in ('parse', 'control'):\n"
+            "    for record in (t['_KILL_UNKNOWN'], t['_SCAN_UNREAD'], t['_KILL_ALIVE']):\n"
+            "        record.clear()\n"
+            "    try:\n"
+            "        results = run('true', shells=('bash',))\n"
+            "        outcome = ['returned', [r['contained'] for r in results], []]\n"
+            "    except BaseException as exc:\n"
+            "        shown = [str(exc)] if isinstance(exc, KeyboardInterrupt) else []\n"
+            "        outcome = [type(exc).__name__, shown, getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT ' + json.dumps([mode[0]] + outcome + [sorted(t['_SCAN_UNREAD'].items())]),\n"
+            "          flush=True)\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        found = [json.loads(text[len("RESULT "):]) for text in result.stdout.splitlines()
+                 if text.startswith("RESULT ")]
+        self.assertEqual(len(found), 2, detail)
+        self.assertEqual(found[0][:3], ["parse", "KeyboardInterrupt", ["during the parse"]], detail)
+        self.assertEqual(len(found[0][3]), 1, detail)
+        self.assertIn("/proc/46/stat", found[0][3][0], detail)
+        self.assertIn("stat line parse result not recorded before an interruption", found[0][3][0], detail)
+        self.assertEqual(found[0][4], [], detail)
+        self.assertEqual(found[1], ["control", "_UnparsableStat", [], [], []], detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("X17 | a signal handler raising during a scan's parse of a stat line that parses, or between that "
+                "parse and the drop from _SCAN_UNREAD (inferred from the control flow) | that exception, no "
+                "result | one note naming the entry as a stat line parse result not recorded before an interruption "
+                "(fail-closed) | nothing | runs | restored", doc)
+
+    def test_run_shell_stubbed_trace_raise_after_the_final_carry_is_a_stated_exit(self) -> None:
+        """The trace residual stated generally: a trace function that raises KeyboardInterrupt at a line event
+        outside a carry's handler, after a line of the run has been raised, ends the run with no note. In case
+        _run_shells the temp dir removal (the tool's _rmtree, then a raise of KeyboardInterrupt('removal'))
+        raises over the shell's unparsable stat line, the final carry of _run_shells carries the line onto it,
+        and the trace function raises at the bare raise after that carry; in case run, run's drain (the tool's
+        _drain_deferral, then a raise of KeyboardInterrupt('drain')) raises over the line, run's carry carries
+        it, and the trace function raises at run's check of whether its carried exception is late. Each run
+        ends with the trace's KeyboardInterrupt with no note, chained over the carried exception, which holds
+        the note; the module docstring states the residual generally and names these points.
+        The shell and scan are those of
+        test_run_shell_stubbed_cleanup_entry_trace_raise_is_a_stated_exit; a trace function that raises is
+        unset by the interpreter, so it fires once, only in the code object of the named function."""
+        tool = (SKILL_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8")
+        shells_raise = ("                _carry_shell_lines(late, shell, caller_exception)\n"
+                        "                raise\n    return results\n")
+        run_late = "            if carried is late:\n                raise\n            raise carried\n"
+        for anchor in (shells_raise, run_late):
+            self.assertEqual(tool.count(anchor), 1, anchor)
+
+        def line_of(anchor: str, offset: int) -> int:
+            return tool[:tool.index(anchor)].count("\n") + 1 + offset
+
+        targets = [["_run_shells", line_of(shells_raise, 1)], ["run", line_of(run_late, 0)]]
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        self.returncode = 0\n"
+            "        return 0\n"
+            "def members(sid):\n"
+            "    raise t['_UnparsableStat'](['46'], [(41, 'S')])\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "def rmtree(path):\n"
+            "    t['_rmtree'](path)\n"
+            "    raise KeyboardInterrupt('removal')\n"
+            "def drain(caller_exception):\n"
+            "    t['_drain_deferral'](caller_exception)\n"
+            "    raise KeyboardInterrupt('drain')\n"
+            "targets = " + json.dumps(targets) + "\n"
+            "for name, line in targets:\n"
+            "    shells = clone('_run_shells', subprocess=popen, _session_members=members,\n"
+            "                   _kill_session=lambda sid: True,\n"
+            "                   **({'_rmtree': rmtree} if name == '_run_shells' else {}))\n"
+            "    run = clone('run', _run_shells=shells,\n"
+            "                **({'_drain_deferral': drain} if name == 'run' else {}))\n"
+            "    fired = []\n"
+            "    code = t[name].__code__\n"
+            "    def tracer(frame, event, arg):\n"
+            "        if frame.f_code is not code:\n"
+            "            return None\n"
+            "        if event == 'line' and frame.f_lineno == line and not fired:\n"
+            "            fired.append(line)\n"
+            "            raise KeyboardInterrupt('trace ' + name)\n"
+            "        return tracer\n"
+            "    sys.settrace(tracer)\n"
+            "    try:\n"
+            "        run('true', shells=('bash',))\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, str(exc), getattr(exc, '__notes__', []),\n"
+            "                   type(exc.__context__).__name__, str(exc.__context__),\n"
+            "                   getattr(exc.__context__, '__notes__', [])]\n"
+            "    finally:\n"
+            "        sys.settrace(None)\n"
+            "    print('RESULT', name, json.dumps(outcome), json.dumps(fired))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        first = {"_run_shells": "removal", "run": "drain"}
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {name} " + json.dumps(["KeyboardInterrupt", "trace " + name, [],
+                                            "KeyboardInterrupt", first[name], [note]])
+            + f" [{line}]\n" for name, line in targets), detail)
+        doc = " ".join(tool.split('"""', 2)[1].split())
+        self.assertIn("and at any other line event outside a carry's handler, once a line of the run has been raised "
+                      "(the bare raise after the final carry of _run_shells, and run's check of whether its carried "
+                      "exception is late and the raises after that check, for example), row X12. That a signal handler "
+                      "can run at any of those points is not established.", doc)
+
+    def test_run_shell_stubbed_drain_deferral_walks_the_chain(self) -> None:
+        """_drain_deferral, called directly with no handler of _run_shells or run around it, raises the pending
+        termination with a note for each unparsable stat line along the __context__ chain of the exception it
+        finds propagating, and stops at the caller's own handled exception. With a SIGTERM pending and the
+        deferral active, the tool's own _drain_deferral is called while handling: in case line, an
+        _UnparsableStat raised for bash naming /proc/46/stat; in case carried, a _Terminated(15) that carries
+        that line as its bash record (_carry_line); in case chained, a KeyboardInterrupt raised while that line
+        was propagating; in case caller, that line given as the caller's exception; and in case below-caller, the
+        chained KeyboardInterrupt with the line given as the caller's exception. Each raises _Terminated(15),
+        with the line as its note in the first three cases and with no note in the last two, and leaves the
+        deferral inactive with nothing pending, where noting only an active _UnparsableStat leaves cases carried
+        and chained with no note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "def line():\n"
+            "    exc = t['_UnparsableStat'](['46'], [])\n"
+            "    exc.shell, exc.results = 'bash', []\n"
+            "    return exc\n"
+            "def raised(case):\n"
+            "    first = line()\n"
+            "    if case in ('line', 'caller'):\n"
+            "        return first, (first if case == 'caller' else None)\n"
+            "    if case == 'carried':\n"
+            "        top = t['_Terminated'](15)\n"
+            "        t['_carry_line'](top, first, 'bash')\n"
+            "        return top, None\n"
+            "    try:\n"
+            "        raise first\n"
+            "    except BaseException:\n"
+            "        try:\n"
+            "            raise KeyboardInterrupt\n"
+            "        except BaseException as top:\n"
+            "            return top, (first if case == 'below-caller' else None)\n"
+            "for case in ('line', 'carried', 'chained', 'caller', 'below-caller'):\n"
+            "    top, caller = raised(case)\n"
+            "    t['_DEFERRED']['active'], t['_DEFERRED']['pending'] = True, signal.SIGTERM\n"
+            "    try:\n"
+            "        try:\n"
+            "            raise top\n"
+            "        except BaseException:\n"
+            "            t['_drain_deferral'](caller)\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, [int(arg) for arg in exc.args], getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case, json.dumps(outcome), json.dumps(t['_DEFERRED']))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {case} {json.dumps(['_Terminated', [15], notes])} "
+            f"{json.dumps({'active': False, 'pending': None})}\n"
+            for case, notes in (("line", [note]), ("carried", [note]), ("chained", [note]), ("caller", []),
+                                ("below-caller", []))), detail)
+
+    def test_run_shell_stubbed_interrupted_fallback_sweep_scan_keeps_the_entry(self) -> None:
+        """An interrupt raised inside the fallback sweep's session scan after that scan has read an unparsable
+        stat line does not lose the entry. A clone of _run_shells runs with no real process: its Popen is a
+        stand-in shell (pid 41) whose waits time out until the group kill and then reap it; its grace loop
+        reads nothing; its _kill_session returns True; and its fallback sweep's scan is a clone of the tool's
+        own _session_members over a /proc listing of 46 and 47, where 46's stat line is cut before its session
+        field. In case next, opening /proc/47/stat raises KeyboardInterrupt; in case close, the close of
+        /proc/46/stat raises it once the file is closed. Each case ends with that KeyboardInterrupt with the
+        entry and the shell as its note, after the group kill and the reap, with no member signalled and no
+        armed session left, where recording the entry only once its parse has failed ends case close with no
+        note."""
+        result = self._run_shell_stubbed_unparsable_member(
+            "import subprocess\n"
+            "case, phase, waits = [''], ['grace'], []\n"
+            "def grouped():\n"
+            "    return any(send[1] == 'killpg SIGKILL' for send in sends)\n"
+            "class Shell:\n"
+            "    pid, returncode = 41, None\n"
+            "    def __init__(self, argv, **kwargs):\n"
+            "        pass\n"
+            "    def wait(self, timeout=None):\n"
+            "        waits.append(timeout)\n"
+            "        if not grouped():\n"
+            "            raise subprocess.TimeoutExpired('shell', timeout)\n"
+            "        self.returncode = -9\n"
+            "        return -9\n"
+            "def killpg(pgid, sig):\n"
+            "    sends.append([pgid, 'killpg ' + signal.Signals(sig).name])\n"
+            "def refused(pid, sig):\n"
+            "    raise AssertionError('no member may be signalled')\n"
+            "def listing(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return ['46', '47']\n"
+            "class InterruptedClose:\n"
+            "    def __init__(self, fh):\n"
+            "        self.fh = fh\n"
+            "    def __enter__(self):\n"
+            "        return self.fh.__enter__()\n"
+            "    def __exit__(self, *exc_info):\n"
+            "        self.fh.__exit__(*exc_info)\n"
+            "        raise KeyboardInterrupt('at the close')\n"
+            "def interrupting_open(path, *args, **kwargs):\n"
+            "    if case[0] == 'next' and path == '/proc/47/stat':\n"
+            "        raise KeyboardInterrupt('at the next entry')\n"
+            "    if case[0] == 'close' and path == '/proc/46/stat':\n"
+            "        return InterruptedClose(fake_open(path, *args, **kwargs))\n"
+            "    return fake_open(path, *args, **kwargs)\n"
+            "sweep_scan = clone('_session_members', open=interrupting_open,\n"
+            "                   os=types.SimpleNamespace(listdir=listing))\n"
+            "def members(sid):\n"
+            "    if phase[0] == 'grace':\n"
+            "        return []\n"
+            "    return sweep_scan(sid)\n"
+            "def kill_session(sid):\n"
+            "    phase[0] = 'kill'\n"
+            "    return True\n"
+            "fake_os = types.SimpleNamespace(path=os.path, makedirs=os.makedirs, devnull=os.devnull,\n"
+            "                                killpg=killpg, kill=refused)\n"
+            "popen = types.SimpleNamespace(Popen=Shell, DEVNULL=subprocess.DEVNULL,\n"
+            "                              TimeoutExpired=subprocess.TimeoutExpired)\n"
+            "shells = clone('_run_shells', subprocess=popen, os=fake_os, _session_members=members,\n"
+            "               _kill_session=kill_session)\n"
+            "for case[0] in ('next', 'close'):\n"
+            "    phase[0] = 'grace'\n"
+            "    sends.clear()\n"
+            "    waits.clear()\n"
+            "    try:\n"
+            "        shells('true', ('bash',), ('gh', 'git'), 30, [])\n"
+            "        outcome = ['returned']\n"
+            "    except BaseException as exc:\n"
+            "        outcome = [type(exc).__name__, list(exc.args), getattr(exc, '__notes__', [])]\n"
+            "    print('RESULT', case[0], json.dumps(outcome), json.dumps(sends), json.dumps(waits),\n"
+            "          json.dumps(sorted(t['_SCAN_UNREAD'])))\n")
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        note = ("unparsable stat line, session unknown: /proc/46/stat; "
+                "containment of the bash run could not be shown")
+        self.assertEqual(result.stdout, "".join(
+            f"RESULT {case} {json.dumps(['KeyboardInterrupt', [args], [note]])} "
+            '[[41, "killpg SIGKILL"]] [30, 2.0, 2.0] []\n'
+            for case, args in (("next", "at the next entry"), ("close", "at the close"))), detail)
+
+    def test_run_shell_stubbed_signal_probe_reraises_a_termination_from_its_stat_read(self) -> None:
+        """SIGNAL_PROBE's registered_watch passes over an Exception from its stat read, except the tool's
+        _Terminated, which it raises again so that a termination ends the probe. The stand-in here is the one the
+        registered_watch test in this class uses, with an open that raises _Terminated(15). Its _Terminated is an
+        Exception, as the tool's is: a BaseException would pass "except Exception" whether or not the probe raised
+        it again. The probe exits with a status other than 0 and _Terminated: 15 ending its last standard error
+        line, never reaches run, and writes nothing to the registry."""
+        standin = (
+            "import contextlib, sys\n"
+            "def probe_open(path, *args, **kwargs):\n"
+            "    raise _Terminated(15)\n"
+            "sys.modules['__main__'].open = probe_open\n"
+            "class _Terminated(Exception):\n"
+            "    pass\n"
+            "@contextlib.contextmanager\n"
+            "def _self_test_limits():\n"
+            "    print('WATCH', _fixture_watch(), flush=True)\n"
+            "    yield\n"
+            "def _fixture_watch():\n"
+            "    return 41, 'writer'\n"
+            "def run(*args, **kwargs):\n"
+            "    print('RUN', args, flush=True)\n"
+        )
+        driver = (
+            "import json, os, runpy, subprocess, sys\n"
+            "probe = runpy.run_path(sys.argv[1])['SIGNAL_PROBE']\n"
+            "ready_r, ready_w = os.pipe()\n"
+            "hold_r, hold_w = os.pipe()\n"
+            "stack_r, stack_w = os.pipe()\n"
+            "reg_r, reg_w = os.pipe()\n"
+            "result = subprocess.run(\n"
+            "    [sys.executable, '-I', '-B', '-c', probe,\n"
+            "     sys.argv[2], str(ready_w), str(hold_r), str(stack_w), str(reg_w)],\n"
+            "    capture_output=True, text=True, timeout=60, pass_fds=(ready_w, hold_r, stack_w, reg_w))\n"
+            "for fd in (ready_w, hold_r, hold_w, stack_w, reg_w):\n"
+            "    os.close(fd)\n"
+            "registry = b''\n"
+            "while True:\n"
+            "    chunk = os.read(reg_r, 4096)\n"
+            "    if not chunk:\n"
+            "        break\n"
+            "    registry += chunk\n"
+            "for fd in (ready_r, stack_r, reg_r):\n"
+            "    os.close(fd)\n"
+            "print(json.dumps({'rc': result.returncode, 'stdout': result.stdout, 'stderr': result.stderr,\n"
+            "                  'registry': registry.decode('utf-8', 'replace')}))\n"
+        )
+        with tempfile.TemporaryDirectory(prefix="signal-probe-term-test-") as tmp:
+            standin_path = Path(tmp) / "stand-in-tool.py"
+            standin_path.write_text(standin, encoding="utf-8")
+            result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                         str(SKILL_ROOT / "tools" / "run-shell-stubbed.py"), str(standin_path)],
+                                        timeout=120)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        out = json.loads(result.stdout)
+        self.assertNotEqual(out["rc"], 0, detail)
+        self.assertTrue((out["stderr"].splitlines() or [""])[-1].endswith("_Terminated: 15"), detail)
+        self.assertEqual(out["stdout"], "", detail)
+        self.assertEqual(out["registry"], "", detail)
 
     def test_lint_ungated_dashes_self_test(self) -> None:
         """Gate 82's own self-test. A prose gate that must flag re-drift while exempting the
@@ -19054,6 +24354,531 @@ class NightlySweepStepTests(unittest.TestCase):
                 moved = nightly.replace(block, "").replace(runner, block + "\n" + runner)
                 self.assertEqual(self._findings(moved, guard),
                                  [f"step {check!r} comes before step {self.RUNNER_STEP!r}"])
+
+
+class PrePushGuardMaintainerSiblingTests(unittest.TestCase):
+    """The identity, store and grc_library_ref rules of
+    .claude/skills/corpus-management/tools/pre-push-guard.sh on a maintainer push.
+
+    The guard takes a push as the maintainer's from the clone's origin URL (git remote get-url
+    origin), as its grc_library_private check does: jposluns/grc_library or
+    jposluns/grc_library_new after a "/" or ":" (https, scp-like and ssh:// forms and local
+    paths), with or without .git, matched case-sensitively as the end of the URL.
+    .claude/skills/corpus-management/tools/pre-push-hook.py keys on the push destination
+    instead: it runs the guard for a push only when the destination's path, percent-decoded,
+    case-folded, normalized by posixpath.normpath and with its trailing slashes and a final
+    .git dropped, equals jposluns/grc_library or ends in /jposluns/grc_library (a "/" before
+    the owner), so a push through the installed hook to a jposluns/grc_library_new destination
+    does not run the guard until that hook accepts the same set; a direct guard run takes the
+    checks. On a push from a maintainer clone:
+
+    1. Store rule: with GRC_STORE unset or empty and no <repo-parent>/private directory, or
+       one this account cannot enter, the guard refuses (exit 4) before any runner starts,
+       naming that condition and the remedy (set GRC_STORE, or provide the sibling store as a
+       directory this account can enter (search permission)). With GRC_STORE unset the store
+       is <repo-parent>/private by name: when it is absent or not a directory, default readers
+       of lint_common.resolve_working (strict=False) look up a file in
+       grc_library_private/.working/, a transitional tree that may be stale, then in the
+       repository's own .working/, in place of the live operational store; one this account
+       cannot enter they still take as the store, so a file lookup finds nothing in it and
+       falls through the same way (on Python 3.11, whose pathlib exists() raises
+       PermissionError on EACCES, it raises instead) and a directory lookup
+       (resolve_working_dir) returns the unenterable store itself. Strict readers
+       (strict=True) refuse a store path that is present but not a directory, a directory
+       they cannot search, or a GRC_STORE path behind a missing intermediate component, and
+       fall through like default readers only for an absent store or a directory inside the
+       repository that they can search. No other location is derived: the only documented
+       default store is <repo-parent>/private itself. With GRC_STORE set, the guard refuses
+       (exit 4) before any runner starts, naming GRC_STORE and the condition, unless it names
+       an existing directory outside the repository: a missing path, a path that is not a
+       directory, a directory this account cannot enter, and a directory whose real path is the
+       repository root or inside it (a relative value read against the repository root, as
+       lint_common reads it) all refuse, since lint_common takes GRC_STORE alone as the store
+       and does not consult <repo-parent>/private while GRC_STORE is set, so each such value
+       leaves the gates off the live operational store in the ways described above. GRC_STORE
+       naming an existing directory outside the repository, or (GRC_STORE unset) the sibling
+       store present, proceeds as before.
+    2. Reference rule: with no grc_library_ref directory beside the clone, the guard refuses
+       (exit 4) before any runner starts, naming grc_library_ref. Before this rule the push
+       passed, with only the reference-manifest advisory's could-not-run line.
+
+    An adopter clone (any other origin, a fork owner ending in jposluns included) is
+    unaffected by both rules.
+
+    Residuals: identity keys on the origin URL here and on the push destination in
+    .claude/skills/corpus-management/tools/pre-push-hook.py, so a push to the maintainer
+    repository from a clone whose origin names another URL takes none of these checks; a
+    present store that lacks a file resolve_working looks up still falls through to
+    grc_library_private/.working/; with GRC_STORE unset, a <repo-parent>/private that resolves
+    inside the repository passes the store rule, though lint_common does not take it as the
+    store; an origin that is a relative path naming the owner first, such as
+    jposluns/grc_library_new (no "/" or ":" before the owner), matches no identity entry, so
+    that clone takes none of these checks; an empty or partial grc_library_ref passes the
+    reference rule; and no test builds a repository whose real path is /, so the store rule's
+    in-repository test for that root (the repository path's trailing "/" is stripped before
+    matching, so every store is inside it) is not exercised here.
+
+    Each fixture is a git repository in the test's own temporary directory, with the real
+    shim, hook and guard, stub runners (no run_gate lines, so the guard runs the whole stub
+    runner and no local shard step) and, as origin, a local bare repository the test creates
+    at a path ending jposluns/grc_library.git (the maintainer shape) or other/grc_library.git
+    (an adopter), so neither a push nor the guard's fetch of origin reaches another remote.
+    The identity tests set origin to a hosted URL and stop the guard before its fetch of
+    origin (exit 4 at the private-required check, or exit 5 at the dirty-tree check), so they
+    contact no remote either. The test commits to its own fixture before it installs the
+    hooks."""
+
+    TOOLS = Path(".claude/skills/corpus-management/tools")
+    COPIED = ("git-hooks/pre-push", "pre-push-guard.sh", "pre-push-hook.py",
+              "check-dirty-tree-push.py", "install-git-hooks.sh", "lint_common.py")
+
+    def _run(self, env, cwd, *args):
+        return subprocess.run(args, cwd=str(cwd), env=env, text=True, capture_output=True,
+                              timeout=120)
+
+    def _git(self, env, cwd, *args):
+        result = self._run(env, cwd, "git", *args)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        return result
+
+    def _fixture(self, *, maintainer=True, store=None, ref=True, private=True):
+        """The fixture repository, its environment and its origin. store is None (no store),
+        "sibling" (a <repo-parent>/private directory) or "env" (a directory GRC_STORE names);
+        grc_library_private/.working/ is present, holding a stale entry, unless private is
+        False (no grc_library_private at all)."""
+        holder_dir = tempfile.TemporaryDirectory(prefix="guard-sibling-")
+        self.addCleanup(holder_dir.cleanup)
+        holder = Path(holder_dir.name)
+        repo = holder / "grc_library"
+        tools = repo / self.TOOLS
+        for name in self.COPIED:
+            dest = tools / name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(SKILL_ROOT / "tools" / name, dest)
+        for name, body in (("run_all_audits.sh", "#!/bin/sh\necho STUB RUNNER RAN\n"),
+                           ("run-pr-time-checks.sh", "#!/bin/sh\necho STUB PR CHECKS RAN\n")):
+            (tools / name).write_text(body, encoding="utf-8")
+            (tools / name).chmod(0o755)
+        (tools / "build-reference-manifest.py").write_text(
+            "print('STUB MANIFEST CHECK RAN')\n", encoding="utf-8")
+        (holder / "tmp").mkdir()
+        env = {k: v for k, v in os.environ.items()
+               if not k.startswith("GIT_") and not k.startswith("PRE_PUSH_GUARD_")
+               and k not in ("GRC_STORE", "BASE_REF")}
+        env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1",
+                   GIT_ALLOW_PROTOCOL="file", TMPDIR=str(holder / "tmp"))
+        if private:
+            working = holder / "grc_library_private" / ".working"
+            working.mkdir(parents=True)
+            (working / "pending-decisions.md").write_text("- stale transitional entry\n",
+                                                          encoding="utf-8")
+        if store == "sibling":
+            (holder / "private").mkdir()
+            (holder / "private" / "pending-decisions.md").write_text("- live store entry\n",
+                                                                     encoding="utf-8")
+        elif store == "env":
+            (holder / "store").mkdir()
+            (holder / "store" / "pending-decisions.md").write_text("- live store entry\n",
+                                                                   encoding="utf-8")
+            env["GRC_STORE"] = str(holder / "store")
+        if ref:
+            (holder / "grc_library_ref").mkdir()
+            (holder / "grc_library_ref" / "catalogue.yml").write_text("entries: []\n",
+                                                                      encoding="utf-8")
+        origin = holder / "remotes" / ("jposluns" if maintainer else "other") / "grc_library.git"
+        origin.parent.mkdir(parents=True)
+        self._git(env, holder, "init", "-q", "--bare", str(origin))
+        for args in (("init", "-q"), ("config", "user.email", "fixture@example.com"),
+                     ("config", "user.name", "Guard fixture"),
+                     ("remote", "add", "origin", str(origin)), ("add", "."),
+                     ("commit", "-qm", "Fixture")):
+            self._git(env, repo, *args)
+        installed = self._run(env, repo, "sh", str(self.TOOLS / "install-git-hooks.sh"))
+        self.assertEqual(installed.returncode, 0, installed.stdout + installed.stderr)
+        return repo, env, origin
+
+    def _guard(self, repo, env):
+        """Run the guard directly, its output on a regular file (not a pipe)."""
+        with tempfile.TemporaryFile(mode="w+") as log:
+            result = subprocess.run(["bash", str(self.TOOLS / "pre-push-guard.sh")],
+                                    cwd=str(repo), env=env, stdout=log, stderr=log, timeout=120)
+            log.seek(0)
+            return result.returncode, log.read()
+
+    def _push(self, repo, env, origin):
+        """git push of HEAD to origin's refs/heads/test through the installed hook; the result,
+        its output, HEAD and the commit that landed (None when nothing did)."""
+        result = self._run(env, repo, "git", "push", "origin", "HEAD:refs/heads/test")
+        head = self._git(env, repo, "rev-parse", "HEAD").stdout.strip()
+        landed = self._run(env, repo, "git", "--git-dir", str(origin), "rev-parse", "--verify",
+                           "-q", "refs/heads/test")
+        return (result.returncode, result.stdout + result.stderr, head,
+                landed.stdout.strip() if landed.returncode == 0 else None)
+
+    def test_maintainer_push_without_store_refused_while_private_working_present(self):
+        """Store rule: GRC_STORE unset, no sibling store and grc_library_private/.working/
+        present refuses, before any runner, naming the condition and the remedy."""
+        repo, env, origin = self._fixture()
+        rc, out = self._guard(repo, env)
+        self.assertEqual(rc, 4, out)
+        for needle in ("REFUSING", "GRC_STORE is unset", "/private is absent",
+                       "grc_library_private/.working/", "Set GRC_STORE",
+                       "provide the sibling store"):
+            self.assertIn(needle, out)
+        self.assertNotIn("STUB RUNNER RAN", out)
+        code, output, _head, landed = self._push(repo, env, origin)
+        self.assertNotEqual(code, 0, output)
+        self.assertIn("GRC_STORE is unset", output)
+        self.assertIsNone(landed, output)
+
+    def test_maintainer_push_with_store_set_or_sibling_store_proceeds(self):
+        """The same push with GRC_STORE set, or with the sibling store present, runs every
+        check and lands, as before the store rule."""
+        for store in ("env", "sibling"):
+            with self.subTest(store=store):
+                repo, env, origin = self._fixture(store=store)
+                code, output, head, landed = self._push(repo, env, origin)
+                self.assertEqual(code, 0, output)
+                for needle in ("STUB RUNNER RAN", "STUB PR CHECKS RAN",
+                               "STUB MANIFEST CHECK RAN", "Safe to push"):
+                    self.assertIn(needle, output)
+                self.assertNotIn("REFUSING", output)
+                self.assertEqual(landed, head, output)
+
+    def test_maintainer_push_without_reference_corpus_refused(self):
+        """Reference rule: no grc_library_ref sibling refuses, before any runner, naming it."""
+        repo, env, origin = self._fixture(store="env", ref=False)
+        rc, out = self._guard(repo, env)
+        self.assertEqual(rc, 4, out)
+        for needle in ("REFUSING", "REFUSING to push (ref-required):",
+                       "the grc_library_ref sibling", "is absent",
+                       "Clone it beside this clone"):
+            self.assertIn(needle, out)
+        self.assertNotIn("STUB RUNNER RAN", out)
+        code, output, _head, landed = self._push(repo, env, origin)
+        self.assertNotEqual(code, 0, output)
+        self.assertIn("the grc_library_ref sibling", output)
+        self.assertIsNone(landed, output)
+
+    def test_adopter_push_unaffected_by_store_and_reference_rules(self):
+        """An adopter clone with no store, no grc_library_ref and grc_library_private/.working/
+        present passes the guard run directly, and its push (which the hook does not guard)
+        lands."""
+        repo, env, origin = self._fixture(maintainer=False, ref=False)
+        rc, out = self._guard(repo, env)
+        self.assertEqual(rc, 0, out)
+        self.assertIn("Safe to push", out)
+        self.assertNotIn("REFUSING", out)
+        code, output, head, landed = self._push(repo, env, origin)
+        self.assertEqual(code, 0, output)
+        self.assertEqual(landed, head, output)
+
+    def test_maintainer_push_with_unusable_grc_store_refused(self):
+        """Store rule, GRC_STORE set: a missing path, a regular file, a relative value naming a
+        directory inside the repository (GRC_STORE=private, read as <repo>/private) and an
+        absolute path through a symbolic link that resolves inside the repository each refuse
+        (exit 4) before any runner, naming GRC_STORE and the condition. The sibling store is
+        present in every case, since lint_common does not consult it while GRC_STORE is set."""
+        for case in ("missing", "file", "in-repo-relative", "in-repo-link"):
+            with self.subTest(case=case):
+                repo, env, origin = self._fixture(store="sibling")
+                holder = repo.parent
+                if case == "missing":
+                    env["GRC_STORE"] = str(holder / "no-such-store")
+                    condition = "does not name an existing directory"
+                elif case == "file":
+                    (holder / "store-file").write_text("not a directory\n", encoding="utf-8")
+                    env["GRC_STORE"] = str(holder / "store-file")
+                    condition = "does not name an existing directory"
+                elif case == "in-repo-relative":
+                    (repo / "private").mkdir()
+                    env["GRC_STORE"] = "private"
+                    condition = "inside this repository"
+                else:
+                    (repo / "in-repo-store").mkdir()
+                    (holder / "store-link").symlink_to(repo / "in-repo-store")
+                    env["GRC_STORE"] = str(holder / "store-link")
+                    condition = "inside this repository"
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 4, out)
+                for needle in ("REFUSING", "REFUSING to push (store-required):",
+                               "GRC_STORE is set",
+                               condition, "Set GRC_STORE"):
+                    self.assertIn(needle, out)
+                self.assertNotIn("STUB RUNNER RAN", out)
+                if case == "missing":
+                    code, output, _head, landed = self._push(repo, env, origin)
+                    self.assertNotEqual(code, 0, output)
+                    self.assertIn("GRC_STORE is set", output)
+                    self.assertIsNone(landed, output)
+
+    def test_maintainer_push_with_grc_store_behind_regular_file_refused(self):
+        """Store rule, GRC_STORE set: a path behind an intermediate component that is a regular
+        file (<holder>/afile/sub, with afile a regular file) refuses (exit 4) before any
+        runner, naming GRC_STORE and the condition. lint_common's strict readers refuse such a
+        value too ("present but not a directory (at .../afile, a path component of ...)"), so
+        the message bounds their fall-through: they fall through like the default readers only
+        for an absent store or a directory inside this repository that they can search, and
+        refuse every other unusable path. The same push through the installed hook is refused
+        and does not land."""
+        with self.subTest(case="behind-regular-file"):
+            repo, env, origin = self._fixture(store="sibling")
+            holder = repo.parent
+            (holder / "afile").write_text("a regular file\n", encoding="utf-8")
+            env["GRC_STORE"] = str(holder / "afile" / "sub")
+            rc, out = self._guard(repo, env)
+            self.assertEqual(rc, 4, out)
+            bounded = ("fall through like the default readers only for an absent store or "
+                       "a directory inside this repository that they can search")
+            for needle in ("REFUSING", "REFUSING to push (store-required):",
+                           "GRC_STORE is set",
+                           "does not name an existing directory", bounded,
+                           "refuse every other unusable path", "Set GRC_STORE"):
+                self.assertIn(needle, out)
+            self.assertNotIn("otherwise fall through as the default readers do", out)
+            self.assertNotIn("STUB RUNNER RAN", out)
+            code, output, _head, landed = self._push(repo, env, origin)
+            self.assertNotEqual(code, 0, output)
+            for needle in ("REFUSING to push (store-required):", "GRC_STORE is set",
+                           "does not name an existing directory"):
+                self.assertIn(needle, output)
+            self.assertNotIn("STUB RUNNER RAN", output)
+            self.assertIsNone(landed, output)
+
+    def test_maintainer_push_with_relative_grc_store_outside_repository_proceeds(self):
+        """Guard test (passes before and after the GRC_STORE-set rule): GRC_STORE=../store, a
+        relative value read against the repository root, names an existing directory outside
+        the repository, so the guard runs every check and passes."""
+        repo, env, _origin = self._fixture(store="env")
+        env["GRC_STORE"] = "../store"
+        rc, out = self._guard(repo, env)
+        self.assertEqual(rc, 0, out)
+        for needle in ("STUB RUNNER RAN", "STUB PR CHECKS RAN", "Safe to push"):
+            self.assertIn(needle, out)
+        self.assertNotIn("REFUSING", out)
+
+    def test_maintainer_push_with_grc_store_naming_repository_root_refused(self):
+        """Store rule, GRC_STORE set: GRC_STORE=. (read against the repository root) and the
+        repository root as an absolute path each refuse (exit 4) before any runner, naming
+        GRC_STORE and the condition: the repository root is inside the repository, so the
+        gates would not read the live operational store."""
+        for case in (".", "absolute"):
+            with self.subTest(case=case):
+                repo, env, _origin = self._fixture(store="sibling")
+                env["GRC_STORE"] = "." if case == "." else str(repo)
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 4, out)
+                for needle in ("REFUSING", "REFUSING to push (store-required):",
+                               "GRC_STORE is set",
+                               "is the repository root", "Set GRC_STORE"):
+                    self.assertIn(needle, out)
+                self.assertNotIn("STUB RUNNER RAN", out)
+
+    def test_maintainer_push_with_unenterable_grc_store_refused(self):
+        """Store rule, GRC_STORE set: a store directory outside the repository at mode 0 or
+        600, which this account cannot enter, refuses (exit 4) before any runner, naming
+        GRC_STORE and the condition: the gates cannot search such a store, so they would not
+        read the live operational store. Skipped as root, which can enter it."""
+        if os.geteuid() == 0:
+            self.skipTest("root can enter a directory at mode 0 or 600")
+        for mode in (0o000, 0o600):
+            with self.subTest(mode=oct(mode)):
+                repo, env, _origin = self._fixture(store="env")
+                store = Path(env["GRC_STORE"])
+                store.chmod(mode)
+                self.addCleanup(store.chmod, 0o700)
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 4, out)
+                for needle in ("REFUSING", "REFUSING to push (store-required):",
+                               "GRC_STORE is set",
+                               "cannot enter", "Set GRC_STORE"):
+                    self.assertIn(needle, out)
+                self.assertNotIn("STUB RUNNER RAN", out)
+
+    def test_maintainer_push_with_unenterable_sibling_store_refused(self):
+        """Store rule, GRC_STORE unset: a sibling store <repo-parent>/private at mode 0 or 600,
+        which this account cannot enter, refuses (exit 4) before any runner, naming the
+        condition, since default readers of lint_common.resolve_working still take it as the
+        store but find no file in it, so a file lookup falls through to
+        grc_library_private/.working/ in its place (on Python 3.11 it raises PermissionError
+        instead) and a directory lookup returns the unenterable store itself, while strict
+        readers (strict=True) refuse it as present but not searchable; the push through the
+        installed hook does not land. Skipped as root, which can enter it."""
+        if os.geteuid() == 0:
+            self.skipTest("root can enter a directory at mode 0 or 600")
+        for mode in (0o000, 0o600):
+            with self.subTest(mode=oct(mode)):
+                repo, env, origin = self._fixture(store="sibling")
+                sibling = repo.parent / "private"
+                sibling.chmod(mode)
+                self.addCleanup(sibling.chmod, 0o700)
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 4, out)
+                for needle in ("REFUSING", "REFUSING to push (store-required):",
+                               "GRC_STORE is unset",
+                               "cannot enter", "grc_library_private/.working/",
+                               "set GRC_STORE", "search (execute) permission"):
+                    self.assertIn(needle, out)
+                self.assertNotIn("STUB RUNNER RAN", out)
+                code, output, _head, landed = self._push(repo, env, origin)
+                self.assertNotEqual(code, 0, output)
+                self.assertIn("cannot enter", output)
+                self.assertIsNone(landed, output)
+
+    def test_maintainer_push_with_non_directory_sibling_store_refused(self):
+        """Store rule, GRC_STORE unset: a sibling store <repo-parent>/private that is a regular
+        file refuses (exit 4) before any runner, saying the sibling store is absent or is not a
+        directory, since default readers of lint_common.resolve_working then look up each file
+        in grc_library_private/.working/ in its place and strict readers refuse it as present
+        but not a directory. The same push through the installed hook is refused and does not
+        land."""
+        with self.subTest(sibling="regular file"):
+            repo, env, origin = self._fixture()
+            (repo.parent / "private").write_text("not a directory\n", encoding="utf-8")
+            rc, out = self._guard(repo, env)
+            self.assertEqual(rc, 4, out)
+            for needle in ("REFUSING", "REFUSING to push (store-required):",
+                           "GRC_STORE is unset",
+                           "/private is absent or is not a directory",
+                           "grc_library_private/.working/",
+                           "refuse a sibling store that is present but not a directory"):
+                self.assertIn(needle, out)
+            self.assertNotIn("STUB RUNNER RAN", out)
+            code, output, _head, landed = self._push(repo, env, origin)
+            self.assertNotEqual(code, 0, output)
+            for needle in ("REFUSING to push (store-required):", "GRC_STORE is unset",
+                           "/private is absent or is not a directory"):
+                self.assertIn(needle, output)
+            self.assertNotIn("STUB RUNNER RAN", output)
+            self.assertIsNone(landed, output)
+
+    def test_maintainer_push_with_empty_grc_store(self):
+        """Store rule: GRC_STORE set to the empty string is read as unset. Without the sibling
+        store the guard refuses (exit 4) before any runner, naming the condition; with it the
+        guard runs every check and passes, as an empty GRC_STORE is read as unset."""
+        for sibling in (False, True):
+            with self.subTest(sibling=sibling):
+                repo, env, _origin = self._fixture(store="sibling" if sibling else None)
+                env["GRC_STORE"] = ""
+                rc, out = self._guard(repo, env)
+                if sibling:
+                    self.assertEqual(rc, 0, out)
+                    for needle in ("STUB RUNNER RAN", "STUB PR CHECKS RAN", "Safe to push"):
+                        self.assertIn(needle, out)
+                    self.assertNotIn("REFUSING", out)
+                else:
+                    self.assertEqual(rc, 4, out)
+                    for needle in ("REFUSING", "REFUSING to push (store-required):",
+                                   "GRC_STORE is unset",
+                                   "/private is absent", "Set GRC_STORE"):
+                        self.assertIn(needle, out)
+                    self.assertNotIn("STUB RUNNER RAN", out)
+
+    def test_adopter_push_with_unusable_grc_store_unaffected(self):
+        """The GRC_STORE-set refusal stays inside the maintainer case: an adopter clone (origin
+        other/grc_library.git) with GRC_STORE naming a missing path, or a directory inside the
+        repository, passes the guard run directly (exit 0) with no REFUSING, since the store
+        rule applies only to a maintainer push."""
+        for case in ("missing", "in-repo"):
+            with self.subTest(case=case):
+                repo, env, _origin = self._fixture(maintainer=False)
+                if case == "missing":
+                    env["GRC_STORE"] = str(repo.parent / "no-such-store")
+                else:
+                    (repo / "in-repo-store").mkdir()
+                    env["GRC_STORE"] = str(repo / "in-repo-store")
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 0, out)
+                self.assertIn("Safe to push", out)
+                self.assertNotIn("REFUSING", out)
+
+    def test_adopter_push_with_unenterable_or_repository_root_store_unaffected(self):
+        """The store rule stays inside the maintainer case: an adopter clone (origin
+        other/grc_library.git) with GRC_STORE unset and the sibling store <repo-parent>/private
+        at mode 0 or 600, with GRC_STORE naming a directory outside the repository at mode 0 or
+        600, or with GRC_STORE=. passes the guard run directly (exit 0, Safe to push) with no
+        REFUSING, since the store rule applies only to a maintainer push. The mode cases are
+        skipped as root, which can enter such a directory."""
+        for case, mode in (("sibling", 0o000), ("sibling", 0o600), ("env", 0o000),
+                           ("env", 0o600), ("dot", None)):
+            with self.subTest(case=case, mode=None if mode is None else oct(mode)):
+                if mode is not None and os.geteuid() == 0:
+                    self.skipTest("root can enter a directory at mode 0 or 600")
+                repo, env, _origin = self._fixture(maintainer=False,
+                                                   store=None if case == "dot" else case)
+                if case == "dot":
+                    env["GRC_STORE"] = "."
+                else:
+                    if case == "sibling":
+                        target = repo.parent / "private"
+                    else:
+                        target = Path(env["GRC_STORE"])
+                    target.chmod(mode)
+                    self.addCleanup(target.chmod, 0o700)
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 0, out)
+                self.assertIn("Safe to push", out)
+                self.assertNotIn("REFUSING", out)
+
+    # The six grc_library_new origin forms the guard takes as the maintainer's.
+    NEW_MAINTAINER_ORIGINS = (
+        "https://github.com/jposluns/grc_library_new",
+        "https://github.com/jposluns/grc_library_new.git",
+        "git@github.com:jposluns/grc_library_new",
+        "git@github.com:jposluns/grc_library_new.git",
+        "ssh://git@github.com/jposluns/grc_library_new",
+        "ssh://git@github.com/jposluns/grc_library_new.git",
+    )
+
+    def _set_origin(self, repo, env, url):
+        """Set origin to a hosted URL and keep any guard run from contacting it: a tracked file
+        is changed, so a guard that does not take the origin as the maintainer's stops at its
+        dirty-tree refusal (exit 5, before its fetch of origin), and GIT_ALLOW_PROTOCOL=file
+        makes git refuse an https or ssh transport even past that point."""
+        self._git(env, repo, "remote", "set-url", "origin", url)
+        got = self._git(env, repo, "remote", "get-url", "origin").stdout.strip()
+        self.assertEqual(got, url)
+        env["GIT_ALLOW_PROTOCOL"] = "file"
+        with (repo / self.TOOLS / "run_all_audits.sh").open("a", encoding="utf-8") as f:
+            f.write("# changed\n")
+
+    def test_grc_library_new_origin_reaches_maintainer_checks(self):
+        """Identity: each https, scp-like and ssh:// form of jposluns/grc_library_new, with and
+        without .git, as origin reaches the maintainer checks: with grc_library_private absent
+        the guard refuses (exit 4, private-required) before any runner, before its dirty-tree
+        check (exit 5 here, since _set_origin changes a tracked file) and before its fetch of
+        origin, so no remote is contacted."""
+        for url in self.NEW_MAINTAINER_ORIGINS:
+            with self.subTest(url=url):
+                repo, env, _origin = self._fixture(private=False)
+                self._set_origin(repo, env, url)
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 4, out)
+                for needle in ("REFUSING to push", "_private-required",
+                               "grc_library_private is absent or empty"):
+                    self.assertIn(needle, out)
+                self.assertNotIn("STUB RUNNER RAN", out)
+
+    def test_fork_owner_and_unrelated_origin_do_not_reach_maintainer_checks(self):
+        """Guard test (passes before and after the grc_library_new pattern): a fork owner
+        ending in jposluns, a repository name that only starts with grc_library_new and an
+        unrelated repository, as origin, do not reach the maintainer checks.
+        grc_library_private, the store and grc_library_ref are all absent, so a maintainer
+        origin would refuse with exit 4; _set_origin changes a tracked file, so the guard stops
+        at its dirty-tree refusal (exit 5, the next check, before its fetch of origin) and no
+        remote is contacted."""
+        for url in ("https://github.com/notjposluns/grc_library_new.git",
+                    "git@github.com:notjposluns/grc_library_new.git",
+                    "ssh://git@github.com/notjposluns/grc_library_new",
+                    "https://github.com/jposluns/grc_library_new2.git",
+                    "https://github.com/someone/unrelated.git"):
+            with self.subTest(url=url):
+                repo, env, _origin = self._fixture(private=False, ref=False)
+                self._set_origin(repo, env, url)
+                rc, out = self._guard(repo, env)
+                self.assertEqual(rc, 5, out)
+                self.assertIn("tracked files are modified or staged", out)
+                self.assertNotIn("REFUSING to push", out)
 
 
 class PrePushGuardFastPathTests(unittest.TestCase):
@@ -25485,11 +31310,6 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     # A path relative to the shared store's root (the predecessor's legacy mirror), not a repository identity.
     PREDECESSOR_LEGACY_MIRROR_REL = "changelog-details/CHANGELOG-detailed-grc_library.md"
 
-    NO_ROOT_HEADER_REASON = (
-        "the root CHANGELOG has no per-PR header (a weekly-only root); root/mirror header "
-        "parity at HEAD has nothing to compare"
-    )
-
     # A weekly-only root, the rebuilt repository's starting shape: no per-PR header at all.
     WEEKLY_ROOT = "# Changelog\n\n## Week of 2026-11-09\n\n- tooling: entry.\n"
 
@@ -25514,79 +31334,211 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 lines.append(f"**{m.group(1)} | {m.group(2)} | PR #{m.group(3)}** - text\n")
         return "".join(lines)
 
-    def _parity_run(self, root_text: str, mirror_text: str, titled: bool = True):
-        """Gate 59's CLI under --root on a fixture pair (no git, so nothing is deferred). The root
-        gets the ``# Changelog`` title unless ``titled`` is false (see ``_write_pair``)."""
+    # A full per-PR comparison line (the compact or the legacy shape), as gate 59 reads one.
+    _PER_PR_LINE_RE = re.compile(
+        r"^(?:\*\*\d{4}-\d{2}-\d{2} \| \d+\.\d+\.\d+ \| PR #\d+\*\*(?: - .*)?"
+        r"|## \d{4}-\d{2}-\d{2}, (?:Library )?Version \d+\.\d+\.\d+, PR #\d+)$")
+
+    # The date and the PR of a per-PR comparison line, in either shape.
+    _PER_PR_KEY_RE = re.compile(
+        r"^(?:\*\*(\d{4}-\d{2}-\d{2}) \| [^|]+ \| PR #(\d+)\*\*"
+        r"|## (\d{4}-\d{2}-\d{2}), (?:Library )?Version \S+, PR #(\d+)$)")
+
+    @classmethod
+    def _weekly_root(cls, root_text: str, mirror_text: str | None = None) -> str:
+        """``root_text`` as the weekly public record (maintainer-directed 2026-11-13) holds it:
+        a line that fully matches a per-PR comparison shape is blanked, so the other lines keep
+        their numbers, when no ``mirror_text`` is given, or when it is a parity copy of a mirror
+        line the fixture made when the root carried per-PR lines: the mirror holds the same line,
+        a line that starts with it (the mirror's longer summary tail), or the same date and PR in
+        the other comparison shape (a leading byte order mark on a mirror line is read past). A
+        per-PR line with a longer tail than its mirror line, or with no mirror counterpart (a probe
+        planted in the root on purpose), stays; a test that wants every per-PR line kept passes
+        ``weekly=False``."""
+        def key(line):
+            m = cls._PER_PR_KEY_RE.match(line)
+            if m is None:
+                return None
+            return (m.group(1) or m.group(3), m.group(2) or m.group(4), m.group(1) is not None)
+
+        mirror_lines = ([] if mirror_text is None
+                        else [line.lstrip("\ufeff") for line in mirror_text.split("\n")])
+
+        def parity_copy(line):
+            if mirror_text is None:
+                return True
+            own = key(line)
+            for other in mirror_lines:
+                if other == line or other.startswith(line):
+                    return True
+                theirs = key(other)
+                if own and theirs and own[:2] == theirs[:2] and own[2] != theirs[2]:
+                    return True
+            return False
+
+        return "\n".join("" if cls._PER_PR_LINE_RE.match(line) and parity_copy(line) else line
+                         for line in root_text.split("\n"))
+
+    def _parity_run(self, root_text: str, mirror_text: str, titled: bool = True,
+                    weekly: bool = True):
+        """Gate 59's CLI under --root on a fixture pair (no git). The root gets the
+        ``# Changelog`` title unless ``titled`` is false (see ``_write_pair``), and its per-PR
+        lines are blanked unless ``weekly`` is false (see ``_weekly_root``)."""
         with tempfile.TemporaryDirectory() as tmp:
-            self._write_pair(Path(tmp), root_text, mirror_text, titled=titled)
+            self._write_pair(Path(tmp), root_text, mirror_text, titled=titled, weekly=weekly)
             return run_linter(
                 ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py",
                 "--root", tmp,
             )
 
-    def _head_parity_result(
-        self, changelog: str | None = None
-    ) -> tuple[subprocess.CompletedProcess, int] | None:
-        """The checkout's root CHANGELOG (or CHANGELOG, when given) against the real detailed
-        mirror, bounded to its own head.
+    def _head_range_result(self) -> subprocess.CompletedProcess | None:
+        """The checkout's root CHANGELOG against the real detailed mirror, through an explicit
+        --root, or None when no mirror is present.
 
         The mirror is the one the linter's default run reads (resolve_working: GRC_STORE,
-        <repo-parent>/private, the private sibling, the in-repo .working), so parity with it is
-        still checked. The linter has no ceiling option (its only option is --root), so the bound is
-        applied here: mirror headers naming a PR above the checkout's newest root header are
-        dropped, and a branch one merge behind main passes, while a mismatch at or below that header
-        still fails. The gate has no floor, so a mirror missing its oldest header is caught too.
-        Only headers the gate's mirror classification passes are dropped: every line entry_findings
-        fails (an old-repository record by date or by VERSION_FLOOR, an unparseable date, an
-        unreadable shape, a PR below CUTOFF_PR or more than 1 PR) is kept whatever its PR number, so
-        such a record above the root ceiling still reaches the gate and fails there. The pair is
-        read through an explicit --root, so the linter's store-scope deferral reads no branch git
-        state (its note says so). None when no mirror is present; the calling test skips
-        (NO_ROOT_HEADER_REASON) when the root has no per-PR header, so there is no ceiling to bound
-        the mirror by."""
+        <repo-parent>/private, the private sibling, the in-repo .working), so the weekly-range
+        coverage of the checkout's root against it is checked. The root is the weekly public
+        record (maintainer-directed 2026-11-13); a range is compared only for a period the
+        mirror holds, so no bound on the mirror is needed."""
         mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_head")
         mirror_path = mod.resolve_working(self.MIRROR_REL)
         if mirror_path is None:
             return None
-        if changelog is None:
-            changelog = (REPO_ROOT / ".working/CHANGELOG.md").read_text(encoding="utf-8")
-        root_prs = [pr for _, pr, _, _ in mod.pr_headers(changelog, cutoff=0)]
-        if not root_prs:
-            self.skipTest(self.NO_ROOT_HEADER_REASON)
-        ceiling = max(root_prs)
+        changelog = (REPO_ROOT / ".working/CHANGELOG.md").read_text(encoding="utf-8")
         mirror = mirror_path.read_text(encoding="utf-8")
-        kept = mod.entry_findings(mirror).lines()
-        above = {ln for ln, pr, _, _ in mod.pr_headers(mirror, cutoff=0)
-                 if pr > ceiling and ln not in kept}
-        bounded = "".join(
-            line for n, line in enumerate(mirror.splitlines(keepends=True), 1) if n not in above
-        )
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            self._write_pair(root, changelog, bounded)
-            result = run_linter(
+            self._write_pair(root, changelog, mirror, weekly=False)
+            return run_linter(
                 ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
             )
-        return result, ceiling
 
     def _store_mirror(self, store: str, text: str) -> None:
         (Path(store) / "changelog-details").mkdir()
         (Path(store) / self.MIRROR_REL).write_text(text, encoding="utf-8")
 
+    # The weekly public record (maintainer-directed 2026-11-13): a root with one weekly
+    # paragraph for the week of 2026-11-09 (a Monday), and the matching mirror headers.
+    WEEKLY_RANGE_ROOT = ("# Changelog\n\nIntro line.\n\n**Week of 2026-11-09 (PRs #1-#3)**\n\n"
+                         "A weekly summary. It has two sentences.\n\n## Week of 2026-11-02\n\n"
+                         "- An older legacy bullet.\n")
+
+    def test_weekly_range_matching_the_mirror_passes(self) -> None:
+        # _new_headers(3, 2, 1) dates PRs #3, #2 and #1 on 2026-11-11, 2026-11-10 and 2026-11-09,
+        # all in the week the heading names.
+        result = self._parity_run(self.WEEKLY_RANGE_ROOT, self._new_headers(3, 2, 1))
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("every compared root weekly or monthly range (1 compared)", result.stdout)
+        self.assertNotIn("DEGRADED", result.stdout)
+
+    def test_weekly_range_missing_a_pr_at_either_end_fails(self) -> None:
+        for heading, named in (("**Week of 2026-11-09 (PRs #1-#2)**", "#1-#2"),
+                               ("**Week of 2026-11-09 (PRs #2-#3)**", "#2-#3"),
+                               ("**Week of 2026-11-09 (PRs #1-#4)**", "#1-#4")):
+            with self.subTest(heading=heading):
+                root = self.WEEKLY_RANGE_ROOT.replace("**Week of 2026-11-09 (PRs #1-#3)**", heading)
+                result = self._parity_run(root, self._new_headers(3, 2, 1))
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"line 5 (Week of 2026-11-09 (PRs {named})) names {named}, but the "
+                              "detailed mirror's PRs dated 2026-11-09 to 2026-11-15 are #1-#3 "
+                              "(3 PR(s): #1, #2, #3)", result.stdout)
+
+    def test_monthly_range_is_compared(self) -> None:
+        root = "# Changelog\n\nIntro line.\n\n**2026-11 (PRs #1-#3)**\n\nA monthly summary.\n"
+        result = self._parity_run(root, self._new_headers(3, 2, 1))
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("(1 compared)", result.stdout)
+        result = self._parity_run(root.replace("#1-#3", "#1-#2"), self._new_headers(3, 2, 1))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("dated 2026-11-01 to 2026-11-30 are #1-#3", result.stdout)
+
+    def test_a_period_the_mirror_does_not_hold_is_a_note(self) -> None:
+        root = self.WEEKLY_RANGE_ROOT.replace("**Week of 2026-11-09 (PRs #1-#3)**",
+                                              "**Week of 2026-11-16 (PRs #4-#9)**")
+        result = self._parity_run(root, self._new_headers(3, 2, 1))
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("note: root line 5 (Week of 2026-11-16 (PRs #4-#9)) was not compared: the "
+                      "detailed mirror holds no PR dated 2026-11-16 to 2026-11-22", result.stdout)
+        self.assertIn("DEGRADED: gate 59 compared no weekly or monthly range", result.stdout)
+
+    def test_root_per_change_line_fails(self) -> None:
+        root = "# Changelog\n\nIntro line.\n\n" + self._new_headers(1) + "## Week of 2026-11-02\n"
+        result = self._parity_run(root, self._new_headers(1), weekly=False)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("FAIL: per-PR line(s) in root .working/CHANGELOG.md sit in the public weekly "
+                      "record", result.stdout)
+        self.assertIn("line 5 (", result.stdout)
+
+    def test_daily_heading_and_entry_below_the_first_period_fail(self) -> None:
+        for line in ("**2026-11-12 (PRs #16-#29)**", "**2026-11-12 | 2026.11.93 | PR #29** - x.",
+                     "- 2026-11-12 | 2026.11.93 | PR #29"):
+            with self.subTest(line=line):
+                root = self.WEEKLY_RANGE_ROOT + "\n" + line + "\n"
+                result = self._parity_run(root, self._new_headers(3, 2, 1), weekly=False)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("sit at or below its first period heading; the public weekly record "
+                              "carries no per-change line", result.stdout)
+
+    def test_malformed_period_headings_fail(self) -> None:
+        rows = (("**Week of 2026-11-10 (PRs #1-#3)**", "2026-11-10 is not a Monday"),
+                ("**Week of 2026-11-09 (PRs #3-#1)**", "its PR range does not rise"),
+                ("**2026-11 (PRs #3-#3)**", "its PR range does not rise"))
+        for heading, reason in rows:
+            with self.subTest(heading=heading):
+                root = self.WEEKLY_RANGE_ROOT.replace("**Week of 2026-11-09 (PRs #1-#3)**", heading)
+                result = self._parity_run(root, self._new_headers(3, 2, 1))
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"FAIL: period heading(s) in root .working/CHANGELOG.md are "
+                              f"malformed: line 5 ({heading!r}: {reason}", result.stdout)
+
+    def test_period_headings_out_of_order_fail(self) -> None:
+        root = ("# Changelog\n\nIntro line.\n\n**Week of 2026-11-02 (PRs #1-#3)**\n\nOlder.\n\n"
+                "**Week of 2026-11-09 (PRs #4-#5)**\n\nNewer.\n")
+        result = self._parity_run(root, self._new_headers(3, 2, 1))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("are out of order", result.stdout)
+        self.assertIn("line 9 ('**Week of 2026-11-09 (PRs #4-#5)**', below line 5)", result.stdout)
+
+    def test_paragraph_lines_belong_under_a_period_heading_and_bullets_under_a_legacy_one(self) -> None:
+        # A bullet under a weekly heading, a paragraph line under a legacy heading, and a line
+        # holding a CalVer version under either fail; the controls pass.
+        rows = (("**Week of 2026-11-09 (PRs #1-#3)**\n\n- A bullet.\n", 1),
+                ("## Week of 2026-11-09\n\nA paragraph line.\n", 1),
+                ("**Week of 2026-11-09 (PRs #1-#3)**\n\nShipped 2026.11.93 to adopters.\n", 1),
+                ("**Week of 2026-11-09 (PRs #1-#3)**\n\nA paragraph line.\n", 0),
+                ("## Week of 2026-11-09\n\n- A bullet.\n", 0))
+        for body, code in rows:
+            with self.subTest(body=body):
+                result = self._parity_run("# Changelog\n\nIntro line.\n\n" + body,
+                                          self._new_headers(3, 2, 1))
+                self.assertEqual(result.returncode, code, result.stdout)
+
+    def test_no_mirror_checks_the_weekly_grammar(self) -> None:
+        rc, out = self._no_mirror_run(self.WEEKLY_RANGE_ROOT.encode("utf-8"), "_mp_weekly_nomirror")
+        self.assertEqual(rc, 0, out)
+        self.assertIn("passed the weekly-record grammar", out)
+        self.assertIn("DEGRADED: gate 59 skipped the root/detailed-mirror weekly-range comparison", out)
+        root = self.WEEKLY_RANGE_ROOT.replace("Intro line.\n\n", "Intro line.\n\n"
+                                              + self._new_headers(1), 1)
+        rc, out = self._no_mirror_run(root.encode("utf-8"), "_mp_weekly_nomirror_entry",
+                                      weekly=False)
+        self.assertEqual(rc, 1, out)
+        self.assertIn("sit in the public weekly record", out)
+
     def test_runs_clean_on_corpus_at_head(self) -> None:
-        # Smoke test: the root CHANGELOG and its detailed mirror carry the same per-PR header
-        # set (at or above the cutoff, at or below the checkout's newest root header) at HEAD.
-        outcome = self._head_parity_result()
-        if outcome is None:
+        # Smoke test: every weekly or monthly range of the checkout's root that the detailed
+        # mirror holds the period of covers exactly the mirror's PRs for it, and the mirror passes
+        # its own checks.
+        result = self._head_range_result()
+        if result is None:
             self.skipTest(
                 "no detailed CHANGELOG mirror is present (no store supplies "
-                + self.MIRROR_REL + "); root/mirror header parity at HEAD is not checked"
+                + self.MIRROR_REL + "); weekly-range coverage at HEAD is not checked"
             )
-        result, ceiling = outcome
         self.assertEqual(
             result.returncode, 0,
-            f"linter exited {result.returncode} on HEAD; the root CHANGELOG and its detailed "
-            f"mirror (headers up to PR #{ceiling}) should carry the same per-PR headers.\n"
+            f"linter exited {result.returncode} on HEAD; every root weekly or monthly range the "
+            f"detailed mirror holds the period of should cover exactly its PRs.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
@@ -25623,7 +31575,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             repo, store = Path(tmp) / "repo", Path(tmp) / "store"
             (repo / ".working").mkdir(parents=True)
             root_changelog = repo / ".working/CHANGELOG.md"
-            root_changelog.write_text(self._titled(self._new_headers(1)), encoding="utf-8")
+            root_changelog.write_text(self.WEEKLY_ROOT, encoding="utf-8")
             legacy = store / self.PREDECESSOR_LEGACY_MIRROR_REL
             legacy.parent.mkdir(parents=True)
             legacy.write_text("**2026-10-30 | 2026.10.1760 | PR #3127** - old record\n",
@@ -25656,160 +31608,30 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertIn("DEGRADED: gate 59 skipped", out.getvalue())
         self.assertNotIn("#3127", out.getvalue())
 
-    def test_head_parity_passes_with_mirror_one_header_ahead(self) -> None:
-        # A branch one merge behind main sees a store mirror carrying one header newer
-        # than its root CHANGELOG; it must pass.
-        from unittest import mock
-        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_one_ahead")
-        changelog = self.ROOT_FIXTURE
-        _, pr, version, _ = mod.pr_headers(changelog, cutoff=0)[0]
-        newer = pr + 1
-        header = f"**2099-01-01 | {version[0]}.{version[1]}.{version[2] + 1} | PR #{newer}** - x\n\n"
-        with tempfile.TemporaryDirectory() as store:
-            self._store_mirror(store, header + changelog)
-            with mock.patch.dict(os.environ, {"GRC_STORE": store}):
-                result, ceiling = self._head_parity_result(changelog)
-        self.assertEqual(ceiling, pr)
-        self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertNotIn(f"#{newer}", result.stdout)
-
-    def test_head_parity_flags_mismatch_at_or_below_the_head(self) -> None:
-        # The bound keeps discriminating: a store mirror missing the checkout's newest root
-        # header must fail and name it.
-        from unittest import mock
-        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_miss")
-        changelog = self.ROOT_FIXTURE
-        lineno, pr, _, _ = mod.pr_headers(changelog, cutoff=0)[0]
-        lines = changelog.splitlines(keepends=True)
-        with tempfile.TemporaryDirectory() as store:
-            self._store_mirror(store, "".join(lines[:lineno - 1] + lines[lineno:]))
-            with mock.patch.dict(os.environ, {"GRC_STORE": store}):
-                result, _ = self._head_parity_result(changelog)
-        self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn("MISSING from the detailed mirror", result.stdout)
-        self.assertIn(f"#{pr}", result.stdout)
-
-    # A root header strictly inside the window: the newest-first index of a header neither the
-    # root's newest nor the mirror's oldest (the test asserts it is strictly inside).
-    MIDDLE = 2
-
-    # The root CHANGELOG the helper reads: five single-PR headers in the live file's compact
-    # form, so the window does not depend on how many unrolled entries the live file holds
-    # (in the earlier repository, after the roll-ups, the live file held two and MIDDLE fell
-    # outside it).
-    ROOT_FIXTURE = "# Changelog\n\n" + "".join(
-        f"**2026-12-31 | 2026.12.{1759 - n} | PR #{3058 - n}** - tooling: Entry {n}.\n\n"
-        for n in range(5)
-    )
-
-    def _head_parity_dropping(self, index: int, name: str):
-        """The head result for a store mirror one header ahead of the root and missing the root
-        header at INDEX (newest first); also the root header records. The root is ROOT_FIXTURE,
-        not the live CHANGELOG."""
-        from unittest import mock
-        mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", name)
-        changelog = self.ROOT_FIXTURE
-        records = mod.pr_headers(changelog, cutoff=0)
-        _, newest, version, _ = records[0]
-        bumped = f"{version[0]}.{version[1]}.{version[2] + 1}"
-        newer = f"**2099-01-01 | {bumped} | PR #{newest + 1}** - x\n\n"
-        lineno = records[index][0]
-        lines = changelog.splitlines(keepends=True)
-        with tempfile.TemporaryDirectory() as store:
-            self._store_mirror(store, newer + "".join(lines[:lineno - 1] + lines[lineno:]))
-            with mock.patch.dict(os.environ, {"GRC_STORE": store}):
-                result, ceiling = self._head_parity_result(changelog)
-        self.assertEqual(ceiling, newest)
-        return result, records
-
-    def test_head_parity_flags_a_header_missing_inside_the_window(self) -> None:
-        # A header missing strictly between the checkout's newest and the mirror's oldest
-        # must fail and be named, not only a missing newest header.
-        result, records = self._head_parity_dropping(self.MIDDLE, "_mp_mid")
-        pr = records[self.MIDDLE][1]
-        self.assertLess(records[-1][1], pr)
-        self.assertLess(pr, records[0][1])
-        self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn(f"MISSING from the detailed mirror (>= #1): #{pr}\n", result.stdout)
-
-    def test_head_parity_catches_a_missing_oldest_header(self) -> None:
-        # The gate has no floor for post-epoch headers, so a mirror missing the root's oldest
-        # header no longer raises a floor past it; the header is compared, fails and is named.
-        result, records = self._head_parity_dropping(-1, "_mp_floor")
-        oldest = records[-1][1]
-        self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn(f"MISSING from the detailed mirror (>= #1): #{oldest}\n", result.stdout)
-
-    def test_head_parity_keeps_old_mirror_headers_above_the_root_ceiling(self) -> None:
-        # A mixed mirror holding new #2 and #1 and an old-repository #3127 (dated before
-        # EPOCH_START) against a root holding only #1. The helper drops new #2 as above the
-        # root ceiling but keeps old #3127, so the gate fails on it as a record to archive
-        # instead of the helper hiding it.
-        from unittest import mock
-        old = "**2026-10-30 | 2026.10.1760 | PR #3127** - old record\n"
-        with tempfile.TemporaryDirectory() as store:
-            self._store_mirror(store, self._new_headers(2, 1) + old)
-            with mock.patch.dict(os.environ, {"GRC_STORE": store}):
-                result, ceiling = self._head_parity_result(self._new_headers(1))
-        self.assertEqual(ceiling, 1)
-        self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn("are old-repository records to archive", result.stdout)
-        self.assertIn("PR #3127 (2026-10-30)", result.stdout)
-        self.assertNotIn("MISSING from root", result.stdout)
-
-    def test_head_parity_is_skipped_without_a_mirror(self) -> None:
+    def test_head_range_test_is_skipped_without_a_mirror(self) -> None:
         # No store and no fallback supplies the mirror: the head test reports a skip, never a pass.
         from unittest import mock
         case = type(self)("test_runs_clean_on_corpus_at_head")
-        with mock.patch.object(type(self), "_head_parity_result", return_value=None):
+        with mock.patch.object(type(self), "_head_range_result", return_value=None):
             outcome = unittest.TestResult()
             case.run(outcome)
         self.assertEqual(outcome.testsRun, 1)
         self.assertEqual([r for _, r in outcome.skipped], [
             "no detailed CHANGELOG mirror is present (no store supplies "
-            + self.MIRROR_REL + "); root/mirror header parity at HEAD is not checked"
+            + self.MIRROR_REL + "); weekly-range coverage at HEAD is not checked"
         ])
         self.assertEqual((outcome.failures, outcome.errors), ([], []))
 
-    def test_head_parity_skips_when_the_root_has_no_per_pr_header(self) -> None:
-        # The rebuilt root starts weekly-only, so the head helper has no ceiling to bound the
-        # mirror by. It must skip with a reason, never raise ValueError from max() of nothing.
-        from unittest import mock
-        with tempfile.TemporaryDirectory() as store:
-            self._store_mirror(store, self._new_headers(1))
-            with mock.patch.dict(os.environ, {"GRC_STORE": store}):
-                with self.assertRaises(unittest.SkipTest) as caught:
-                    self._head_parity_result(self.WEEKLY_ROOT)
-        self.assertEqual(str(caught.exception), self.NO_ROOT_HEADER_REASON)
-
-    def test_epoch_new_mirror_missing_a_pr_fails(self) -> None:
-        # The old mirror is archived and the new mirror is missing #2. With CUTOFF_PR at 1 the
-        # gate compares new low-numbered PRs and names #2; in the earlier repository, under the
-        # old floor of 463, nothing was compared and this passed.
-        result = self._parity_run(self._new_headers(3, 2, 1), self._new_headers(3, 1))
-        self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn("MISSING from the detailed mirror (>= #1): #2\n", result.stdout)
-
-    def test_epoch_matching_new_mirror_passes_from_pr_one(self) -> None:
-        # A new mirror matching the root passes, comparing every new PR from #1, including #1
-        # dated on EPOCH_START itself (the boundary is inclusive).
-        same = self._new_headers(3, 2, 1)
-        self.assertIn("**2026-11-09 | 2026.12.1 | PR #1**", same)
-        result = self._parity_run(same, same)
-        self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("for all 3 PR(s) at or above #1,", result.stdout)
-        self.assertNotIn("DEGRADED", result.stdout)
-
     def test_epoch_old_dated_headers_fail_as_records_to_archive(self) -> None:
-        # The old-record shape without git: run through --root with no repository, so no store
-        # scope exists and nothing can be deferred (StoreScopeCeilingTests'
-        # test_epoch_old_mirror_entries_fail_before_deferral covers deferral). An
+        # The old-record shape without git: run through --root with no repository (gate 59
+        # reads no git and defers nothing; test_epoch_old_mirror_entries_fail_before_deferral,
+        # in this class, checks the same shape at the top of the mirror). An
         # old-repository header (legacy shape, dated before EPOCH_START) left in BOTH surfaces
         # fails and is named as a record to archive, even though the two surfaces agree and
         # every version descends.
         old = "## 2026-10-30, Library Version 2026.10.1759, PR #3127\n\ntext.\n"
         same = self._new_headers(2, 1) + old
-        result = self._parity_run(same, same)
+        result = self._parity_run(same, same, weekly=False)
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn(
             "FAIL: per-PR header(s) in root .working/CHANGELOG.md dated before EPOCH_START "
@@ -25818,33 +31640,12 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertIn("line 6 PR #3127 (2026-10-30)", self._fail_lines(result.stdout, "root"))
         self.assertIn("line 5 PR #3127 (2026-10-30)", self._fail_lines(result.stdout, "mirror"))
 
-    def test_zero_compared_prints_the_degraded_line(self) -> None:
-        # A present mirror with nothing to compare (weekly-only root, no per-PR header in the
-        # mirror) still exits 0 but prints the DEGRADED line, so the empty comparison is not read
-        # as an attestation.
-        # The line says that no PR was compared and gives the deferred count; it does not claim
-        # that no qualifying header exists.
-        result = self._parity_run(self.WEEKLY_ROOT, "# Detailed changelog\n")
-        self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("for all 0 PR(s) at or above #1,", result.stdout)
-        self.assertIn("DEGRADED: gate 59 compared no PR: ", result.stdout)
-        self.assertIn("(0 detailed-mirror header(s) deferred)", result.stdout)
-        self.assertNotIn("holds a per-PR header", result.stdout)
-
-    def test_epoch_dropped_oldest_mirror_entry_fails(self) -> None:
-        # Root #3, #2, #1 and a mirror holding only #3 and #2. In the earlier repository, under
-        # the former floor (the mirror's oldest PR, #2), root #1 left scope and the gate passed
-        # with no notice; with no floor it is compared and named.
-        result = self._parity_run(self._new_headers(3, 2, 1), self._new_headers(3, 2))
-        self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn("MISSING from the detailed mirror (>= #1): #1\n", result.stdout)
-
     def test_epoch_day_before_the_boundary_fails(self) -> None:
         # The boundary case. A header dated 2026-11-08, the day before EPOCH_START, fails in
         # both surfaces as an old-repository record; #1 dated 2026-11-09 passes.
         old = "**2026-11-08 | 2026.12.0 | PR #3127** - old record\n"
         same = self._new_headers(1) + old
-        result = self._parity_run(same, same)
+        result = self._parity_run(same, same, weekly=False)
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn("line 4 PR #3127 (2026-11-08)", self._fail_lines(result.stdout, "root"))
         self.assertIn("line 3 PR #3127 (2026-11-08)", self._fail_lines(result.stdout, "mirror"))
@@ -25885,7 +31686,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         bad = (f"**{wide} | 2026.12.2 | PR #3127** - wide digits\n"
                "**2026-99-99 | 2026.12.1 | PR #3128** - impossible date\n")
         same = bad + self._new_headers(1)
-        result = self._parity_run(same, same)
+        result = self._parity_run(same, same, weekly=False)
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertEqual(result.stdout.count("carry a date gate 59 cannot parse"), 2, result.stdout)
         root_fail = self._fail_lines(result.stdout, "root")
@@ -25902,7 +31703,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         from unittest import mock
         mod = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_nomirror")
         for root_text, rc in (("**2026-11-08 | 2026.12.1 | PR #3127** - old\n", 1),
-                              (self._new_headers(1), 0)):
+                              (self.WEEKLY_ROOT, 0)):
             with tempfile.TemporaryDirectory() as tmp:
                 (Path(tmp) / ".working").mkdir()
                 (Path(tmp) / ".working/CHANGELOG.md").write_text(self._titled(root_text),
@@ -25919,11 +31720,18 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             else:
                 self.assertIn("DEGRADED: gate 59 skipped", out.getvalue())
 
-    def _no_mirror_run(self, root_bytes: bytes, name: str, titled: bool = True):
+    def _no_mirror_run(self, root_bytes: bytes, name: str, titled: bool = True,
+                       weekly: bool = False):
         """Gate 59's main([]) in-process with no store supplying the mirror; (rc, stdout). The
-        root gets the ``# Changelog`` title line unless ``titled`` is false."""
+        root gets the ``# Changelog`` title line unless ``titled`` is false, and a UTF-8 root
+        has every per-PR line blanked when ``weekly`` is true (see ``_weekly_root``)."""
         import contextlib
         from unittest import mock
+        if weekly:
+            try:
+                root_bytes = self._weekly_root(root_bytes.decode("utf-8")).encode("utf-8")
+            except UnicodeDecodeError:
+                pass
         title = self.ROOT_TITLE_LINE.encode("utf-8")
         if titled and not root_bytes.startswith(title):
             root_bytes = title + root_bytes
@@ -26014,18 +31822,6 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertIn("in a shape gate 59 cannot compare", result.stdout)
         self.assertIn("line 2 ('**2026-11-10 | 2026.12.2 | PR #0**')", result.stdout)
 
-    def test_no_mirror_runs_root_duplicate_and_ordering_checks(self) -> None:
-        # In the earlier repository, with no mirror, a root holding a duplicated #1 with an
-        # equal version passed; the root's duplicate and ordering checks need no mirror.
-        rc, out = self._no_mirror_run(
-            ("**2026-11-10 | 2026.12.1 | PR #1** - a\n"
-             "**2026-11-09 | 2026.12.1 | PR #1** - b\n").encode("utf-8"),
-            "_mp_nomirror_dup")
-        self.assertEqual(rc, 1, out)
-        self.assertIn("appearing more than once in root .working/CHANGELOG.md (>= #1): #1", out)
-        self.assertIn("root .working/CHANGELOG.md Library Version ordering violated", out)
-        self.assertNotIn("DEGRADED", out)
-
     def test_one_digit_and_slash_dates_fail(self) -> None:
         # In the earlier repository a post-epoch entry whose date has a 1-digit day or slash
         # separators was never read as dated, so the gate passed comparing only #1. Each is now
@@ -26098,7 +31894,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                   "### 2026-10-30 ruling applied (see #1)\n\ntext.\n")
         result = self._parity_run(same, mirror)
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+        self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
 
     # A new #2 entry behind an opening other than a column-0 comparison shape. In the earlier
     # repository each was neither compared nor failed, so the gate passed comparing only #1.
@@ -26194,7 +31990,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 "- **reports/2026-11-10-sweep.md** read.\n")
         result = self._parity_run(same, same + body)
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+        self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
 
     def test_unreadable_and_multi_pr_messages_state_what_was_found(self) -> None:
         # In the earlier repository the unreadable-shape message said "on or after
@@ -26226,7 +32022,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         for old in ("**2026-11-09 | 2026.11.65 | PR #3127** - old record\n",
                     "## 2026-11-09, Library Version 2026.11.65, PR #3127\n"):
             with self.subTest(old=old):
-                result = self._parity_run(same + old, same + old)
+                result = self._parity_run(same + old, same + old, weekly=False)
                 self.assertEqual(result.returncode, 1, result.stdout)
                 self.assertIn("carry a Library Version below VERSION_FLOOR 2026.11.66", result.stdout)
                 self.assertIn("old-repository records to archive", result.stdout)
@@ -26236,22 +32032,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                               self._fail_lines(result.stdout, "mirror"))
         result = self._parity_run(same, same)
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
-
-    def test_head_parity_keeps_an_epoch_day_floor_record(self) -> None:
-        # In the earlier repository the head helper kept only the old and unparseable lines before
-        # its ceiling filter, so an epoch-day record below VERSION_FLOOR above the root ceiling
-        # was dropped before the gate could fail it. Every line entry_findings fails is kept now.
-        from unittest import mock
-        old = "**2026-11-09 | 2026.11.65 | PR #3127** - old record\n"
-        with tempfile.TemporaryDirectory() as store:
-            self._store_mirror(store, self._new_headers(1) + old)
-            with mock.patch.dict(os.environ, {"GRC_STORE": store}):
-                result, ceiling = self._head_parity_result(self._new_headers(1))
-        self.assertEqual(ceiling, 1)
-        self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn("carry a Library Version below VERSION_FLOOR 2026.11.66", result.stdout)
-        self.assertIn("line 3 PR #3127 (2026.11.65)", result.stdout)
+        self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
 
     # A root in full form (title, intro, a canonical per-PR line) above its first "## Week of"
     # heading. A probe line goes in as line 7, between the per-PR line and the week.
@@ -26308,18 +32089,18 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         same = self._new_headers(1)
         result = self._parity_run(self.ROOT_HEAD + same + self.WEEK_TAIL, same)
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+        self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
 
     def test_real_root_changelog_passes_the_root_grammar(self) -> None:
-        # The real root (byte-identical to the corpus copy new-repo-root-CHANGELOG.md when this
-        # test was written) has 0 root-grammar failures and still compares its PR #1 line.
+        # The real root has 0 root-grammar failures and, as the weekly public record
+        # (maintainer-directed 2026-11-13), carries no per-PR line.
         mod = load_linter_module(
             ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py",
             "_mp_real_root")
         text = (REPO_ROOT / ".working/CHANGELOG.md").read_text(encoding="utf-8")
         found = mod.root_findings(text)
         self.assertEqual(found.lines(), set())
-        self.assertTrue(mod.pr_headers(text))
+        self.assertEqual(mod.pr_headers(text), [])
         rc, out = self._no_mirror_run(text.encode("utf-8"), "_mp_real_root_run")
         self.assertEqual(rc, 0, out)
 
@@ -26399,7 +32180,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 "- An ordinary summary bullet citing PR #1.\n")
         result = self._parity_run(root, same)
         self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn("sit at or below its first ## Week of heading", result.stdout)
+        self.assertIn("sit at or below its first period heading", result.stdout)
         self.assertIn("line 9 ('**2026-11-10 | 2026.12.2 | PR #2** - late.')", result.stdout)
         self.assertIn("line 10 ('## 2026-11-10, Library Version 2026.12.3, PR #3')", result.stdout)
         self.assertIn("line 11 ('- 2026-11-10 | 2026.12.4 | PR #4')", result.stdout)
@@ -26426,7 +32207,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(line=line):
                 result = self._parity_run(same, same + line + "\n")
                 self.assertEqual(result.returncode, 0, result.stdout)
-                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+                self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
 
     def test_mirror_new_entry_citing_an_old_date_is_not_an_old_record(self) -> None:
         # A line is an old-repository record only when its first date cell is before
@@ -26525,15 +32306,22 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         same = self._new_headers(1)
         for probe in ("- PR #2 (2026.11.67) merged 2026-11-10: adds X",
                       "- **PR #2** 2026.11.67: tools",
-                      "* **2026-11-10**: 2026.11.67, PR #2",
-                      "### 2026-11-10: Library Version 2026.11.67, PR #2",
                       "Continuation text.", "## Week of next week"):
             with self.subTest(probe=probe):
                 result = self._parity_run(self._root_with("") + probe + "\n", same)
                 self.assertEqual(result.returncode, 1, result.stdout)
-                self.assertIn("at or below its first ## Week of heading are outside the root grammar "
+                self.assertIn("at or below its first period heading are outside the root grammar "
                               "(that region must hold only ## Week of YYYY-MM-DD headings with a "
-                              "valid date, blank lines and \"- \" bullets", result.stdout)
+                              "valid date and \"- \" bullets under them", result.stdout)
+                self.assertIn(f"line 12 ({probe!r})", result.stdout)
+        # A line that opens with a full date (after markup only) is a per-change line there.
+        for probe in ("* **2026-11-10**: 2026.11.67, PR #2",
+                      "### 2026-11-10: Library Version 2026.11.67, PR #2"):
+            with self.subTest(probe=probe):
+                result = self._parity_run(self._root_with("") + probe + "\n", same)
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn("sit at or below its first period heading; the public weekly record "
+                              "carries no per-change line", result.stdout)
                 self.assertIn(f"line 12 ({probe!r})", result.stdout)
         result = self._parity_run(self._root_with("") + "## Week of 2026-99-99\n", same)
         self.assertEqual(result.returncode, 1, result.stdout)
@@ -26609,7 +32397,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(line=line):
                 result = self._parity_run(same, same + line + "\n")
                 self.assertEqual(result.returncode, 0, result.stdout)
-                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+                self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
         for line in ("**PR #5 | 2026.12.5**", "## PR #5 | 2026.12.5", "**2026-11-10**",
                      "- **2026-11-10 | 2026.11.67**", "## 2026-11-10, Library Version 2026.11.67",
                      "## Week of next week"):
@@ -26631,7 +32419,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         result = self._parity_run("\ufeff# Changelog\n" + same, same, titled=False)
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+        self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
         result = self._parity_run("\ufeff" + same, same, titled=False)
         self.assertEqual(result.returncode, 1, result.stdout)
         self.assertIn("the # Changelog title as the first non-blank line", result.stdout)
@@ -26647,7 +32435,8 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                      "## 2026-11-10, Library Version 2026.011.67, PR #2"):
             with self.subTest(line=line):
                 result = self._parity_run(line + "\n" + same,
-                                          "**2026-11-10 | 2026.11.67 | PR #2**\n" + same)
+                                          "**2026-11-10 | 2026.11.67 | PR #2**\n" + same,
+                                          weekly=False)
                 self.assertEqual(result.returncode, 1, result.stdout)
                 self.assertIn(f"line 2 ({line!r})", result.stdout)
         padded = "**2027-01-05 | 2027.01.5 | PR #9**\n"
@@ -26655,7 +32444,8 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         result = self._parity_run(padded + same, "**2027-01-05 | 2027.1.5 | PR #9**\n" + same)
         self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn("#9 root=2027.01.5 mirror=2027.1.5", result.stdout)
+        self.assertIn("line 2 ('**2027-01-05 | 2027.01.5 | PR #9**')",
+                      self._fail_lines(result.stdout, "root"))
 
     # Regressions for gate 59's rules, new and old where a date applies.
 
@@ -26688,7 +32478,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(where="below the week heading", probe=probe):
                 result = self._parity_run(self._root_with("") + probe + "\n", same)
                 self.assertEqual(result.returncode, 1, result.stdout)
-                self.assertIn("at or below its first ## Week of heading are outside", result.stdout)
+                self.assertIn("at or below its first period heading are outside", result.stdout)
                 self.assertIn(f"line 12 ({probe!r})", self._fail_lines(result.stdout, "root"))
         for intro in ("Versions follow __2026.11.66__.", "See _PR #2_ for the history.",
                       "Releases follow *2026.11.66* and later."):
@@ -26730,7 +32520,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(bullet=bullet):
                 result = self._parity_run(self._root_with("") + bullet + "\n", same)
                 self.assertEqual(result.returncode, 0, result.stdout)
-                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+                self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
 
     def test_summary_tail_naming_another_pr_fails(self) -> None:
         # In the earlier repository a canonical line's free summary tail carried a second PR's
@@ -26747,7 +32537,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                                      (" - folds in GH-4 at 2026.12.4", 4, "2026.12.4")):
             with self.subTest(tail=tail):
                 both = head + tail + "\n" + same
-                result = self._parity_run(both, both)
+                result = self._parity_run(both, both, weekly=False)
                 self.assertEqual(result.returncode, 1, result.stdout)
                 self.assertIn("carry another PR's record in their summary tail", result.stdout)
                 self.assertIn(f"line 2 PR #2 ({version})", self._fail_lines(result.stdout, "root"))
@@ -26756,7 +32546,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         result = self._parity_run(head + "\n" + same,
                                   head + " - follow-up to PR #2 in 2026.12.2\n" + same)
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
+        self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
 
     def test_root_title_rule_and_mirror_byte_order_mark(self) -> None:
         # The root must start with the # Changelog title, so a missing title, a title after
@@ -26776,7 +32566,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 ("", "# Detailed changelog\n", "line 1 ('')"),
                 ("\n\n", "# Detailed changelog\n", "line 1 ('')")):
             with self.subTest(root=root):
-                result = self._parity_run(root, mirror, titled=False)
+                result = self._parity_run(root, mirror, titled=False, weekly=False)
                 self.assertEqual(result.returncode, 1, result.stdout)
                 self.assertIn("the # Changelog title as the first non-blank line", result.stdout)
                 self.assertIn(named, self._fail_lines(result.stdout, "root"))
@@ -26784,7 +32574,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(mirror=mirror):
                 result = self._parity_run(same, mirror)
                 self.assertEqual(result.returncode, 0, result.stdout)
-                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+                self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
 
     def test_wording_names_the_detection_dependent_rules(self) -> None:
         # In the earlier repository the gate docstring and the specification said the root
@@ -26814,11 +32604,11 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         result = self._parity_run(same, same + "- 2026-11-10: release 2026.11.67 closes issue#42.\n")
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+        self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
         both = "**2026-11-10 | 2026.12.2 | PR #2** - bumps 1.0.15 for issue#42\n" + same
         result = self._parity_run(both, both)
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
+        self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
         for form in ("grc_library#2", "acme/grc_library#2", "other-org/other.repo#2"):
             with self.subTest(form=form):
                 # Below the week heading only a CalVer library version fails, so a non-CalVer
@@ -26873,7 +32663,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(line=line):
                 result = self._parity_run(same, same + line + "\n")
                 self.assertEqual(result.returncode, 0, result.stdout)
-                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+                self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
 
     def test_malformed_legacy_headers_fail_in_the_mirror(self) -> None:
         # The leading-zero test puts its legacy probe in the root, where the root grammar fails
@@ -26892,7 +32682,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertIn(f"line 1 ({line!r})", mirror)
         result = self._parity_run(root, "## 2026-11-10, Library Version 2026.11.67, PR #2\n" + tail)
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
+        self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
 
     def test_specification_names_the_forms_the_code_reads(self) -> None:
         # In the earlier repository the specification still named the bare PR form repo#N
@@ -27012,10 +32802,14 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 root = self._fail_lines(result.stdout, "root")
                 self.assertIn("hold a CalVer library version in their summary tail", root)
                 self.assertIn(f"line 2 PR #2 ({version})", root)
+        # A tail holding no CalVer version meets the tail rule; the line itself is still a
+        # per-change line, which the weekly public record (maintainer-directed 2026-11-13) refuses.
         tail = " - tools: follows up PR #1; the reference manifest schema is now 1.0.2."
         result = self._parity_run(head + tail + "\n" + same, head + "\n" + same)
-        self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        root = self._fail_lines(result.stdout, "root")
+        self.assertIn("sit in the public weekly record", root)
+        self.assertNotIn("hold a CalVer library version in their summary tail", root)
 
     def test_realistic_bullets_pass(self) -> None:
         # In the earlier repository any X.Y.Z token counted as a library version, so realistic
@@ -27026,7 +32820,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(bullet=bullet):
                 result = self._parity_run(self._root_with("") + bullet + "\n", same)
                 self.assertEqual(result.returncode, 0, result.stdout)
-                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+                self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
 
     def test_closing_underscore_dates_are_read_in_the_mirror(self) -> None:
         # In the earlier repository no test needed the closing-underscore alternative of
@@ -27056,7 +32850,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(line=line):
                 result = self._parity_run(same, same + line + "\n")
                 self.assertEqual(result.returncode, 0, result.stdout)
-                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+                self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
         for line in ("## 2026-11-10, Library Version 2026.11.67", "## 2026-11-10, Version 2026.11.67",
                      "## 2026-11-10, 2026.11.67", "## 2026-11-10, PR #2", "**2026-11-10, PR 2**",
                      "- **2026-11-10 | 2026.11.67**", "**2026-11-10 | PR #2**",
@@ -27212,7 +33006,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         tail = " - tooling: PR #2 moves the schema to 1.0.2."
         result = self._parity_run(head + "\n" + same, head + tail + "\n" + same)
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
+        self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
 
     def test_dated_mirror_notes_naming_a_pr_pass(self) -> None:
         # In the earlier repository a dated note whose opening or cell names a PR that does not
@@ -27227,7 +33021,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             with self.subTest(line=line):
                 result = self._parity_run(same, same + line + "\n")
                 self.assertEqual(result.returncode, 0, result.stdout)
-                self.assertIn("for all 1 PR(s) at or above #1,", result.stdout)
+                self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
         for line in ("## 2026-11-10, PR #2", "**2026-11-10, PR 2**", "**2026-11-10, PR #2:** none.",
                      "**2026-11-10, PR #2, review:** done.", "**2026-11-10, PR #2 | review**",
                      "**2026-11-10, #2**", "- **2026-11-10, pull 2**", "**2026-11-10 | PR #2**",
@@ -27318,6 +33112,13 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                                            same)),
                 ("tail", self._parity_run(head + f" - see {url}\n" + same, head + "\n" + same))):
             with self.subTest(where=where, passes=True):
+                if where == "tail":
+                    # The tail meets the strict character rule; the line itself is a per-change
+                    # line, which the weekly public record refuses.
+                    self.assertEqual(result.returncode, 1, result.stdout)
+                    self.assertIn("sit in the public weekly record", result.stdout)
+                    self.assertNotIn("strict character rule", result.stdout)
+                    continue
                 self.assertEqual(result.returncode, 0, result.stdout)
 
     # In the earlier repository the gate removed default-ignorable code points outside category
@@ -27525,8 +33326,13 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 ("tail", self._parity_run(head + " - risk & compliance & more\n" + same,
                                           head + "\n" + same))):
             with self.subTest(where=where):
-                self.assertEqual(result.returncode, 0, result.stdout)
                 self.assertNotIn("strict character rule", result.stdout)
+                if where == "tail":
+                    # The line itself is a per-change line, which the weekly record refuses.
+                    self.assertEqual(result.returncode, 1, result.stdout)
+                    self.assertIn("sit in the public weekly record", result.stdout)
+                    continue
+                self.assertEqual(result.returncode, 0, result.stdout)
         # The real root passes the strict character rule unchanged.
         mod = self._mirror_parity_gate("_mp_real_root_strict_chars")
         text = (REPO_ROOT / ".working" / "CHANGELOG.md").read_text(encoding="utf-8")
@@ -27638,7 +33444,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         with self.subTest(passes=tail):
             result = self._parity_run(head + tail + "\n" + same, head + tail + "\n" + same)
             self.assertEqual(result.returncode, 0, result.stdout)
-            self.assertIn("for all 2 PR(s) at or above #1,", result.stdout)
+            self.assertIn("no mirror PR header (>= #1) is duplicated.", result.stdout)
         with self.subTest(other_pr="plain"):
             result = self._parity_run(head + "\n" + same,
                                       head + " - also lands PR #3127 at 2026.06.9\n" + same)
@@ -27692,7 +33498,8 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             self.assertIn("line 13 column 11: refused character '~' (U+007E)", failed)
         mod = self._mirror_parity_gate("_mp_lf_mirror")
         with self.subTest(where="CR LF"):
-            found = mod.root_findings(("# Changelog\n\n" + same).replace("\n", "\r\n"))
+            found = mod.root_findings(("# Changelog\n\n" + self.WEEKLY_ROOT[len("# Changelog\n\n"):])
+                                      .replace("\n", "\r\n"))
             self.assertFalse(found, sorted(found.lines()))
         with self.subTest(where="lone CR"):
             found = mod.root_findings("# Changelog\n\n" + same + "## Week of 2026-11-09\n\n"
@@ -27806,7 +33613,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertEqual(rc, 1, out)
         self.assertIn("line 1 column 1: character U+FEFF outside printable ASCII", out)
         rc, out = self._no_mirror_run(("\ufeff# Changelog\n" + same).encode("utf-8"),
-                                      "_mp_one_bom", titled=False)
+                                      "_mp_one_bom", titled=False, weekly=True)
         self.assertEqual(rc, 0, out)
         mod = self._mirror_parity_gate("_mp_bom")
         self.assertEqual(mod.root_findings("\ufeff# Changelog\n\n" + same).chars,
@@ -27845,7 +33652,9 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                          if line.startswith("FAIL:") and tag in line)
 
     def _write_pair(self, root: Path, root_headers: str, mirror_headers: str,
-                    titled: bool = True) -> None:
+                    titled: bool = True, weekly: bool = True) -> None:
+        if weekly:
+            root_headers = self._weekly_root(root_headers, mirror_headers)
         if titled:
             root_headers = self._titled(root_headers)
         (root / ".working").mkdir(parents=True, exist_ok=True)
@@ -27853,38 +33662,6 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         mirror_dir = root / ".working" / "changelog-details"
         mirror_dir.mkdir(parents=True, exist_ok=True)
         (mirror_dir / "CHANGELOG-detailed.md").write_text(mirror_headers, encoding="utf-8")
-
-    def test_header_missing_from_mirror_flagged(self) -> None:
-        # A post-cutoff PR header present in root but absent from the mirror
-        # (the orphaned-header defect class) must be flagged.
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            self._write_pair(
-                root,
-                self._as_root("## 2026-11-30, Library Version 2026.12.9, PR #521\n\nlead.\n"
-                              "## 2026-11-21, Library Version 2026.12.8, PR #520\n\nlead.\n"),
-                "## 2026-11-21, Library Version 2026.12.8, PR #520\n\nfull.\n",
-            )
-            result = run_linter(
-                ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
-            )
-        self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn("#521", result.stdout)
-
-    def test_matching_pair_passes(self) -> None:
-        # When both surfaces carry the same post-cutoff header set the gate
-        # passes.
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            same = (
-                "## 2026-11-30, Library Version 2026.12.9, PR #521\n\ntext.\n"
-                "## 2026-11-21, Library Version 2026.12.8, PR #520\n\ntext.\n"
-            )
-            self._write_pair(root, self._as_root(same), same)
-            result = run_linter(
-                ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
-            )
-        self.assertEqual(result.returncode, 0, result.stdout)
 
     def test_bare_version_mirror_ordering_now_checked(self) -> None:
         # POSITIVE fixture, regression guard. The mirror's newer per-PR headers write a bare
@@ -27916,54 +33693,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             self.assertNotIn(shape_failure, result.stdout)
         control = self._parity_run(root, ordered)
         self.assertEqual(control.returncode, 0, control.stdout)
-        self.assertIn("SAME Library Version in both files", control.stdout)
-
-    def test_shared_pr_with_different_versions_flagged(self) -> None:
-        # POSITIVE fixture, fail-open regression guard. In the earlier repository
-        # the gate checked PR-number set parity and per-file monotonicity but never
-        # that a PR present in BOTH files carried the SAME version: one PR shipped
-        # 2026.07.642 (root and README) while the mirror said 2026.07.641, a version
-        # never shipped; both files were independently monotonic and the PR sets
-        # matched, so the gate passed.
-        #
-        # Built so ONLY the new check can fire: identical PR sets (no
-        # missing/extra), no duplicates, and each file descends strictly on its
-        # own (root .9 then .8; mirror .7 then .6). Every pre-existing check
-        # therefore passes and a failure can only come from the version join.
-        # Confirmed by mutation: reverting the join makes this test pass.
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            self._write_pair(
-                root,
-                self._as_root("## 2026-11-30, Library Version 2026.12.9, PR #521\n\ntext.\n"
-                              "## 2026-11-21, Library Version 2026.12.8, PR #520\n\ntext.\n"),
-                "## 2026-11-30, Library Version 2026.12.7, PR #521\n\ntext.\n"
-                "## 2026-11-21, Library Version 2026.12.6, PR #520\n\ntext.\n",
-            )
-            result = run_linter(
-                ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
-            )
-        self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn("DIFFERENT Library Versions", result.stdout)
-        self.assertIn("#521", result.stdout)
-        self.assertIn("root=2026.12.9", result.stdout)
-        self.assertIn("mirror=2026.12.7", result.stdout)
-
-    def test_shared_pr_with_identical_versions_passes(self) -> None:
-        # NEGATIVE fixture: the same PR set with matching versions must stay
-        # silent, which is what makes the widening shippable.
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            same = (
-                "## 2026-11-30, Library Version 2026.12.9, PR #521\n\ntext.\n"
-                "## 2026-11-21, Library Version 2026.12.8, PR #520\n\ntext.\n"
-            )
-            self._write_pair(root, self._as_root(same), same)
-            result = run_linter(
-                ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
-            )
-        self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertIn("SAME Library Version in both files", result.stdout)
+        self.assertIn("no mirror PR header (>= #1) is duplicated.", control.stdout)
 
     def test_compared_header_without_a_parseable_version_fails(self) -> None:
         # In the earlier repository a post-epoch legacy header with no version or an unparseable
@@ -27980,32 +33710,6 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 self.assertIn("in a shape gate 59 cannot compare", result.stdout)
                 self.assertIn(f"line 1 ({mirror.rstrip()!r})", result.stdout)
                 self.assertNotIn("SAME Library Version", result.stdout)
-
-    def test_compact_root_header_parses(self) -> None:
-        # The compact root header form (from a changelog reformat) must
-        # parse to the same PR set as a long-form mirror header, so a
-        # reformatted root and a still-long mirror stay at parity.
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            self._write_pair(
-                root,
-                "**2026-11-30 | 2026.12.9 | PR #521**\n\n"
-                "**2026-11-21 | 2026.12.8 | PR #520**\n\n",
-                "## 2026-11-30, Library Version 2026.12.9, PR #521\n\nfull.\n"
-                "## 2026-11-21, Library Version 2026.12.8, PR #520\n\nfull.\n",
-            )
-            result = run_linter(
-                ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
-            )
-        self.assertEqual(result.returncode, 0, result.stdout)
-
-    def test_low_numbered_new_pr_is_in_scope(self) -> None:
-        # The earlier repository had a floor of 463 and exempted the PR just below it; numbering
-        # restarted at #1, so a new root header below 463 and missing from the mirror must fail
-        # and be named.
-        result = self._parity_run(self._new_headers(463, 462, 1), self._new_headers(463, 1))
-        self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn("MISSING from the detailed mirror (>= #1): #462\n", result.stdout)
 
     def test_out_of_order_version_flagged(self) -> None:
         # A smaller Library Version ABOVE a larger one (entries are
@@ -28076,44 +33780,84 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertIn("are old-repository records to archive", result.stdout)
         self.assertNotIn("ordering violated", result.stdout)
 
-    def test_post_epoch_root_header_below_the_mirror_oldest_fails(self) -> None:
-        # In the new repository the root keeps per-PR lines only for the current week, as the
-        # mirror does, so a post-epoch root header below the mirror's oldest PR is not a swept
-        # entry. With no floor it is compared and fails as missing from the mirror.
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            root_text = (
-                "## 2026-11-27, Library Version 2026.12.9, PR #690\n\nlead.\n"
-                "## 2026-11-21, Library Version 2026.12.5, PR #520\n\nlead.\n"
-            )
-            mirror_text = (
-                "## 2026-11-27, Library Version 2026.12.9, PR #690\n\nfull.\n"
-            )
-            self._write_pair(root, self._as_root(root_text), mirror_text)
-            result = run_linter(
-                ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
-            )
-        self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn("MISSING from the detailed mirror (>= #1): #520\n", result.stdout)
+    # Gate 59's real command line under --root, moved from the removed store-scope test class.
+    # Gate 59 reads no git and defers nothing, so the fixture is the two surfaces alone (the
+    # origin/main repository those tests built fed only the removed store scope).
+    _CLI_BASE_ROOT = ("**2026-11-22 | 2026.12.9 | PR #521** - t\n\n"
+                      "**2026-11-21 | 2026.12.8 | PR #520** - t\n")
+    _CLI_OWN_522_ROOT = "**2026-11-23 | 2026.12.10 | PR #522** - own\n\n"
 
-    def test_newest_root_header_missing_from_the_mirror_fails(self) -> None:
-        # With no current-week window, the root's newest header, #700, is absent from the mirror
-        # and must fail.
+    @staticmethod
+    def _epoch_header(pr: int) -> str:
+        """A compact new-repository header dated on or after EPOCH_START (#1 on 2026-11-09)."""
+        return f"**2026-11-{8 + pr:02d} | 2026.12.{pr} | PR #{pr}**\n"
+
+    def _mirror_cli(self, root_text: str, mirror_text: str):
+        """Gate 59's real CLI under ``--root``; the root gets the ``# Changelog`` title."""
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            root_text = (
-                "## 2026-11-28, Library Version 2026.12.10, PR #700\n\nlead.\n"
-                "## 2026-11-27, Library Version 2026.12.9, PR #690\n\nlead.\n"
-            )
-            mirror_text = (
-                "## 2026-11-27, Library Version 2026.12.9, PR #690\n\nfull.\n"
-            )
-            self._write_pair(root, self._as_root(root_text), mirror_text)
-            result = run_linter(
-                ".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", str(root)
-            )
-        self.assertEqual(result.returncode, 1, result.stdout)
-        self.assertIn("#700", result.stdout)
+            (root / ".working").mkdir(parents=True, exist_ok=True)
+            (root / ".working/CHANGELOG.md").write_text(self._titled(root_text), encoding="utf-8")
+            details = root / ".working" / "changelog-details"
+            details.mkdir(parents=True, exist_ok=True)
+            (details / "CHANGELOG-detailed.md").write_text(mirror_text, encoding="utf-8")
+            return run_linter(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py",
+                              "--root", tmp)
+
+    def test_epoch_old_mirror_entries_fail_before_deferral(self) -> None:
+        # Old-repository entries (#3127, #3126, dated before EPOCH_START) left at the top of the
+        # store mirror fail, named as records to archive, and none is deferred.
+        base = self._epoch_header(2) + self._epoch_header(1)
+        old = ("**2026-10-30 | 2026.10.1760 | PR #3127**\n"
+               "**2026-10-29 | 2026.10.1759 | PR #3126**\n")
+        r = self._mirror_cli(base, old + base)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("are old-repository records to archive", r.stdout)
+        self.assertIn("line 1 PR #3127 (2026-10-30), line 2 PR #3126 (2026-10-29)", r.stdout)
+        self.assertNotIn(": deferred ", r.stdout)
+
+    def test_mirror_gate_multi_pr_legacy_header_fails_classification(self) -> None:
+        # A legacy header naming #520 and #524 fails entry classification (one header per PR).
+        r = self._mirror_cli(
+            self._CLI_OWN_522_ROOT + self._CLI_BASE_ROOT,
+            "## 2026-11-24, Library Version 2026.12.11, PR #520 and PR #524\n\n"
+            + self._CLI_OWN_522_ROOT + self._CLI_BASE_ROOT)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("#524", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+
+    def test_mirror_gate_follow_up_tail_fails_classification(self) -> None:
+        # A legacy header with a trailing "(follow-up to PR #2650)" does not fully match the
+        # comparison shape, so entry classification fails it, naming both PRs.
+        base = "**2026-12-28 | 2026.12.1353 | PR #2650** - t\n"
+        work = "**2026-12-30 | 2026.12.1360 | PR #2657** - t\n\n" + base
+        r = self._mirror_cli(
+            work,
+            "## 2026-12-30, Library Version 2026.12.1361, PR #9999 (follow-up to PR #2650)\n\n" + work)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("one header per PR is required: line 1 (#2650, #9999)", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+
+    def test_mirror_gate_version_floor_fails_before_deferral(self) -> None:
+        # An old record dated on EPOCH_START at 2026.11.65 fails as an old-repository record.
+        r = self._mirror_cli(
+            self._CLI_OWN_522_ROOT + self._CLI_BASE_ROOT,
+            self._CLI_OWN_522_ROOT + "**2026-11-09 | 2026.11.65 | PR #9999** - old epoch-day record\n\n"
+            + self._CLI_BASE_ROOT)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("below VERSION_FLOOR 2026.11.66", r.stdout)
+        self.assertIn("PR #9999 (2026.11.65)", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+
+    def test_mirror_gate_multi_pr_header_fails_before_deferral(self) -> None:
+        # An entry candidate must name exactly 1 PR, so a legacy header naming #523 and #524 fails.
+        r = self._mirror_cli(
+            self._CLI_OWN_522_ROOT + self._CLI_BASE_ROOT,
+            "## 2026-11-24, Library Version 2026.12.11, PR #523 and PR #524\n\n"
+            + self._CLI_OWN_522_ROOT + self._CLI_BASE_ROOT)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("one header per PR is required: line 1 (#523, #524)", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
 
 
 class AcronymConsistencyTests(LinterTestCase):
@@ -28364,6 +34108,25 @@ class SecretsLinterTests(LinterTestCase):
         )
         result = run_linter(".claude/skills/corpus-management/tools/lint-secrets-in-content.py", fixture)
         self.assertLinterFails(result)
+
+    def test_missing_fixture_is_not_taken_as_a_finding(self) -> None:
+        # A missing explicit path is refused with exit 2 (the linter cannot run and
+        # scans nothing), not the findings exit 1. assertLinterFails requires the
+        # findings code, so a linter test whose fixture went missing now fails
+        # instead of passing on that exit 2, as it did while any non-zero exit was
+        # accepted. Exit 2 is not a findings code: the run names the missing file on
+        # stderr and prints no finding.
+        present = self.make_fixture("standard-present.md", VALID_METADATA)
+        missing = present.parent / "standard-missing.md"
+        self.assertFalse(missing.exists())
+        result = run_linter(".claude/skills/corpus-management/tools/lint-secrets-in-content.py", missing)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        with self.assertRaises(self.failureException) as caught:
+            self.assertLinterFails(result)
+        self.assertIn("linter exited 2, expected exit 1", str(caught.exception))
+        self.assertIn("does not exist", result.stderr)
+        self.assertIn(missing.name, result.stderr)
+        self.assertEqual(result.stdout, "")
 
 
 class PIIContentTests(LinterTestCase):
@@ -28935,7 +34698,11 @@ class AuditGateParityTests(LinterTestCase):
     def _run_isolated_fixture(self, flag: str, *surfaces: str) -> subprocess.CompletedProcess:
         """Copy the real surfaces and put ``flag`` after ``python3`` on every gate
         invocation of the named runtime surfaces (runner, workflow, pre-commit);
-        with no surface named, the copy is unchanged."""
+        with no surface named, the copy is unchanged. A workflow delta-gate step is
+        not a gate invocation: its run value is pinned to its exact command string,
+        so it is left as it is."""
+        delta_runs = set(self._gate_parity_module(
+            "_agp_isolated_delta_pins").WORKFLOW_DELTA_GATE_STEP_RUNS.values())
         prefixes = {".claude/skills/corpus-management/tools/run_all_audits.sh": "run_gate ",
                     ".github/workflows/quality.yml": "run: python3 .claude/skills/corpus-management/tools/",
                     ".pre-commit-config.yaml": "entry: python3 .claude/skills/corpus-management/tools/"}
@@ -28946,6 +34713,8 @@ class AuditGateParityTests(LinterTestCase):
                 if name in surfaces:
                     changed = 0
                     for i, line in enumerate(lines):
+                        if line.strip().removeprefix("run: ") in delta_runs:
+                            continue
                         if line.lstrip().startswith(prefixes[name]) and " python3 .claude/skills/corpus-management/tools/" in line:
                             lines[i] = line.replace(" python3 .claude/skills/corpus-management/tools/", f" python3 {flag} .claude/skills/corpus-management/tools/", 1)
                             changed += 1
@@ -30194,7 +35963,7 @@ class AuditGateParityTests(LinterTestCase):
     # surfaces.
     _SPEC = ".claude/skills/corpus-management/specs/specification-audit-programme.md"
     _RUNNER = ".claude/skills/corpus-management/tools/run_all_audits.sh"
-    _SUBSET_LINE = "ci-pr-subset: 1 3 6 14 21 22 35 59 66 68 99 111\n"
+    _SUBSET_LINE = "ci-pr-subset: 1 3 6 14 21 22 35 59 66 68 99 110 111\n"
     _WF_LINKS = ("      - name: Repository-internal link audit\n"
                  "        run: python3 .claude/skills/corpus-management/tools/lint-links.py\n")
     _WF_FENCES = ("      - name: Unbalanced-fence audit\n"
@@ -30210,10 +35979,111 @@ class AuditGateParityTests(LinterTestCase):
     def test_ci_subset_is_read_and_the_live_workflow_equals_it(self) -> None:
         agp = self._gate_parity_module("_agp_subset_live")
         _, subset = agp.parse_ci_subset(_resolve_path(agp.SPEC_PATH))
-        self.assertEqual(subset, [1, 3, 6, 14, 21, 22, 35, 59, 66, 68, 99, 111])
+        self.assertEqual(subset, [1, 3, 6, 14, 21, 22, 35, 59, 66, 68, 99, 110, 111])
         result = self._run_yaml_edits()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("the 12 CI-subset gates on the workflow", result.stdout)
+        self.assertIn("the 13 CI-subset gates on the workflow", result.stdout)
+
+    _WF_BASELINE_PIN = ("      - name: Baseline-pin integrity audit\n"
+                        "        run: python3 .claude/skills/corpus-management/tools/lint-baseline-pin.py\n")
+    _WF_WEB_CHECK = ("      - name: Web generator health check\n"
+                     "        run: python3 .web/build.py --check\n")
+
+    def test_ci_subset_baseline_pin_gate_runs_on_the_workflow(self) -> None:
+        # Gate 110 is in the CI subset (maintainer decision 2026-11-15), so the
+        # live workflow holds its step and dropping it is a finding.
+        wf = _resolve_path(self._WF).read_text(encoding="utf-8")
+        self.assertIn(self._WF_BASELINE_PIN, wf)
+        self._assert_subset_finding(
+            "gate 110 'Baseline-pin integrity audit'",
+            (self._WF, "\n" + self._WF_BASELINE_PIN, ""))
+
+    def test_web_generator_health_check_step_is_pinned(self) -> None:
+        # The pull-request job runs the web generator health check as a pinned
+        # non-gate step: present, exactly its command, and no gate script.
+        wf = _resolve_path(self._WF).read_text(encoding="utf-8")
+        self.assertIn(self._WF_WEB_CHECK, wf)
+        result = self._run_yaml_edits((self._WF, "\n" + self._WF_WEB_CHECK, ""))
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("WORKFLOW_NON_GATE_CHECK_STEPS member 'Web generator health check'",
+                      result.stdout)
+        self._assert_yaml_edits_refused((
+            ("web check flag dropped", "not exactly the pinned", (
+                (self._WF, "run: python3 .web/build.py --check\n",
+                 "run: python3 .web/build.py\n"),)),
+            ("web check runs a gate", "must not run a gate", (
+                (self._WF, "run: python3 .web/build.py --check\n",
+                 "run: python3 .claude/skills/corpus-management/tools/lint-links.py\n"),)),
+        ))
+
+    def test_setup_step_block_run_value_is_quoted_in_the_error(self) -> None:
+        # A setup step whose run value is a `run: |` block scalar is refused, and the
+        # error says it is a block value and quotes the block's own text rather
+        # than reporting None for it.
+        self._assert_yaml_edits_refused((
+            ("setup step block run", "setup step 'Install pinned dependencies' runs a "
+             "`|` block scalar holding 'python3 -m pip install -r requirements.txt', "
+             "not exactly the pinned", (
+                 (self._WF, "        run: python3 -m pip install -r requirements.txt\n",
+                  "        run: |\n"
+                  "          python3 -m pip install -r requirements.txt\n"),)),
+        ))
+
+    def test_web_check_step_block_run_value_is_quoted_in_the_error(self) -> None:
+        # The same for the web generator health check step: a two-line block is quoted
+        # whole, not reported as None.
+        self._assert_yaml_edits_refused((
+            ("web check block run", "lint job non-gate check step 'Web generator health "
+             "check' runs a `|` block scalar holding 'python3 .web/build.py --check\\n"
+             "echo done', not exactly the pinned", (
+                 (self._WF, "        run: python3 .web/build.py --check\n",
+                  "        run: |\n          python3 .web/build.py --check\n"
+                  "          echo done\n"),)),
+        ))
+
+    def test_web_check_step_without_a_run_is_refused_by_the_key_set_check(self) -> None:
+        # A web generator health check step with no run value is refused by the
+        # key-set check, which runs before the exact-command check, so the error
+        # names the step's keys.
+        self._assert_yaml_edits_refused((
+            ("web check run dropped", "lint job non-gate check step 'Web generator "
+             "health check' has the keys ['name'], not exactly the pinned", (
+                 (self._WF, "        run: python3 .web/build.py --check\n", ""),)),
+        ))
+
+    def test_prefixed_pull_request_script_path_is_script_drift(self) -> None:
+        # A delta-gate step whose run value joins other text to the front of the
+        # pull-request script path runs a different file. The run value is not the
+        # step's pinned command, so the command line reports script drift (exit 1)
+        # quoting the whole run value, and never reads the path inside it.
+        script = ".claude/skills/corpus-management/tools/check-changelog-on-pr.py"
+        for label, prefix in (("name prefix", "fake"), ("directory prefix", "x/")):
+            with self.subTest(case=label):
+                result = self._run_yaml_edits(
+                    (self._WF, f"run: python3 {script}\n",
+                     f"run: python3 {prefix}{script}\n"))
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn("D1 'CHANGELOG-on-PR check' script drift", result.stdout)
+                self.assertIn(repr(f"python3 {prefix}{script}"), result.stdout)
+
+    def test_changed_pull_request_command_is_refused_on_the_command_line(self) -> None:
+        # Each delta-gate step's run value is pinned to its exact command string.
+        # An interpreter flag, and a quoted path with text joined after the closing
+        # quote (the shell then runs a different file), each change that string, so
+        # the command line refuses them (exit 1) with the pin-refusal finding and the
+        # script-drift finding, both quoting the whole run value.
+        script = ".claude/skills/corpus-management/tools/check-changelog-on-pr.py"
+        pinned = f"python3 {script}"
+        for label, run in (("interpreter flag", f"python3 -B {script}"),
+                           ("quoted path with a suffix", f'python3 "{script}"foo')):
+            with self.subTest(case=label):
+                result = self._run_yaml_edits(
+                    (self._WF, f"run: {pinned}\n", f"run: {run}\n"))
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn("D1 'CHANGELOG-on-PR check' script drift", result.stdout)
+                self.assertIn("WORKFLOW_DELTA_GATE_STEPS member 'CHANGELOG-on-PR check' "
+                              f"runs {run!r}, not exactly the pinned {pinned!r}",
+                              result.stdout)
 
     def test_ci_subset_extra_workflow_gate_step_is_a_finding(self) -> None:
         self._assert_subset_finding(
@@ -30239,13 +36109,13 @@ class AuditGateParityTests(LinterTestCase):
 
     def test_ci_subset_unknown_repeated_or_unordered_number_is_a_finding(self) -> None:
         for label, line, message in (
-                ("unknown", "ci-pr-subset: 1 3 6 14 21 22 35 59 66 68 99 111 999\n",
+                ("unknown", "ci-pr-subset: 1 3 6 14 21 22 35 59 66 68 99 110 111 999\n",
                  "gate 999 is not a live section 6 gate"),
-                ("retired", "ci-pr-subset: 1 3 6 14 21 22 32 35 59 66 68 99 111\n",
+                ("retired", "ci-pr-subset: 1 3 6 14 21 22 32 35 59 66 68 99 110 111\n",
                  "gate 32 is not a live section 6 gate"),
-                ("repeated", "ci-pr-subset: 1 1 3 6 14 21 22 35 59 66 68 99 111\n",
+                ("repeated", "ci-pr-subset: 1 1 3 6 14 21 22 35 59 66 68 99 110 111\n",
                  "gate 1 is listed more than once"),
-                ("unordered", "ci-pr-subset: 3 1 6 14 21 22 35 59 66 68 99 111\n",
+                ("unordered", "ci-pr-subset: 3 1 6 14 21 22 35 59 66 68 99 110 111\n",
                  "are not in section 6 order")):
             with self.subTest(case=label):
                 self._assert_subset_finding(message, (self._SPEC, self._SUBSET_LINE, line))
@@ -30319,6 +36189,11 @@ class AuditGateParityTests(LinterTestCase):
             ("action not at a full SHA", "does not match the pinned action", (
                 (self._WF, "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
                  "actions/checkout@v7"),)),
+            ("runs a gate", "setup step 'Install pinned dependencies' invokes the gate "
+             "script '.claude/skills/corpus-management/tools/lint-links.py'; a setup step "
+             "must not run a gate", (
+                (self._WF, "        run: python3 -m pip install -r requirements.txt\n",
+                 "        run: python3 .claude/skills/corpus-management/tools/lint-links.py\n"),)),
         ))
 
     def test_runner_or_precommit_short_of_section_6_is_a_finding(self) -> None:
@@ -31822,28 +37697,184 @@ class VersionDateConsistencyTests(LinterTestCase):
         )
         self.assertLinterFails(result, "must match")
 
-    def test_default_changelog_without_heading_prints_one_note(self) -> None:
-        # The weekly .working/CHANGELOG.md has no Library Version heading by
-        # design: the gate still exits 0, and one NOTE line says that nothing
-        # was compared.
+    def _default_run(self, name, changelog, readme_version="2026.11.0"):
+        """The gate's default run (no flags) against a fixture root; returns (exit, stdout)."""
         from contextlib import redirect_stdout
         from unittest import mock
-        root = Path(tempfile.mkdtemp(prefix="version-date-note-", dir=FIXTURE_DIR))
+        root = Path(tempfile.mkdtemp(prefix="version-date-default-", dir=FIXTURE_DIR))
         self.addCleanup(_force_rmtree, root)
         (root / ".working").mkdir()
-        (root / ".working" / "CHANGELOG.md").write_text("# Changelog\n\n- A weekly entry.\n",
-                                                        encoding="utf-8")
-        (root / "README.md").write_text("# README\n\n**Library Version:** 2026.11.0\n",
+        (root / ".working" / "CHANGELOG.md").write_text(changelog, encoding="utf-8")
+        (root / "README.md").write_text(f"# README\n\n**Library Version:** {readme_version}\n",
                                         encoding="utf-8")
         mod = load_linter_module(".claude/skills/corpus-management/tools/lint-version-date-consistency.py",
-                                 f"_version_date_note_{self._testMethodName}")
+                                 f"_version_date_default_{self._testMethodName}_{name}")
         mod.REPO_ROOT = root
         output = io.StringIO()
         with mock.patch.object(sys, "argv", ["lint-version-date-consistency.py"]), \
              redirect_stdout(output):
-            self.assertEqual(mod.main(), 0)
-        self.assertEqual(output.getvalue().splitlines(), [
-            "NOTE: no Library Version section heading found in CHANGELOG.md; nothing was compared."])
+            rc = mod.main()
+        return rc, output.getvalue()
+
+    def test_default_changelog_without_any_heading_fails_closed(self) -> None:
+        # Fail closed: a changelog with no weekly heading of either form and no per-change
+        # heading passed with a note that nothing was compared; it now fails, naming the
+        # condition. A monthly heading alone is not read, so it fails the same way.
+        for name, changelog in (("prose", "# Changelog\n\n- A weekly entry.\n"),
+                                ("monthly", "# Changelog\n\n**2026-10 (PRs #1-#5)**\n\nText.\n")):
+            with self.subTest(name=name):
+                rc, out = self._default_run(name, changelog)
+                self.assertEqual(rc, 1, out)
+                self.assertIn("FAIL: CHANGELOG.md holds no weekly summary heading", out)
+                self.assertIn("the gate fails closed", out)
+                self.assertNotIn("nothing was compared", out)
+
+    def test_default_changelog_with_weekly_heading_passes_either_form(self) -> None:
+        # The other way: one weekly heading of either form is enough to compare, and a README
+        # in that week's month passes silently.
+        for name, heading in (("legacy", "## Week of 2026-11-09\n\n- A bullet.\n"),
+                              ("bold", "**Week of 2026-11-09 (PRs #1-#3)**\n\nText.\n")):
+            with self.subTest(name=name):
+                rc, out = self._default_run(name, "# Changelog\n\n" + heading)
+                self.assertEqual(rc, 0, out)
+                self.assertEqual(out, "")
+
+    # The weekly-only public changelog holds weekly summary headings and
+    # no per-change heading: the gate compares the README CalVer with the newest week.
+    WEEKLY_ROOT = ("# Changelog\n\nWeekly summaries.\n\n"
+                   "**Week of 2026-11-09 (PRs #1-#3)**\n\nThe week's summary.\n\n"
+                   "## Week of 2026-10-26\n\n- An older week.\n")
+
+    def _weekly_run(self, name, changelog, readme_version):
+        return run_linter(
+            ".claude/skills/corpus-management/tools/lint-version-date-consistency.py",
+            "--changelog", self.make_fixture(f"fake-changelog-{name}.md", changelog),
+            "--readme", self.make_fixture(f"fake-readme-{name}.md",
+                                           "# Fake README\n\n**Library Version:** {}\n".format(readme_version)),
+        )
+
+    def test_weekly_heading_readme_month_earlier_flagged(self) -> None:
+        # The README month (2026.10) is earlier than the newest week (2026-11-09); the older
+        # 2026-10-26 week alone would pass, so the newest heading must be the one compared.
+        result = self._weekly_run("weekly-earlier", self.WEEKLY_ROOT, "2026.10.5")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("is the week of 2026-11-09; the version's YYYY.MM must not be earlier",
+                      result.stdout)
+
+    def test_legacy_weekly_heading_readme_month_earlier_flagged(self) -> None:
+        result = self._weekly_run("legacy-earlier",
+                                  "# Changelog\n\n## Week of 2026-11-09\n\n- A bullet.\n",
+                                  "2026.10.5")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("must not be earlier", result.stdout)
+
+    def test_weekly_heading_readme_same_or_later_month_passes(self) -> None:
+        for name, changelog, version in (
+                ("same", self.WEEKLY_ROOT, "2026.11.93"),
+                ("later", self.WEEKLY_ROOT, "2026.12.1"),
+                # A week that starts in one month and ends in the next: the README may
+                # already record the later month.
+                ("spanning", "# Changelog\n\n**Week of 2026-09-28 (PRs #4-#9)**\n\nText.\n",
+                 "2026.10.1")):
+            with self.subTest(name=name):
+                result = self._weekly_run(f"weekly-{name}", changelog, version)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertNotIn("NOTE:", result.stdout)
+
+    def test_weekly_heading_with_invalid_date_flagged(self) -> None:
+        result = self._weekly_run("weekly-invalid",
+                                  "# Changelog\n\n## Week of 2026-11-31\n\n- A bullet.\n",
+                                  "2026.11.93")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("has no valid calendar date", result.stdout)
+
+    def test_default_changelog_with_weekly_heading_compares_instead_of_noting(self) -> None:
+        # With a weekly heading the vacuous NOTE pass is refused: the default changelog is
+        # compared, failing an earlier README month and passing a matching one silently.
+        from contextlib import redirect_stdout
+        from unittest import mock
+        for version, expected in (("2026.10.0", 1), ("2026.11.0", 0)):
+            with self.subTest(version=version):
+                root = Path(tempfile.mkdtemp(prefix="version-date-weekly-", dir=FIXTURE_DIR))
+                self.addCleanup(_force_rmtree, root)
+                (root / ".working").mkdir()
+                (root / ".working" / "CHANGELOG.md").write_text(self.WEEKLY_ROOT, encoding="utf-8")
+                (root / "README.md").write_text(f"# README\n\n**Library Version:** {version}\n",
+                                                encoding="utf-8")
+                mod = load_linter_module(
+                    ".claude/skills/corpus-management/tools/lint-version-date-consistency.py",
+                    f"_version_date_weekly_{self._testMethodName}_{expected}")
+                mod.REPO_ROOT = root
+                output = io.StringIO()
+                with mock.patch.object(sys, "argv", ["lint-version-date-consistency.py"]), \
+                     redirect_stdout(output):
+                    self.assertEqual(mod.main(), expected, output.getvalue())
+                self.assertNotIn("NOTE:", output.getvalue())
+
+    # The case table in the tool's docstring: each case the audit caught at main d7387bf3 on a
+    # per-change heading, caught on the newest weekly heading and the README. Each test fails
+    # when weekly reading is switched off.
+    EARLIER = "the version's YYYY.MM must not be earlier"
+
+    def test_case_v1_legacy_week_heading_readme_prior_month_flagged(self) -> None:
+        # Invariant 1, legacy form: entries dated 2026-06-01 carried the prior month's 2026.05.x.
+        result = self._weekly_run("case-v1", "# Changelog\n\n## Week of 2026-06-01\n\n- A bullet.\n",
+                                  "2026.05.144")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("is the week of 2026-06-01; " + self.EARLIER, result.stdout)
+
+    def test_case_v2_bold_week_heading_readme_prior_month_flagged(self) -> None:
+        # Invariant 1, compact form: a 2026-07-01 entry carried 2026.06.0.
+        result = self._weekly_run(
+            "case-v2", "# Changelog\n\n**Week of 2026-07-06 (PRs #520-#521)**\n\nText.\n", "2026.06.0")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("is the week of 2026-07-06; " + self.EARLIER, result.stdout)
+
+    def test_case_v3_single_pr_week_heading_readme_prior_month_flagged(self) -> None:
+        # Invariant 1, legacy form with its PR clause: the one-PR weekly form.
+        result = self._weekly_run(
+            "case-v3", "# Changelog\n\n**Week of 2026-06-01 (PRs #99)**\n\nText.\n", "2026.05.144")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("is the week of 2026-06-01; " + self.EARLIER, result.stdout)
+
+    def test_case_v5_readme_not_bumped_into_newest_week_month_flagged(self) -> None:
+        # Invariant 2, across a month: the README left at November after a December week.
+        changelog = ("# Changelog\n\n**Week of 2026-12-07 (PRs #10-#14)**\n\nText.\n\n"
+                     "**Week of 2026-11-30 (PRs #5-#9)**\n\nText.\n")
+        result = self._weekly_run("case-v5", changelog, "2026.11.93")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("records Library Version 2026.11.93, but the newest weekly summary heading",
+                      result.stdout)
+        self.assertIn("is the week of 2026-12-07; " + self.EARLIER, result.stdout)
+
+    def test_case_v7_weekly_heading_readme_without_version_field_flagged(self) -> None:
+        result = run_linter(
+            ".claude/skills/corpus-management/tools/lint-version-date-consistency.py",
+            "--changelog", self.make_fixture("fake-changelog-case-v7.md", self.WEEKLY_ROOT),
+            "--readme", self.make_fixture("fake-readme-case-v7.md", "# Fake README\n\nNo field.\n"),
+        )
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("no '**Library Version:** YYYY.MM.patch' field found", result.stdout)
+
+    def test_case_v8_each_weekly_form_with_matching_readme_passes(self) -> None:
+        # Each heading form is read: a consistent README passes silently on each.
+        for name, heading in (("range", "**Week of 2026-11-09 (PRs #1-#3)**"),
+                              ("single", "**Week of 2026-11-09 (PRs #4)**"),
+                              ("legacy", "## Week of 2026-11-09")):
+            with self.subTest(name=name):
+                result = self._weekly_run(f"case-v8-{name}", f"# Changelog\n\n{heading}\n\nText.\n",
+                                          "2026.11.93")
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(result.stdout, "")
+
+    def test_case_v9_newest_week_compared_wherever_it_sits(self) -> None:
+        # The most recent heading is the one compared, even when an older week is listed first.
+        changelog = ("# Changelog\n\n## Week of 2026-11-02\n\n- Older, listed first.\n\n"
+                     "**Week of 2026-12-07 (PRs #10-#14)**\n\nNewest.\n")
+        result = self._weekly_run("case-v9", changelog, "2026.11.93")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(":7: **Week of 2026-12-07 (PRs #10-#14)**) is the week of 2026-12-07; "
+                      + self.EARLIER, result.stdout)
 
 
 class MetadataLineBreaksTests(LinterTestCase):
@@ -35958,6 +41989,347 @@ class LintCommonHelperTests(unittest.TestCase):
                 line = prefix + body
                 with self.subTest(line=repr(line)):
                     self.assertEqual(lc.is_fence_line(line), core.is_fence_line(line))
+
+    # changelog_header_prs, which gate 59 reads, moved from the removed store-scope test class;
+    # assertions on the removed store_pr_ceiling and store_scope, and on the deferral helper
+    # above_store_ceiling (no remaining caller), are replaced by assertions on the parser itself.
+
+    def test_legacy_multi_pr_header_reads_every_pr_token(self) -> None:
+        # A repeated `PR` label after `,` or `&` must not end the cell. Kills: reverting the legacy
+        # capture to a `#[\d \t,#and-]` class, and dropping stacked connectors (the Oxford `, and`
+        # case).
+        lc = self._lint_common()
+        cases = [
+            ("## 2026-09-29, Library Version 2026.09.1354, PR #2650, PR #2649", [2650, 2649]),
+            ("## 2026-07-01, Library Version 2026.07.9, PR #520 & PR #521", [520, 521]),
+            ("## 2026-09-30, Library Version 2026.09.1, PR #524, PR #525, and PR #521", [524, 525, 521]),
+        ]
+        for line, expected in cases:
+            with self.subTest(line=line):
+                self.assertEqual(lc.changelog_header_prs(line), expected)
+
+    def test_header_prs_reads_bare_range_endpoints(self) -> None:
+        # A range endpoint without `#` counts on every header form; the `(N PRs)` count and the
+        # version cell never read as PRs. Kills: extracting with the `#`-requiring token alone
+        # (yields the first endpoint only) and dropping `-` from the connector alternation.
+        lc = self._lint_common()
+        cases = [
+            ("**2026-09-30 | 2026.09.1360 | PRs #2640-2645 (6 PRs)**", [2640, 2645]),
+            ("**Week of 2026-09-21 (PRs #2426-2639)**", [2426, 2639]),
+            ("## 2026-07-01, Library Version 2026.07.9, PRs #520-522", [520, 522]),
+            ("## 2026-07-01, Library Version 2026.07.9, PR #2650 & 2651", [2650, 2651]),
+        ]
+        for line, expected in cases:
+            with self.subTest(line=line):
+                self.assertEqual(lc.changelog_header_prs(line), expected)
+
+    def test_stacked_connectors_and_ambiguous_cells(self) -> None:
+        # Oxford connectors keep every key; a legacy header naming a further #N beyond the cell
+        # is AMBIGUOUS and reads as no identity (evaluated, never trusted). Kills: a
+        # single-connector run (drops #521), and dropping the ambiguity probe.
+        lc = self._lint_common()
+        oxford = "## 2026-07-04, Library Version 2026.07.11, PR #524, PR #525, and PR #521"
+        self.assertEqual(lc.changelog_header_prs(oxford), [524, 525, 521])
+        tail = "## 2026-09-30, Library Version 2026.09.1361, PR #9999 (follow-up to PR #2650)"
+        self.assertEqual(lc.changelog_header_prs(tail), [])
+
+    def test_ambiguous_range_cell_reads_as_no_identity(self) -> None:
+        # A range cell with a tail naming another PR is ambiguous too. (Its ceiling and
+        # protection assertions read the removed store_pr_ceiling and store_scope.)
+        lc = self._lint_common()
+        text = "## 2026-09-30, Library Version 2026.09.1, PRs #520-530 (follow-up to PR #500)"
+        self.assertEqual(lc.changelog_header_prs(text), [])
+
+    def test_r8_01_legacy_tail_naming_a_pr_is_uncertain(self) -> None:
+        # The legacy cell runs to the end of the line; in the earlier repository its tail was
+        # probed for `#N` alone, so an unsupported continuation naming a PR by label or bare number
+        # (`/ PR 2665`) left the parsed prefix CERTAIN. The tail is now probed with the shared
+        # case-insensitive grammar too, so any PR identity in it (labelled or bare, in any case, or
+        # with its label glued on) makes the header uncertain: evaluated, never deferred. A tail
+        # naming no PR stays certain, and a grammar connector still continues the identity itself.
+        # Kills: the `#N`-only tail probe, and a case-sensitive or label-only one.
+        lc = self._lint_common()
+        prefix = "## 2026-09-30, Library Version 2026.09.2665, PR #2664"
+        for tail in (" / PR 2665", " / pr 2665", " / PRs 2665", " / 2665", " / PR2665", " / #2665"):
+            with self.subTest(tail=tail):
+                self.assertEqual(lc.changelog_header_prs(prefix + tail), [])
+        self.assertEqual(lc.changelog_header_prs(prefix), [2664])
+        self.assertEqual(lc.changelog_header_prs(prefix + " (tooling)"), [2664])
+        self.assertEqual(lc.changelog_header_prs(prefix + " and PR 2665"), [2664, 2665])
+
+
+class StoreDeferralHelperTests(unittest.TestCase):
+    """lint_common's store-deferral and own-PR declaration functions: above_store_ceiling,
+    store_deferral_reason, store_deferral_note, store_deferral_flags, own_pr_declaration and
+    declared_own_pr. These tests stay while those functions stay, and go with them.
+
+    Moved from the removed store-scope test class. store_scope and its git readers were removed,
+    so a test that built its StoreScope through them builds the same StoreScope directly: each
+    ``*_SCOPE`` tuple below is, field for field, the value store_scope returned for that test's
+    fixture reader values. Assertions on store_pr_ceiling, store_scope and the git readers went
+    with those functions."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        import lint_common
+        self.lc = lint_common
+
+    # ---- fixtures ----
+
+    _BASE_ROOT = ("**2026-11-22 | 2026.12.9 | PR #521** - t\n\n"
+                  "**2026-11-21 | 2026.12.8 | PR #520** - t\n")
+
+    @staticmethod
+    def header(pr: int, version: int | None = None) -> str:
+        return f"**2026-12-30 | 2026.12.{version or pr} | PR #{pr}**\n"
+
+    @staticmethod
+    def pairs(*prs: int) -> tuple[tuple[int, int], ...]:
+        return tuple((n, n) for n in prs)
+
+    # The notes store_scope wrote on its fail-closed, clean-base and undeclared scopes.
+    MERGE_BASE_NOTE = ("store scope fail-closed: the merge-base changelog with origin/main "
+                       "is unreadable; every store entry is evaluated.")
+    MAIN_NOTE = ("store scope fail-closed: origin/main evidence (.working/CHANGELOG.md headers "
+                 "or merge subjects) is unreadable, so no own PR can be declared; every "
+                 "store entry is evaluated.")
+    CLEAN_BASE_NOTE = ("store scope: clean-base (no new root header against the merge-base; "
+                       "origin/main headers and merge subjects readable); other open PRs may "
+                       "defer. Offline origin/main may be stale until fetched.")
+    NO_NEW_NOTE = ("store scope: no own-PR declaration (no new root header names a PR absent "
+                   "from the merge-base headers and from origin/main's headers and merge "
+                   "subjects); every store entry is evaluated.")
+
+    # (root_max, own_pr, ceiling, note, branch_prs, merged_prs, open_rule), in StoreScope order.
+    AMBIGUOUS_TAIL_SCOPE = (
+        2661, 2661, 2661, None,
+        pairs(2661, 2661, 2659, 2659, 2600, 2655, 2600, 2655),
+        pairs(2659, 2659, 2600, 2655, 2600, 2655), True)
+    BLIND_SCOPE = (2650, None, None, MAIN_NOTE, pairs(2650, 2650), (), False)
+    OPEN_PARENT_SCOPE = (
+        2660, 2653, 2660, None, pairs(2653, 2653, 2660, 2660), pairs(2660, 2660, 2660), True)
+    OLDER_OWN_SCOPE = (
+        2660, 2655, 2660, None, pairs(2655, 2655, 2660, 2660, 2659, 2659),
+        pairs(2660, 2660, 2659, 2659), True)
+    CLEAN_BASE_SCOPE = (
+        2660, None, 2660, CLEAN_BASE_NOTE, pairs(2660, 2660), pairs(2660, 2660), True)
+    # Keyed by which reader was unreadable: the merge-base, origin/main's root, its subjects.
+    UNREADABLE_SCOPES = (
+        ("merge-base", (2660, None, None, MERGE_BASE_NOTE, pairs(2660, 2660), (), False)),
+        ("origin/main root", (2660, None, None, MAIN_NOTE, pairs(2660, 2660), (), False)),
+        ("origin/main subjects", (2660, None, None, MAIN_NOTE, pairs(2660, 2660), (), False)),
+    )
+    # Keyed by the root text store_scope read against merge-base #2660 and origin/main
+    # #2661 + #2660.
+    UNCERTAIN_ROOT_SCOPES = (
+        (None, (None, None, None, NO_NEW_NOTE, (), (), False)),
+        ("", (None, None, None, NO_NEW_NOTE, (), (), False)),
+        ("# Changelog\n", (None, None, None, NO_NEW_NOTE, (), (), False)),
+        ("**2026-12-30 | 2026.12.2660 | PR #2660** - corrected\n",
+         (2660, None, None, NO_NEW_NOTE, pairs(2660, 2660), (), False)),
+        ("### 2026-09-30: unknown\n**2026-12-30 | 2026.12.2660 | PR #2660**\n",
+         (2660, None, None,
+          "store scope: no own-PR declaration (new root header at line 1 has no parseable PR "
+          "identity); every store entry is evaluated.", pairs(2660, 2660), (), False)),
+        ("**2026-12-30 | 2026.12.2661 | PR #2661**\n**2026-12-30 | 2026.12.2660 | PR #2660**\n",
+         (2661, None, None, NO_NEW_NOTE, pairs(2661, 2661, 2660, 2660), (), False)),
+        ("**Week of 2026-09-21 (PRs #2659-2660)**\n**2026-12-30 | 2026.12.2660 | PR #2660**\n",
+         (2660, None, None,
+          "store scope: no own-PR declaration (the new root header at line 1 names more than "
+          "one PR); every store entry is evaluated.",
+          ((2659, 2659), (2660, 2660), (2659, 2659), (2659, 2660), (2660, 2660), (2660, 2660)),
+          (), False)),
+    )
+    # Keyed by the delimiter line put above #2660 in all three texts.
+    DELIMITER_SCOPES = (
+        (chr(96) * 3 + "\n", (2660, None, None, NO_NEW_NOTE, pairs(2660, 2660), (), False)),
+        ("~~~\n", (2660, None, None, NO_NEW_NOTE, pairs(2660, 2660), (), False)),
+        ("<!--\n", (2660, None, None, NO_NEW_NOTE, pairs(2660, 2660), (), False)),
+        ("-->\n", (2660, None, None, NO_NEW_NOTE, pairs(2660, 2660), (), False)),
+    )
+    MERGED_ON_MAIN_SCOPE = (
+        2661, 2661, 2661, None, pairs(2661, 2661, 2659, 2659),
+        pairs(2662, 2662, 2658, 2660), True)
+
+    def store_scope_value(self, fields: tuple):
+        return self.lc.StoreScope(*fields)
+
+    # ---- the shared parser and ceiling ----
+
+    def test_stacked_connectors_and_ambiguous_cells(self) -> None:
+        # Oxford connectors keep every key, so a mixed-scope entry is kept; a legacy header naming
+        # a further #N beyond the cell is AMBIGUOUS: the deferral side yields [] (kept) while the
+        # ceiling side reads the whole line. Kills: a single-connector run (drops #521 and defers
+        # at ceiling 521), and dropping the ambiguity probe.
+        lc = self.lc
+        oxford = "## 2026-07-04, Library Version 2026.07.11, PR #524, PR #525, and PR #521"
+        self.assertFalse(lc.above_store_ceiling(lc.changelog_header_prs(oxford), 521))
+        tail = "## 2026-09-30, Library Version 2026.09.1361, PR #9999 (follow-up to PR #2650)"
+        self.assertEqual(lc.changelog_header_prs(tail), [])
+        self.assertFalse(lc.above_store_ceiling(lc.changelog_header_prs(tail), 2657))
+
+    def test_ambiguous_cell_ceiling_reads_runs_and_line_tokens(self) -> None:
+        # The ceiling side unions the parsed runs (bare endpoint 530) with the whole-line tokens
+        # (tail #9999), and the protection side uses the same over-read. Kills: the ambiguous
+        # branch reading `#N` tokens alone (520), the runs alone (M1: 520 on the second fixture),
+        # and a protection side that ignores the ambiguous tail.
+        lc = self.lc
+        text = "## 2026-09-30, Library Version 2026.09.1, PRs #520-530 (follow-up to PR #500)"
+        self.assertEqual(lc.changelog_header_prs(text), [])
+        # The scope store_scope built for root #2661 over this base, as merge-base and origin/main.
+        scope = self.store_scope_value(self.AMBIGUOUS_TAIL_SCOPE)
+        self.assertEqual(scope.own_pr, 2661)
+        self.assertFalse(lc.above_store_ceiling([2655], scope),
+                         "a PR named in an ambiguous root tail is protected, never another open PR")
+
+    def test_above_store_ceiling_is_fail_closed(self) -> None:
+        # Kills: `>` -> `>=` (defers the ceiling, the declared own PR), `min` -> `max` (the mixed
+        # entry), dropping the empty-token guard, and dropping the None-ceiling guard.
+        f = self.lc.above_store_ceiling
+        cases = [([2651], 2650, True), ([2650], 2649, True), ([2650], 2650, False),
+                 ([2648, 2651], 2649, False), ([], 2649, False), ([2651], None, False),
+                 ([11, 10], 10, False)]
+        for prs, ceiling, expected in cases:
+            with self.subTest(prs=prs, ceiling=ceiling):
+                self.assertEqual(f(prs, ceiling), expected)
+        self.assertFalse(f(self.lc.StorePRs([2651], certain=False), 2650),
+                         "an uncertain identity is never deferred")
+
+    # ---- mirror deferral flags ----
+
+    def test_store_deferral_flags_confine_ceiling_deferral_to_the_initial_run(self) -> None:
+        # Without the open-PR rule, ceiling deferral ends at the first header naming a PR at or
+        # below the ceiling, so a lookalike below the own entry is EVALUATED (the
+        # unreadable-origin/main half of test_mirror_gate_lookalike_below_own_entry). Kills (M3):
+        # dropping the positional latch (indices 5-6 read deferred), ending the run on ANY boundary
+        # (indices 1-2 read kept), and deferring on a None ceiling. The same latch holds for a
+        # StoreScope built without the open-PR rule. A scope whose origin/main is unreadable
+        # declares nothing, so it defers nothing at all.
+        lines = ["preamble",
+                 "**2026-10-01 | 2026.10.2 | PR #2652** - later PR's entry",
+                 "its body",
+                 "**2026-09-30 | 2026.09.9 | PR #2650** - the branch's own entry",
+                 "its body",
+                 "**2026-10-01 | 2026.10.1 | PR #9999** - lookalike below the own entry",
+                 "an example body"]
+        expected = [False, True, True, False, False, False, False]
+        flags = self.lc.store_deferral_flags(lines, 2650)
+        self.assertEqual([d for d, _ in flags], expected)
+        self.assertEqual(flags[1][1], [2652], "the governing entry's keys ride on its body lines")
+        self.assertEqual(flags[5][1], [9999])
+        self.assertEqual([d for d, _ in self.lc.store_deferral_flags(lines, None)], [False] * 7)
+        ceiling_only = self.lc.StoreScope(2650, 2650, 2650, None)
+        self.assertFalse(ceiling_only.open_rule)
+        self.assertEqual([d for d, _ in self.lc.store_deferral_flags(lines, ceiling_only)], expected)
+        # The scope store_scope built for root #2650 with an empty merge-base text and an
+        # unreadable origin/main.
+        blind = self.store_scope_value(self.BLIND_SCOPE)
+        self.assertEqual((blind.own_pr, blind.ceiling, blind.open_rule), (None, None, False))
+        self.assertEqual([d for d, _ in self.lc.store_deferral_flags(lines, blind)], [False] * 7)
+
+    # ---- the own-PR declaration ----
+
+    def test_declared_own_pr_is_the_single_new_root_header(self) -> None:
+        # A new own header declares; an unchanged file and a PR-less new header do not. Two new
+        # identities no longer resolve to the topmost (one of them may be a stacked parent's), so
+        # the old "topmost wins" and the M2 "maximum wins" mutants both fail here; an empty
+        # merge-base makes every header new and no longer declares; an edited historical header no
+        # longer declares.
+        lc = self.lc
+        base = self._BASE_ROOT
+        work = "**2026-07-05 | 2026.07.12 | PR #524** - own\n\n" + base
+        self.assertEqual(lc.declared_own_pr(work, base), 524)
+        self.assertEqual(lc.own_pr_declaration(work, base), (524, ""))
+        self.assertIsNone(lc.declared_own_pr(base, base))
+        self.assertIsNone(lc.declared_own_pr(work, ""))
+        two_new = ("**2026-07-05 | 2026.07.12 | PR #524** - own\n\n"
+                   "**2026-07-06 | 2026.07.13 | PR #526** - out-of-order insert\n\n" + base)
+        own, why = lc.own_pr_declaration(two_new, base)
+        self.assertIsNone(own)
+        self.assertIn("lines 1, 3", why)
+        self.assertIsNone(lc.declared_own_pr("## 2026-07-05, Library Version 2026.07.12\n" + base, base))
+        self.assertIsNone(lc.declared_own_pr(base.replace(" - t", " - retitled", 1), base))
+
+    def test_declaration_checks_range_interiors_and_rejects_unknown_identity(self) -> None:
+        # A PR inside a base range is not new; a combined new identity, a PR-less new header and an
+        # unrecognized new header (at the declaration) all fail closed, the last even when a valid
+        # own header is also present.
+        lc = self.lc
+        base = "**Week of 2026-09-21 (PRs #2400-2659)**\n"
+        self.assertIsNone(lc.declared_own_pr(self.header(2500) + base, base))
+        self.assertEqual(lc.declared_own_pr(self.header(2661) + base, base), 2661)
+        self.assertIsNone(lc.declared_own_pr(
+            "**2026-09-30 | 2026.09.2661 | PRs #2660 and #2661**\n" + base, base))
+        self.assertIsNone(lc.declared_own_pr("**2026-09-30 | MILESTONE:** changed\n" + base, base))
+        self.assertIsNone(lc.declared_own_pr(base, base))
+        self.assertIsNone(lc.declared_own_pr(
+            "**2026-09-30 \u2014 2026.09.2661 \u2014 PR #2661**\n" + base, base))
+        self.assertIsNone(lc.declared_own_pr("### 2026-09-30 PR #2660\n" + self.header(2661) + base, base))
+
+    def test_open_parent_header_without_own_entry_is_the_stated_residue(self) -> None:
+        # The residue accepted by removing the stacked-parent concept: a child that
+        # has not yet written its own entry carries only its open parent's header,
+        # which offline is indistinguishable from an own entry, so it declares
+        # whether the parent's ref sits at the stack point or has moved on, and
+        # the child's own #2662 then defers. Pinned so that any change to it is
+        # deliberate; the note names the declared PR, so the misdeclaration is loud.
+        # The child's root is open #2653's entry over merged #2660; the scope is the one
+        # store_scope built for it against merge-base and origin/main #2660 with the merge
+        # subject (#2660), the same for both parent states.
+        scope = self.store_scope_value(self.OPEN_PARENT_SCOPE)
+        self.assertEqual((scope.own_pr, scope.ceiling), (2653, 2660))
+        self.assertTrue(self.lc.above_store_ceiling([2662], scope))
+        self.assertIn("declared own PR #2653",
+                      self.lc.store_deferral_note([2662], scope, "h", 1))
+
+    def test_store_scope_composes_ceiling_and_gates_deferral_on_the_declaration(self) -> None:
+        # `ceiling = own` when an older own PR sits below a higher root header (M10: #2658 would
+        # read as exceeding ceiling #2655 instead of as another open PR, and #2661 would name the
+        # wrong ceiling). The scope is the one store_scope built for root #2655 over #2660 and
+        # #2659 as merge-base and origin/main.
+        s6 = self.store_scope_value(self.OLDER_OWN_SCOPE)
+        self.assertEqual((s6.own_pr, s6.ceiling), (2655, 2660))
+        reason = self.lc.store_deferral_reason
+        self.assertTrue(reason([2658], s6).startswith("every named PR is another open PR"))
+        self.assertEqual(reason([2661], s6), "every named PR exceeds store-scope ceiling #2660")
+        self.assertIsNone(reason([2659], s6))
+
+    # ---- clean-base scope ----
+
+    def test_clean_base_all_evidence_readers_must_succeed(self) -> None:
+        # The clean-base scope (#2660 everywhere) defers another open PR; each scope store_scope
+        # built with one reader unreadable defers nothing.
+        scope = self.store_scope_value(self.CLEAN_BASE_SCOPE)
+        self.assertTrue(self.lc.above_store_ceiling([2662], scope))
+        for unreadable, fields in self.UNREADABLE_SCOPES:
+            with self.subTest(unreadable=unreadable):
+                scope = self.store_scope_value(fields)
+                self.assertEqual((scope.own_pr, scope.ceiling, scope.open_rule),
+                                 (None, None, False))
+                self.assertFalse(self.lc.above_store_ceiling([2662], scope))
+                self.assertIn("fail-closed", scope.note)
+
+    def test_clean_base_root_uncertainty_disables_deferral(self) -> None:
+        self.assertTrue(self.lc.above_store_ceiling(
+            [2662], self.store_scope_value(self.CLEAN_BASE_SCOPE)))
+        for text, fields in self.UNCERTAIN_ROOT_SCOPES:
+            with self.subTest(text=text):
+                scope = self.store_scope_value(fields)
+                self.assertFalse(scope.open_rule, scope)
+                self.assertFalse(self.lc.above_store_ceiling([2662], scope))
+        # Even unchanged delimiters are not a clean basis.
+        for prefix, fields in self.DELIMITER_SCOPES:
+            scope = self.store_scope_value(fields)
+            self.assertFalse(scope.open_rule, scope)
+            self.assertFalse(self.lc.above_store_ceiling([2662], scope))
+
+    def test_git_reads_are_offline_and_fail_closed(self) -> None:
+        # A PR named on origin/main's root is protected. The scope is the one store_scope built
+        # for root #2661 + #2659 from merge-base #2659, origin/main #2662 and the merge subjects
+        # (#2660) and #2658.
+        scope = self.store_scope_value(self.MERGED_ON_MAIN_SCOPE)
+        self.assertEqual((scope.own_pr, scope.ceiling, scope.open_rule), (2661, 2661, True))
+        self.assertFalse(self.lc.above_store_ceiling([2662], scope), "merged on origin/main")
 
 
 class DocumentDateStalenessTests(LinterTestCase):
@@ -41376,2014 +47748,6 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
             self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
 
 
-class DailyChangelogRollupGrammarTests(unittest.TestCase):
-    """D8's machine-readable output grammar.
-
-    A later close-out reader parses these lines, so they are pinned exactly: a
-    ``D8 BEGIN`` line, one ``D8 DUE`` line per due date carrying the stable key
-    ``D8-<date>`` bound to the checked revision (each followed by the existing
-    human ``DAILY SUMMARY DUE for <date>`` line), and a ``D8 END`` line whose
-    ``due=`` count lets a reader tell a complete report from a truncated one. A
-    revision that cannot be read is ``UNKNOWN``, never a guess. D8 stays
-    advisory: exit 0 whatever is due. The output carries no time of day: its
-    clock inputs are the UTC date and, through the git time limit, elapsed
-    time.
-
-    BEGIN and END both carry the UTC date and the run digest, so a report
-    spliced from two runs is not complete under the reader rule (BEGIN and END
-    carry the same ``run=``); the revision is read with replacement objects
-    disabled; a missing CHANGELOG prints ``D8 NOT-FOUND`` and an unreadable,
-    non-UTF-8 or bad-date CHANGELOG prints ``D8 REFUSED``, each exit 0 with no
-    traceback; the pre-push runner starts BEGIN on a line.
-
-    The reader rule also recomputes ``run`` over the lines between BEGIN and
-    END and checks END's ``due=`` count, so a cut, interleaved or short-ended
-    report is not complete (``complete`` applies it); the runner reports a
-    failing D8 as failed; each replacement-object switch is pinned.
-
-    Absence is decided by the open's own error, ENOENT or ENOTDIR alone, so an
-    unsearchable parent or an over-long name is refused, not reported missing,
-    on every Python version; each git call reads no stdin and times out;
-    principle 1 does not call the date D8's only external input.
-
-    The human line escapes what stdout cannot encode, so D8 exits 0 whatever
-    the path; it carries the path exactly as given; the docstring and the spec
-    state that one bad per-PR date refuses the whole report.
-
-    D8 opens the argument exactly as given, so an empty argument and a regular
-    file named with a trailing slash or ``/.`` are NOT-FOUND; the blob is read
-    at the commit the first git call returned; the docstring and the spec scope
-    exit 0, require the whole END line to match, and qualify the report's
-    inputs.
-
-    The human line escapes every control and line-breaking character, so a path
-    cannot forge grammar lines; a fake git pins the 40-hex guard on rev; the
-    exceptions to exit 0 are a complete list, the closed and full stdout exits
-    observed in each buffering mode.
-
-    A failing stdout write is stated as a non-zero exit, never 0, with each
-    observed code labelled as observed, and a report larger than the buffer is
-    observed failing mid-run; a permissive date parser pins the ASCII-digit
-    guard on per-PR dates.
-
-    A run with no usable stdout (file descriptor 1 closed at startup) is
-    refused with a non-zero exit, never exit 0 with no output; principle 1
-    names gate 31's git inputs and follow-up ageing's store rather than
-    calling the date every other gate's only external input.
-
-    A run with no usable stdout exits non-zero whatever stderr is (3 when
-    stderr is writable or absent); four of its branches are pinned in process;
-    principle 1 names the gates that ask git, read the operational store or the
-    private sibling, ask GitHub, or read the time of day.
-
-    The stdout check runs before the parser is built, since Python 3.14's
-    argparse reads stdout to decide on colour; the reader rule's whole line
-    requirement is stated without the mandatory verb.
-
-    An unwritable stderr's exit is stated per buffering mode; report() requires
-    the date main read once; the docstring, the spec and principle 1 name the
-    git time limit as D8's second clock input, and four gates' local date.
-
-    Every surrogate in the human line is escaped, so a surrogateescape stdout
-    cannot split it; the exceptions to exit 0 name a usage error or self-test
-    with stderr absent or unwritable; principle 1 names the time limits of
-    gates 6, 109 and 50; the /dev/full open in the no-usable-stdout test is
-    skipped where the device is missing.
-
-    Every character outside printable ASCII in the human line is escaped, so a
-    cp1252 stdout cannot write U+2026 as the byte 0x85; the usage error's
-    message and program name are escaped the same way; principle 1 names gate
-    36 in a list of examples and gate 50's untimed git reads; the observed exit
-    codes name CPython 3.14.4.
-    """
-
-    TOOL = ".claude/skills/corpus-management/tools/check-daily-changelog-rollup.py"
-    REV = "0123456789abcdef0123456789abcdef01234567"
-    DUE_RE = re.compile(
-        r"D8 DUE id=D8-(?P<date>\d{4}-\d{2}-\d{2})@(?:[0-9a-f]{12}|UNKNOWN) "
-        r"date=(?P=date) count=\d+ due_since=\d{4}-\d{2}-\d{2}T00:00:00Z$"
-    )
-    FRAME = r"rev=(?P<rev>[0-9a-f]{40}|UNKNOWN) today=(?P<today>\d{4}-\d{2}-\d{2}) run=(?P<run>[0-9a-f]{64})"
-    BEGIN_RE = re.compile(rf"D8 BEGIN {FRAME}")
-    END_RE = re.compile(rf"D8 END {FRAME} due=(?P<due>\d+) rc=0")
-
-    def setUp(self) -> None:
-        import datetime
-
-        self.today = datetime.date(2026, 10, 31)
-        self.d8 = load_linter_module(self.TOOL, "_d8_grammar_under_test")
-
-    def report_lines(self, due, rev=REV, today=None):
-        buf = io.StringIO()
-        today = today or self.today
-        self.assertEqual(self.d8.report(due, stream=buf, rev=rev, today=today), len(due))
-        return buf.getvalue().splitlines()
-
-    @staticmethod
-    def run_digest(rev, today, body):
-        # The spec's definition, recomputed independently of the tool.
-        import hashlib
-
-        text = f"rev={rev} today={today}\n" + "".join(f"{line}\n" for line in body)
-        return hashlib.sha256(text.encode("utf-8")).hexdigest()
-
-    def framed(self, lines, rev=REV, today="2026-10-31"):
-        """Assert BEGIN and END frame ``lines``; return the END line's tail."""
-        run = self.run_digest(rev, today, lines[1:-1])
-        self.assertEqual(lines[0], f"D8 BEGIN rev={rev} today={today} run={run}")
-        prefix = f"D8 END rev={rev} today={today} run={run} "
-        self.assertTrue(lines[-1].startswith(prefix), lines[-1])
-        return lines[-1][len(prefix):]
-
-    @classmethod
-    def complete(cls, lines):
-        """The spec's reader rule: BEGIN first and END last, with the same rev,
-        today and run; run recomputed over the lines between them; END ending
-        due=<n> rc=0 with n the number of DUE lines between them."""
-        if len(lines) < 2:
-            return False
-        begin, end = cls.BEGIN_RE.fullmatch(lines[0]), cls.END_RE.fullmatch(lines[-1])
-        if not begin or not end:
-            return False
-        body = lines[1:-1]
-        return (
-            begin.group("rev", "today", "run") == end.group("rev", "today", "run")
-            and cls.run_digest(begin["rev"], begin["today"], body) == begin["run"]
-            and end["due"] == str(sum(1 for line in body if line.startswith("D8 DUE ")))
-        )
-
-    def test_one_due_date(self) -> None:
-        lines = self.report_lines([("2026-10-29", 3)])
-        self.assertEqual(len(lines), 4, lines)
-        self.assertEqual(self.framed(lines), "due=1 rc=0")
-        self.assertEqual(
-            lines[1],
-            f"D8 DUE id=D8-2026-10-29@{self.REV[:12]} date=2026-10-29 count=3 "
-            f"due_since=2026-10-30T00:00:00Z",
-        )
-        self.assertTrue(lines[2].startswith("DAILY SUMMARY DUE for 2026-10-29: 3 per-PR entries"), lines[2])
-
-    def test_two_due_dates(self) -> None:
-        lines = self.report_lines([("2026-10-25", 21), ("2026-10-29", 9)])
-        self.assertEqual(len(lines), 6, lines)
-        self.assertEqual(self.framed(lines), "due=2 rc=0")
-        self.assertEqual(
-            lines[1],
-            f"D8 DUE id=D8-2026-10-25@{self.REV[:12]} date=2026-10-25 count=21 "
-            f"due_since=2026-10-26T00:00:00Z",
-        )
-        self.assertTrue(lines[2].startswith("DAILY SUMMARY DUE for 2026-10-25: 21 "), lines[2])
-        self.assertEqual(
-            lines[3],
-            f"D8 DUE id=D8-2026-10-29@{self.REV[:12]} date=2026-10-29 count=9 "
-            f"due_since=2026-10-30T00:00:00Z",
-        )
-        self.assertTrue(lines[4].startswith("DAILY SUMMARY DUE for 2026-10-29: 9 "), lines[4])
-
-    def test_none_due(self) -> None:
-        lines = self.report_lines([])
-        self.assertEqual(len(lines), 3, lines)
-        self.assertEqual(self.framed(lines), "due=0 rc=0")
-        self.assertTrue(lines[1].startswith("OK: "), lines[1])
-
-    def test_end_counts_the_due_lines(self) -> None:
-        # Only END carries the due count; BEGIN does not.
-        dates = ["2026-10-24", "2026-10-25", "2026-10-28", "2026-10-29"]
-        for n in range(len(dates) + 1):
-            with self.subTest(due=n):
-                lines = self.report_lines([(d, 2) for d in dates[:n]])
-                self.assertEqual(self.framed(lines), f"due={n} rc=0")
-                self.assertEqual(sum(1 for line in lines if line.startswith("D8 BEGIN")), 1)
-                due_lines = [line for line in lines if line.startswith("D8 DUE ")]
-                self.assertEqual(len(due_lines), n)
-                for line in due_lines:
-                    self.assertRegex(line, self.DUE_RE)
-                self.assertEqual(sum(1 for line in lines if line.startswith("D8 END")), 1)
-        # An unreadable revision is stated in the grammar, not guessed.
-        lines = self.report_lines([("2026-10-29", 2)], rev="UNKNOWN")
-        self.assertEqual(self.framed(lines, rev="UNKNOWN"), "due=1 rc=0")
-        self.assertTrue(lines[1].startswith("D8 DUE id=D8-2026-10-29@UNKNOWN date=2026-10-29 "), lines[1])
-
-    def test_a_report_spliced_from_two_runs_is_not_complete(self) -> None:
-        # In the earlier repository, END carried neither the date nor a run
-        # identifier, so the October 31 BEGIN followed by the rest of an October
-        # 30 report over the same CHANGELOG and revision read as a complete
-        # zero-due October 31 report, though one date was due.
-        import datetime
-
-        text = (
-            "**2026-10-30 | 2026.10.1 | PR #1** - one.\n"
-            "**2026-10-30 | 2026.10.2 | PR #2** - two.\n"
-        )
-        runs = {}
-        for day in (30, 31):
-            today = datetime.date(2026, 10, day)
-            runs[day] = self.report_lines(self.d8.find_rollups_due(text, today), today=today)
-            self.assertTrue(self.complete(runs[day]), runs[day])
-            self.assertEqual(self.framed(runs[day], today=today.isoformat()), f"due={day - 30} rc=0")
-        spliced = runs[31][:1] + runs[30][1:]
-        self.assertFalse(self.complete(spliced), spliced)
-        # A run truncated after BEGIN, next to a complete run of another date.
-        self.assertFalse(self.complete(runs[30][:1] + runs[31][1:]))
-        # Different revisions give different run digests even when nothing is due.
-        other = self.report_lines([], rev="UNKNOWN")
-        self.assertFalse(self.complete(self.report_lines([])[:1] + other[1:]))
-
-    def test_a_cut_or_interleaved_report_is_not_complete(self) -> None:
-        # In the earlier repository, the reader rule compared only the fields
-        # of BEGIN and END, so a report with lines cut from its middle, run
-        # A's BEGIN and END around run B's body, and an END line cut after its
-        # run hash each read as complete. The last three cases each break one
-        # clause of the rule alone (END's due= and rc= are outside the
-        # digest).
-        full = self.report_lines([("2026-10-25", 21), ("2026-10-29", 9)])
-        other = self.report_lines([("2026-10-29", 9)])
-        self.assertTrue(self.complete(full), full)
-        self.assertTrue(self.complete(other), other)
-        end = full[-1]
-        cases = {
-            "middle cut": full[:1] + full[3:],
-            "sandwich": full[:1] + other[1:-1] + full[-1:],
-            "END cut after the run hash": full[:-1] + [end[:end.index(" due=")]],
-            "END cut after the due count": full[:-1] + [end[:end.index(" rc=")]],
-            "END with another due count": full[:-1] + [end.replace(" due=2 ", " due=1 ")],
-            "END naming another date": full[:-1] + [end.replace(" today=2026-10-31 ", " today=2026-10-30 ")],
-        }
-        for name, lines in cases.items():
-            with self.subTest(name):
-                self.assertNotEqual(lines, full)
-                self.assertFalse(self.complete(lines), lines)
-
-    TWO_ENTRIES = (
-        "**2026-07-24 | 2026.07.1 | PR #1** - one.\n"
-        "**2026-07-24 | 2026.07.2 | PR #2** - two.\n"
-    )
-
-    def fixture(self):
-        """A fixture directory and repository, a git runner and a D8 CLI runner."""
-        env = fixture_git_environment()
-        tmp = Path(tempfile.mkdtemp(prefix="d8-grammar-"))
-        self.addCleanup(shutil.rmtree, tmp)
-        repo = tmp / "repo"
-        repo.mkdir()
-        env["GIT_CEILING_DIRECTORIES"] = str(tmp)
-
-        def git(*args):
-            return subprocess.run(
-                ["git", "-C", str(repo), "-c", "user.name=Fixture",
-                 "-c", "user.email=fixture@example.invalid", *args],
-                capture_output=True, text=True, env=env, check=True,
-            ).stdout.strip()
-
-        def d8(changelog, extra_env=None):
-            # A traceback is exit 1 with stderr: both are pinned, whatever is due.
-            # The timeout ends a read blocked on a FIFO.
-            r = subprocess.run(
-                [sys.executable, str(_resolve_path(self.TOOL)), "--changelog", str(changelog)],
-                capture_output=True, encoding="utf-8", errors="replace",
-                env={**env, **(extra_env or {})}, cwd=str(tmp), timeout=120,
-            )
-            self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
-            self.assertEqual(r.stderr, "", r.stderr)
-            return r.stdout, r.stdout.splitlines()
-
-        return tmp, repo, env, git, d8
-
-    def test_revision_line_binds_the_checked_head(self) -> None:
-        tmp, repo, env, git, d8 = self.fixture()
-        outside = tmp / "outside"
-        outside.mkdir()
-        changelog = repo / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
-        git("init", "-q")
-        git("add", ".working/CHANGELOG.md")
-        git("commit", "-q", "-m", "fixture")
-        head = git("rev-parse", "HEAD")
-
-        out, lines = d8(changelog)
-        self.assertRegex(lines[0], rf"^D8 BEGIN rev={head} today=\d{{4}}-\d{{2}}-\d{{2}} run=[0-9a-f]{{64}}$")
-        self.assertTrue(self.complete(lines), out)
-        self.assertIn(f"D8 DUE id=D8-2026-07-24@{head[:12]} date=2026-07-24 count=2 ", out)
-        self.assertIn("DAILY SUMMARY DUE for 2026-07-24: 2 ", out)
-        self.assertRegex(lines[-1], rf"^D8 END rev={head} today=\S+ run=\S+ due=1 rc=0$")
-
-        # An uncommitted edit means HEAD is not what was checked: UNKNOWN.
-        changelog.write_text(
-            changelog.read_text(encoding="utf-8") + "**2026-07-24 | 2026.07.3 | PR #3** - three.\n",
-            encoding="utf-8",
-        )
-        out, lines = d8(changelog)
-        self.assertTrue(lines[0].startswith("D8 BEGIN rev=UNKNOWN "), lines[0])
-        self.assertTrue(self.complete(lines), out)
-        self.assertIn("D8 DUE id=D8-2026-07-24@UNKNOWN date=2026-07-24 count=3 ", out)
-        self.assertRegex(lines[-1], r"^D8 END rev=UNKNOWN today=\S+ run=\S+ due=1 rc=0$")
-        self.assertNotIn(head, out)
-
-        # Outside any repository there is no revision to read: UNKNOWN.
-        stray = outside / ".working/CHANGELOG.md"
-        stray.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy(changelog, stray)
-        out, lines = d8(stray)
-        self.assertTrue(lines[0].startswith("D8 BEGIN rev=UNKNOWN "), lines[0])
-        self.assertRegex(lines[-1], r"^D8 END rev=UNKNOWN today=\S+ run=\S+ due=1 rc=0$")
-
-    def test_a_replacement_object_cannot_bind_another_blob(self) -> None:
-        # In the earlier repository, git resolved HEAD:.working/CHANGELOG.md
-        # through a replacement ref, so D8 named HEAD for bytes that differ
-        # from HEAD's own blob. Replacement objects are now disabled for D8's
-        # git reads.
-        tmp, repo, env, git, d8 = self.fixture()
-        changelog = repo / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        substitute = self.TWO_ENTRIES + "**2026-07-24 | 2026.07.3 | PR #3** - three.\n"
-        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
-        git("init", "-q")
-        git("add", ".working/CHANGELOG.md")
-        git("commit", "-q", "-m", "fixture")
-        head = git("rev-parse", "HEAD")
-        changelog.write_text(substitute, encoding="utf-8")
-        git("add", ".working/CHANGELOG.md")
-        git("replace", head, git("commit-tree", git("write-tree"), "-m", "substitute"))
-        # The replacement is live for an ordinary git read of HEAD.
-        self.assertEqual(git("show", "HEAD:.working/CHANGELOG.md") + "\n", substitute)
-
-        out, lines = d8(changelog)
-        self.assertTrue(lines[0].startswith("D8 BEGIN rev=UNKNOWN "), lines[0])
-        self.assertIn("D8 DUE id=D8-2026-07-24@UNKNOWN date=2026-07-24 count=3 ", out)
-        self.assertNotIn(head, out)
-
-        # HEAD's own bytes still bind HEAD, the replacement notwithstanding.
-        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
-        out, lines = d8(changelog)
-        self.assertTrue(lines[0].startswith(f"D8 BEGIN rev={head} "), lines[0])
-        self.assertIn(f"D8 DUE id=D8-2026-07-24@{head[:12]} date=2026-07-24 count=2 ", out)
-
-    def test_every_git_read_carries_both_replacement_switches(self) -> None:
-        # The --no-replace-objects flag and the GIT_NO_REPLACE_OBJECTS
-        # variable each disable replacement objects on their own, so the
-        # reproduction above survives removing either alone. Each is pinned
-        # here on every git call D8 makes.
-        from unittest import mock
-
-        tmp, repo, env, git, d8 = self.fixture()
-        changelog = repo / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
-        git("init", "-q")
-        git("add", ".working/CHANGELOG.md")
-        git("commit", "-q", "-m", "fixture")
-        head = git("rev-parse", "HEAD")
-        calls = []
-        real_run = subprocess.run
-
-        def recording_run(argv, *args, **kwargs):
-            calls.append((list(argv), dict(kwargs.get("env") or {})))
-            return real_run(argv, *args, **kwargs)
-
-        with mock.patch.dict(os.environ, env, clear=True), \
-                mock.patch.object(self.d8.subprocess, "run", recording_run):
-            self.assertEqual(self.d8.checked_revision(changelog, changelog.read_bytes()), head)
-        self.assertEqual(len(calls), 2, calls)
-        for argv, call_env in calls:
-            with self.subTest(argv=argv):
-                self.assertIn("--no-replace-objects", argv[:argv.index("rev-parse")])
-                self.assertEqual(call_env.get("GIT_NO_REPLACE_OBJECTS"), "1")
-
-    def test_a_git_read_takes_no_stdin_and_a_timeout_leaves_rev_unknown(self) -> None:
-        # In the earlier repository, both git calls inherited stdin and had no
-        # timeout, so a hung git hung the pre-push run. Each call now reads no
-        # stdin and times out; a timeout is a git failure (UNKNOWN).
-        import contextlib
-        import time
-        from unittest import mock
-
-        tmp, repo, env, git, d8 = self.fixture()
-        changelog = repo / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
-        git("init", "-q")
-        git("add", ".working/CHANGELOG.md")
-        git("commit", "-q", "-m", "fixture")
-        head = git("rev-parse", "HEAD")
-        calls = []
-        real_run = subprocess.run
-
-        def recording_run(argv, *args, **kwargs):
-            calls.append(kwargs)
-            return real_run(argv, *args, **kwargs)
-
-        with mock.patch.dict(os.environ, env, clear=True), \
-                mock.patch.object(self.d8.subprocess, "run", recording_run):
-            self.assertEqual(self.d8.checked_revision(changelog, changelog.read_bytes()), head)
-        self.assertEqual(len(calls), 2, calls)
-        for kwargs in calls:
-            self.assertIs(kwargs.get("stdin"), subprocess.DEVNULL, kwargs)
-            self.assertEqual(kwargs.get("timeout"), self.d8.GIT_TIMEOUT, kwargs)
-        self.assertGreater(self.d8.GIT_TIMEOUT, 0)
-
-        # A real git that hangs: the call times out and the revision is UNKNOWN.
-        fake = tmp / "hanging-git"
-        fake.mkdir()
-        (fake / "git").write_text("#!/bin/sh\nexec sleep 60\n", encoding="utf-8")
-        (fake / "git").chmod(0o755)
-        started = time.monotonic()
-        with mock.patch.dict(os.environ, {**env, "PATH": f"{fake}{os.pathsep}{env['PATH']}"}, clear=True), \
-                mock.patch.object(self.d8, "GIT_TIMEOUT", 1):
-            self.assertEqual(self.d8.checked_revision(changelog, changelog.read_bytes()), "UNKNOWN")
-        self.assertLess(time.monotonic() - started, 30)
-
-        # An injected timeout on either call gives a complete UNKNOWN report.
-        for timed_out in (0, 1):
-            with self.subTest(call=timed_out):
-                seen = []
-
-                def timing_out_run(argv, *args, **kwargs):
-                    seen.append(argv)
-                    if len(seen) - 1 == timed_out:
-                        raise subprocess.TimeoutExpired(argv, kwargs.get("timeout"))
-                    return real_run(argv, *args, **kwargs)
-
-                # Loaded under the redirect, so report()'s stream default is the buffer.
-                buf = io.StringIO()
-                with mock.patch.dict(os.environ, env, clear=True), \
-                        mock.patch.object(subprocess, "run", timing_out_run), \
-                        contextlib.redirect_stdout(buf):
-                    d8 = load_linter_module(self.TOOL, "_d8_timeout_under_test")
-                    self.assertEqual(d8.main(["--changelog", str(changelog)]), 0)
-                lines = buf.getvalue().splitlines()
-                self.assertEqual(len(seen), timed_out + 1, seen)
-                self.assertTrue(lines[0].startswith("D8 BEGIN rev=UNKNOWN "), lines)
-                self.assertTrue(self.complete(lines), lines)
-                self.assertIn("D8 DUE id=D8-2026-07-24@UNKNOWN date=2026-07-24 count=2 ", buf.getvalue())
-
-    def test_an_undecodable_git_diagnostic_is_not_a_traceback(self) -> None:
-        # In the earlier repository, git's output was decoded as text, so
-        # git's diagnostic naming a malformed config file whose name holds
-        # byte 0xff raised UnicodeDecodeError (exit 1, no report). D8 now
-        # reads git's output as bytes; git failing leaves the revision
-        # UNKNOWN and the report complete.
-        tmp, repo, env, git, d8 = self.fixture()
-        changelog = repo / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
-        git("init", "-q")
-        git("add", ".working/CHANGELOG.md")
-        git("commit", "-q", "-m", "fixture")
-        bad = tmp / os.fsdecode(b"bad-\xff.gitconfig")
-        bad.write_text("[broken\n", encoding="utf-8")
-        bad_env = {"GIT_CONFIG_GLOBAL": str(bad), "PYTHONUTF8": "1"}
-        probe = subprocess.run(
-            ["git", "-C", str(repo), "rev-parse", "HEAD"],
-            capture_output=True, env={**env, **bad_env},
-        )
-        self.assertNotEqual(probe.returncode, 0, probe)
-        self.assertIn(b"\xff", probe.stderr)
-
-        out, lines = d8(changelog, bad_env)
-        self.assertTrue(lines[0].startswith("D8 BEGIN rev=UNKNOWN "), lines[0])
-        self.assertTrue(self.complete(lines), out)
-        self.assertIn("D8 DUE id=D8-2026-07-24@UNKNOWN date=2026-07-24 count=2 ", out)
-
-    def test_an_unusable_changelog_is_refused_with_exit_0(self) -> None:
-        # In the earlier repository, each file case raised ValueError or
-        # UnicodeDecodeError, so D8 exited 1 with a traceback. Each now
-        # prints one D8 REFUSED line and the human refusal line, exit 0, and
-        # no report.
-        tmp, repo, env, git, d8 = self.fixture()
-        changelog = tmp / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        arabic_indic = "٢٠٢٦-١٠-٢٩"
-        cases = {
-            "an impossible repeated date": ("bad-date", (
-                "**2026-02-30 | 2026.02.1 | PR #1** - one.\n"
-                "**2026-02-30 | 2026.02.2 | PR #2** - two.\n").encode("utf-8")),
-            "a lone impossible date": ("bad-date", (
-                "**2026-10-29 | 2026.10.1 | PR #1** - one.\n"
-                "**2026-10-29 | 2026.10.2 | PR #2** - two.\n"
-                "**2026-13-01 | 2026.10.3 | PR #3** - three.\n").encode("utf-8")),
-            "non-ASCII digits in a date": ("bad-date", (
-                f"**{arabic_indic} | 2026.10.1 | PR #1** - one.\n"
-                f"**{arabic_indic} | 2026.10.2 | PR #2** - two.\n").encode("utf-8")),
-            "a non-UTF-8 CHANGELOG": ("not-utf8", (
-                b"**2026-10-29 | 2026.10.1 | PR #1** - caf\xe9.\n"
-                b"**2026-10-29 | 2026.10.2 | PR #2** - two.\n")),
-        }
-        for name, (reason, data) in cases.items():
-            with self.subTest(name):
-                changelog.write_bytes(data)
-                out, lines = d8(changelog)
-                self.assertEqual(len(lines), 2, out)
-                self.assertRegex(lines[0], rf"^D8 REFUSED reason={reason} today=\d{{4}}-\d{{2}}-\d{{2}} rc=0$")
-                self.assertTrue(lines[1].startswith(f"check-daily-changelog-rollup: {changelog}: "), lines[1])
-                self.assertTrue(lines[1].endswith("; nothing checked (advisory, exit 0)."), lines[1])
-                self.assertNotIn("D8 BEGIN", out)
-        # An unreadable file: test_each_open_error_is_classified_by_errno and
-        # the real-filesystem tests below.
-
-    def test_the_ascii_guard_refuses_what_a_permissive_parser_accepts(self) -> None:
-        # CPython's C datetime already rejects non-ASCII digits, so the
-        # cases above pass without the isascii guard. A parser that accepts
-        # any string (as int() accepts other scripts' digits in a
-        # pure-Python datetime) leaves the guard as the only refusal.
-        import datetime
-        import types
-        from unittest import mock
-
-        accepted = []
-
-        def accept_anything(text):
-            accepted.append(text)
-            return datetime.date(2026, 10, 29)
-
-        permissive = types.SimpleNamespace(date=types.SimpleNamespace(fromisoformat=accept_anything))
-        arabic_indic = "٢٠٢٦-١٠-٢٩"
-        with mock.patch.object(self.d8, "datetime", permissive):
-            # The permissive parser is the one D8 calls: an impossible ASCII
-            # date passes it and is reported, not refused.
-            impossible = "**2026-02-30 | 2026.02.1 | PR #1** - one.\n**2026-02-30 | 2026.02.2 | PR #2** - two.\n"
-            self.assertEqual(self.d8.find_rollups_due(impossible, self.today), [("2026-02-30", 2)])
-            self.assertIn("2026-02-30", accepted)
-            text = (
-                f"**{arabic_indic} | 2026.10.1 | PR #1** - one.\n"
-                f"**{arabic_indic} | 2026.10.2 | PR #2** - two.\n"
-            )
-            with self.assertRaises(self.d8.Refusal) as caught:
-                self.d8.find_rollups_due(text, self.today)
-        self.assertEqual(caught.exception.reason, "bad-date")
-        self.assertNotIn(arabic_indic, accepted)
-
-    def assert_not_found(self, lines, changelog):
-        self.assertEqual(len(lines), 2, lines)
-        self.assertRegex(lines[0], r"^D8 NOT-FOUND today=\d{4}-\d{2}-\d{2} rc=0$")
-        self.assertEqual(
-            lines[1],
-            f"check-daily-changelog-rollup: {changelog} not found; nothing to check "
-            f"(advisory, exit 0).",
-        )
-
-    def assert_unreadable(self, lines, changelog):
-        self.assertEqual(len(lines), 2, lines)
-        self.assertRegex(lines[0], r"^D8 REFUSED reason=unreadable today=\d{4}-\d{2}-\d{2} rc=0$")
-        self.assertTrue(
-            lines[1].startswith(f"check-daily-changelog-rollup: {changelog}: cannot be read ("), lines[1])
-        self.assertTrue(lines[1].endswith("); nothing checked (advisory, exit 0)."), lines[1])
-
-    def test_a_changelog_behind_an_unsearchable_parent_is_refused(self) -> None:
-        # In the earlier repository, Path.is_file() decided absence
-        # before the protected read, so on Python 3.14 a CHANGELOG under
-        # an unsearchable parent printed D8 NOT-FOUND (on 3.11 is_file()
-        # raises EACCES: a traceback).
-        if os.geteuid() == 0:
-            self.skipTest("root searches any directory")
-        tmp, repo, env, git, d8 = self.fixture()
-        locked = tmp / "locked"
-        locked.mkdir()
-        changelog = locked / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
-        locked.chmod(0o600)
-        self.addCleanup(locked.chmod, 0o700)
-        with self.assertRaises(PermissionError):
-            changelog.read_bytes()
-        out, lines = d8(changelog)
-        self.assert_unreadable(lines, changelog)
-        self.assertIn("(Permission denied)", lines[1])
-
-    def test_only_a_missing_name_is_not_found(self) -> None:
-        # Only ENOENT and ENOTDIR (a component of the path is not a
-        # directory, so no file can be at it) mean absence. In the earlier
-        # repository, a directory, a FIFO and a name over the length limit
-        # each printed D8 NOT-FOUND on Python 3.14.
-        tmp, repo, env, git, d8 = self.fixture()
-        a_file = tmp / "a-file"
-        a_file.write_text("not a directory\n", encoding="utf-8")
-        dangling = tmp / "dangling.md"
-        dangling.symlink_to(tmp / "nowhere.md")
-        a_dir = tmp / "a-dir"
-        a_dir.mkdir()
-        fifo = tmp / "a-fifo"
-        os.mkfifo(fifo)
-        loop = tmp / "loop.md"
-        loop.symlink_to(loop)
-        for name, path in {
-            "a missing name": tmp / "absent.md",
-            "a missing parent": tmp / "absent" / ".working/CHANGELOG.md",
-            "a parent that is a file (ENOTDIR)": a_file / ".working/CHANGELOG.md",
-            "a dangling symlink": dangling,
-        }.items():
-            with self.subTest(name):
-                out, lines = d8(path)
-                self.assert_not_found(lines, path)
-        for name, path in {
-            "a directory": a_dir,
-            "a FIFO with no writer": fifo,
-            "a name over the length limit": tmp / ("C" * 300 + ".md"),
-            "a symlink loop": loop,
-        }.items():
-            with self.subTest(name):
-                out, lines = d8(path)
-                self.assert_unreadable(lines, path)
-
-    def test_each_open_error_is_classified_by_errno(self) -> None:
-        # The error is injected at the open D8 makes itself, so the result
-        # does not depend on how the running interpreter's pathlib treats
-        # it. In the earlier repository, is_file() and read_bytes() never
-        # reached os.open, so every case read the file.
-        import contextlib
-        import errno
-        from unittest import mock
-
-        tmp = Path(tempfile.mkdtemp(prefix="d8-errno-"))
-        self.addCleanup(shutil.rmtree, tmp)
-        changelog = tmp / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
-        real_open = os.open
-
-        def run(err, at="open"):
-            def failing_open(target, *args, **kwargs):
-                if at == "open" and os.fspath(target) == str(changelog):
-                    raise OSError(err, os.strerror(err), str(changelog))
-                return real_open(target, *args, **kwargs)
-
-            def failing_fstat(fd):
-                raise OSError(err, os.strerror(err))
-
-            buf = io.StringIO()
-            patches = [mock.patch.object(self.d8.os, "open", failing_open)]
-            if at == "fstat":
-                patches.append(mock.patch.object(self.d8.os, "fstat", failing_fstat))
-            with contextlib.ExitStack() as stack:
-                for patch in patches:
-                    stack.enter_context(patch)
-                stack.enter_context(mock.patch.dict(os.environ, {"GIT_CEILING_DIRECTORIES": str(tmp)}))
-                stack.enter_context(contextlib.redirect_stdout(buf))
-                self.assertEqual(self.d8.main(["--changelog", str(changelog)]), 0)
-            return buf.getvalue().splitlines()
-
-        for err in (errno.ENOENT, errno.ENOTDIR):
-            with self.subTest(errno=errno.errorcode[err]):
-                self.assert_not_found(run(err), changelog)
-        for err in (errno.EACCES, errno.EPERM, errno.ENAMETOOLONG, errno.ELOOP,
-                    errno.EISDIR, errno.EIO, errno.EMFILE):
-            with self.subTest(errno=errno.errorcode[err]):
-                lines = run(err)
-                self.assert_unreadable(lines, changelog)
-                self.assertIn(f"({os.strerror(err)})", lines[1])
-        # An error after a successful open is a refusal too, never absence.
-        for err in (errno.ENOENT, errno.EIO):
-            with self.subTest(errno=errno.errorcode[err], at="fstat"):
-                self.assert_unreadable(run(err, at="fstat"), changelog)
-
-    def test_a_missing_changelog_prints_not_found_and_exits_0(self) -> None:
-        # In the earlier repository, only the human line was printed, and a
-        # mutant returning 1 here survived the class.
-        tmp, repo, env, git, d8 = self.fixture()
-        missing = tmp / "absent" / ".working/CHANGELOG.md"
-        out, lines = d8(missing)
-        self.assertEqual(len(lines), 2, out)
-        self.assertRegex(lines[0], r"^D8 NOT-FOUND today=\d{4}-\d{2}-\d{2} rc=0$")
-        self.assertEqual(
-            lines[1],
-            f"check-daily-changelog-rollup: {missing} not found; nothing to check "
-            f"(advisory, exit 0).",
-        )
-
-    def test_a_path_stdout_cannot_encode_still_exits_0(self) -> None:
-        # In the earlier repository, the human line after D8 NOT-FOUND or D8
-        # REFUSED printed the path as plain text, so a path stdout could not
-        # encode raised UnicodeEncodeError: exit 1 with a traceback after a
-        # machine line saying rc=0. The human line now escapes what stdout
-        # cannot encode, and D8 exits 0 in every case.
-        tmp, repo, env, git, d8 = self.fixture()
-        odd = tmp / os.fsdecode(b"d8-\xff")
-        odd.mkdir()
-        bad_date = odd / ".working/CHANGELOG.md"
-        bad_date.parent.mkdir(parents=True, exist_ok=True)
-        bad_date.write_text("**2026-02-30 | 2026.02.1 | PR #1** - one.\n", encoding="utf-8")
-        accented = tmp / "café"
-        accented.mkdir()
-        strict, ascii_only = {"PYTHONIOENCODING": "utf-8:strict"}, {"PYTHONIOENCODING": "ascii"}
-        cases = {
-            "0xff, a missing file": (strict, odd / "absent.md", r"NOT-FOUND", "\\udcff"),
-            "0xff, a directory": (strict, odd, r"REFUSED reason=unreadable", "\\udcff"),
-            "0xff, a bad date": (strict, bad_date, r"REFUSED reason=bad-date", "\\udcff"),
-            "ASCII stdout, a missing file": (ascii_only, accented / "absent.md", r"NOT-FOUND", "caf\\xe9"),
-            "ASCII stdout, a bad date": (ascii_only, accented / ".working/CHANGELOG.md", r"REFUSED reason=bad-date",
-                                         "caf\\xe9"),
-        }
-        (accented / ".working").mkdir(parents=True, exist_ok=True)
-        (accented / ".working/CHANGELOG.md").write_text(
-            "**2026-13-01 | 2026.10.1 | PR #1** - one.\n", encoding="utf-8")
-        for name, (extra_env, path, token, escaped) in cases.items():
-            with self.subTest(name):
-                out, lines = d8(path, extra_env)
-                self.assertEqual(len(lines), 2, out)
-                self.assertRegex(lines[0], rf"^D8 {token} today=\d{{4}}-\d{{2}}-\d{{2}} rc=0$")
-                self.assertTrue(lines[1].startswith("check-daily-changelog-rollup: "), lines[1])
-                self.assertIn(escaped, lines[1])
-                self.assertTrue(lines[1].endswith("(advisory, exit 0)."), lines[1])
-                self.assertNotIn("D8 BEGIN", out)
-        # Every line a report prints is ASCII by construction (dates pass the
-        # ASCII-digit check), so no report line depends on stdout's encoding.
-        for line in self.report_lines([("2026-10-25", 21), ("2026-10-29", 9)]) + self.report_lines([]):
-            self.assertTrue(line.isascii(), line)
-
-    def test_the_human_line_carries_the_path_as_given(self) -> None:
-        # In the earlier repository, the human line printed pathlib's
-        # normalized form (a doubled slash and a "." component removed), not
-        # the path as given, which the docstring and the spec promise.
-        tmp, repo, env, git, d8 = self.fixture()
-        given = f"{tmp}//absent/./CHANGELOG.md"
-        self.assertNotEqual(str(Path(given)), given)
-        out, lines = d8(given)
-        self.assert_not_found(lines, given)
-        (tmp / "a-dir").mkdir()
-        given = f"{tmp}//a-dir/."
-        out, lines = d8(given)
-        self.assert_unreadable(lines, given)
-
-    def test_the_argument_is_opened_exactly_as_given(self) -> None:
-        # In the earlier repository, D8 opened Path(args.changelog), so ""
-        # opened "." and printed D8 REFUSED reason=unreadable, and a regular
-        # file named with a trailing "/" or "/." printed a full report naming
-        # the checked commit, although the open of each argument as given
-        # fails with ENOENT or ENOTDIR.
-        import errno
-
-        tmp, repo, env, git, d8 = self.fixture()
-        changelog = repo / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
-        git("init", "-q")
-        git("add", ".working/CHANGELOG.md")
-        git("commit", "-q", "-m", "fixture")
-        head = git("rev-parse", "HEAD")
-        out, lines = d8(changelog)
-        self.assertTrue(lines[0].startswith(f"D8 BEGIN rev={head} "), out)
-        for name, given, err in (
-            ("an empty argument", "", errno.ENOENT),
-            ("a trailing slash on a regular file", f"{changelog}/", errno.ENOTDIR),
-            ("a trailing /. on a regular file", f"{changelog}/.", errno.ENOTDIR),
-        ):
-            with self.subTest(name):
-                with self.assertRaises(OSError) as caught:
-                    os.close(os.open(given, os.O_RDONLY))
-                self.assertEqual(caught.exception.errno, err)
-                out, lines = d8(given)
-                self.assert_not_found(lines, given)
-                self.assertNotIn(head, out)
-                self.assertNotIn("D8 BEGIN", out)
-
-    def test_the_blob_is_read_at_the_returned_commit(self) -> None:
-        # In the earlier repository, no test pinned that the second git call
-        # reads the blob at the commit the first call returned, so a mutant
-        # reading HEAD's blob again survived. Here HEAD moves between the two
-        # calls: the bytes of the new commit must not bind the old one.
-        from unittest import mock
-
-        tmp, repo, env, git, d8 = self.fixture()
-        changelog = repo / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
-        git("init", "-q")
-        git("add", ".working/CHANGELOG.md")
-        git("commit", "-q", "-m", "first")
-        first = git("rev-parse", "HEAD")
-        first_bytes = changelog.read_bytes()
-        second_bytes = first_bytes + b"**2026-07-24 | 2026.07.3 | PR #3** - three.\n"
-        real_run = subprocess.run
-
-        def check(data):
-            git("reset", "-q", "--hard", first)
-            self.assertEqual(changelog.read_bytes(), first_bytes)
-            calls = []
-
-            def moving_run(argv, *args, **kwargs):
-                calls.append(list(argv))
-                result = real_run(argv, *args, **kwargs)
-                if len(calls) == 1:
-                    # HEAD moves to a commit whose CHANGELOG is second_bytes.
-                    changelog.write_bytes(second_bytes)
-                    for step in (["add", ".working/CHANGELOG.md"], ["commit", "-q", "-m", "second"]):
-                        real_run(["git", "-C", str(repo), "-c", "user.name=Fixture",
-                                  "-c", "user.email=fixture@example.invalid", *step],
-                                 capture_output=True, env=env, check=True)
-                return result
-
-            with mock.patch.dict(os.environ, env, clear=True):
-                with mock.patch.object(self.d8.subprocess, "run", moving_run):
-                    rev = self.d8.checked_revision(changelog, data)
-            self.assertEqual(len(calls), 2, calls)
-            self.assertEqual(calls[1][-1], f"{first}:./{changelog.name}", calls[1])
-            self.assertNotEqual(git("rev-parse", "HEAD"), first)
-            return rev
-
-        # The new commit's bytes are not the first commit's blob: UNKNOWN.
-        self.assertEqual(check(second_bytes), "UNKNOWN")
-        # The first commit's bytes still bind the first commit.
-        self.assertEqual(check(first_bytes), first)
-
-    def assert_one_human_line(self, out, lines, token, escaped):
-        """The machine line, then exactly one human line, and no line but
-        the machine line starts like any grammar line (the echoed path may
-        hold grammar text inside the one escaped line)."""
-        self.assertEqual(len(lines), 2, out)
-        self.assertRegex(lines[0], rf"^D8 {token} today=\d{{4}}-\d{{2}}-\d{{2}} rc=0$")
-        self.assertTrue(lines[1].startswith("check-daily-changelog-rollup: "), lines[1])
-        self.assertTrue(lines[1].endswith("(advisory, exit 0)."), lines[1])
-        self.assertIn(escaped, lines[1])
-        for line in lines[1:]:
-            self.assertFalse(line.startswith("D8 "), line)
-            for grammar in (self.BEGIN_RE, self.END_RE, self.DUE_RE):
-                self.assertIsNone(grammar.match(line), line)
-
-    def test_a_path_cannot_split_the_human_line(self) -> None:
-        # In the earlier repository, say() escaped only what stdout could
-        # not encode, so a path holding LF (or CR) split the human line and
-        # D8 printed a forged BEGIN/body/END triple that the reader rule
-        # accepts as a complete zero-due report. Every C0 control, DEL, C1
-        # control, U+2028 and U+2029 is now escaped.
-        tmp, repo, env, git, d8 = self.fixture()
-        run = self.run_digest("UNKNOWN", "2026-10-31", ["x/y"])
-        begin = f"D8 BEGIN rev=UNKNOWN today=2026-10-31 run={run}"
-        end = f"D8 END rev=UNKNOWN today=2026-10-31 run={run} due=0 rc=0"
-        # The forged lines are a complete report under the reader rule.
-        self.assertTrue(self.complete([begin, "x/y", end]))
-        due = "D8 DUE id=D8-2026-10-29@UNKNOWN date=2026-10-29 count=2 due_since=2026-10-30T00:00:00Z"
-        for brk, escaped in (("\n", "\\x0a"), ("\r", "\\x0d")):
-            # Each component stays under the name length limit, so the open
-            # of the missing path fails with ENOENT (NOT-FOUND).
-            missing = f"{tmp}/absent{brk}{begin}{brk}x/y{brk}{end}{brk}z"
-            a_dir = tmp / f"dir{brk}{due}" / f"y{brk}{end}{brk}z"
-            a_dir.mkdir(parents=True)
-            for name, path, token in (
-                ("a missing path", missing, "NOT-FOUND"),
-                ("a directory", str(a_dir), "REFUSED reason=unreadable"),
-            ):
-                with self.subTest(name, brk=escaped):
-                    out, lines = d8(path)
-                    self.assert_one_human_line(out, lines, token, escaped)
-                    self.assertFalse(any(self.complete(lines[i:j]) for i in range(len(lines))
-                                         for j in range(i + 2, len(lines) + 1)), out)
-                    self.assertEqual(lines[1].count(escaped), path.count(brk), lines[1])
-
-    def test_every_line_breaking_character_is_escaped(self) -> None:
-        # Every character str.splitlines() treats as a line boundary, and the
-        # other C0 and C1 controls and DEL, is written as a backslash escape,
-        # so say() always prints exactly one line.
-        import contextlib
-
-        breakers = "\n\r\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029"
-        self.assertEqual(len(("a" + "a".join(breakers) + "a").splitlines()), len(breakers) + 1)
-        controls = "".join(map(chr, (*range(0x20), 0x7F, *range(0x80, 0xA0), 0x2028, 0x2029)))
-        buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            self.d8.say(f"check-daily-changelog-rollup: a{controls}b\\c (advisory, exit 0).")
-        printed = buf.getvalue()
-        self.assertTrue(printed.endswith("\n"), printed)
-        self.assertEqual(len(printed[:-1].splitlines()), 1, printed)
-        self.assertFalse(set(printed[:-1]) & set(controls), printed)
-        self.assertIn("a\\x00\\x01", printed)
-        self.assertIn("\\x0a\\x0b\\x0c\\x0d", printed)
-        self.assertIn("\\x1f\\x7f\\x80", printed)
-        self.assertIn("\\x85", printed)
-        self.assertIn("\\x9f\\u2028\\u2029b\\c ", printed)
-
-    def test_a_surrogateescape_stdout_cannot_split_the_human_line(self) -> None:
-        # In the earlier repository, say() escaped C0 and C1 controls but not
-        # surrogates. A path byte 0x85 decodes to U+DC85, and a stdout with
-        # the surrogateescape error handler wrote it back as the raw byte
-        # 0x85, which ISO-8859-1 reads as NEL, so a path printed a forged
-        # report that a latin-1 reader split into complete BEGIN/body/END
-        # lines. Every surrogate is now escaped. The child runs without -I,
-        # which would ignore PYTHONIOENCODING.
-        import contextlib
-
-        tmp = Path(tempfile.mkdtemp(prefix="d8-surrogate-"))
-        self.addCleanup(shutil.rmtree, tmp)
-        run = self.run_digest("UNKNOWN", "2026-10-31", ["x/y"])
-        begin = f"D8 BEGIN rev=UNKNOWN today=2026-10-31 run={run}"
-        end = f"D8 END rev=UNKNOWN today=2026-10-31 run={run} due=0 rc=0"
-        self.assertTrue(self.complete([begin, "x/y", end]))
-        # One component, under the name length limit, in a missing directory:
-        # the open fails with ENOENT (NOT-FOUND).
-        component = b"\x85".join([b"absent", begin.encode(), b"x/y", end.encode(), b"z"])
-        self.assertLess(len(component), 255)
-        path = os.fsencode(tmp) + b"/no-such-dir/" + component
-        env = {**fixture_git_environment(), "GIT_CEILING_DIRECTORIES": str(tmp),
-               "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8",
-               "PYTHONIOENCODING": "latin-1:surrogateescape"}
-        r = subprocess.run(
-            [sys.executable, str(_resolve_path(self.TOOL)), "--changelog", path],
-            capture_output=True, env=env, cwd=str(tmp), timeout=120,
-        )
-        self.assertEqual(r.returncode, 0, r.stderr)
-        self.assertEqual(r.stderr, b"")
-        out = r.stdout.decode("latin-1")
-        lines = out.splitlines()
-        self.assertNotIn(b"\x85", r.stdout)
-        self.assert_one_human_line(out, lines, "NOT-FOUND", "\\udc85")
-        self.assertEqual(lines[1].count("\\udc85"), 4, lines[1])
-        self.assertFalse(any(self.complete(lines[i:j]) for i in range(len(lines))
-                             for j in range(i + 2, len(lines) + 1)), out)
-        # In process: every surrogate code point is escaped, as \udXXX.
-        buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            self.d8.say("a" + "".join(map(chr, range(0xD800, 0xE000))) + "b")
-        printed = buf.getvalue()
-        self.assertTrue(printed.isascii(), printed[:80])
-        self.assertTrue(printed.startswith("a\\ud800\\ud801"), printed[:80])
-        self.assertTrue(printed.endswith("\\udffe\\udfffb\n"), printed[-80:])
-
-    def test_a_cp1252_stdout_cannot_split_the_human_line(self) -> None:
-        # In the earlier repository, say() escaped controls, U+2028, U+2029
-        # and surrogates but left other characters to stdout's encoding, and
-        # cp1252 writes U+2026 as the byte 0x85, which ISO-8859-1 reads as
-        # NEL, so a path printed a forged report that a latin-1 reader split
-        # into complete BEGIN/body/END lines. Every character outside
-        # printable ASCII is now escaped. The child runs without -I, which
-        # would ignore PYTHONIOENCODING.
-        import contextlib
-
-        tmp = Path(tempfile.mkdtemp(prefix="d8-cp1252-"))
-        self.addCleanup(shutil.rmtree, tmp)
-        run = self.run_digest("UNKNOWN", "2026-10-31", ["x/y"])
-        begin = f"D8 BEGIN rev=UNKNOWN today=2026-10-31 run={run}"
-        end = f"D8 END rev=UNKNOWN today=2026-10-31 run={run} due=0 rc=0"
-        self.assertTrue(self.complete([begin, "x/y", end]))
-        self.assertEqual("\u2026".encode("cp1252"), b"\x85")
-        # Under the name length limit, in a missing directory: the open fails
-        # with ENOENT (NOT-FOUND).
-        component = "\u2026".join(["absent", begin, "x/y", end, "z"])
-        self.assertLess(len(component.encode("utf-8")), 255)
-        path = f"{tmp}/no-such-dir/{component}"
-        env = {**fixture_git_environment(), "GIT_CEILING_DIRECTORIES": str(tmp),
-               "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8",
-               "PYTHONIOENCODING": "cp1252:strict"}
-        r = subprocess.run(
-            [sys.executable, str(_resolve_path(self.TOOL)), "--changelog", path],
-            capture_output=True, env=env, cwd=str(tmp), timeout=120,
-        )
-        self.assertEqual(r.returncode, 0, r.stderr)
-        self.assertEqual(r.stderr, b"")
-        self.assertTrue(r.stdout.isascii(), r.stdout)
-        out = r.stdout.decode("latin-1")
-        lines = out.splitlines()
-        self.assert_one_human_line(out, lines, "NOT-FOUND", "\\u2026")
-        self.assertEqual(lines[1].count("\\u2026"), 4, lines[1])
-        self.assertFalse(any(self.complete(lines[i:j]) for i in range(len(lines))
-                             for j in range(i + 2, len(lines) + 1)), out)
-        # In process: printable ASCII is kept, every other character escaped.
-        printable = "".join(map(chr, range(0x20, 0x7F)))
-        buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            self.d8.say(printable + "\u2026\u00e9\U0001f600")
-        self.assertEqual(buf.getvalue(), printable + "\\u2026\\xe9\\U0001f600\n")
-
-    def test_an_argument_cannot_forge_a_report_in_the_usage_error(self) -> None:
-        # In the earlier repository, argparse wrote an unknown argument raw
-        # on stderr, so one argument holding LF printed exact BEGIN and END
-        # lines with a valid digest around x/y (exit 2). The usage error's
-        # message and the program name are now escaped as the human line is;
-        # the usage error still exits 2.
-        tmp = Path(tempfile.mkdtemp(prefix="d8-usage-"))
-        self.addCleanup(shutil.rmtree, tmp)
-        run = self.run_digest("UNKNOWN", "2026-10-31", ["x/y"])
-        begin = f"D8 BEGIN rev=UNKNOWN today=2026-10-31 run={run}"
-        end = f"D8 END rev=UNKNOWN today=2026-10-31 run={run} due=0 rc=0"
-        self.assertTrue(self.complete([begin, "x/y", end]))
-        env = {**fixture_git_environment(), "GIT_CEILING_DIRECTORIES": str(tmp),
-               "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8"}
-        for brk, escaped, encoding in (("\n", "\\x0a", None), ("\r", "\\x0d", None),
-                                       ("\u2026", "\\u2026", "cp1252:strict")):
-            with self.subTest(brk=escaped):
-                child_env = {**env, "PYTHONIOENCODING": encoding} if encoding else env
-                r = subprocess.run(
-                    [sys.executable, str(_resolve_path(self.TOOL)),
-                     f"--bogus{brk}{begin}{brk}x/y{brk}{end}{brk}"],
-                    capture_output=True, env=child_env, cwd=str(tmp), timeout=120,
-                )
-                self.assertEqual(r.returncode, 2, r.stderr)
-                self.assertEqual(r.stdout, b"")
-                self.assertTrue(r.stderr.isascii(), r.stderr)
-                err = r.stderr.decode("latin-1")
-                lines = err.splitlines()
-                self.assertEqual(err.count(escaped), 4, err)
-                for line in lines:
-                    self.assertFalse(line.startswith("D8 "), line)
-                self.assertFalse(any(self.complete(lines[i:j]) for i in range(len(lines))
-                                     for j in range(i + 2, len(lines) + 1)), err)
-        # The program name, taken from argv[0], is escaped the same way.
-        self.assertEqual(self.d8.UsageParser(prog=f"x\n{begin}").prog, f"x\\x0a{begin}")
-
-    def test_a_rev_that_is_not_40_hex_is_unknown(self) -> None:
-        # In the earlier repository, the mutant "if not rev:" passed the
-        # class, because a real git never prints a non-SHA-1 rev with a
-        # matching SHA-1 blob. A fake git, first and alone on PATH, prints a
-        # rev outside the grammar and the exact SHA-1 of the bytes for any
-        # blob lookup, so the blob check would match: only REV_RE decides,
-        # and it stops before the blob lookup.
-        import hashlib
-        from unittest import mock
-
-        tmp = Path(tempfile.mkdtemp(prefix="d8-fake-git-"))
-        self.addCleanup(shutil.rmtree, tmp)
-        changelog = tmp / ".working/CHANGELOG.md"
-        changelog.parent.mkdir()
-        data = self.TWO_ENTRIES.encode("utf-8")
-        changelog.write_bytes(data)
-        blob = hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
-        fake = tmp / "bin"
-        fake.mkdir()
-        log = tmp / "git.log"
-        (fake / "git").write_text(
-            "#!/bin/sh\n"
-            'printf \'%s\\n\' "$*" >> "$FAKE_GIT_LOG"\n'
-            'for last in "$@"; do :; done\n'
-            'if [ "$last" = "HEAD^{commit}" ]; then printf \'%s\\n\' "$FAKE_GIT_REV"; '
-            'else printf \'%s\\n\' "$FAKE_GIT_BLOB"; fi\n',
-            encoding="utf-8",
-        )
-        (fake / "git").chmod(0o755)
-
-        def revision(rev):
-            log.write_text("", encoding="utf-8")
-            fake_env = {"PATH": str(fake), "FAKE_GIT_LOG": str(log), "FAKE_GIT_REV": rev,
-                        "FAKE_GIT_BLOB": blob, "GIT_CEILING_DIRECTORIES": str(tmp)}
-            with mock.patch.dict(os.environ, fake_env, clear=True):
-                result = self.d8.checked_revision(changelog, data)
-            return result, log.read_text(encoding="utf-8").splitlines()
-
-        # Control: a 40-hex rev passes the guard and the fake's blob matches,
-        # so the rev is returned; the fake saw both calls.
-        result, calls = revision(self.REV)
-        self.assertEqual(result, self.REV)
-        self.assertEqual(len(calls), 2, calls)
-        self.assertTrue(calls[0].endswith("rev-parse --verify --quiet HEAD^{commit}"), calls)
-        self.assertTrue(calls[1].endswith(f"rev-parse --verify --quiet {self.REV}:./CHANGELOG.md"), calls)
-        for name, rev in {
-            "text outside the grammar": "x rc=0 due=9",
-            "upper-case hex": self.REV.upper(),
-            "39 hex": self.REV[:39],
-            "a SHA-256": self.REV + self.REV[:24],
-        }.items():
-            with self.subTest(name):
-                result, calls = revision(rev)
-                self.assertEqual(result, "UNKNOWN")
-                self.assertEqual(len(calls), 1, calls)
-
-    def test_the_exceptions_to_exit_0_are_stated_and_observed(self) -> None:
-        # In the earlier repository, the docstring and the spec said a closed
-        # stdout gives exit 120, but unbuffered (python3 -u) the BEGIN print
-        # raises: exit 1. The list of exceptions also omitted a full device,
-        # a failing self-test and a signal, the spec's git-failure list
-        # omitted "absent", and the D15 paragraph said D8 always exits zero.
-        # The interpreter's exits are observed here (-u, since -I ignores
-        # PYTHONUNBUFFERED).
-        import contextlib
-        from unittest import mock
-
-        def flat(text):
-            return " ".join(text.split())
-
-        spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(encoding="utf-8")
-        d8_paragraphs = [line for line in spec.splitlines() if line.startswith("Delta gate D8 is ")]
-        self.assertEqual(len(d8_paragraphs), 1)
-        texts = {"docstring": flat(self.d8.__doc__), "spec": flat(d8_paragraphs[0])}
-        stated = (
-            "The exceptions to exit 0, a complete list, all lie outside D8's checking of the CHANGELOG:",
-            "an unknown option or a missing option value is argparse's usage error (exit 2);",
-            # Exit 3 holds only when stderr is writable or absent; an
-            # unwritable stderr gives the interpreter's exit, so the
-            # contract is a non-zero exit.
-            "a run with no usable stdout, as when the process starts with file descriptor 1 closed "
-            "(Python then sets `sys.stdout` to None, and `print` writes nothing) or stdout's "
-            "descriptor or stream is closed, is refused before anything is checked, and its exit is "
-            "non-zero in every case, so a report that could not be delivered never reads as a pass.",
-            "When stderr is writable, D8 writes one line giving the reason to stderr and exits 3; "
-            "with no stderr at all (file descriptor 2 also closed at startup, so `sys.stderr` is "
-            "None) it writes nothing and exits 3.",
-            # An unwritable stderr exits 3 unbuffered and the interpreter's
-            # flush-failure status (120) buffered.
-            "When stderr exists but cannot be written (the device is full, as on /dev/full), the "
-            "exit is still non-zero: D8 catches the failed write and returns 3. Which code the "
-            "process ends with depends on stderr's buffering: unbuffered (`python3 -u`), nothing is "
-            "left to write and the exit is 3; with stderr's default buffering, the unwritten line "
-            "stays in stderr's buffer, the interpreter's final flush of it fails again, and the exit "
-            "is the interpreter's flush-failure status instead. Only a non-zero exit is part of this "
-            "contract for this case (observed on CPython 3.14.4: 3 unbuffered, 120 buffered);",
-            # The contract is a non-zero exit; each code is labelled as
-            # observed, never stated per case.
-            "a write to stdout that fails, because the reader has closed it (a broken pipe) or the "
-            "device is full (ENOSPC, as on /dev/full), is the interpreter's error, and D8 then exits "
-            "non-zero, never 0, with no complete report delivered. The exact code depends on when the "
-            "write fails and is not part of this contract, nor is the wording of the interpreter's "
-            "message on stderr.",
-            "Observed on CPython 3.14.4: 120 when only the interpreter's final flush of stdout fails "
-            "(block-buffered, a pipe or a file, the default, with a report smaller than the buffer); "
-            "1 unbuffered (`python3 -u`), where the first line D8 prints fails; and 120 when, "
-            "block-buffered, a write fails mid-run (a report larger than the buffer, 128 KiB on "
-            "Python 3.14), because the final flush then fails again. Exit 120 on a failed final flush "
-            "has been CPython behaviour since 3.6 (the `sys.exit` documentation).",
-            "`--self-test` exits 1 when one of its cases fails;",
-            # With stderr absent or unwritable, a usage error and --self-test
-            # can end with the interpreter's status.
-            "a usage error or `--self-test` (which reports its cases on stderr) may end with the "
-            "interpreter's own status instead when stderr is absent (file descriptor 2 closed at "
-            "startup) or cannot be written (the device is full, as on /dev/full). Observed on "
-            "CPython 3.14.4: `--no-such-option` exits 120 with stderr on /dev/full under stderr's "
-            "default buffering (2 unbuffered, and 2 with no stderr), and `--self-test` with every "
-            "case passing exits 120 with stderr on /dev/full (1 unbuffered) and 1 with no stderr. "
-            "A checked run and `--help` write nothing to stderr, and were observed to exit 0 in "
-            "each of these cases;",
-            "a signal that terminates the interpreter ends D8 with that signal's status, as does a "
-            "failure of the interpreter itself (it cannot start, or runs out of memory).",
-            # Surrogates are escaped too, as is every character outside
-            # printable ASCII, and the usage error is escaped the same
-            # way.
-            "Whatever stdout's encoding and error handler, every character in the human line outside "
-            "printable ASCII (0x20 to 0x7E) is written as a backslash escape (`\\x0a`, `\\x85`, "
-            "`\\u2026`, `\\udc85`) before the line is written, so the human line is plain ASCII and no "
-            "encoding sees any other character in it.",
-            "cp1252 writes U+2026 as the byte 0x85, which ISO-8859-1 reads as a line break (NEL),",
-            "Under an encoding that writes ASCII as ASCII (UTF-8, ISO-8859-1 and cp1252 among them), "
-            "read by a reader that reads ASCII as ASCII, the human line is therefore exactly one line, "
-            "always begins `check-daily-changelog-rollup: `, and no path or error text can make D8 "
-            "print a line of the grammar above.",
-            "argparse's usage error on stderr is escaped the same way, its message (which quotes an "
-            "unknown argument) and the program name, so an argument cannot make D8 print a line of "
-            "the grammar above either.",
-            "Git failing, absent, timing out or printing",
-        )
-        for where, text in texts.items():
-            for phrase in stated:
-                with self.subTest(where=where, phrase=phrase[:40]):
-                    self.assertIn(phrase, text)
-            with self.subTest(where=where, absent="two exceptions"):
-                self.assertNotIn("Two exceptions", text)
-            # In the earlier repository, an earlier text tied exit 3 to every
-            # run with no usable stdout, but an unwritable stderr exits 120.
-            with self.subTest(where=where, absent="unconditional exit 3"):
-                self.assertNotIn("when stderr is usable, and exits 3", text)
-            # In the earlier repository, a later text said an unwritable
-            # stderr never exits 3, but unbuffered it does.
-            with self.subTest(where=where, absent="never 3"):
-                self.assertNotIn("the exit is the interpreter's, not 3", text)
-            # A write that fails mid-run under default buffering exits 120,
-            # not 1, so no text says a mid-run failure exits 1.
-            with self.subTest(where=where, absent="mid-run exit 1"):
-                self.assertNotIn("(exit 1, with a traceback)", text)
-                self.assertNotIn("while D8 runs raises at that line", text)
-            # No interpreter banner is quoted; its wording varies by version
-            # and CI runs 3.11.
-            with self.subTest(where=where, absent="interpreter banner"):
-                self.assertNotIn("Exception ignored", text)
-            # A dangling symlink is NOT-FOUND, so the condition is stated
-            # as the path resolving to nothing.
-            with self.subTest(where=where, absent="nothing is at the path"):
-                self.assertNotIn("nothing is at the path", text)
-        self.assertIn(
-            "a usage error, a run with no usable stdout, a failing stdout write, a failing self-test, "
-            "a usage error or self-test with stderr absent or unwritable, a signal and a failure of "
-            "the interpreter itself, the D8 paragraph lists",
-            flat(spec),
-        )
-        self.assertNotIn("always exits zero, the D8 precedent", spec)
-
-        # Observed: stdout an already-closed pipe, or /dev/full, in each
-        # buffering mode, for a report and for a NOT-FOUND line. Only the exit
-        # code and the errno text are asserted: the interpreter's banner
-        # wording differs between versions, and CI runs Python 3.11 while this
-        # host has only 3.14.
-        tmp = Path(tempfile.mkdtemp(prefix="d8-stdout-"))
-        self.addCleanup(shutil.rmtree, tmp)
-        changelog = tmp / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
-        env = {**fixture_git_environment(), "GIT_CEILING_DIRECTORIES": str(tmp)}
-
-        def closed_pipe():
-            read_end, write_end = os.pipe()
-            os.close(read_end)
-            return write_end
-
-        def full_device():
-            return os.open("/dev/full", os.O_WRONLY)
-
-        sinks = {"a closed pipe": (closed_pipe, "Broken pipe")}
-        if os.path.exists("/dev/full"):
-            sinks["/dev/full"] = (full_device, "No space left on device")
-        else:
-            # Stated, not silent: the ENOSPC case needs a full device.
-            print("skipped: /dev/full does not exist on this host", file=sys.stderr)
-        for sink, (open_sink, error) in sinks.items():
-            for flags, rc in ((("-I",), 120), (("-I", "-u"), 1)):
-                for target in (changelog, tmp / "absent.md"):
-                    with self.subTest(sink=sink, flags=flags, target=target.name):
-                        fd = open_sink()
-                        try:
-                            r = subprocess.run(
-                                [sys.executable, *flags, str(_resolve_path(self.TOOL)), "--changelog", str(target)],
-                                stdout=fd, stderr=subprocess.PIPE, env=env, cwd=str(tmp), timeout=120,
-                            )
-                        finally:
-                            os.close(fd)
-                        stderr = r.stderr.decode("utf-8", "replace")
-                        self.assertEqual(r.returncode, rc, stderr)
-                        self.assertIn(error, stderr)
-
-        # A report larger than the buffer fails at a write while D8 runs, in
-        # either buffering mode. The contract asserted is a non-zero exit and
-        # the errno text; the traceback shows the write failed mid-run rather
-        # than only at the final flush.
-        import datetime
-        import io as io_module
-
-        large = tmp / "LARGE.md"
-        first = datetime.date(2020, 1, 1)
-        entries = []
-        for i in range(400):
-            day = (first + datetime.timedelta(days=i)).isoformat()
-            entries.append(f"**{day} | 2020.01.{2 * i + 1} | PR #{2 * i + 1}** - one.")
-            entries.append(f"**{day} | 2020.01.{2 * i + 2} | PR #{2 * i + 2}** - two.")
-        large.write_text("\n".join(entries) + "\n", encoding="utf-8")
-        whole = subprocess.run(
-            [sys.executable, "-I", str(_resolve_path(self.TOOL)), "--changelog", str(large)],
-            capture_output=True, env=env, cwd=str(tmp), timeout=120,
-        )
-        self.assertEqual(whole.returncode, 0, whole.stderr)
-        self.assertTrue(self.complete(whole.stdout.decode("utf-8").splitlines()))
-        self.assertGreater(len(whole.stdout), io_module.DEFAULT_BUFFER_SIZE)
-        for sink, (open_sink, error) in sinks.items():
-            for flags in (("-I",), ("-I", "-u")):
-                with self.subTest(sink=sink, flags=flags, target="larger than the buffer"):
-                    fd = open_sink()
-                    try:
-                        r = subprocess.run(
-                            [sys.executable, *flags, str(_resolve_path(self.TOOL)), "--changelog", str(large)],
-                            stdout=fd, stderr=subprocess.PIPE, env=env, cwd=str(tmp), timeout=120,
-                        )
-                    finally:
-                        os.close(fd)
-                    stderr = r.stderr.decode("utf-8", "replace")
-                    self.assertNotEqual(r.returncode, 0, stderr)
-                    self.assertIn(error, stderr)
-                    self.assertIn("Traceback", stderr)
-
-        # A failing self-test case exits 1.
-        with mock.patch.object(self.d8, "find_rollups_due", lambda text, today: []):
-            with contextlib.redirect_stderr(io.StringIO()):
-                self.assertEqual(self.d8.main(["--self-test"]), 1)
-
-    def test_no_usable_stdout_is_refused_not_passed(self) -> None:
-        # In the earlier repository, with file descriptor 1 closed before
-        # launch, D8 exited 0 with no output and an empty stderr: Python
-        # sets sys.stdout to None and print writes nothing. The child here
-        # closes fd 1 in preexec_fn, after fork and before exec, so the
-        # interpreter starts with it closed (stdout=subprocess.DEVNULL would
-        # leave fd 1 open on /dev/null, which is a usable stdout). The flip
-        # is a copy of the tool with the check disabled, observed to exit 0.
-        import contextlib
-
-        tmp = Path(tempfile.mkdtemp(prefix="d8-nostdout-"))
-        self.addCleanup(shutil.rmtree, tmp)
-        changelog = tmp / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
-        env = {**fixture_git_environment(), "GIT_CEILING_DIRECTORIES": str(tmp)}
-        source = (_resolve_path(self.TOOL)).read_text(encoding="utf-8")
-        check = "    if not usable_stdout():\n"
-        self.assertEqual(source.count(check), 1)
-        flipped = tmp / "d8-without-the-check.py"
-        flipped.write_text(source.replace(check, "    if False:\n"), encoding="utf-8")
-
-        def run(tool, target):
-            return subprocess.run(
-                [sys.executable, "-I", str(tool), "--changelog", str(target)],
-                stderr=subprocess.PIPE, env=env, cwd=str(tmp), timeout=120,
-                preexec_fn=lambda: os.close(1),
-            )
-
-        for target in (changelog, tmp / "absent.md"):
-            with self.subTest(target=target.name):
-                r = run(_resolve_path(self.TOOL), target)
-                self.assertEqual(r.returncode, 3, r.stderr)
-                self.assertEqual(
-                    r.stderr.decode("utf-8", "replace"),
-                    "check-daily-changelog-rollup: no usable stdout; nothing checked (exit 3).\n",
-                )
-            with self.subTest(target=target.name, flip="check removed"):
-                r = run(flipped, target)
-                self.assertEqual(r.returncode, 0, r.stderr)
-                self.assertEqual(r.stderr, b"")
-
-        # In process: no stdout is refused by main; a closed stream is
-        # unusable (main's refusal of a closed stream with argparse colour on
-        # is pinned by test_closed_stdout_is_refused_before_the_parser); a
-        # StringIO, which has no descriptor, is usable.
-        err = io.StringIO()
-        with contextlib.redirect_stdout(None), contextlib.redirect_stderr(err):
-            self.assertFalse(self.d8.usable_stdout())
-            self.assertEqual(self.d8.main(["--changelog", str(changelog)]), 3)
-        self.assertEqual(
-            err.getvalue(), "check-daily-changelog-rollup: no usable stdout; nothing checked (exit 3).\n"
-        )
-        # The exit is non-zero whatever stderr is; it is 3 when stderr is
-        # writable (above) or absent, and the interpreter's own code when
-        # stderr cannot be written. Only "non-zero" is pinned for the
-        # unwritable case: the code is the interpreter's.
-        def run_err(stderr, closes):
-            def close():
-                for fd in closes:
-                    os.close(fd)
-            return subprocess.run(
-                [sys.executable, "-I", str(_resolve_path(self.TOOL)), "--changelog", str(changelog)],
-                stderr=stderr, env=env, cwd=str(tmp), timeout=120, preexec_fn=close,
-            )
-
-        with self.subTest(stderr="absent"):
-            self.assertEqual(run_err(subprocess.DEVNULL, (1, 2)).returncode, 3)
-        # The open is skipped as its sibling tests skip it, here for this
-        # subtest alone.
-        with self.subTest(stderr="/dev/full"):
-            if not os.path.exists("/dev/full"):
-                self.skipTest("/dev/full does not exist on this host")
-            full = os.open("/dev/full", os.O_WRONLY)
-            try:
-                self.assertNotEqual(run_err(full, (1,)).returncode, 0)
-            finally:
-                os.close(full)
-
-        closed = io.StringIO()
-        closed.close()
-        with contextlib.redirect_stdout(closed):
-            self.assertFalse(self.d8.usable_stdout())
-        with contextlib.redirect_stdout(io.StringIO()):
-            self.assertTrue(self.d8.usable_stdout())
-        out = io.StringIO()
-        with contextlib.redirect_stdout(out):
-            self.assertEqual(self.d8.main(["--changelog", str(tmp / "absent.md")]), 0)
-        self.assertTrue(out.getvalue().startswith("D8 NOT-FOUND "), out.getvalue())
-
-    def test_no_usable_stdout_branches_in_process(self) -> None:
-        # In the earlier repository, four branches survived their removal:
-        # usable_stdout's fstat and fileno() error branches, main's
-        # sys.stderr None check and its guard around the stderr write. Each
-        # case below fails when its branch is removed: the fstat and fileno()
-        # cases then call stdout usable; with the None check removed, print
-        # falls back to sys.stdout and writes the line into the recording
-        # stdout; with the guard removed, the stderr error escapes main.
-        import contextlib
-        import errno
-        from unittest import mock
-
-        class Recorder:
-            # A stdout stand-in that records writes and answers fileno()
-            # with the given result or exception.
-            def __init__(self, fileno):
-                self.closed = False
-                self.written = []
-                self._fileno = fileno
-
-            def fileno(self):
-                if isinstance(self._fileno, BaseException):
-                    raise self._fileno
-                return self._fileno
-
-            def isatty(self):
-                return False
-
-            def write(self, text):
-                self.written.append(text)
-                return len(text)
-
-            def flush(self):
-                pass
-
-        class Unwritable(Recorder):
-            def __init__(self, exc):
-                super().__init__(io.UnsupportedOperation("no descriptor"))
-                self.exc = exc
-
-            def write(self, text):
-                raise self.exc
-
-        tmp = Path(tempfile.mkdtemp(prefix="d8-branches-"))
-        self.addCleanup(shutil.rmtree, tmp)
-        argv = ["--changelog", str(tmp / ".working/CHANGELOG.md")]
-        line = "check-daily-changelog-rollup: no usable stdout; nothing checked (exit 3).\n"
-
-        def bad():
-            return OSError(errno.EBADF, "bad")
-
-        # fstat branch: a descriptor fstat reports bad is unusable; the same
-        # stream with fstat answering is usable.
-        with contextlib.redirect_stdout(Recorder(1)):
-            with mock.patch.object(self.d8.os, "fstat", side_effect=bad()):
-                self.assertFalse(self.d8.usable_stdout())
-            with mock.patch.object(self.d8.os, "fstat", return_value=None):
-                self.assertTrue(self.d8.usable_stdout())
-
-        # fileno() branch: OSError or ValueError from fileno() is unusable;
-        # UnsupportedOperation (no descriptor, as a StringIO) is usable.
-        for exc in (bad(), ValueError("I/O operation on closed file")):
-            with self.subTest(fileno=type(exc).__name__):
-                with contextlib.redirect_stdout(Recorder(exc)):
-                    self.assertFalse(self.d8.usable_stdout())
-        with contextlib.redirect_stdout(Recorder(io.UnsupportedOperation("none"))):
-            self.assertTrue(self.d8.usable_stdout())
-
-        # sys.stderr None: main refuses with 3 and writes nothing, to stderr
-        # or to the unusable stdout.
-        out = Recorder(bad())
-        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(None):
-            self.assertEqual(self.d8.main(argv), 3)
-        self.assertEqual(out.written, [])
-
-        # stderr exception guard: a stderr whose write fails (ENOSPC, or a
-        # closed stream's ValueError) still gives 3, with nothing raised.
-        for exc in (OSError(errno.ENOSPC, "No space left on device"),
-                    ValueError("I/O operation on closed file")):
-            with self.subTest(stderr=type(exc).__name__):
-                out = Recorder(bad())
-                with contextlib.redirect_stdout(out), contextlib.redirect_stderr(Unwritable(exc)):
-                    self.assertEqual(self.d8.main(argv), 3)
-                self.assertEqual(out.written, [])
-
-        # Control: a writable stderr receives the one line.
-        err = io.StringIO()
-        with contextlib.redirect_stdout(Recorder(bad())), contextlib.redirect_stderr(err):
-            self.assertEqual(self.d8.main(argv), 3)
-        self.assertEqual(err.getvalue(), line)
-
-    def test_closed_stdout_is_refused_before_the_parser(self) -> None:
-        # In the earlier repository, main built the ArgumentParser before the
-        # stdout check. Python 3.14's argparse asks stdout whether to colour
-        # help (it reads the stream's descriptor) when the parser is built, so
-        # with colour on (TERM=xterm; NO_COLOR, PYTHON_COLORS and FORCE_COLOR
-        # unset) a closed stdout raised ValueError: exit 1 with a traceback,
-        # not 3. The whole entry path runs here, the tool's own `__main__`
-        # block through runpy, with that environment set and then restored.
-        # The flip is a copy of the tool with the check moved back after
-        # parse_args, observed to raise; Python 3.11 has no argparse colour,
-        # so there the flip has nothing to observe and is skipped.
-        import argparse
-        import contextlib
-        import inspect
-        import runpy
-        from unittest import mock
-
-        tmp = Path(tempfile.mkdtemp(prefix="d8-colour-"))
-        self.addCleanup(shutil.rmtree, tmp)
-        changelog = tmp / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text(self.TWO_ENTRIES, encoding="utf-8")
-        tool = _resolve_path(self.TOOL)
-        line = "check-daily-changelog-rollup: no usable stdout; nothing checked (exit 3).\n"
-
-        def run(path, args, stdout):
-            # The tool's __main__ block ends in sys.exit(main()); its code is
-            # the exit status. Anything else raised is the interpreter's exit 1.
-            err = io.StringIO()
-            with mock.patch.object(sys, "argv", [str(path), *args]):
-                with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(err):
-                    with self.assertRaises(SystemExit) as caught:
-                        runpy.run_path(str(path), run_name="__main__")
-            return caught.exception.code, err.getvalue()
-
-        names = ("TERM", "NO_COLOR", "PYTHON_COLORS", "FORCE_COLOR")
-        before = {name: os.environ.get(name) for name in names}
-        with mock.patch.dict(os.environ, {"TERM": "xterm"}):
-            for name in names[1:]:
-                os.environ.pop(name, None)
-            for args in (["--changelog", str(changelog)], ["--help"], ["--no-such-option"]):
-                with self.subTest(args=args):
-                    closed = io.StringIO()
-                    closed.close()
-                    self.assertEqual(run(tool, args, closed), (3, line))
-            # Control: --help on a working stdout is argparse's help, exit 0.
-            out = io.StringIO()
-            self.assertEqual(run(tool, ["--help"], out), (0, ""))
-            self.assertTrue(out.getvalue().startswith("usage: "), out.getvalue()[:80])
-            with self.subTest(flip="check after the parser"):
-                if "color" not in inspect.signature(argparse.ArgumentParser).parameters:
-                    self.skipTest("this argparse has no colour detection")
-                source = tool.read_text(encoding="utf-8")
-                start = source.index("    # A report nobody can read is not a pass")
-                tail = "        return NO_STDOUT_EXIT\n\n"
-                end = source.index(tail, start) + len(tail)
-                check = source[start:end]
-                self.assertEqual(source.count(check), 1)
-                self.assertLessEqual(end, source.index("    ap = UsageParser("))
-                late = source[:start] + source[end:]
-                parsed = "    args = ap.parse_args(argv)\n\n"
-                self.assertEqual(late.count(parsed), 1)
-                flipped = tmp / "d8-check-after-the-parser.py"
-                flipped.write_text(late.replace(parsed, parsed + check), encoding="utf-8")
-                closed = io.StringIO()
-                closed.close()
-                with self.assertRaises(ValueError):
-                    run(flipped, ["--changelog", str(changelog)], closed)
-        self.assertEqual({name: os.environ.get(name) for name in names}, before)
-
-    def test_docstring_and_spec_state_the_exit_status_reader_rule_and_inputs(self) -> None:
-        # In the earlier repository, the docstring said the exit status is
-        # ALWAYS 0, though argparse exits 2 and a closed stdout gives 120; the
-        # reader rule did not say the whole END line must match; and the
-        # report's inputs were stated without the git environment's and the
-        # human line's qualifications.
-        def flat(text):
-            return " ".join(text.split())
-
-        spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(encoding="utf-8")
-        d8_paragraphs = [line for line in spec.splitlines() if line.startswith("Delta gate D8 is ")]
-        self.assertEqual(len(d8_paragraphs), 1)
-        texts = {"docstring": flat(self.d8.__doc__), "spec": flat(d8_paragraphs[0])}
-        # In the earlier repository, the spec's "must match" sat within two
-        # lines of the D9 paragraph's TODO and failed
-        # lint-shall-near-uncertainty; the same requirement is now stated
-        # without the mandatory verb.
-        stated = (
-            "A BEGIN or END line counts only when it matches its whole grammar line above, with "
-            "no other text anywhere on it, so an END line with a token added between `run=` and "
-            "`due=`, or after `rc=0`, is not an END line.",
-            # In the earlier repository, the exit-120 sentence was inaccurate;
-            # test_the_exceptions_to_exit_0_are_stated_and_observed pins its
-            # replacement and the observed exits.
-            "an unknown option or a missing option value is argparse's usage error (exit 2)",
-            "Two qualifications apply: the git environment decides whether a revision is "
-            "available at all",
-            "and the human line after `D8 NOT-FOUND` or `D8 REFUSED` also depends on the path "
-            "as given, the interpreter, the operating system and stdout's encoding.",
-            "D8 also opens the `--changelog` argument exactly as given: an empty argument fails with ENOENT, "
-            "and a regular file named with a trailing `/` or `/.` fails with ENOTDIR, so each "
-            "is `D8 NOT-FOUND`; only the revision lookup uses the normalized form's directory "
-            "and name.",
-            "never at `HEAD` again, so a HEAD that moves between the two calls cannot bind one "
-            "commit to another commit's bytes.",
-        )
-        for where, text in texts.items():
-            for phrase in stated:
-                with self.subTest(where=where, phrase=phrase[:40]):
-                    self.assertIn(phrase, text)
-            with self.subTest(where=where, absent="ALWAYS 0"):
-                self.assertNotIn("ALWAYS 0", text)
-
-        # The reader rule as stated: a BEGIN or END line with any other text
-        # on it is not complete, whatever the rest of the report.
-        full = self.report_lines([("2026-10-29", 9)])
-        self.assertTrue(self.complete(full), full)
-        end = full[-1]
-        cut = end.index(" due=")
-        for name, lines in {
-            "END with a token before due=": full[:-1] + [end[:cut] + " extra=1" + end[cut:]],
-            "END with text after rc=0": full[:-1] + [end + " extra"],
-            "BEGIN with text after run": [full[0] + " extra"] + full[1:],
-        }.items():
-            with self.subTest(name):
-                self.assertFalse(self.complete(lines), lines)
-
-        # The first exception to exit 0 is real: argparse exits 2.
-        r = run_linter(self.TOOL, "--no-such-option")
-        self.assertEqual(r.returncode, 2, r.stderr)
-
-    def test_one_bad_date_refuses_the_whole_report(self) -> None:
-        # One malformed per-PR date refuses the whole report, so a date that
-        # is otherwise due is not reported until the bad line is fixed.
-        # Deliberate (stricter is safer: a partial report would read as
-        # complete); in the earlier repository neither the docstring nor the
-        # spec said so.
-        tmp, repo, env, git, d8 = self.fixture()
-        changelog = tmp / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        good = self.TWO_ENTRIES + "**2026-10-25 | 2026.10.1 | PR #3** - three.\n" \
-            "**2026-10-25 | 2026.10.2 | PR #4** - four.\n"
-        changelog.write_text(good, encoding="utf-8")
-        out, lines = d8(changelog)
-        self.assertTrue(self.complete(lines), out)
-        self.assertEqual(sum(1 for line in lines if line.startswith("D8 DUE ")), 2, out)
-        changelog.write_text(good + "**2026-02-30 | 2026.02.1 | PR #5** - five.\n", encoding="utf-8")
-        out, lines = d8(changelog)
-        self.assertEqual(len(lines), 2, out)
-        self.assertRegex(lines[0], r"^D8 REFUSED reason=bad-date today=\d{4}-\d{2}-\d{2} rc=0$")
-        self.assertNotIn("D8 DUE", out)
-        self.assertNotIn("DAILY SUMMARY DUE", out)
-        stated = (
-            "One malformed per-PR date refuses the whole report (`D8 REFUSED reason=bad-date`), "
-            "so no other due date is reported until that line is fixed. This is deliberate "
-            "(stricter is safer): a partial report would read as complete."
-        )
-        spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(encoding="utf-8")
-        d8_paragraph = [line for line in spec.splitlines() if line.startswith("Delta gate D8 is ")]
-        self.assertEqual(len(d8_paragraph), 1)
-        for where, text in {"docstring": self.d8.__doc__, "spec": d8_paragraph[0]}.items():
-            with self.subTest(where=where):
-                self.assertIn(stated, " ".join(text.split()))
-
-    def test_unwritable_stderr_exit_depends_on_buffering(self) -> None:
-        # In the earlier repository, the docstring and the spec said an
-        # unwritable stderr gives the interpreter's exit, "not 3". D8
-        # catches the failed write and returns 3 either way; unbuffered that
-        # is the exit, while with stderr's default buffering the line stays
-        # in the buffer and the interpreter's final flush fails again (exit
-        # 120, CPython's flush-failure status since 3.6). Each code is
-        # pinned for its mode.
-        if not os.path.exists("/dev/full"):
-            self.skipTest("/dev/full does not exist on this host")
-        tmp = Path(tempfile.mkdtemp(prefix="d8-stderr-full-"))
-        self.addCleanup(shutil.rmtree, tmp)
-        changelog = tmp / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text("**2026-10-29 | 2026.10.1 | PR #1** - one.\n", encoding="utf-8")
-        env = {**fixture_git_environment(), "GIT_CEILING_DIRECTORIES": str(tmp)}
-        for flags, want in ((("-I", "-u"), 3), (("-I",), 120)):
-            with self.subTest(flags=flags):
-                full = os.open("/dev/full", os.O_WRONLY)
-                try:
-                    result = subprocess.run(
-                        [sys.executable, *flags, str(_resolve_path(self.TOOL)), "--changelog", str(changelog)],
-                        stderr=full, env=env, cwd=str(tmp), timeout=120,
-                        preexec_fn=lambda: os.close(1),
-                    )
-                finally:
-                    os.close(full)
-                self.assertEqual(result.returncode, want)
-
-    def test_clock_inputs_are_stated(self) -> None:
-        # In the earlier repository, the docstring and the spec called the
-        # UTC date D8's only clock input, but elapsed time against
-        # GIT_TIMEOUT decides whether rev is a SHA or UNKNOWN.
-        spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(encoding="utf-8")
-        d8_paragraph = [line for line in spec.splitlines() if line.startswith("Delta gate D8 is ")]
-        self.assertEqual(len(d8_paragraph), 1)
-        stated = {
-            "docstring": "The report carries no time of day. It has two clock inputs (audit programme "
-                         "principle 1): the UTC date, and the elapsed time of each git call, which has a "
-                         "30-second limit (`GIT_TIMEOUT`), so a call that runs past it makes `rev` UNKNOWN "
-                         "(below) where a quicker one would give the SHA.",
-            "spec": "A report carries no time of day. It has two clock inputs: the UTC date, and the "
-                    "elapsed time of each git call, which has a 30-second limit (`GIT_TIMEOUT`), so a "
-                    "call that runs past it makes `rev` `UNKNOWN` where a quicker one would give the SHA.",
-        }
-        for where, text in {"docstring": self.d8.__doc__, "spec": d8_paragraph[0]}.items():
-            with self.subTest(where=where):
-                flat = " ".join(text.split())
-                self.assertIn(stated[where], flat)
-                self.assertNotIn("the UTC date is its only clock input", flat)
-        self.assertEqual(self.d8.GIT_TIMEOUT, 30)
-
-    def test_report_takes_today_from_main(self) -> None:
-        # In the earlier repository, report() read the clock again when no
-        # date was passed, so a run crossing UTC midnight between main's
-        # read and report's could print day D+1 over due dates computed for
-        # day D. report() now requires today, and main reads the clock once.
-        import contextlib
-        import datetime
-        import inspect
-        import types
-        from unittest import mock
-
-        param = inspect.signature(self.d8.report).parameters["today"]
-        self.assertIs(param.default, inspect.Parameter.empty)
-        with self.assertRaises(TypeError):
-            self.d8.report([], stream=io.StringIO())
-
-        tmp = Path(tempfile.mkdtemp(prefix="d8-midnight-"))
-        self.addCleanup(shutil.rmtree, tmp)
-        changelog = tmp / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text(
-            "**2026-10-31 | 2026.10.1 | PR #1** - one.\n"
-            "**2026-10-31 | 2026.10.2 | PR #2** - two.\n",
-            encoding="utf-8",
-        )
-        utc = datetime.timezone.utc
-        reads = [
-            datetime.datetime(2026, 10, 31, 23, 59, 59, 999999, tzinfo=utc),
-            datetime.datetime(2026, 11, 1, 0, 0, 0, tzinfo=utc),
-        ]
-        calls = []
-
-        class SteppingDateTime(datetime.datetime):
-            # Each clock read returns the next instant: the second read is
-            # past UTC midnight.
-            @classmethod
-            def now(cls, tz=None):
-                calls.append(tz)
-                return reads[min(len(calls), len(reads)) - 1]
-
-        clock = types.SimpleNamespace(
-            date=datetime.date, datetime=SteppingDateTime,
-            timedelta=datetime.timedelta, timezone=datetime.timezone,
-        )
-        # Loaded under the redirect, so report()'s stream default is the buffer.
-        buf = io.StringIO()
-        with mock.patch.dict(os.environ, {"GIT_CEILING_DIRECTORIES": str(tmp)}), \
-                contextlib.redirect_stdout(buf):
-            d8 = load_linter_module(self.TOOL, "_d8_midnight_under_test")
-            with mock.patch.object(d8, "datetime", clock):
-                self.assertEqual(d8.main(["--changelog", str(changelog)]), 0)
-        lines = buf.getvalue().splitlines()
-        self.assertEqual(len(calls), 1, calls)
-        self.assertEqual(len(lines), 3, lines)
-        self.assertTrue(lines[0].startswith("D8 BEGIN rev=UNKNOWN today=2026-10-31 "), lines)
-        self.assertTrue(lines[1].startswith("OK: "), lines)
-        self.assertTrue(lines[2].startswith("D8 END rev=UNKNOWN today=2026-10-31 "), lines)
-        self.assertTrue(self.complete(lines), lines)
-
-    def test_output_ignores_time_of_day_and_local_date(self) -> None:
-        # The UTC date is the only clock input of a D8 report whose git calls
-        # finish in time (audit programme principle 1, which also names the
-        # git time limit), so two runs at either end of one UTC day print
-        # identical output. Each run loads a fresh module under frozen
-        # datetime AND time modules whose local zone is twelve hours behind
-        # UTC early in the day and fourteen ahead late in it, so a time-module
-        # read or a local date changes the output.
-        import contextlib
-        import datetime
-        import time as real_time
-        import types
-        from unittest import mock
-
-        tmp = Path(tempfile.mkdtemp(prefix="d8-clock-"))
-        self.addCleanup(shutil.rmtree, tmp)
-        changelog = tmp / ".working/CHANGELOG.md"
-        changelog.parent.mkdir(parents=True, exist_ok=True)
-        changelog.write_text(
-            "**2026-10-29 | 2026.10.1 | PR #1** - one.\n"
-            "**2026-10-29 | 2026.10.2 | PR #2** - two.\n"
-            "**2026-10-31 | 2026.10.3 | PR #3** - three.\n"
-            "**2026-10-31 | 2026.10.4 | PR #4** - four.\n",
-            encoding="utf-8",
-        )
-
-        def run_at(instant, utc_offset_hours):
-            epoch = instant.timestamp()
-            shift = utc_offset_hours * 3600
-            local = (instant + datetime.timedelta(seconds=shift)).replace(tzinfo=None)
-
-            def local_at(secs):
-                moment = datetime.datetime.fromtimestamp(secs, datetime.timezone.utc)
-                return (moment + datetime.timedelta(seconds=shift)).replace(tzinfo=None)
-
-            class FrozenDate(datetime.date):
-                @classmethod
-                def today(cls):
-                    return local.date()
-
-                @classmethod
-                def fromtimestamp(cls, secs):
-                    return local_at(secs).date()
-
-            class FrozenDateTime(datetime.datetime):
-                @classmethod
-                def now(cls, tz=None):
-                    return instant.astimezone(tz) if tz else local
-
-                @classmethod
-                def today(cls):
-                    return local
-
-                @classmethod
-                def utcnow(cls):
-                    return instant.replace(tzinfo=None)
-
-                @classmethod
-                def fromtimestamp(cls, secs, tz=None):
-                    return datetime.datetime.fromtimestamp(secs, tz) if tz else local_at(secs)
-
-            def localtime(secs=None):
-                return real_time.gmtime((epoch if secs is None else secs) + shift)
-
-            fake_datetime = types.ModuleType("datetime")
-            fake_datetime.__dict__.update(vars(datetime))
-            fake_datetime.date, fake_datetime.datetime = FrozenDate, FrozenDateTime
-            fake_time = types.ModuleType("time")
-            fake_time.__dict__.update(vars(real_time))
-            fake_time.time = lambda: epoch
-            fake_time.time_ns = lambda: int(epoch) * 10**9
-            fake_time.gmtime = lambda secs=None: real_time.gmtime(epoch if secs is None else secs)
-            fake_time.localtime = localtime
-            fake_time.strftime = lambda fmt, t=None: real_time.strftime(fmt, localtime() if t is None else t)
-            fake_time.asctime = lambda t=None: real_time.asctime(localtime() if t is None else t)
-            fake_time.ctime = lambda secs=None: real_time.asctime(localtime(secs))
-
-            # Loaded under the redirect, so report()'s stream default is the buffer.
-            buf = io.StringIO()
-            saved = {name: sys.modules[name] for name in ("datetime", "time")}
-            sys.modules.update(datetime=fake_datetime, time=fake_time)
-            try:
-                with mock.patch.dict(os.environ, {"GIT_CEILING_DIRECTORIES": str(tmp)}), \
-                        contextlib.redirect_stdout(buf):
-                    d8 = load_linter_module(self.TOOL, "_d8_clock_under_test")
-                    self.assertEqual(d8.main(["--changelog", str(changelog)]), 0)
-            finally:
-                sys.modules.update(saved)
-            return buf.getvalue()
-
-        utc = datetime.timezone.utc
-        early = run_at(datetime.datetime(2026, 10, 31, 0, 0, 1, tzinfo=utc), -12)
-        late = run_at(datetime.datetime(2026, 10, 31, 23, 59, 59, tzinfo=utc), 14)
-        self.assertEqual(early, late)
-        lines = early.splitlines()
-        self.assertEqual(len(lines), 4, lines)
-        self.assertEqual(self.framed(lines, rev="UNKNOWN"), "due=1 rc=0")
-        self.assertEqual(
-            lines[1],
-            "D8 DUE id=D8-2026-10-29@UNKNOWN date=2026-10-29 count=2 "
-            "due_since=2026-10-30T00:00:00Z",
-        )
-
-    # The inline self-test's cases, each pinned by name.
-    SELF_TEST_CASES = (
-        "test_bad_entry_date_is_refused",
-        "test_commented_entries_do_not_count",
-        "test_empty_corpus",
-        "test_milestone_entry_is_never_counted",
-        "test_multiple_past_days_each_flagged",
-        "test_past_day_already_rolled_up_is_not_due",
-        "test_past_day_single_entry_is_not_due",
-        "test_past_day_with_multiple_per_pr_is_due",
-        "test_report_frames_the_lines_with_one_run_digest",
-        "test_report_line_count_matches_due",
-        "test_report_message_names_coupled_rollup_tool",
-        "test_today_multiple_per_pr_is_not_due",
-    )
-
-    def test_inline_self_test_runs(self) -> None:
-        # In the earlier repository, "OK" on stderr alone passed a mutant
-        # whose self-test only printed OK and returned 0.
-        r = run_linter(self.TOOL, "--self-test")
-        self.assertEqual(r.returncode, 0, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
-        for case in self.SELF_TEST_CASES:
-            self.assertRegex(r.stderr, rf"(?m)^{case} \(.+\) \.\.\. ok$")
-        self.assertRegex(r.stderr, rf"(?m)^Ran {len(self.SELF_TEST_CASES)} tests in ")
-        self.assertEqual(r.stderr.splitlines()[-1], "OK", r.stderr)
-
-    def test_pre_push_runner_starts_the_report_on_its_own_line(self) -> None:
-        # In the earlier repository, run_check printed its label with no
-        # newline before D8 ran, so "D8 BEGIN" did not start a line there. The
-        # real runner and the real D8 run in a fixture repository, with silent
-        # stubs for every other tool the runner names, on a real range and on a
-        # collapsed one.
-        tmp, repo, env, git, d8 = self.fixture()
-        tools = repo / ".claude/skills/corpus-management/tools"
-        tools.mkdir(parents=True)
-        runner = SKILL_ROOT / "tools" / "run-pr-time-checks.sh"
-        shutil.copy(runner, tools / runner.name)
-        shutil.copy(_resolve_path(self.TOOL), tools / Path(self.TOOL).name)
-        named = set(re.findall(r".claude/skills/corpus-management/tools/([A-Za-z0-9_.-]+\.py)", runner.read_text(encoding="utf-8")))
-        self.assertIn(Path(self.TOOL).name, named)
-        for name in named - {Path(self.TOOL).name}:
-            (tools / name).write_text("raise SystemExit(0)\n", encoding="utf-8")
-        (repo / ".working").mkdir(parents=True, exist_ok=True)
-        (repo / ".working/CHANGELOG.md").write_text(self.TWO_ENTRIES, encoding="utf-8")
-        git("init", "-q")
-        git("add", "-A")
-        git("commit", "-q", "-m", "fixture")
-        (repo / "README.md").write_text("# Fixture\n", encoding="utf-8")
-        git("add", "README.md")
-        git("commit", "-q", "-m", "change")
-
-        for base, rc in (("HEAD~1", 0), ("HEAD", 2)):
-            with self.subTest(base=base):
-                r = subprocess.run(
-                    ["bash", str(tools / runner.name)], capture_output=True, text=True,
-                    cwd=str(repo), env={**env, "BASE_REF": base, "HEAD_REF": "HEAD"},
-                )
-                self.assertEqual(r.returncode, rc, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
-                lines = r.stdout.splitlines()
-                begin = [i for i, line in enumerate(lines) if line.startswith("D8 BEGIN ")]
-                end = [i for i, line in enumerate(lines) if line.startswith("D8 END ")]
-                self.assertEqual(len(begin), 1, r.stdout)
-                self.assertEqual(len(end), 1, r.stdout)
-                self.assertTrue(self.complete(lines[begin[0]:end[0] + 1]), r.stdout)
-                self.assertRegex(r.stdout, r"(?m)^D8 Daily-changelog-rollup reminder +\.\.\. OK$")
-
-    def test_pre_push_runner_reports_a_failing_d8_as_failed(self) -> None:
-        # In the earlier repository, a mutant whose on_own_lines returned 0
-        # passed the class, so a D8 crash would read "... OK" before push. A D8
-        # stub that exits 3 must print FAIL (rc=3) and fail the run, on a real
-        # range (exit 1) and on a collapsed one (exit 2, with the failure
-        # counted).
-        tmp, repo, env, git, d8 = self.fixture()
-        tools = repo / ".claude/skills/corpus-management/tools"
-        tools.mkdir(parents=True)
-        runner = SKILL_ROOT / "tools" / "run-pr-time-checks.sh"
-        shutil.copy(runner, tools / runner.name)
-        named = set(re.findall(r".claude/skills/corpus-management/tools/([A-Za-z0-9_.-]+\.py)", runner.read_text(encoding="utf-8")))
-        self.assertIn(Path(self.TOOL).name, named)
-        for name in named - {Path(self.TOOL).name}:
-            (tools / name).write_text("raise SystemExit(0)\n", encoding="utf-8")
-        (tools / Path(self.TOOL).name).write_text("raise SystemExit(3)\n", encoding="utf-8")
-        (repo / ".working").mkdir(parents=True, exist_ok=True)
-        (repo / ".working/CHANGELOG.md").write_text(self.TWO_ENTRIES, encoding="utf-8")
-        git("init", "-q")
-        git("add", "-A")
-        git("commit", "-q", "-m", "fixture")
-        (repo / "README.md").write_text("# Fixture\n", encoding="utf-8")
-        git("add", "README.md")
-        git("commit", "-q", "-m", "change")
-
-        for base, rc, summary in (("HEAD~1", 1, "1 PR-time check(s) failed."),
-                                  ("HEAD", 2, "1 range-free PR-time check(s) failed.")):
-            with self.subTest(base=base):
-                r = subprocess.run(
-                    ["bash", str(tools / runner.name)], capture_output=True, text=True,
-                    cwd=str(repo), env={**env, "BASE_REF": base, "HEAD_REF": "HEAD"},
-                )
-                self.assertEqual(r.returncode, rc, f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
-                self.assertRegex(r.stdout, r"(?m)^D8 Daily-changelog-rollup reminder +\.\.\. FAIL \(rc=3\)$")
-                self.assertNotRegex(r.stdout, r"(?m)^D8 Daily-changelog-rollup reminder +\.\.\. OK$")
-                self.assertIn(summary, r.stdout.splitlines())
-
-    def test_docstring_and_spec_state_the_reader_rule_and_inputs(self) -> None:
-        # In the earlier repository, recomputing run was something a reader
-        # "may" do, the report was said to depend on the CHANGELOG, the
-        # revision and the UTC date alone, and the spec's digest input named
-        # neither UTF-8 nor the LF after the first text. The test reads the
-        # shipped specification's path; the checks on tools and a playbook that
-        # do not ship are left out.
-        def flat(text):
-            return " ".join(text.split())
-
-        spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(encoding="utf-8")
-        d8_paragraphs = [line for line in spec.splitlines() if line.startswith("Delta gate D8 is ")]
-        self.assertEqual(len(d8_paragraphs), 1)
-        texts = {"docstring": flat(self.d8.__doc__), "spec": flat(d8_paragraphs[0])}
-        stated = (
-            "`run` is the SHA-256 (hex) of the UTF-8 text `rev=<rev> today=<date>`, a LF, "
-            "then every line between BEGIN and END, each followed by a LF.",
-            "Reader rule: a report is complete only when its BEGIN and END lines carry "
-            "the same `run` and name the same `rev` and `today`, `run` recomputed over "
-            "that `rev`, that `today` and every line between them equals it, and the END "
-            "line ends `due=<n> rc=0` with `<n>` the number of `D8 DUE` lines between them.",
-            "checkout filters",
-            "UNKNOWN never names a commit",
-            # rev depends on more than the repository.
-            "so the current date is not D8's only input from outside the repository.",
-            # Absence is ENOENT or ENOTDIR alone.
-            "Only an open failing with ENOENT, or with ENOTDIR because a component of the "
-            "path is not a directory, is `D8 NOT-FOUND`; any other error opening or reading "
-            "the path, or a path that is not a regular file, is `D8 REFUSED reason=unreadable`.",
-            "Each git call reads no standard input and has a timeout, and a timeout is a "
-            "git failure like any other.",
-            "In CI, where D8 runs only for a pull request, `rev` is GitHub's temporary merge "
-            "commit of the pull request's head into its base branch (the workflow's default "
-            "checkout), not the head commit itself.",
-            "The machine-readable lines carry neither the path nor any error text; the human "
-            "line after `D8 NOT-FOUND` or `D8 REFUSED` also carries the path as given and, "
-            "after `D8 REFUSED`, error text specific to the interpreter and operating system "
-            "(the system's error message, or the UTF-8 decoder's or the date parser's message).",
-            "The path is the `--changelog` argument exactly as given, not pathlib's normalized form. "
-            "A character in the human line that stdout's encoding cannot represent is written as a "
-            "backslash escape, so neither the path nor the error text can stop D8 exiting 0; every "
-            "report line is ASCII by construction.",
-        )
-        for where, text in texts.items():
-            for phrase in stated:
-                with self.subTest(where=where, phrase=phrase[:40]):
-                    self.assertIn(phrase, text)
-            with self.subTest(where=where, absent="alone"):
-                self.assertNotIn("the UTC date alone", text)
-                self.assertNotIn("may recompute", text)
-                self.assertNotIn("only external input", text)
-
-        # In the earlier repository, principle 1 called the current date the
-        # only external input of every date-sensitive gate, D8 named.
-        principle = [line for line in spec.splitlines() if line.startswith("1. **Determinism over heuristic**")]
-        self.assertEqual(len(principle), 1)
-        self.assertNotIn("The current date is their only external input", principle[0])
-        self.assertNotIn("the current date is their only clock input", principle[0])
-        self.assertIn(
-            "Second, the advisory daily-changelog-rollup check also asks git which commit it "
-            "checked, so whether its report names that commit or `UNKNOWN` also depends on the "
-            "git found on `PATH`, its configuration and environment, and checkout filters, and on "
-            "a second clock input, the elapsed time of each git call: a call that runs past its "
-            "30-second limit gives `UNKNOWN` (delta gate D8).",
-            principle[0],
-        )
-        self.assertIn("timeout=GIT_TIMEOUT", _resolve_path(self.TOOL).read_text(encoding="utf-8"))
-        self.assertEqual(self.d8.GIT_TIMEOUT, 30)
-
-    def test_spec_d8_text_uses_the_advisory_phrase(self) -> None:
-        # In the earlier repository, the D8 text kept the phrase the spec
-        # had replaced, and this test also read a playbook bullet
-        # (.claude/playbooks/pr-lifecycle.md) that does not ship, so the
-        # replaced phrase is now refused in the shipped specification.
-        advisory = "ADVISORY (exit 0 in each of these cases, never blocks)"
-        replaced = "D8 is advisory (exit 0, never blocks)"
-        spec = (SKILL_ROOT / "specs" / "specification-audit-programme.md").read_text(encoding="utf-8")
-        joined = " ".join(spec.split())
-        self.assertIn(advisory, joined)
-        self.assertNotIn(replaced, joined)
-        # Control: the same check finds the replaced phrase when a line break splits it.
-        planted = spec + "\nDelta gate D8 is advisory\n(exit 0, never\nblocks).\n"
-        self.assertIn(replaced, " ".join(planted.split()))
-
-
 class ExplicitPathCliInventoryTests(unittest.TestCase):
     """Complete file inventory and conservative drift pins.
 
@@ -43391,7 +47755,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
     library and data file, independent of AST detection. Missing, extra, duplicate
     and symlinked entries fail; traversal errors propagate. Only non-executable
     CPython cache files with the current magic and a corresponding source file
-    are excluded. Python source
+    (the cache name before the current cache tag, plus .py) are excluded. Python source
     inside __pycache__ is not excluded. There are no basename exemptions.
 
     Policies describe reviewed behaviour, not proof that every argument is safe:
@@ -43473,7 +47837,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F 67fe21d3b7f132009e1e6e14899a090f897ede778d89cea59053ca2f3e20ced7
+        README.md DATA F dc25184c6ab1fd0cdef0e0e4f990c68bcf5152a30caa60b818a447e9a039b0f3
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
         aiqt_bootstrap.py PASSIVE F 1f617d3d14213da6e225dabc21c49c253a3738531304e5c7924e87878c1d2206
@@ -43487,26 +47851,25 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         build-corpus-management.py OWN F 99b180645666face6dd915ae22373c669aec0c388462690a3f3f86ee61caa1b7
         build-historical-citation-exceptions.py OWN F af5228d9ba0f537f6aa8f338b3c8975dbab27ddcc2b505f9de484106dfc31abd
         build-narrative-registry.py NO_FS F 8c68374bcddb319e009ef9845357c98560faa038cf27b9dfa0ef904b58a8e5ae
-        build-portal.py NO_FS F 30abe0839d1de66e772ed49e1d66abf6433e8f6a68941fdb6b528dafaceb07b5
+        build-portal.py NO_FS F cb349a581b9379f4fb021aa0fdd7a3ef17a5d6ede757dc5d309aa95367772e7f
         build-provision-index.py ROOT F beedab0b6d018c4c7d583e63b40c35704a65322b1b1203048d1062f8748e899a
-        build-public-changelog.py OWN F 38fc12242f4d182b91018a2047be2a6f40780a49c7edd77a2a313b19e15eff14
+        build-public-changelog.py OWN F c241ee3b08561b3f761a7214ecea2c4bad5b01cfeb18cd9b5e014bd7d0f1387c
         build-reference-manifest.py NO_FS F 91a2207f9721f1783979824b35f4aeada9c0ff3d47b6fa2da252261e7bf0fa72
         build-relationship-model.py NO_FS F 6ee11b5a32fad3b6c3c7968b39f0c3f5df1aaec52cb05cd88371b0562975868c
         build-taxonomy.py NO_FS F 79af52afff1f6e27a6e35856c8526004e84cddfc0bb87131be4e9f4267bf3712
         build-todo-number-allocation.py NO_FS F 5f5cb253b442fa4b5d0e5781157ba2ecf666771f47eac3a4f5249513ae4136e7
         ccm_aicm_reference.py PASSIVE F 0d3218cfad279bd8f196c0d26241380220a3fc91fdb70505622fdedb5eba4733
-        changelog_diff.py PASSIVE F f2ae77440ff80bce16aca47d1a9b7a6f405183b3d0b1f49f2dcd7a344b9d0d67
-        check-alignment-register-on-pr.py NO_FS F f9ef275f8bfd97e7ab12cd03572a7de34d4f3bc051cd3e1b1d09ea30694e43a3
-        check-changelog-dash-on-pr.py NO_FS F 04ef5a5637b0126979127297baea433dbd8ab183bf0d31288e150c8e04737c81
-        check-changelog-length-on-pr.py NO_FS F 91c9308103f36414f1975e2233cd82644551ca4a3996c4a2b9310b437004434a
-        check-changelog-on-pr.py NO_FS F 00fa478d33343ae5d955e3faa7f99d9c61c6cda6f7a5e414dfcaf6ec6f7bf25b
-        check-changelog-preflight-commit.py NO_FS F 9ec0a028e7e916fdfa542f6688b909b08a1c69fe66b3a7cb82d979689885f978
+        changelog_diff.py PASSIVE F 075ea42a31b56d1bdf61ddeef704f8e1c9e6939a78a2ed2910363db14fc08839
+        check-alignment-register-on-pr.py NO_FS F f0eedf41e2ef710f8d5f8df379f654a40b96026696af156550396ef799f38915
+        check-changelog-dash-on-pr.py NO_FS F 02f7a615c905ca17326fbfcf9a7181f2f1d36092124ee0d3fe65b3b2d60c0f22
+        check-changelog-length-on-pr.py NO_FS F e1a3cffc6031c81d63233a67f4bfba4f77f1f4b99715175eea013268cb5c1d28
+        check-changelog-on-pr.py NO_FS F ee66330940fa8c41c22d18d7a22a21daf1fb3865ad62556b482d7a96e1faf32d
+        check-changelog-preflight-commit.py NO_FS F 85a1d0e6791f1777d9d68f85c95465eb42e3121ae001323fed5f3e0aa27a81a2
         check-class-completeness.py NO_FS F dd060e4b9474d3ad7d65d720224294fae4efff2310d49b75384c821c021ccd00
-        check-claude-md-size.py NO_FS F 5f0c8e37d4a1b36a6be924354a6cdfca69a4ba5498e77cee52012ccefc99764b
+        check-claude-md-size.py NO_FS F 3bfd6751e841ef19f398ed3bf3ce6223c3ac91383494728a4e3330c7dd872fd4
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
         check-commit-on-main.py NO_FS F a9672ae752b0434a1e94118bccf3dcc640bd321967ea3e6d775c0f1a8f153f7e
-        check-daily-changelog-rollup.py SKIP F 9ac1a4b9a151c9f5b9cefcb93dfceea2d194611c4fc0567e90bdbcc0158598bd
         check-date-cobump-on-pr.py NO_FS F 302cb52aff2cc9b7a4c2a9c5f8c3646d6270bd4932dea572dcbe08e762292cb9
         check-dirty-tree-push.py TRANSPORT F 55222e921472f5297afb9c5f98e0f5efb8f5c8d0adcca8dbe84f30012ac0f8fb
         check-generated-commit.py NO_FS F a15e3235cc5ab50f0d3473efcfd05b56741f602ecbae59fd92b79ca1ee7f19e1
@@ -43517,12 +47880,12 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-review-cadence.py ROOT F bcd4b92ee9be87833a2905a2f9aea484fec84520c85ff1aa07e85aff956b0cc1
         check-stranded-control-code-on-pr.py NO_FS F d0631b2fca128c3457f87029e56a252e20e4be701148cc2e171c2d6cbe051b37
         check-todo-floor-monotonic-on-pr.py NO_FS F 3d8a8e64f47f3055e85fff8a27fd741b8e84ff6a6c29046576c3331cf2889bd3
-        check-todo-rotation-on-pr.py NO_FS F d2516ba2514b6a2d2062059e2a1d4f3d0985220a2ef5f6127a7f464eea998dbc
+        check-todo-rotation-on-pr.py NO_FS F 0e97e2267ce265155213bb0e37fe38524217929d395b870aa7dc0dbac500fb5d
         check-version-bump-commit.py MESSAGE F dff25752daf9574afb2cfe538f624bd9d075fcc1e1511166997d9ebdefc8e0df
         check-version-bump-on-pr.py NO_FS F c0aaefac08a658834846417e1049dd17cdec4caae3224914fcb64c863a8b2ad1
         citation_publishers.py PASSIVE F 8f367f75830d8b235e1019615b4e876c0ee562c6c5819e4bf4118325f1bb5dff
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
-        gate-scope-manifest.json DATA F 7c109a7b0898253bcf0a19c80f6da07ca6e532274661dd7d51c494b1ad7afe16
+        gate-scope-manifest.json DATA F 81107f2413c4e2ed1c2908dbd915ba8fca672398a09ad879505962567e99f758
         git-hooks/commit-msg MESSAGE F 64510e0d473663d37e6416287e8edce7b4043619e64fea8c5cb2a82200a5ab97
         git-hooks/pre-commit FIXED F 5e576c5bf6bab147625b27fa4875aa6b9b292f68292ca0085de3fa29bf387ecb
         git-hooks/pre-push TRANSPORT F a7e4da49d2f18e10ab2f88f31bf5264485486bd206f77aed0ed68c63bbb59a33
@@ -43534,14 +47897,14 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F 49f26e0c53d3c6c5b88c455204bec8a092ddca252890e189f4dc988baf0e7c8d
         lint-alignment-citation-existence.py CWD F e7792b9664730a6b542285fa654de20ec9d39af7aa6cb553813ff2efa865152c
         lint-allowlist-spec-parity.py NO_FS F e8f452096456f55cd880fdb79b01ac18cadbcbfc966b67e1ab9b9ef43e8ea1db
-        lint-audit-gate-parity.py OWN F be641875ea2914ae89f9098149176e64529a8722e3fa33cec3856094996ed572
+        lint-audit-gate-parity.py OWN F 9dcb2214babb077c3a38d5f9e0474638277a058ae089835fc25d7a7557ce46e7
         lint-audit-spec-detailed-prose.py OWN F 49ba119b94f997b1c35560dab6087ef16c936a09c02a84f3fa02a1925412e390
         lint-bare-normative-shall.py ROOT F 0de8d8f46a8d953aa02ca38c8b86d8f08a5c642e1b900483f3008c2c3983e203
         lint-baseline-pin.py OWN F 33cbe14512f04fb1da1c9c0a44e53ecaef7e618968e8314a48b812b30595035a
         lint-ccm-aicm-citations.py CWD F b2c3b6225f1d68dcc904b167ef69963c35ac03b169d87478ac39e1f94edb6242
         lint-ccm-provider-member-in-range.py CWD F 3b6aed2769f3d8eb23d754862c355f16e760518d051462b6a217b62a9a31ac7b
         lint-changelog-link-coverage.py CWD F 5e0c2e8520be9e8418bf0835decd744ff234ed93b9c3a707255121120cdf9437
-        lint-changelog-mirror-header-parity.py OWN F 40485f1f4f78ad5b0cb731e03dfbcdcc6b823d8a6f51632954f5b5424184e88f
+        lint-changelog-mirror-header-parity.py OWN F c07fdbd08b4486832c02bf4d2c340dcc9e32cd09b2246c8f3c7c19caf27f5dc3
         lint-citation-currency-cadence.py NO_FS F 01bc84108f08b8d88711e0e8a9bb7bd5aec5b27b24e67594697dbd4d2ddbc7eb
         lint-citation-verification-freshness.py OWN F 79cb0052bf58680bc98f3d8ca9efd21ea06d2eedecee4ca500df567ffd0a6d0d
         lint-citations.py ROOT F 223b54a1983967480c8ae2b80e3d59c98c2921d9bf7c411913470505a7f9b060
@@ -43614,15 +47977,15 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-ungated-dashes.py NO_FS F 81bd8a51ed9d04864b908024f4cd4bf9d45b123075b626e2b3540accfcaedbec
         lint-unused-imports.py CWD F ca0774461f0ea6a973bc510a7b68f51790eb3c21e2e580470af4fc64c9060b2e
         lint-version-bump-recency.py CWD F 8fd558e8fb978be293e66ee1af301c13f517d582bf101f2969c94a8e771d5a72
-        lint-version-date-consistency.py OWN F c07c0009130b660eb3ef8c3a1e06c659a99d8eea3663a2fbd84d47773c87e099
+        lint-version-date-consistency.py OWN F 3984ab2ad06ad6ffb4e33e8cd2f41d795534d43c266ad3a369ac97b14c3ef4ec
         lint-web-corpus-links.py OWN F e69c56be54024ab612c87f8a39f39807334f029426e5e266f860f41ff251479f
-        lint_common.py PASSIVE F 91dd0425ff9aae5d86504ac94fa4964988d899f38715295566434c17d1e2daec
+        lint_common.py PASSIVE F d576a0412f7b576f6235c527d304cf31291b237ae6e2b1f4dbe7120f03db52dc
         matrix_code_parse.py PASSIVE F 62df77ba801019b06afea2a1474836a90dc2e8385f7d99becef9d393c511f622
         measure-regression-timings.py WRITE F 3fa6dd03e89eaf23d6b92a01f4369f11ff863a475bc81926319b7c734fa007d1
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        pre-push-guard.sh FIXED F e4d2b19b22ddd163aaad73c9135ab4763c7816110915deb3c4ef97be1c6364ca
+        pre-push-guard.sh FIXED F ba46b003c527ac68a51aad335db6f2ef323c505296c06a9f4dd16690810ce7b5
         pre-push-hook.py TRANSPORT F e0a06be59cc3e8c0b47377b229c16ea169eba04ed717e31c9427356b85f6bb76
-        preflight-changelog.py NO_FS F f6e7709d1015847c6cf5d27886e637d58d6a62ad29d5327576c6624e9c6b460d
+        preflight-changelog.py NO_FS F 4a8ab78b13076b2fa1b61333766417034094db2a1e81269048d59fb14f9c50bf
         preflight-version-date.py NO_FS F 31cfe7d03173f406ba0d5b2ff2dfd0fcdf59686c94150aba3a597b3a714e0879
         preflight_language_runner.py CHILD F 7040c5428e5838a4ceaae070e632c4a94fc8035b63a04203ade4adc2fcb33403
         provision_citations.py PASSIVE F a65bc1c1df6d285f6a081f121762853a6eb5ef9e894ef864b5a5a7a758d8e6e7
@@ -43630,9 +47993,9 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         reconcile-regression-shards.py OWN F 397fea486ab474661a089a4743158522729150686312b113a9319a88e092c761
         residual-scan.py NO_FS F c4c8e1807e87e490bdf9958f631ee9ee333c747846317014b354f81d5c7c7948
         run-linter-regression.py FIXED F 4975b199210338878c418be2f96717dab8a1df9f58bb33a36dfe5e50e1f0b2fd
-        run-pr-time-checks.sh FIXED F cf914764adbb259130bccf9360f4c96d77f1455631dc9d3c7b4223544f494992
-        run-shell-stubbed.py NO_FS F 33f6d5720cf04af0bb7fb2254a6c2fa5d6d803c329ea8e243d41ad7fc4f4cc87
-        run_all_audits.sh FIXED F d9f60a5cca7ca9337e2aa0cf2e207efbffb2269a53820191767bcb32e7fa5067
+        run-pr-time-checks.sh FIXED F 1c07008870b9cf5b7fe0febe7bbd05c38678701d9ff9bf010350cc0fd440e372
+        run-shell-stubbed.py NO_FS F 38d59f2282a5706ea75fb9c9b109aa3e3a61fd45203def3f7fda5367fcbcb415
+        run_all_audits.sh FIXED F d54db4500482c7d5505b21eb7b68e03527ca0cb9f2bcd663dbe95c1ba8c7bf4c
         safe_fs.py PASSIVE F 13c29f1625ffc04ba289a42a2ba241e2d68a77c9420b114f2a96e58c4b5ad35a
         scan-publication-instruction-content.py OWN F 62fd62e2345b14ae59e33db7ef62cf131bdbdb9eb2f75cc3f5bab3391cbdd17f
         skill-verdict-fields.json DATA F 3a9c5b89ed3acc1a7bdbda02b5630379c1ef016fc58b34e4338a485ad3fd4cb8
@@ -43650,7 +48013,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
     # Repository-relative argument-handling dependencies outside .claude/skills/corpus-management/tools/.
     DEPENDENCIES = """
         .claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py 3b2855d56d438b8766ea414ab415e1f76afbe57f09ce3faccb27c9866627ac8c
-        .claude/skills/corpus-management/src/tools/pack_release_delta.py 1836a112482c4fa721817222ef559700e919b54e3df7ba98a4e94af5ffbdcf07
+        .claude/skills/corpus-management/src/tools/pack_release_delta.py f383c7e516caf2ee3a48138949ef8fd199fd64cbc60ce26081dee740b2b3082f
         .claude/skills/corpus-management/src/tools/profile_loader.py c54f863c1d19ea5a934e05194504538a75d2b4893e7b16aa9d4c386c932bfb6b
         .claude/aiqt/tools/aiqt_corpus.py f2292eb511e960d9c38881a54bee92d0fc5c7b5cbe0c7b5cb002cb78da08245f
         .claude/hooks/block-unbumped-version-commit.py 0db1edd838740ff54edecec6bc03e52232febac402266e49cec499ef88ae4a2e
@@ -43691,6 +48054,11 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         paths = []
         for directory, dirs, names in os.walk(root, onerror=walk_error, followlinks=False):
             paths.extend(Path(directory) / name for name in dirs + names)
+        # A cache name is <source stem>.<cache tag>[.opt-N].pyc, and a stem may hold dots
+        # (module.x.py caches as module.x.<tag>.pyc), so the source is named by what
+        # precedes the current cache tag, never by the text before the first dot.
+        tag = sys.implementation.cache_tag
+        cache_name = re.compile(r"(.+)\." + re.escape(tag) + r"(?:\.opt-[0-9]+)?\.pyc") if tag else None
         files = {}
         for path in sorted(paths):
             rel = path.relative_to(root).as_posix()
@@ -43702,7 +48070,9 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
             if (path.parent.name == "__pycache__" and path.suffix == ".pyc"
                     and not path.stat().st_mode & 0o111
                     and data[:4] == importlib.util.MAGIC_NUMBER
-                    and (path.parent.parent / (path.name.split(".")[0] + ".py")).is_file()):
+                    and cache_name is not None
+                    and (stem := cache_name.fullmatch(path.name)) is not None
+                    and (path.parent.parent / (stem.group(1) + ".py")).is_file()):
                 continue
             files[rel] = data
         return files
@@ -44360,6 +48730,24 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
             (root / "alias").symlink_to(root / "sub", target_is_directory=True)
             with self.assertRaisesRegex(AssertionError, "symlink"):
                 self._files(root)
+
+    def test_cache_file_maps_to_the_source_named_before_the_cache_tag(self):
+        # A cache file is excluded only when the source it caches exists. A source stem may
+        # hold dots, so the stem is the name before the interpreter's cache tag, never the
+        # name before the first dot: module.x.<tag>.pyc caches module.x.py, not module.py.
+        import importlib.util
+        tag = sys.implementation.cache_tag
+        with tempfile.TemporaryDirectory(prefix="inventory-") as directory:
+            root = Path(directory)
+            (root / "__pycache__").mkdir()
+            (root / "module.py").write_bytes(b"x = 1\n")
+            for name in (f"module.{tag}.pyc", f"module.{tag}.opt-1.pyc", f"module.x.{tag}.pyc"):
+                cache = root / "__pycache__" / name
+                cache.write_bytes(importlib.util.MAGIC_NUMBER + bytes(12))
+                cache.chmod(0o644)
+            self.assertEqual(set(self._files(root)), {"module.py", f"__pycache__/module.x.{tag}.pyc"})
+            (root / "module.x.py").write_bytes(b"x = 2\n")
+            self.assertEqual(set(self._files(root)), {"module.py", "module.x.py"})
 
     def test_unrelated_and_mutated_parsers(self):
         for source in (
@@ -45157,6 +49545,23 @@ class TodoRotationOnPrTests(unittest.TestCase):
                 m.asserts_todo_closure([line]),
                 f"closure phrasing should be flagged: {line!r}",
             )
+
+    def test_commit_message_closure_reads_lines_and_trailer(self) -> None:
+        # A commit message asserts a closure through a Closes-Backlog: trailer line or a line
+        # matching the nine forms; an incidental mention does not.
+        m = self._load()
+        sha = "a" * 40
+        self.assertEqual(m.commit_message_closure([(sha, "Subject\n\nCloses-Backlog: 2.25.3\n")]),
+                         (sha, "Closes-Backlog: 2.25.3"))
+        self.assertEqual(m.commit_message_closure([(sha, "Subject\n\ncloses-backlog: P-1.2\n")]),
+                         (sha, "closes-backlog: P-1.2"))
+        self.assertEqual(
+            m.commit_message_closure([(sha, "Subject\n\nCloses TODO 3.177 with this change.\n")]),
+            (sha, "Closes TODO 3.177 with this change."))
+        self.assertIsNone(m.commit_message_closure(
+            [(sha, "Subject\n\nTODO 3.188 updated to widen the D5 forms per the review.\n")]))
+        self.assertIsNone(m.commit_message_closure([(sha, "Subject\n\nSee Closes-Backlog: 2.1 below.\n")]))
+        self.assertIsNone(m.commit_message_closure([]))
 
     def test_incidental_todo_mentions_not_flagged(self) -> None:
         m = self._load()
@@ -51508,21 +55913,25 @@ class StoreDegradedNoticeTests(unittest.TestCase):
                     present_patches={"resolve_todo_reference": lambda: ref})
 
     def test_gate59_changelog_mirror_header_parity(self) -> None:
-        from unittest.mock import Mock
         mod = self._load("lint-changelog-mirror-header-parity.py")
-        # One matching new-repository header on each side: a present store that compares zero
-        # PRs is reported as degraded, so the clean run must compare at least one.
+        # Gate 59's absent-store notice comes from resolve_working (_run patches it: None for the
+        # absent store, the fixture store when present); with the store present, the notice also
+        # depends on comparing at least one range (it prints when compared == 0). The root carries
+        # one weekly heading
+        # (2026-11-09 is a Monday) whose range names the one PR the mirror dates in that week: a
+        # present store that compares no range is reported as degraded, so the clean run must
+        # compare one. REPO_ROOT points both runs at the fixture root, so the checkout's own
+        # CHANGELOG is never read.
         entry = "**2026-11-09 | 2026.11.66 | PR #1** - tooling: entry.\n"
         self._write("changelog-details/CHANGELOG-detailed.md", "# Detailed changelog\n\n" + entry)
         root = self.store / "root"
         root.mkdir()
         (root / mod.ROOT_CHANGELOG_REL).parent.mkdir(parents=True, exist_ok=True)
-        (root / mod.ROOT_CHANGELOG_REL).write_text("# Changelog\n\n" + entry, encoding="utf-8")
-        from lint_common import StoreScope
-        present = {"REPO_ROOT": root,
-                   "store_scope": Mock(return_value=StoreScope(None, None, None, None))}
+        (root / mod.ROOT_CHANGELOG_REL).write_text(
+            "# Changelog\n\n**Week of 2026-11-09 (PRs #1)**\n\nA weekly summary.\n",
+            encoding="utf-8")
         self._check("gate 59", "lint-changelog-mirror-header-parity.py", lambda m: m.main([]),
-                    present_patches=present)
+                    absent_patches={"REPO_ROOT": root}, present_patches={"REPO_ROOT": root})
 
     def test_gate78_todo_number_permanence(self) -> None:
         self._write("DONE.md", "# DONE\n")
@@ -55035,29 +59444,43 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
                 "notes.md", "[x](.working/exists.md)", root), [".working/exists.md"])
 
     def test_d7_length_findings(self):
-        # The D7 length check is reused (not duplicated) via d7_length_findings on the root
-        # .working/CHANGELOG.md added lines: an over-ceiling entry is flagged, a short one is clean, and
-        # a detailed-mirror line is out of scope (only the root file is D7 length-gated).
+        # The public .working/CHANGELOG.md carries weekly summaries only: d7_length_findings refuses
+        # a per-change entry added there (D1's line-local refusal) and measures an added weekly or
+        # monthly paragraph with D7's own paragraph functions; a short paragraph is clean, and a
+        # detailed-mirror line is out of scope (the mirror is the private per-change record).
         mod = self._load("_pcl_d7")
-        long_line = "**2026-08-01 | 2026.08.21 | PR #1324** - " + ("word " * 110).strip() + "."
-        found = mod.d7_length_findings([(".working/CHANGELOG.md", long_line)])
-        self.assertTrue(found and "D7 length ceiling exceeded" in found[0][1], found)
-        short_line = "**2026-08-01 | 2026.08.21 | PR #1324** - Short summary. Two sentences here."
-        self.assertEqual(mod.d7_length_findings([(".working/CHANGELOG.md", short_line)]), [])
-        # the same over-long text in the detailed mirror is NOT length-gated (out of D7 scope)
-        self.assertEqual(
-            mod.d7_length_findings([(mod.DETAILED_MIRROR_REL, long_line)]), [])
+        entry = "**2026-08-01 | 2026.08.21 | PR #1324** - Short summary. Two sentences here."
+        found = mod.d7_length_findings([(".working/CHANGELOG.md", entry)])
+        self.assertEqual([issue for _, issue, _ in found], [
+            "per-change entry in the public weekly record (D1: it belongs in the private "
+            "per-change record)"], found)
+        heading = "**Week of 2026-07-27 (PRs #1320-#1324)**"
+        long_body = ("word " * 150).strip() + "."
+        found = mod.d7_length_findings([(".working/CHANGELOG.md", heading), (".working/CHANGELOG.md", ""),
+                                        (".working/CHANGELOG.md", long_body)])
+        self.assertEqual([issue for _, issue, _ in found], [
+            "D7 length ceiling exceeded (Week of 2026-07-27 (PRs #1320-#1324): 150 words > 140; "
+            "longest sentence 150 > 45)"], found)
+        self.assertEqual(mod.d7_length_findings([(".working/CHANGELOG.md", heading),
+                                                 (".working/CHANGELOG.md", "Short. Summary.")]), [])
+        # The same text in the detailed mirror is neither refused nor measured.
+        self.assertEqual(mod.d7_length_findings([(mod.DETAILED_MIRROR_REL, entry),
+                                                 (mod.DETAILED_MIRROR_REL, heading),
+                                                 (mod.DETAILED_MIRROR_REL, long_body)]), [])
 
-    def test_d7_length_findings_reads_an_entry_after_a_line_break(self):
-        # In the earlier repository, d7_length_findings matched ENTRY_RE only at the start of an
-        # added line, so an entry that starts after a CR, U+2028 or U+0085 inside that line
-        # escaped the ceiling. It now reads entries through D7's entries_in_added_line, as D7
-        # does; this case failed against that earlier matcher (no finding) for each separator.
+    def test_d7_length_findings_reads_a_line_after_a_line_break(self):
+        # A per-change entry, or a weekly heading and its body, that starts after a CR, U+2028 or
+        # U+0085 inside an added line is read there, as D1 and D7 read it.
         mod = self._load("_pcl_d7_break")
-        entry = "**2026-08-01 | 2026.08.21 | PR #1324** - " + ("word " * 110).strip() + "."
+        entry = "**2026-08-01 | 2026.08.21 | PR #1324** - Short."
+        heading = "**Week of 2026-07-27 (PRs #1320-#1324)**"
+        long_body = ("word " * 150).strip() + "."
         for separator in ("\r", "\u2028", "\u0085"):
             with self.subTest(separator=ascii(separator)):
                 found = mod.d7_length_findings([(".working/CHANGELOG.md", "Lead." + separator + entry)])
+                self.assertTrue(found and "per-change entry" in found[0][1], found)
+                found = mod.d7_length_findings(
+                    [(".working/CHANGELOG.md", "Lead." + separator + heading + separator + long_body)])
                 self.assertTrue(found and "D7 length ceiling exceeded" in found[0][1], found)
 
 
@@ -55305,8 +59728,49 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                         cwd=root, env=env, capture_output=True, text=True)
                     report = result.stdout + result.stderr
                     self.assertEqual(result.returncode, 1, report)
-                    self.assertIn("FAIL .working/CHANGELOG.md: D7 length ceiling exceeded "
-                                  "(PR #988: 120 words", report)
+                    self.assertIn("FAIL .working/CHANGELOG.md: per-change entry in the public weekly "
+                                  "record", report)
+
+    def test_weekly_record_findings_in_the_staged_root(self):
+        # The public root carries weekly summaries only: a staged per-change entry is refused, a
+        # staged weekly paragraph over the D7 ceilings is measured from the staged file, and a
+        # short weekly paragraph passes.
+        long_body = " ".join(["word"] * 150) + "."
+        rows = (
+            ("**2026-11-13 | 2026.11.94 | PR #30** - tools: an entry.", 1,
+             "FAIL .working/CHANGELOG.md: per-change entry in the public weekly record"),
+            ("**Week of 2026-11-02 (PRs #10-#14)**\n\n" + long_body, 1,
+             "FAIL .working/CHANGELOG.md: D7 length ceiling exceeded (Week of 2026-11-02 "
+             "(PRs #10-#14): 150 words > 140"),
+            ("**Week of 2026-11-02 (PRs #10-#14)**\n\nA short weekly summary.", 0, "OK: "),
+        )
+        for added, code, needle in rows:
+            with self.subTest(added=added[:20]), tempfile.TemporaryDirectory() as td:
+                result = self._run_cli(os.path.realpath(td), added)
+                report = result.stdout + result.stderr
+                self.assertEqual(result.returncode, code, report)
+                self.assertIn(needle, report)
+
+    def test_a_changed_body_line_is_measured_with_its_whole_paragraph(self):
+        # Only the new body line is staged; the heading and first body line are committed. The
+        # aid measures the whole paragraph from the staged file (2 + 150 words), as D7 does.
+        with tempfile.TemporaryDirectory() as td:
+            root, env, git = self._cli_fixture(os.path.realpath(td))
+            (root / ".working").mkdir(parents=True, exist_ok=True)
+            base = "# Changelog\n\n**Week of 2026-11-02 (PRs #10-#14)**\n\nShort body.\n"
+            (root / ".working/CHANGELOG.md").write_text(base, encoding="utf-8")
+            git("add", "-A")
+            git("commit", "-q", "--no-verify", "-m", "init")
+            (root / ".working/CHANGELOG.md").write_text(
+                base + " ".join(["word"] * 150) + ".\n", encoding="utf-8")
+            git("add", ".working/CHANGELOG.md")
+            result = subprocess.run(
+                [sys.executable, str(root / ".claude/skills/corpus-management/tools/preflight-changelog.py"),
+                 "--staged"], cwd=root, env=env, capture_output=True, text=True)
+        report = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 1, report)
+        self.assertIn("D7 length ceiling exceeded (Week of 2026-11-02 (PRs #10-#14): 152 words > 140",
+                      report)
 
     def test_a_run_from_a_subdirectory_reads_the_root_changelog(self):
         # The aid runs git in its repository root, not in the caller's directory, so a run from a
@@ -56520,16 +60984,17 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
             "(diff line 6) is not valid UTF-8"])
 
     def test_a_d7_checker_without_a_required_name_is_one_named_error(self):
-        # In the earlier repository, a checker that loaded without ENTRY_RE, evaluate,
-        # DEFAULT_WORD_MAX or DEFAULT_SENTENCE_MAX failed later with a raw AttributeError traceback.
-        # _load_d7() now checks the four names, so a missing one is the fixed D7 error, exit 2. The
-        # control row (every name present) passes, so each refusal is the missing name's. The
-        # preflight now reads entries through entries_in_added_line, not ENTRY_RE.
+        # In the earlier repository, a checker that loaded without one of the names the aid reads
+        # failed later with a raw AttributeError traceback. _load_d7() now checks the five
+        # paragraph names, so a missing one is the fixed D7 error, exit 2. The control row (every
+        # name present) passes, so each refusal is the missing name's.
         parts = {
-            "entries_in_added_line": "def entries_in_added_line(text):\n    return []\n",
-            "evaluate": "def evaluate(entries, word_max, sentence_max):\n    return []\n",
-            "DEFAULT_WORD_MAX": "DEFAULT_WORD_MAX = 100\n",
-            "DEFAULT_SENTENCE_MAX": "DEFAULT_SENTENCE_MAX = 45\n",
+            "judged_paragraphs": "def judged_paragraphs(added, head_text):\n    return []\n",
+            "evaluate_paragraphs": ("def evaluate_paragraphs(paragraphs, word_max, sentence_max, "
+                                    "count_max):\n    return []\n"),
+            "PARAGRAPH_WORD_MAX": "PARAGRAPH_WORD_MAX = 140\n",
+            "PARAGRAPH_SENTENCE_MAX": "PARAGRAPH_SENTENCE_MAX = 45\n",
+            "PARAGRAPH_SENTENCE_COUNT_MAX": "PARAGRAPH_SENTENCE_COUNT_MAX = 4\n",
         }
         for missing in (None, *parts):
             source = "import re\n" + "".join(v for k, v in parts.items() if k != missing)
@@ -56579,12 +61044,11 @@ class AuditGateParityExclusionGuardTests(unittest.TestCase):
         # (a real gate mistakenly masked), the guard must FAIL. Simulated by
         # injecting a delta-gate step's script into the spec-scripts set.
         mod = self._load("_agp_detect")
-        wf_lines = (_resolve_path(mod.WORKFLOW_PATH)).read_text(
-            encoding="utf-8"
-        ).splitlines()
+        wf_scripts = mod._lint_job_step_scripts(_resolve_path(mod.WORKFLOW_PATH))
         # a real delta-gate step name and its script (the first excluded member)
         name = sorted(mod.WORKFLOW_DELTA_GATE_STEPS)[0]
-        delta_script = mod._wf_step_script(wf_lines, name)
+        self.assertEqual(len(wf_scripts[name]), 1, "test setup: one step so named")
+        delta_script = wf_scripts[name][0]
         self.assertIsNotNone(delta_script, "test setup: delta step has a script")
         spec_scripts = {
             script for (_, _, _, script)
@@ -56594,6 +61058,503 @@ class AuditGateParityExclusionGuardTests(unittest.TestCase):
         self.assertTrue(
             any("masked from parity" in f for f in findings), findings
         )
+
+    def test_guards_never_read_a_delta_gate_step_run_value_for_a_script(self):
+        # A delta-gate step's run value is compared whole with its pinned command
+        # and its script is the pin's, so the guards must never hand that run value
+        # to the script extractor: a script read out of it is a second, looser
+        # reading that could disagree with the pin. The setup steps are still read.
+        mod = self._load("_agp_no_delta_script_read")
+        spec_scripts = {
+            script for (_, _, _, script)
+            in mod.parse_spec_inventory(_resolve_path(mod.SPEC_PATH))
+        }
+        runs = mod._lint_job_step_runs(_resolve_path(mod.WORKFLOW_PATH))
+        delta_lines = {run.lineno for name in mod.WORKFLOW_DELTA_GATE_STEPS
+                       for run in runs[name] if run is not None}
+        setup_lines = {run.lineno for name in mod.WORKFLOW_SETUP_STEPS
+                       for run in runs[name] if run is not None}
+        self.assertEqual(len(delta_lines), len(mod.WORKFLOW_DELTA_GATE_STEPS),
+                         "test setup: each delta-gate step has one run value")
+        self.assertTrue(setup_lines, "test setup: a setup step has a run value")
+        read = []
+        original = mod._step_run_scripts
+
+        def recording(raw, run):
+            if run is not None:
+                read.append(run.lineno)
+            return original(raw, run)
+
+        mod._step_run_scripts = recording
+        try:
+            findings = mod.verify_exclusion_and_delta_guards(REPO_ROOT, spec_scripts)
+        finally:
+            mod._step_run_scripts = original
+        self.assertEqual(findings, [])
+        self.assertEqual(sorted(set(read) & delta_lines), [],
+                         "a delta-gate step's run value was read for a script")
+        self.assertLessEqual(setup_lines, set(read),
+                             "the setup steps' run values must still be read")
+
+    _WF_WEB_CHECK = ("      - name: Web generator health check\n"
+                     "        run: python3 .web/build.py --check\n")
+
+    def _guard_findings_with_moved_step(self, unique, step):
+        # A fixture root holding copies of the live workflow, pre-commit configuration
+        # and PR-time runner, with ``step`` taken out of the lint job and put in a
+        # second job. The guards run on that root directly: through the command line
+        # the skeleton refuses a second job before the guards run, so only a direct
+        # call shows whether the guards themselves read the lint job's steps.
+        mod = self._load(unique)
+        spec_scripts = {
+            script for (_, _, _, script)
+            in mod.parse_spec_inventory(_resolve_path(mod.SPEC_PATH))
+        }
+        other_job = ("\n  other:\n    name: Other job\n    runs-on: ubuntu-latest\n"
+                     "    steps:\n" + step)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for rel in (mod.WORKFLOW_PATH, mod.PRECOMMIT_PATH, mod.PRTIME_PATH):
+                text = _resolve_path(rel).read_text(encoding="utf-8")
+                if rel == mod.WORKFLOW_PATH:
+                    self.assertEqual(text.count("\n" + step), 1,
+                                     "test setup: the step is in the workflow once")
+                    text = text.replace("\n" + step, "") + other_job
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                (root / rel).write_bytes(text.encode("utf-8"))
+            # main() sets REPO_ROOT to --root before the guards run, and the YAML
+            # readers name a file relative to it; this module instance is the
+            # test's own, loaded above, so setting it here touches no shared state.
+            mod.REPO_ROOT = root
+            return mod.verify_exclusion_and_delta_guards(root, spec_scripts)
+
+    def test_non_gate_check_step_in_another_job_is_refused(self):
+        # The web generator health check counts only as a step of the lint job,
+        # where parse_workflow pins its shape; the same step in another job is a
+        # finding, not a pass on a whole-file name match.
+        findings = self._guard_findings_with_moved_step(
+            "_agp_web_other_job", self._WF_WEB_CHECK)
+        self.assertTrue(any(
+            "WORKFLOW_NON_GATE_CHECK_STEPS member 'Web generator health check' is "
+            "not a step of the lint job" in f for f in findings), findings)
+
+    def test_setup_and_delta_steps_in_another_job_are_refused(self):
+        # The setup and delta-gate exclusion members are read from the lint job's
+        # steps the same way.
+        cases = (
+            ("setup", "WORKFLOW_SETUP_STEPS member 'Install pinned dependencies'",
+             "      - name: Install pinned dependencies\n"
+             "        run: python3 -m pip install -r requirements.txt\n"),
+            ("delta", "WORKFLOW_DELTA_GATE_STEPS member 'Alignment-citation register check'",
+             "      - name: Alignment-citation register check\n"
+             "        if: github.event_name == 'pull_request'\n"
+             "        run: python3 .claude/skills/corpus-management/tools/"
+             "check-alignment-register-on-pr.py\n"),
+        )
+        for label, member, step in cases:
+            with self.subTest(label):
+                findings = self._guard_findings_with_moved_step(f"_agp_{label}_other_job", step)
+                self.assertTrue(any(
+                    f"{member} is not a step of the lint job" in f for f in findings),
+                    findings)
+
+    # The second delta-gate step, made to run a section 6 gate script (gate 35's own).
+    _WF_D2 = ("      - name: Per-PR version-bump check\n"
+              "        if: github.event_name == 'pull_request'\n"
+              "        run: python3 .claude/skills/corpus-management/tools/"
+              "check-version-bump-on-pr.py\n")
+    _WF_D2_MASKED = ("      - name: Per-PR version-bump check\n"
+                     "        if: github.event_name == 'pull_request'\n"
+                     "        run: python3 .claude/skills/corpus-management/tools/"
+                     "lint-audit-gate-parity.py\n")
+    _WF_D1 = ("      - name: CHANGELOG-on-PR check\n"
+              "        if: github.event_name == 'pull_request'\n"
+              "        run: python3 .claude/skills/corpus-management/tools/"
+              "check-changelog-on-pr.py\n")
+    # The first delta-gate step's run value as a block whose heredoc text holds a
+    # `- name:` line naming the second step, then that step's real script.
+    _WF_D1_DECOY = ("      - name: CHANGELOG-on-PR check\n"
+                    "        if: github.event_name == 'pull_request'\n"
+                    "        run: |\n"
+                    "          python3 .claude/skills/corpus-management/tools/"
+                    "check-changelog-on-pr.py\n"
+                    "          cat <<'NOTE'\n"
+                    "          - name: Per-PR version-bump check\n"
+                    "          python3 .claude/skills/corpus-management/tools/"
+                    "check-version-bump-on-pr.py\n"
+                    "          NOTE\n")
+
+    _D2_PINNED = ("python3 .claude/skills/corpus-management/tools/"
+                  "check-version-bump-on-pr.py")
+
+    def _assert_d2_run_refused(self, findings, held):
+        # The second delta-gate step's run value is not its pinned command, so the
+        # exclusion guard refuses it, quoting the held run value whole and the pin.
+        self.assertTrue(any(
+            "WORKFLOW_DELTA_GATE_STEPS member 'Per-PR version-bump check' runs "
+            f"{held}, not exactly the pinned {self._D2_PINNED!r}" in f
+            for f in findings), findings)
+
+    def _guard_run_with_edits(self, unique, edits):
+        # Like _guard_findings_with_moved_step, but applies exact (old, new) edits to
+        # the workflow copy, and also reports whether parse_workflow, which the
+        # command line runs before the guards, accepts the edited workflow.
+        mod = self._load(unique)
+        spec_scripts = {
+            script for (_, _, _, script)
+            in mod.parse_spec_inventory(_resolve_path(mod.SPEC_PATH))
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for rel in (mod.WORKFLOW_PATH, mod.PRECOMMIT_PATH, mod.PRTIME_PATH):
+                text = _resolve_path(rel).read_text(encoding="utf-8")
+                if rel == mod.WORKFLOW_PATH:
+                    for old, new in edits:
+                        self.assertEqual(text.count(old), 1,
+                                         "test setup: the edited text is in the workflow once")
+                        text = text.replace(old, new)
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                (root / rel).write_bytes(text.encode("utf-8"))
+            mod.REPO_ROOT = root  # this module instance is the test's own
+            try:
+                mod.parse_workflow(root / mod.WORKFLOW_PATH)
+                parsed = True
+            except mod.ParseError:
+                parsed = False
+            return parsed, mod.verify_exclusion_and_delta_guards(root, spec_scripts)
+
+    def test_masked_delta_step_is_found_without_a_decoy(self):
+        # Control: the second delta-gate step running a section 6 gate is a finding.
+        parsed, findings = self._guard_run_with_edits(
+            "_agp_masked_plain", [(self._WF_D2, self._WF_D2_MASKED)])
+        self.assertTrue(parsed)
+        self._assert_d2_run_refused(findings, repr("python3 .claude/skills/corpus-management/tools/"
+                 "lint-audit-gate-parity.py"))
+
+    def test_decoy_step_name_in_a_run_block_does_not_mask_a_gate(self):
+        # A `- name:` line in the text of an earlier step's `run: |` block names the
+        # second delta-gate step and is followed by its real script. The workflow
+        # still passes parse_workflow, so the guards are what must see through it:
+        # the run value is read from the lint job step's own run key, not from the
+        # first `- name:` line in the file that carries the name.
+        parsed, findings = self._guard_run_with_edits(
+            "_agp_masked_decoy",
+            [(self._WF_D2, self._WF_D2_MASKED), (self._WF_D1, self._WF_D1_DECOY)])
+        self.assertTrue(parsed, "the decoy workflow reaches the guards")
+        self._assert_d2_run_refused(findings, repr("python3 .claude/skills/corpus-management/tools/"
+                 "lint-audit-gate-parity.py"))
+        self.assertTrue(any(
+            "D2 'Per-PR version-bump check' script drift" in f for f in findings),
+            findings)
+
+    def test_same_named_step_in_an_earlier_job_does_not_mask_a_gate(self):
+        # A step of the same name in a job ahead of the lint job, running the real
+        # delta script. parse_workflow refuses the second job, so the command line
+        # stops there; called directly, the guards still read the lint job's step.
+        other_job = ("jobs:\n  other:\n    name: Other job\n"
+                     "    runs-on: ubuntu-latest\n    steps:\n" + self._WF_D2)
+        parsed, findings = self._guard_run_with_edits(
+            "_agp_masked_other_job",
+            [(self._WF_D2, self._WF_D2_MASKED), ("\njobs:\n", "\n" + other_job)])
+        self.assertFalse(parsed, "the skeleton refuses a second job")
+        self._assert_d2_run_refused(findings, repr("python3 .claude/skills/corpus-management/tools/"
+                 "lint-audit-gate-parity.py"))
+
+    def test_second_gate_script_in_a_delta_step_run_is_found(self):
+        # The second delta-gate step runs its real delta script first and a section 6
+        # gate second, in a `run: |` block and in a plain run value. parse_workflow
+        # leaves delta-gate steps to the guards, which hold the whole run value to
+        # the step's pinned command, so the second command is refused, not missed.
+        delta = ".claude/skills/corpus-management/tools/check-version-bump-on-pr.py"
+        gate = ".claude/skills/corpus-management/tools/lint-audit-gate-parity.py"
+        head = ("      - name: Per-PR version-bump check\n"
+                "        if: github.event_name == 'pull_request'\n")
+        cases = (
+            ("block", head + "        run: |\n"
+             f"          python3 {delta}\n"
+             f"          python3 {gate}\n",
+             "a `|` block scalar holding "
+             + repr(f"python3 {delta}\npython3 {gate}")),
+            ("scalar", head + f"        run: python3 {delta} && python3 {gate}\n",
+             repr(f"python3 {delta} && python3 {gate}")),
+        )
+        for label, step, held in cases:
+            with self.subTest(label):
+                parsed, findings = self._guard_run_with_edits(
+                    f"_agp_second_script_{label}", [(self._WF_D2, step)])
+                self.assertTrue(parsed, "the workflow reaches the guards")
+                self._assert_d2_run_refused(findings, held)
+                self.assertTrue(any(
+                    "D2 'Per-PR version-bump check' script drift" in f
+                    and held in f for f in findings), findings)
+
+    def _assert_gate_after_interpreter_form_is_found(self, label, invocation):
+        # The second delta-gate step runs its real delta script and then a section 6
+        # gate through ``invocation``, the gate's path after one interpreter form. A
+        # guard that read a path only after `python3` and an optional `-I` would let
+        # each form below hide the gate (exit 0, no finding); the guard compares the
+        # whole run value with the step's pinned command, so each form is refused.
+        delta = ".claude/skills/corpus-management/tools/check-version-bump-on-pr.py"
+        gate = ".claude/skills/corpus-management/tools/lint-audit-gate-parity.py"
+        run = f"python3 {delta} && {invocation.format(gate=gate)}"
+        step = ("      - name: Per-PR version-bump check\n"
+                "        if: github.event_name == 'pull_request'\n"
+                f"        run: {run}\n")
+        parsed, findings = self._guard_run_with_edits(
+            f"_agp_form_{label}", [(self._WF_D2, step)])
+        self.assertTrue(parsed, "the workflow reaches the guards")
+        self._assert_d2_run_refused(findings, repr(run))
+        self.assertTrue(any(
+            "D2 'Per-PR version-bump check' script drift" in f
+            and repr(run) in f for f in findings), findings)
+
+    def test_gate_after_python3_dash_b_is_found(self):
+        self._assert_gate_after_interpreter_form_is_found("dash_b", "python3 -B {gate}")
+
+    def test_gate_after_python3_dash_u_is_found(self):
+        self._assert_gate_after_interpreter_form_is_found("dash_u", "python3 -u {gate}")
+
+    def test_gate_after_python3_dash_i_dash_b_is_found(self):
+        self._assert_gate_after_interpreter_form_is_found("dash_i_b", "python3 -I -B {gate}")
+
+    def test_gate_after_a_dot_slash_prefix_is_found(self):
+        self._assert_gate_after_interpreter_form_is_found("dot_slash", "python3 ./{gate}")
+
+    def test_gate_after_an_interpreter_path_is_found(self):
+        self._assert_gate_after_interpreter_form_is_found("usr_bin", "/usr/bin/python3 {gate}")
+
+    def test_gate_after_a_versioned_interpreter_is_found(self):
+        self._assert_gate_after_interpreter_form_is_found("versioned", "python3.14 {gate}")
+
+    def test_second_non_gate_script_in_a_delta_step_is_script_drift(self):
+        # The second delta-gate step runs its real delta script and then a tools
+        # script that is not a section 6 gate. No gate is masked, but the step runs
+        # more than the PR-time runner's D2 does and its run value is not its pinned
+        # command, so the delta-gate guard reports script drift quoting the whole run
+        # value, in a `run: |` block and in a plain run value alike. The refusal is
+        # intended: the workflow would then run more than the PR-time runner does.
+        mod = self._load("_agp_second_non_gate_setup")
+        delta = ".claude/skills/corpus-management/tools/check-version-bump-on-pr.py"
+        extra = ".claude/skills/corpus-management/tools/check-pr-attribution.py"
+        spec_scripts = {
+            script for (_, _, _, script)
+            in mod.parse_spec_inventory(_resolve_path(mod.SPEC_PATH))
+        }
+        self.assertNotIn(extra, spec_scripts, "test setup: not a section 6 gate")
+        self.assertTrue(_resolve_path(extra).is_file(), "test setup: a real tools script")
+        head = ("      - name: Per-PR version-bump check\n"
+                "        if: github.event_name == 'pull_request'\n")
+        cases = (
+            ("block", head + "        run: |\n"
+             f"          python3 {delta}\n"
+             f"          python3 {extra}\n",
+             "a `|` block scalar holding "
+             + repr(f"python3 {delta}\npython3 {extra}")),
+            ("scalar", head + f"        run: python3 {delta} && python3 {extra}\n",
+             repr(f"python3 {delta} && python3 {extra}")),
+        )
+        for label, step, held in cases:
+            with self.subTest(label):
+                parsed, findings = self._guard_run_with_edits(
+                    f"_agp_second_non_gate_{label}", [(self._WF_D2, step)])
+                self.assertTrue(parsed, "the workflow reaches the guards")
+                self.assertFalse(any("masked from parity" in f for f in findings),
+                                 findings)
+                drift = [f for f in findings
+                         if "D2 'Per-PR version-bump check' script drift" in f]
+                self.assertEqual(len(drift), 1, findings)
+                self.assertIn(f"= {delta!r}; ", drift[0])
+                self.assertIn(held, drift[0])
+                self._assert_d2_run_refused(findings, held)
+
+    def test_repeated_own_script_in_a_delta_step_is_script_drift(self):
+        # The second delta-gate step runs its own pull-request script twice. Each
+        # script matches the PR-time runner's D2 script, so a guard that skips every
+        # matching script reports nothing, yet the workflow runs the script twice
+        # where the runner runs it once. The guard requires the step's run value to
+        # be exactly its pinned command, which runs the runner's one script once, so
+        # the repeat is script drift, in a `run: |` block and in a plain run value
+        # alike.
+        delta = ".claude/skills/corpus-management/tools/check-version-bump-on-pr.py"
+        head = ("      - name: Per-PR version-bump check\n"
+                "        if: github.event_name == 'pull_request'\n")
+        cases = (
+            ("block", head + "        run: |\n"
+             f"          python3 {delta}\n"
+             f"          python3 {delta}\n",
+             "a `|` block scalar holding "
+             + repr(f"python3 {delta}\npython3 {delta}")),
+            ("scalar", head + f"        run: python3 {delta} && python3 {delta}\n",
+             repr(f"python3 {delta} && python3 {delta}")),
+        )
+        for label, step, held in cases:
+            with self.subTest(label):
+                parsed, findings = self._guard_run_with_edits(
+                    f"_agp_repeated_own_{label}", [(self._WF_D2, step)])
+                self.assertTrue(parsed, "the workflow reaches the guards")
+                self.assertFalse(any("masked from parity" in f for f in findings),
+                                 findings)
+                drift = [f for f in findings
+                         if "D2 'Per-PR version-bump check' script drift" in f]
+                self.assertEqual(len(drift), 1, findings)
+                self.assertIn(f"= {delta!r}; ", drift[0])
+                self.assertIn(held, drift[0])
+                self._assert_d2_run_refused(findings, held)
+
+    def test_setup_step_running_a_gate_is_refused_by_either_layer(self):
+        # A setup step that runs a gate script is refused first by parse_workflow's
+        # _check_setup_step (exit 2 on the command line, before the guards run).
+        # The setup-step exclusion guard is a second layer behind it, kept in case
+        # that check is loosened: called directly on the same workflow, it reports
+        # the gate script too.
+        gate = ".claude/skills/corpus-management/tools/lint-links.py"
+        parsed, findings = self._guard_run_with_edits(
+            "_agp_setup_runs_gate",
+            [("        run: python3 -m pip install -r requirements.txt\n",
+              f"        run: python3 {gate}\n")])
+        self.assertFalse(parsed, "parse_workflow refuses the setup step first")
+        self.assertTrue(any(
+            "WORKFLOW_SETUP_STEPS member 'Install pinned dependencies' invokes "
+            f"gate script {gate!r}" in f for f in findings), findings)
+
+    _D1_SCRIPT = ".claude/skills/corpus-management/tools/check-changelog-on-pr.py"
+
+    def _d1_run_findings(self, label, run):
+        # The first delta-gate step with ``run`` as its plain run value: whether the
+        # workflow reaches the guards, every finding, and the D1 script-drift ones.
+        step = ("      - name: CHANGELOG-on-PR check\n"
+                "        if: github.event_name == 'pull_request'\n"
+                f"        run: {run}\n")
+        parsed, findings = self._guard_run_with_edits(
+            f"_agp_d1_{label}", [(self._WF_D1, step)])
+        self.assertTrue(parsed, "the workflow reaches the guards")
+        drift = [f for f in findings
+                 if "D1 'CHANGELOG-on-PR check' script drift" in f]
+        return findings, drift
+
+    def _assert_prefixed_d1_script_is_drift(self, label, word):
+        # ``word`` joins other text to the front of the pull-request script path,
+        # so the shell runs a different file. The run value is not the step's pinned
+        # command, so the guard reports script drift quoting the whole run value and
+        # never reads the path inside it as the reviewed script.
+        findings, drift = self._d1_run_findings(label, f"python3 {word}")
+        self.assertEqual(len(drift), 1, findings)
+        self.assertIn(f"= {self._D1_SCRIPT!r}; ", drift[0])
+        self.assertIn(repr(f"python3 {word}"), drift[0])
+
+    def test_name_prefixed_pull_request_script_is_script_drift(self):
+        self._assert_prefixed_d1_script_is_drift("name_prefix", "fake" + self._D1_SCRIPT)
+
+    def test_directory_prefixed_pull_request_script_is_script_drift(self):
+        self._assert_prefixed_d1_script_is_drift("dir_prefix", "x/" + self._D1_SCRIPT)
+
+    def test_variable_joined_after_a_closing_quote_is_script_drift(self):
+        # A closing quote does not end the word: the shell joins the variable's
+        # value to the front of the path.
+        self._assert_prefixed_d1_script_is_drift("quoted_var", '"$X"' + self._D1_SCRIPT)
+
+    def test_only_the_pinned_pull_request_command_is_accepted(self):
+        # Only the pinned command string is accepted. A ./ prefix, a quoted path and
+        # a path right after a shell operator name the same script, but each is a
+        # different run value, so each is refused: the run value is compared whole
+        # with the pin and is never read for a script.
+        d1 = self._D1_SCRIPT
+        cases = (
+            ("plain", f"python3 {d1}"),
+            ("dot_slash", f"python3 ./{d1}"),
+            ("single_quoted", f"python3 '{d1}'"),
+            ("double_quoted_dot_slash", f'python3 "./{d1}"'),
+            ("after_operator", f"true&&{d1}"),
+        )
+        for label, run in cases:
+            with self.subTest(label):
+                findings, drift = self._d1_run_findings(f"accepted_{label}", run)
+                if label == "plain":
+                    self.assertEqual(findings, [])
+                    continue
+                self.assertEqual(len(drift), 1, findings)
+                self.assertIn(repr(run), drift[0])
+                self.assertTrue(any(
+                    "WORKFLOW_DELTA_GATE_STEPS member 'CHANGELOG-on-PR check' runs "
+                    f"{run!r}, not exactly the pinned {'python3 ' + d1!r}" in f
+                    for f in findings), findings)
+
+    def test_every_delta_gate_step_is_pinned_to_its_exact_command(self):
+        # The pin table names exactly the delta-gate steps, each pin is `python3 `
+        # and one existing tools script, the script read from the pin is that
+        # script, and the live workflow's step runs exactly its pin as a plain value.
+        mod = self._load("_agp_delta_pins")
+        self.assertEqual(set(mod.WORKFLOW_DELTA_GATE_STEP_RUNS),
+                         mod.WORKFLOW_DELTA_GATE_STEPS)
+        runs = mod._lint_job_step_runs(_resolve_path(mod.WORKFLOW_PATH))
+        for name, pinned in sorted(mod.WORKFLOW_DELTA_GATE_STEP_RUNS.items()):
+            with self.subTest(name):
+                script = pinned.removeprefix("python3 ")
+                self.assertEqual(pinned, "python3 " + script)
+                self.assertTrue(script.startswith(
+                    ".claude/skills/corpus-management/tools/check-"), script)
+                self.assertTrue(script.endswith(".py"), script)
+                self.assertTrue(_resolve_path(script).is_file(), script)
+                self.assertEqual(mod._delta_pinned_script(name), script)
+                self.assertEqual([run.kind for run in runs[name]], ["scalar"])
+                self.assertEqual([run.value for run in runs[name]], [pinned])
+
+    def test_each_pinned_delta_step_passes_and_any_change_fails(self):
+        # The live workflow, every delta-gate step at its pin, passes the guards.
+        # For each step in turn, an argument appended to its pinned command is
+        # refused by the exclusion guard and reported as script drift for its
+        # D-number, and the other steps stay clean.
+        mod = self._load("_agp_delta_each_setup")
+        parsed, findings = self._guard_run_with_edits("_agp_delta_each_clean", [])
+        self.assertTrue(parsed)
+        self.assertEqual(findings, [])
+        for name, pinned in sorted(mod.WORKFLOW_DELTA_GATE_STEP_RUNS.items()):
+            with self.subTest(name):
+                changed = pinned + " --extra"
+                parsed, findings = self._guard_run_with_edits(
+                    "_agp_delta_each_changed",
+                    [(f"        run: {pinned}\n", f"        run: {changed}\n")])
+                self.assertTrue(parsed, "the workflow reaches the guards")
+                self.assertTrue(any(
+                    f"WORKFLOW_DELTA_GATE_STEPS member {name!r} runs {changed!r}, "
+                    f"not exactly the pinned {pinned!r}" in f for f in findings),
+                    findings)
+                drift = [f for f in findings if f" {name!r} script drift" in f]
+                self.assertEqual(len(drift), 1, findings)
+                self.assertIn(repr(changed), drift[0])
+                self.assertEqual(len(findings), 2, findings)
+
+    def test_reported_run_forms_of_the_first_delta_step_are_refused(self):
+        # Forms found to slip past a guard that read the script out of the run
+        # value: an interpreter flag, a path prefix and a quoted path with text
+        # joined after the closing quote (the shell runs `...on-pr.pyfoo`), and
+        # other changes to the pinned string. Each is refused and is script drift.
+        d1 = self._D1_SCRIPT
+        pinned = f"python3 {d1}"
+        cases = (
+            ("dash_b", f"python3 -B {d1}"),
+            ("dash_i", f"python3 -I {d1}"),
+            ("usr_bin", f"/usr/bin/python3 {d1}"),
+            ("versioned", f"python3.14 {d1}"),
+            ("dir_prefix", f"python3 x/{d1}"),
+            ("name_prefix", f"python3 fake{d1}"),
+            ("quoted_suffix", f'python3 "{d1}"foo'),
+            ("single_quoted_suffix", f"python3 '{d1}'.bak"),
+            ("name_suffix", f"python3 {d1}c"),
+            ("argument", f"python3 {d1} --strict"),
+            ("second_command", f"python3 {d1} && true"),
+            ("double_space", f"python3  {d1}"),
+        )
+        for label, run in cases:
+            with self.subTest(label):
+                findings, drift = self._d1_run_findings(f"form_{label}", run)
+                self.assertEqual(len(drift), 1, findings)
+                self.assertIn(f"= {d1!r}; ", drift[0])
+                self.assertIn(repr(run), drift[0])
+                self.assertTrue(any(
+                    "WORKFLOW_DELTA_GATE_STEPS member 'CHANGELOG-on-PR check' runs "
+                    f"{run!r}, not exactly the pinned {pinned!r}" in f
+                    for f in findings), findings)
 
 
 class TodoIndexRowGrammarParityTests(unittest.TestCase):
@@ -62113,7 +67074,6 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         check-changelog-length-on-pr.py
         check-changelog-on-pr.py
         check-claude-md-size.py
-        check-daily-changelog-rollup.py
         check-narrative-corpus-mixed-diff-on-pr.py
         check-retired-section-orphan-on-pr.py
         check-review-cadence.py
@@ -62237,7 +67197,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.8", "0.23.8 makes gate 62 treat a table cell as a local-section exception path only when the text between its section reference and its link both matches the 0.23.7 pattern and, read with the shared bare-character scanner, has a bare last opening parenthesis, so the exception can only narrow; every bare opening parenthesis in that text must be closed after the link or the cell is refused as malformed with the existing message, and the text before the section reference is not read for parentheses. Changed from 0.23.7: a bare opening parenthesis standing as the descriptive character leaves two to close, so a cell closed once after the link is refused as malformed instead of accepted as local (an intended malformed refusal); a last opening parenthesis that is escaped or in a code span and is closed after the link makes the cell a citation of the target instead of local (a tightening); an escaped or code-span last opening parenthesis with nothing bare closing it after the link makes the cell a citation of the target instead of malformed, still refused when the target lacks the cited number, and only such cells leave malformed; a bare closing parenthesis before the link keeps the 0.23.7 decision, local when the text after the link closes the one opening parenthesis and malformed when it does not; no cell 0.23.7 checked as a citation of the target becomes local; no gate or register key changes (PATCH). The release history in src/README.md describes each version from 0.22.2")
+        self.assertEqual(man["pack"]["version"], "0.23.9", "0.23.9 makes the release-delta check count public module-level names bound by assignment through a private helper (PATCH); the level a changed value, a binding inside a function or class or an import alias needs is the matching row of _RELEASE_CASES in src/tools/pack_release_delta.py, which test_release_level_table runs through the check. The release history in src/README.md describes each version from 0.22.2")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
@@ -63521,12 +68481,9 @@ class NarrativeScanScopeTests(LinterTestCase):
         # positive control: gate DOES flag the violation at a non-excluded path
         pos_result = self._run_gate_at_root(
             gate, root, root / "tests" / "tmp" / "narrative-positive-control.md")
-        self.assertNotEqual(
-            pos_result.returncode,
-            0,
-            "positive control failed: the gate did not flag a real violation "
-            "at a non-excluded path (an always-pass gate would look 'excluded')",
-        )
+        # positive control failed if this does not hold: the gate did not flag a real
+        # violation at a non-excluded path (an always-pass gate would look 'excluded')
+        self.assertLinterFails(pos_result)
         self.assertIn("narrative-positive-control", pos_result.stdout)
         # exclusion: the SAME violation under executive/ is NOT flagged even
         # when its path is passed explicitly (dir-based exemption); and it is
@@ -63546,11 +68503,10 @@ class NarrativeScanScopeTests(LinterTestCase):
         self.assertIn("tmp-nested-scope-probe", default_result.stdout)
         nested_result = self._run_gate_at_root(
             gate, root, root / "governance" / "executive" / "tmp-nested-scope-probe.md")
-        self.assertNotEqual(
-            nested_result.returncode,
-            0,
-            "nested governance/executive/ was wrongly excluded (unanchored bug)",
-        )
+        # failing here means nested governance/executive/ was wrongly excluded
+        # (unanchored bug, exit 0), or the gate could not run on it (a non-zero
+        # exit other than its findings code 1, such as the cannot-run exit 2)
+        self.assertLinterFails(nested_result)
         self.assertIn("tmp-nested-scope-probe", nested_result.stdout)
 
     def test_safety_gate_catches_executive_by_default(self):
@@ -63565,11 +68521,9 @@ class NarrativeScanScopeTests(LinterTestCase):
         gate = self._import_gate("lint-secrets-in-content.py")
         self._assert_real_default_scope(gate)
         result = self._run_gate_at_root(gate, root)
-        self.assertNotEqual(
-            result.returncode,
-            0,
-            "secrets gate did NOT catch a planted credential under executive/",
-        )
+        # failing here means the secrets gate did NOT catch a planted credential
+        # under executive/
+        self.assertLinterFails(result)
         self.assertIn("tmp-secret-probe", result.stdout + result.stderr)
 
     def test_probe_roots_are_isolated(self):
@@ -63606,11 +68560,9 @@ class NarrativeScanScopeTests(LinterTestCase):
         gate = self._import_gate("lint-secrets-in-content.py")
         self._assert_real_default_scope(gate)
         planted = self._run_gate_at_root(gate, secret_root)
-        self.assertNotEqual(
-            planted.returncode,
-            0,
-            "the planted credential was not seen in its OWN root (vacuous isolation)",
-        )
+        # failing here means the planted credential was not seen in its OWN root
+        # (vacuous isolation)
+        self.assertLinterFails(planted)
         self.assertIn("tmp-secret-probe", planted.stdout + planted.stderr)
         other = self._run_gate_at_root(gate, clean_root)
         self.assertEqual(
@@ -65098,7 +70050,9 @@ def _rewrite_slot_share_fixture(test, source, path):
 
 
 class HookDescendantIsolationTests(unittest.TestCase):
-    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/skills/corpus-management/tools/lint_common.py': 18}
+    # lint_common.py holds 17 subprocess call sites: _store_git_text, which held one of
+    # the earlier 18, was removed.
+    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/skills/corpus-management/tools/lint_common.py': 17}
     NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(repo_root), 'rev-parse', '--absolute-git-dir']", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', '-c', 'core.warnAmbiguousRefs=false', '-c', 'trace2.normalTarget=', '-c', 'trace2.perfTarget=', '-c', 'trace2.eventTarget=', '-C', str(REPO), *args]", "['git', 'check-ref-format', '--allow-onelevel', name]", "['git', 'check-ref-format', text]", "['git', 'config', '--file', os.path.join(current, b'config'), '--get', 'core.worktree']", "['git', 'init', '-q', str(repo)]", "['git', 'ls-tree', '-z', '--full-tree', rev, '--', f':(literal){path}']", "['git', 'show', f'{ref}:{path}', '--']", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['git', *here, '-c', 'core.warnAmbiguousRefs=true', 'rev-parse', '--symbolic-full-name', name]", "['git', *here, 'rev-parse', '--absolute-git-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-common-dir']", "['git', *here, 'rev-parse', '--path-format=absolute', '--git-path', 'index']", "['git', *here, 'rev-parse', '--show-object-format']", "['git', *here, 'rev-parse', '--show-toplevel']", "['git', *here, 'rev-parse', '--verify', '--quiet', '--end-of-options', name + '^{commit}']", "['git', *here, 'rev-parse', '--verify', '--quiet', '--end-of-options', name]", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
     PYTHON_TARGETS = {'block-unbumped-version-commit.py': {"str(d5 / '.claude' / 'hooks' / 'hook.py')"}}
 
@@ -65174,7 +70128,7 @@ class HookDescendantIsolationTests(unittest.TestCase):
 
 class HookScriptOperandTests(unittest.TestCase):
 
-    def _refused(self, command):
+    def _refused(self, command, evidence=None):
         import json
         with tempfile.TemporaryDirectory() as td:
             settings = Path(td) / 'settings.json'
@@ -65182,18 +70136,25 @@ class HookScriptOperandTests(unittest.TestCase):
             result = subprocess.run([sys.executable, '-I', str(REPO_ROOT / '.claude/skills/corpus-management/tools/lint-hooks-syntax.py'), '--launcher-isolation', '--settings', str(settings)], capture_output=True, text=True)
             self.assertEqual(result.returncode, 2, (command, result.stdout, result.stderr))
             self.assertIn('ERROR: settings.json:', result.stderr)
+            if evidence is not None:
+                self.assertIn('ERROR: settings.json: ' + evidence, result.stderr)
 
     def test_command_operand_refused(self):
         for command in ('/usr/bin/python3 -I -c "print(1)"', '/usr/bin/python3 -Ic "print(1)"'):
             self._refused(command)
+        # The two above stop at their parentheses, before the operand check; these reach it.
+        for command in ('/usr/bin/python3 -I -c pass', '/usr/bin/python3 -Ic pass'):
+            self._refused(command, '-c and -m are refused; a script operand is required')
 
     def test_module_operand_refused(self):
         for command in ('/usr/bin/python3 -I -m foo', '/usr/bin/python3 -Imfoo'):
-            self._refused(command)
+            self._refused(command, '-c and -m are refused; a script operand is required')
 
     def test_stdin_operand_refused(self):
-        for command in ('/usr/bin/python3 -I -', '/usr/bin/python3 -I -- -'):
-            self._refused(command)
+        self._refused('/usr/bin/python3 -I -', 'stdin is refused; a script operand is required')
+        # After -- the - is read as the script operand, refused for its path.
+        self._refused('/usr/bin/python3 -I -- -',
+                      'script operand must start with "$CLAUDE_PROJECT_DIR"/.claude/hooks/')
 
     def test_missing_script_operand_refused(self):
         for command in ('/usr/bin/python3 -I', '/usr/bin/python3 -I --', '/usr/bin/python3 -I -W ignore'):
@@ -65292,7 +70253,7 @@ class HookCommandGrammarTests(unittest.TestCase):
                 for value in node:
                     yield from commands(value)
         commands = list(commands(json.loads((REPO_ROOT / '.claude/settings.json').read_text())))
-        self.assertEqual(len(commands), 5)
+        self.assertEqual(len(commands), 6)
         for command in commands:
             argv = shlex.split(command)
             self.assertEqual(argv[:2], ['/usr/bin/python3', '-I'])
@@ -65348,12 +70309,13 @@ class HookProjectAnchorGrammarTests(unittest.TestCase):
                    for event, groups in settings['hooks'].items()
                    for group in groups for hook in group['hooks']
                    if hook.get('type') == 'command']
-        # settings.json registers exactly the 5 shipped blocking hooks, each once.
-        self.assertEqual(len(entries), 5)
+        # settings.json registers exactly the 6 shipped blocking hooks, each once.
+        self.assertEqual(len(entries), 6)
         self.assertEqual(sorted((event, matcher, Path(command.rsplit('/', 1)[1]).stem)
                                 for event, matcher, command in entries), [
             ('PreToolUse', 'Bash', 'block-bulk-git-add'),
             ('PreToolUse', 'Bash', 'block-repeated-tool-failure'),
+            ('PreToolUse', 'Bash', 'block-stdin-interpreter'),
             ('PreToolUse', 'Bash', 'block-unbumped-version-commit'),
             ('PreToolUse', 'Bash', 'block-verification-pipes'),
             ('PreToolUse', 'Edit|Write', 'block-branch-to-main-edit'),
@@ -65450,10 +70412,12 @@ class HookProjectAnchorGrammarTests(unittest.TestCase):
                     # Exact expected sets. No shipped hook blocks Bash pwd or an Edit outside
                     # the project in any mode, with or without the private sibling.
                     # block-bulk-git-add alone blocks a bulk stage (Bash git add -A, with the
-                    # same Edit), so this test fails if that hook cannot block when it runs
-                    # outside the project.
+                    # same Edit), and block-stdin-interpreter alone blocks a shell reading its
+                    # commands from standard input (Bash bash -s), so this test fails if
+                    # either hook cannot block when it runs outside the project.
                     for bash_command, expected in (('pwd', set()),
-                                                   ('git add -A', {'block-bulk-git-add'})):
+                                                   ('git add -A', {'block-bulk-git-add'}),
+                                                   ('bash -s', {'block-stdin-interpreter'})):
                         blocked = set()
                         for event, matcher, command in entries:
                             with self.subTest(private=has_private, mode=mode, event=event,
@@ -65497,6 +70461,2246 @@ class HookProjectAnchorGrammarTests(unittest.TestCase):
                                     self.assertNotIn("can't open file", output)
                                     self.assertNotIn('Traceback', output)
                         self.assertEqual(blocked, expected, (has_private, mode, bash_command))
+
+
+class StdinInterpreterHookTests(unittest.TestCase):
+    """block-stdin-interpreter.py: one fixture per refused form and per allowed form.
+
+    Every case runs the hook as settings.json launches it (python3 -I, a PreToolUse Bash
+    payload on standard input) on recorded command text only: no command under test is
+    executed. The hook's own --self-test carries the same cases
+    (test_self_test_has_the_same_cases checks that they match).
+    """
+
+    HOOK = REPO_ROOT / ".claude" / "hooks" / "block-stdin-interpreter.py"
+    # (id, command text, a fragment the refusal must hold)
+    REFUSED = (
+        ('python3_dash_heredoc', "python3 -I - <<'EOF'\nprint(1)\nEOF", "'-' names standard input as the program"),
+        ('python3_dash_empty_heredoc', "python3 -I - <<'EOF'\nEOF", "'-' names standard input as the program"),
+        ('python3_dash_unterminated_heredoc', "python3 -I - <<'EOF'", "'-' names standard input as the program"),
+        ('python3_no_operand', 'python3', 'no script operand, so the program is read from standard input'),
+        ('python3_isolated_no_operand_pipe', "printf 'print(1)' | python3 -I", 'no script operand, so the program is read from standard input'),
+        ('python_unquoted_heredoc', 'python <<EOF\nprint(1)\nEOF', 'no script operand, so the program is read from standard input'),
+        ('python_versioned', 'python3.14 -I -', "'-' names standard input as the program"),
+        ('python_absolute_path_herestring', "/usr/bin/python3 -I - <<<'print(1)'", "'-' names standard input as the program"),
+        ('python_dash_after_double_dash', 'python3 -I -- -', "'-' names standard input as the program"),
+        ('python_option_arguments_then_dash', 'python3 -W ignore -X dev -', "'-' names standard input as the program"),
+        ('python_stdin_path', "python3 /dev/stdin <<'EOF'\nprint(1)\nEOF", 'the program path names standard input'),
+        ('python_procsub_program', 'python3 <(cat /abs/gen.py)', 'a process substitution is the program'),
+        ('env_wrapper', 'env -i PATH=/usr/bin python3 -', "'-' names standard input as the program"),
+        ('env_split_string', "env -S 'python3 -I -' <<'EOF'\nEOF", "'-' names standard input as the program"),
+        ('command_wrapper', 'command -p python3 -', "'-' names standard input as the program"),
+        ('exec_wrapper', 'exec -a name python3 -', "'-' names standard input as the program"),
+        ('nice_wrapper', 'nice -n 5 python3 -', "'-' names standard input as the program"),
+        ('timeout_wrapper', 'timeout -s KILL -k 5 60 python3 -I -', "'-' names standard input as the program"),
+        ('sudo_wrapper', 'sudo -u nobody python3 -', "'-' names standard input as the program"),
+        ('nohup_wrapper', 'nohup python3 -', "'-' names standard input as the program"),
+        ('time_keyword', 'time -p python3 -', "'-' names standard input as the program"),
+        ('assignment_prefix', "A='x y' python3 -", "'-' names standard input as the program"),
+        ('perl_dash', "perl - <<'EOF'\nprint 1;\nEOF", "'-' names standard input as the program"),
+        ('perl_no_operand', "perl -w <<'EOF'\nprint 1;\nEOF", 'no script operand, so the program is read from standard input'),
+        ('ruby_dash', "ruby - <<<'puts 1'", "'-' names standard input as the program"),
+        ('ruby_no_operand', "printf 'puts 1' | ruby", 'no script operand, so the program is read from standard input'),
+        ('node_dash', "node - <<<'1'", "'-' names standard input as the program"),
+        ('node_no_operand', "printf '1' | node", 'no script operand, so the program is read from standard input'),
+        ('php_dash', "php - <<<'<?php echo 1;'", "'-' names standard input as the program"),
+        ('php_no_operand', "php <<'EOF'\n<?php echo 1;\nEOF", 'no script operand, so the program is read from standard input'),
+        ('bash_s', "bash -s -- arg <<'EOF'\necho hi\nEOF", '-s reads the commands from standard input'),
+        ('sh_s_in_cluster', 'sh -xs', '-s reads the commands from standard input'),
+        ('bash_heredoc', "bash <<'EOF'\necho hi\nEOF", 'no script operand while standard input is a here-document'),
+        ('sh_herestring', "sh <<<'echo hi'", 'no script operand while standard input is a here-string'),
+        ('zsh_pipe', 'cat /abs/run.sh | zsh', 'no script operand while standard input is a pipe'),
+        ('dash_unquoted_heredoc', 'dash <<EOF\necho hi\nEOF', 'no script operand while standard input is a here-document'),
+        ('bash_pipe_into_subshell', 'cat /abs/run.sh | (bash)', 'no script operand while standard input is a pipe'),
+        ('bash_pipe_into_brace_group', 'cat /abs/run.sh | { bash; }', 'no script operand while standard input is a pipe'),
+        ('bash_stdin_from_procsub', 'bash < <(cat /abs/run.sh)', 'no script operand while standard input is a process substitution'),
+        ('bash_stdin_path', "bash /dev/fd/0 <<<'echo hi'", 'the program path names standard input'),
+        ('bash_procsub_program', 'bash <(cat /abs/run.sh)', 'a process substitution is the program'),
+        ('sh_procsub_program', 'sh <(cat /abs/run.sh)', 'a process substitution is the program'),
+        ('source_procsub', 'source <(cat /abs/env.sh)', 'a process substitution is the sourced program'),
+        ('dot_procsub', '. <(cat /abs/env.sh)', 'a process substitution is the sourced program'),
+        ('source_stdin_path', "source /dev/stdin <<<'x=1'", 'the sourced path names standard input'),
+        ('after_and_list', 'cd /abs && python3 -', "'-' names standard input as the program"),
+        ('after_quoted_heredoc_body', "cat > /abs/gen.py <<'EOF'\nprint(1)\nEOF\npython3 - < /abs/gen.py", "'-' names standard input as the program"),
+        ('inside_quoted_substitution', 'echo "$(python3 - <<<\'print(1)\')"', "'-' names standard input as the program"),
+        ('inside_backticks', 'x=`cat /abs/a | bash`', 'no script operand while standard input is a pipe'),
+        ('inside_loop', 'while true; do python3 -; done', "'-' names standard input as the program"),
+        ('pipe_continued_past_newline', 'cat /abs/run.sh |\nbash', 'no script operand while standard input is a pipe'),
+        ('pipe_continued_past_comment', 'cat /abs/run.sh | # feed\n  bash', 'no script operand while standard input is a pipe'),
+        ('pipe_into_while_body', 'cat /abs/run.sh | while true; do bash; break; done', 'no script operand while standard input is a pipe'),
+        ('pipe_into_until_body', 'cat /abs/run.sh | until false; do bash; break; done', 'no script operand while standard input is a pipe'),
+        ('pipe_into_for_body', 'cat /abs/run.sh | for i in 1; do bash; done', 'no script operand while standard input is a pipe'),
+        ('pipe_into_if_body', 'cat /abs/run.sh | if true; then bash; fi', 'no script operand while standard input is a pipe'),
+        ('pipe_into_group_in_while_body', 'cat /abs/run.sh | while true; do { bash; }; break; done', 'no script operand while standard input is a pipe'),
+        ('pipe_into_while_after_nested_loop', 'cat /abs/run.sh | while true; do while false; do :; done; bash; done', 'no script operand while standard input is a pipe'),
+        ('source_procsub_after_double_dash', 'source -- <(cat /abs/env.sh)', 'a process substitution is the sourced program'),
+        ('dot_procsub_after_double_dash', '. -- <(cat /abs/env.sh)', 'a process substitution is the sourced program'),
+        ('python_free_threaded_versioned', 'python3.13t -I -', "'-' names standard input as the program"),
+        ('python_free_threaded', 'python3t -I -', "'-' names standard input as the program"),
+        ('env_cluster_chdir', 'env -iC /tmp python3 -', "'-' names standard input as the program"),
+        ('env_cluster_unset', 'env -iu HOME python3 -', "'-' names standard input as the program"),
+        ('env_cluster_split_string', "env -iS 'python3 -I -'", "'-' names standard input as the program"),
+        ('pipe_into_select_in_while_body', 'cat /abs/run.sh | while true; do select y in a; do break; done; bash; break; done', 'no script operand while standard input is a pipe'),
+        ('pipe_into_select_in_for_body', 'cat /abs/run.sh | for i in 1; do select y in a; do break; done; bash; done', 'no script operand while standard input is a pipe'),
+        ('pipe_into_subshell_after_case', 'cat /abs/run.sh | (case x in x) :;; esac; bash)', 'no script operand while standard input is a pipe'),
+        ('pipe_into_nested_subshell_after_case', 'cat /abs/run.sh | ( (case x in x) :;; esac); bash )', 'no script operand while standard input is a pipe'),
+        ('pipe_into_subshell_after_case_newline', 'cat /abs/run.sh | (case x in x) :;; esac\nbash)', 'no script operand while standard input is a pipe'),
+        ('pipe_into_nested_subshell_after_case_newline', 'cat /abs/run.sh | ( (case x in x) :;; esac)\nbash )', 'no script operand while standard input is a pipe'),
+        ('pipe_into_quoted_substitution', 'cat /abs/run.sh | echo "$(bash)"', 'no script operand while standard input is a pipe'),
+        ('pipe_into_backtick_assignment', 'cat /abs/run.sh | x=`bash`', 'no script operand while standard input is a pipe'),
+        ('pipe_into_substitution_in_while_body', 'cat /abs/run.sh | while read -r l; do x=$(bash); done', 'no script operand while standard input is a pipe'),
+        ('pipe_into_case_body', 'cat /abs/run.sh | case x in x) bash;; esac', 'no script operand while standard input is a pipe'),
+        ('pipe_into_select_body', 'cat /abs/run.sh | select y in a; do bash; break; done', 'no script operand while standard input is a pipe'),
+        ('pipe_into_for_brace_body', 'cat /abs/run.sh | for i in 1; { bash; }', 'no script operand while standard input is a pipe'),
+        ('sudo_cluster_user', 'sudo -Eu nobody python3 -', "'-' names standard input as the program"),
+        ('exec_cluster_argv0', 'exec -ca name python3 -', "'-' names standard input as the program"),
+        ('piped_brace_group_after_array_assignment_newline', 'cat /abs/run.sh | { a=()\nbash; }', 'no script operand while standard input is a pipe'),
+        ('piped_subshell_after_array_assignment_newline', 'cat /abs/run.sh | (a=()\nbash)', 'no script operand while standard input is a pipe'),
+        ('piped_brace_group_array_assignment_prefix', 'cat /abs/run.sh | { a=() bash; }', 'no script operand while standard input is a pipe'),
+        ('pipe_into_for_without_in_list_group_in_body', 'set -- a; cat /abs/run.sh | for i do :; { :; }; bash; break; done', 'no script operand while standard input is a pipe'),
+        ('pipe_into_for_without_in_list_body', 'cat /abs/run.sh | for i do bash; done', 'no script operand while standard input is a pipe'),
+        ('pipe_into_select_without_in_list_body', 'cat /abs/run.sh | select y do bash; break; done', 'no script operand while standard input is a pipe'),
+        ('keyword_function_definition_after_do', 'while true; do function foo { python3 -; }; done', "'-' names standard input as the program"),
+        ('substitution_in_parameter_expansion', 'echo ${x:-$(python3 -)}', "'-' names standard input as the program"),
+        ('substitution_in_arithmetic_expansion', 'echo $(( $(python3 -) ))', "'-' names standard input as the program"),
+        ('pipe_into_substitution_in_parameter_expansion', 'cat /abs/run.sh | echo ${x:-$(bash)}', 'no script operand while standard input is a pipe'),
+        ('substitution_in_quoted_parameter_expansion', 'echo "${x:-$(python3 -)}"', "'-' names standard input as the program"),
+        ('backticks_in_parameter_expansion', 'echo ${x:-`python3 -`}', "'-' names standard input as the program"),
+        ('substitution_in_arithmetic_command', '(( $(python3 -) ))', "'-' names standard input as the program"),
+        ('output_procsub_reads_the_writer', 'echo p0wned | tee >(bash)', 'no script operand while standard input is a pipe'),
+        ('output_procsub_as_redirection_target', 'echo hi > >(bash)', 'no script operand while standard input is a pipe'),
+        ('named_coproc_brace_body', 'coproc MYPROC { python3 -; }', "'-' names standard input as the program"),
+        ('piped_named_coproc_brace_body', 'cat /abs/run.sh | coproc MYPROC { bash; }', 'no script operand while standard input is a pipe'),
+        ('output_procsub_sh_reads_the_writer', 'cat /abs/a | tee >(sh) >/dev/null', 'no script operand while standard input is a pipe'),
+        ('piped_named_coproc_subshell_body', 'cat /abs/a | coproc MYPROC ( bash )', 'no script operand while standard input is a pipe'),
+        ('pipe_into_empty_array_assignment_prefix', 'cat /abs/run.sh | a=() bash', 'no script operand while standard input is a pipe'),
+        ('pipe_into_array_list_assignment_prefix', 'cat /abs/run.sh | a=(1 2) bash', 'no script operand while standard input is a pipe'),
+        ('pipe_into_appended_array_assignment_prefix', 'cat /abs/run.sh | a+=(x) bash', 'no script operand while standard input is a pipe'),
+        ('pipe_into_subscripted_array_assignment_prefix', 'cat /abs/run.sh | a[0]=(x) bash', 'no script operand while standard input is a pipe'),
+        ('piped_subshell_array_assignment_prefix', 'cat /abs/run.sh | (a=() bash)', 'no script operand while standard input is a pipe'),
+        ('piped_brace_group_array_list_assignment_prefix', 'cat /abs/run.sh | { a=(1 2) bash; }', 'no script operand while standard input is a pipe'),
+        ('piped_subshell_array_list_assignment_prefix', 'cat /abs/run.sh | (a=(1 2) bash)', 'no script operand while standard input is a pipe'),
+        ('pipe_into_substitution_in_array_list', 'cat /abs/a | a=($(bash))', 'no script operand while standard input is a pipe'),
+        ('piped_brace_group_substitution_in_array_list', 'cat /abs/a | { a=($(bash)); }', 'no script operand while standard input is a pipe'),
+        ('piped_subshell_substitution_in_array_list', 'cat /abs/a | (a=($(bash)))', 'no script operand while standard input is a pipe'),
+        ('pipe_into_backticks_in_array_list', 'cat /abs/a | a=(`bash`)', 'no script operand while standard input is a pipe'),
+        ('piped_brace_group_backticks_in_array_list', 'cat /abs/a | { a=(`bash`); }', 'no script operand while standard input is a pipe'),
+        ('piped_subshell_backticks_in_array_list', 'cat /abs/a | (a=(`bash`))', 'no script operand while standard input is a pipe'),
+        ('pipe_into_substitution_in_appended_array_list', 'cat /abs/a | a+=($(bash))', 'no script operand while standard input is a pipe'),
+        ('pipe_into_input_procsub_in_array_list', 'cat /abs/a | a=(<(bash))', 'no script operand while standard input is a pipe'),
+        ('procsub_in_parameter_expansion_is_the_program', 'bash ${x:-<(cat /abs/r.sh)}', 'a process substitution is the program'),
+        ('procsub_in_parameter_expansion_is_the_sourced_program', 'source ${x:-<(cat /abs/env.sh)}', 'a process substitution is the sourced program'),
+        ('output_procsub_in_parameter_expansion_reads_the_writer', 'echo hi | tee ${x:->(bash)}', 'no script operand while standard input is a pipe'),
+        ('stdin_from_procsub_in_parameter_expansion', 'bash < ${x:-<(cat /abs/r.sh)}', 'no script operand while standard input is a process substitution'),
+        ('function_name_outside_the_read_set_is_read_as_a_group', 'cat /abs/run.sh | { f+x() { bash; }; }', 'no script operand while standard input is a pipe'),
+        ('pipe_into_quoted_subscript_assignment_prefix', 'cat /abs/run.sh | a["k"]=1 bash', 'no script operand while standard input is a pipe'),
+        ('pipe_into_single_quoted_subscript_assignment_prefix', "cat /abs/run.sh | a['k']=1 bash", 'no script operand while standard input is a pipe'),
+        ('pipe_into_escaped_subscript_assignment_prefix', 'cat /abs/run.sh | a[\\k]=1 bash', 'no script operand while standard input is a pipe'),
+        ('pipe_into_blank_subscript_assignment_prefix', 'cat /abs/run.sh | a[ 1 ]=1 bash', 'no script operand while standard input is a pipe'),
+        ('pipe_into_operator_subscript_assignment_prefix', 'cat /abs/run.sh | a[;]=1 bash', 'no script operand while standard input is a pipe'),
+        ('pipe_into_blank_subscript_array_assignment_prefix', 'cat /abs/run.sh | a[ 1 ]=(x) bash', 'no script operand while standard input is a pipe'),
+        ('pipe_into_expansion_subscript_assignment_prefix', 'cat /abs/run.sh | a[$i]=1 bash', 'no script operand while standard input is a pipe'),
+        ('pipe_into_expansion_subscript_empty_array_assignment_prefix', 'cat /abs/run.sh | a[$i]=() bash', 'no script operand while standard input is a pipe'),
+        ('pipe_into_subscript_assignment_after_assignment', 'cat /abs/run.sh | a=1 b[ 2 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('pipe_into_subscript_assignment_after_leading_redirection', 'cat /abs/run.sh | 3>/dev/null a[ 1 ]=1 bash', 'no script operand while standard input is a pipe'),
+        ('piped_brace_group_subscript_assignment_after_bang', 'cat /abs/run.sh | { ! a[ 1 ]=1 bash; }', 'no script operand while standard input is a pipe'),
+        ('pipe_into_while_body_subscript_assignment_prefix', 'cat /abs/run.sh | while true; do a[ 1 ]=1 bash; break; done', 'no script operand while standard input is a pipe'),
+        ('pipe_into_substitution_in_blank_subscript', 'cat /abs/run.sh | a[ $(bash) ]=1', 'no script operand while standard input is a pipe'),
+        ('piped_subshell_bracket_argument_is_not_a_subscript', 'cat /abs/run.sh | (echo a[; bash; ])', 'no script operand while standard input is a pipe'),
+        ('pipe_into_time_wrapper_after_assignment', 'cat /abs/run.sh | a=1 time bash', 'no script operand while standard input is a pipe'),
+        ('piped_brace_group_input_procsub_in_array_list', 'cat /abs/a | { a=(<(bash)); }', 'no script operand while standard input is a pipe'),
+        ('piped_subshell_input_procsub_in_array_list', 'cat /abs/a | (a=(<(bash)))', 'no script operand while standard input is a pipe'),
+        ('output_procsub_in_parameter_expansion_as_redirection_target', 'cat /abs/r.sh > ${x:->(bash)}', 'no script operand while standard input is a pipe'),
+        ('parse_operator_in_array_list', 'cat /abs/r.sh | a=(x; bash)', "an operator inside an array assignment's list"),
+        ('c_string_pipe_into_shell_single_quoted', "bash -c 'cat /abs/run.sh | bash'", 'names an interpreter together with a pipe'),
+        ('c_string_pipe_after_list_single_quoted', "sh -c 'true; echo x | sh'", 'names an interpreter together with a pipe'),
+        ('c_string_pipe_into_python_double_quoted', 'bash -c "cat /abs/run.sh | python3 -"', 'names an interpreter together with a pipe'),
+        ('c_string_pipe_into_shell_double_quoted', 'bash -c "cat /abs/run.sh | bash"', 'names an interpreter together with a pipe'),
+        ('piped_c_string_bare_shell_single_quoted', "cat /abs/run.sh | bash -c 'bash'", 'not followed by a script path'),
+        ('piped_c_string_bare_shell_double_quoted', 'cat /abs/run.sh | sh -c "true; sh"', 'not followed by a script path'),
+        ('here_document_into_c_string_bare_shell', "bash -c 'bash' <<'EOF'\necho hi\nEOF", 'not followed by a script path'),
+        ('c_string_zsh', "zsh -c 'cat /abs/run.sh | zsh'", 'names an interpreter together with a pipe'),
+        ('c_string_dash', "dash -c 'echo x | dash'", 'names an interpreter together with a pipe'),
+        ('c_string_in_option_cluster', "bash -ec 'cat /abs/run.sh | bash'", 'names an interpreter together with a pipe'),
+        ('c_string_after_option_argument', "bash -o pipefail -c 'cat /abs/run.sh | bash'", 'names an interpreter together with a pipe'),
+        ('c_string_nested', 'bash -c "bash -c \'cat /abs/run.sh | bash\'"', 'names an interpreter together with a pipe'),
+        ('c_string_behind_sudo', "sudo -u root bash -c 'cat /abs/run.sh | bash'", 'names an interpreter together with a pipe'),
+        ('piped_c_string_in_substitution', "cat /abs/run.sh | echo $(bash -c 'bash')", 'not followed by a script path'),
+        ('c_string_by_expansion_names_an_interpreter', 'bash -c "cat $f | bash"', 'refused unread'),
+        ('piped_c_string_by_expansion_names_an_interpreter', 'cat /abs/run.sh | bash -c "$x; bash"', 'refused unread'),
+        ('c_string_ansi_c_quoting', "cat /abs/run.sh | bash -c $'\\x62ash'", 'refused unread'),
+        ('c_string_unquoted_pattern', 'cat /abs/run.sh | bash -c {ba,}sh', 'refused unread'),
+        ('c_string_procsub', 'bash -c <(cat /abs/run.sh)', 'a process substitution is the -c string'),
+        ('parse_unterminated_quote_in_c_string', 'bash -c \'cat /abs/run.sh | bash "\'', 'names an interpreter together with a pipe'),
+        ('heredoc_body_substitution_pipe', 'cat <<EOF\n$(cat /abs/run.sh | bash)\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_single_quoted_substitution_pipe', "cat <<EOF\n'$(cat /abs/run.sh | bash)'\nEOF", 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_double_quoted_substitution_pipe', 'cat <<EOF\n"$(echo x | sh)"\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_backticks_pipe', 'cat <<EOF\n`cat /abs/run.sh | bash`\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_tab_stripped_operator', 'cat <<-EOF\n\t$(cat /abs/run.sh | python3 -)\n\tEOF', 'here-document body holds a $( or a backtick'),
+        ('piped_heredoc_body_substitution', 'cat /abs/run.sh | cat <<EOF\n$(bash)\nEOF', 'here-document body holds a $( or a backtick'),
+        ('piped_heredoc_body_single_quoted_substitution', "cat /abs/run.sh | cat <<EOF\n'$(bash)'\nEOF", 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_substitution_in_parameter_expansion', 'cat <<EOF\n${x:-$(echo x | bash)}\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_c_string', 'cat <<EOF\n$(bash -c "cat /abs/run.sh | bash")\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_after_a_plain_line', 'cat <<EOF\nplain text\n$(cat /abs/run.sh | sh)\nEOF\necho done', 'here-document body holds a $( or a backtick'),
+        ('parse_unterminated_substitution_in_heredoc_body', 'cat <<EOF\n$(cat /abs/run.sh | bash\nEOF', 'here-document body holds a $( or a backtick'),
+        ('c_string_keyword_after_assignment_is_a_command', "cat /abs/run.sh | bash -c 'a=1 while bash'", 'not followed by a script path'),
+        ('reserved_word_after_array_assignment_before_piped_shell', 'cat /abs/run.sh | a=(1) while bash /abs/run.sh', 'is followed in the same simple command by a reserved word'),
+        ('array_assignment_reserved_word_then_piped_shell_without_script', 'cat /abs/run.sh | a=(1) while bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 while bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_until_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 until bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_if_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 if bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_for_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 for bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_case_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 case bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_select_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 select bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_then_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 then bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_do_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 do bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_elif_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 elif bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_else_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 else bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_bang_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 ! bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_coproc_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 coproc bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_function_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 function bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_in_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 in bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_done_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 done bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_fi_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 fi bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_esac_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 esac bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_open_brace_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 { bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_close_brace_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 } bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_open_test_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 [[ bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_close_test_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 ]] bash', 'no script operand while standard input is a pipe'),
+        ('quoted_reserved_word_after_assignment_before_piped_shell', "cat /abs/run.sh | a=1 'while' bash", 'no script operand while standard input is a pipe'),
+        ('reserved_word_after_subscript_assignment_before_piped_shell', 'cat /abs/run.sh | a[ 1 ]=1 while bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_after_two_assignments_before_piped_shell', 'cat /abs/run.sh | a=1 b=2 until bash', 'no script operand while standard input is a pipe'),
+        ('assignment_after_reserved_word_before_piped_shell', 'cat /abs/run.sh | a=1 while b=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_bang_before_piped_shell', 'cat /abs/run.sh | a=1 ! b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_if_before_piped_shell', 'cat /abs/run.sh | a=1 if b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_then_before_piped_shell', 'cat /abs/run.sh | a=1 then b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_else_before_piped_shell', 'cat /abs/run.sh | a=1 else b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_elif_before_piped_shell', 'cat /abs/run.sh | a=1 elif b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_fi_before_piped_shell', 'cat /abs/run.sh | a=1 fi b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_case_before_piped_shell', 'cat /abs/run.sh | a=1 case b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_esac_before_piped_shell', 'cat /abs/run.sh | a=1 esac b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_for_before_piped_shell', 'cat /abs/run.sh | a=1 for b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_select_before_piped_shell', 'cat /abs/run.sh | a=1 select b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_while_before_piped_shell', 'cat /abs/run.sh | a=1 while b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_until_before_piped_shell', 'cat /abs/run.sh | a=1 until b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_do_before_piped_shell', 'cat /abs/run.sh | a=1 do b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_done_before_piped_shell', 'cat /abs/run.sh | a=1 done b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_in_before_piped_shell', 'cat /abs/run.sh | a=1 in b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_function_before_piped_shell', 'cat /abs/run.sh | a=1 function b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_coproc_before_piped_shell', 'cat /abs/run.sh | a=1 coproc b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_open_brace_before_piped_shell', 'cat /abs/run.sh | a=1 { b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_close_brace_before_piped_shell', 'cat /abs/run.sh | a=1 } b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_open_test_before_piped_shell', 'cat /abs/run.sh | a=1 [[ b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('spaced_subscript_assignment_after_reserved_word_close_test_before_piped_shell', 'cat /abs/run.sh | a=1 ]] b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('two_reserved_words_after_assignment_before_piped_shell', 'cat /abs/run.sh | a=1 while do bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_after_assignment_before_wrapped_piped_shell', 'cat /abs/run.sh | a=1 if env bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_after_assignment_in_piped_group', 'cat /abs/run.sh | { a=1 while bash; }', 'no script operand while standard input is a pipe'),
+        ('reserved_word_after_assignment_in_piped_loop_body', 'cat /abs/run.sh | while true; do a=1 for bash; break; done', 'no script operand while standard input is a pipe'),
+        ('reserved_word_after_assignment_after_bang', 'cat /abs/run.sh | ! a=1 case bash', 'no script operand while standard input is a pipe'),
+        ('reserved_word_after_assignment_before_python_dash', 'a=1 while python3 -', "'-' names standard input as the program"),
+        ('reserved_word_after_assignment_before_python_no_operand', 'a=1 if python3', 'no script operand, so the program is read from standard input'),
+        ('reserved_word_after_assignment_before_shell_heredoc', "a=1 until bash <<'EOF'\necho hi\nEOF", 'no script operand while standard input is a here-document'),
+        ('reserved_word_after_assignment_before_shell_procsub_program', 'a=1 while bash <(cat /abs/run.sh)', 'a process substitution is the program'),
+        ('reserved_word_after_assignment_before_shell_given_a_script', 'cat /abs/run.sh | a=1 while bash /abs/run.sh', 'is followed in the same simple command by a reserved word'),
+        ('spaced_subscript_assignment_after_reserved_word_before_shell_given_a_script', 'cat /abs/run.sh | a=1 while b[ 0 ]=2 bash /abs/run.sh', 'is followed in the same simple command by a reserved word'),
+        ('semicolon_after_bracket_word_after_reserved_word_before_piped_shell', 'a=1 while b[ ; cat /abs/run.sh | bash ; ]=2 cat', 'no script operand while standard input is a pipe'),
+        ('semicolon_after_bracket_word_after_reserved_word_before_python_dash', 'a=1 while b[ ; python3 - <<<x ; ]=2 cat', "'-' names standard input as the program"),
+        ('newline_after_bracket_word_after_reserved_word_before_piped_shell', 'a=1 while b[\ncat /abs/run.sh | bash\n]=2 cat', 'no script operand while standard input is a pipe'),
+        ('and_list_after_bracket_word_after_reserved_word_if_before_piped_shell', 'a=1 if b[ && cat /abs/run.sh | bash && ]=2 cat', 'no script operand while standard input is a pipe'),
+        ('semicolon_after_bracket_word_after_reserved_word_bang_before_shell_herestring', 'a=1 ! b[ ; bash <<<x ; ]=2 cat', 'no script operand while standard input is a here-string'),
+        ('semicolon_after_bracket_word_after_reserved_word_do_before_shell_procsub_program', 'a=1 do b[ ; bash <(cat /abs/run.sh) ; ]=2 cat', 'a process substitution is the program'),
+        ('semicolon_after_bracket_word_after_quoted_reserved_word_before_piped_shell', "a=1 'while' b[ ; cat /abs/run.sh | bash ; ]=2 cat", 'no script operand while standard input is a pipe'),
+        ('semicolon_after_bracket_word_after_array_assignment_and_until_before_piped_shell', 'a=(1) until b[ ; cat /abs/run.sh | bash ; ]=2 cat', 'no script operand while standard input is a pipe'),
+        ('semicolon_after_bracket_word_after_subscript_assignment_and_in_before_piped_shell', 'a[ 0 ]=1 in b[ ; cat /abs/run.sh | bash ; ]=2 cat', 'no script operand while standard input is a pipe'),
+        ('redirection_between_assignment_and_reserved_word_before_spaced_subscript_and_piped_shell', 'cat x | a=1 3>out while b[ 0 ]=2 bash', 'no script operand while standard input is a pipe'),
+        ('redirection_between_array_assignment_and_reserved_word_before_spaced_subscript_and_python_dash', 'cat x | a=(1) 3>out while b[ 0 ]+=2 python3 -', "'-' names standard input as the program"),
+        ('redirection_between_assignment_and_reserved_word_before_spaced_subscript_and_shell_given_a_script', 'cat x | a=1 3>out while b[ 0 ]=2 bash /abs/run.sh', 'is followed in the same simple command by a reserved word'),
+        ('assignment_and_reserved_word_in_output_procsub_redirection_target', 'echo x > >(a=1 while b[ 0 ]=2 bash)', 'no script operand while standard input is a pipe'),
+        ('assignment_and_reserved_word_in_substitution_in_redirection_target', 'cat x | a=1 >"$(a=1 while b[ 0 ]=2 bash)" cat', 'no script operand while standard input is a pipe'),
+        ('assignment_and_reserved_word_in_substitution_in_redirection_target_before_shell_given_a_script', 'cat x | a=1 >"$(a=1 while bash /abs/run.sh)" cat', 'is followed in the same simple command by a reserved word'),
+        ('assignment_and_reserved_word_in_nested_substitutions_before_shell_given_a_script', 'cat x | echo "$(echo `a=1 while bash /abs/run.sh`)"', 'is followed in the same simple command by a reserved word'),
+        ('ansi_c_hex_escaped_reserved_word_after_assignment', "cat x | a=1 $'wh\\x69le' bash", 'no script operand while standard input is a pipe'),
+        ('ansi_c_hex_escaped_reserved_word_after_assignment_before_shell_given_a_script', "cat x | a=1 $'wh\\x69le' bash /abs/run.sh", 'is followed in the same simple command by a reserved word'),
+        ('ansi_c_octal_escaped_reserved_word_after_assignment_before_shell_given_a_script', "cat x | a=1 $'\\167hile' bash /abs/run.sh", 'is followed in the same simple command by a reserved word'),
+        ('ansi_c_segment_ended_by_nul_spells_reserved_word_before_shell_given_a_script', "cat x | a=1 $'wh\\0zz'ile bash /abs/run.sh", 'is followed in the same simple command by a reserved word'),
+        ('locale_quoted_reserved_word_after_assignment_before_shell_given_a_script', 'cat x | a=1 $"while" bash /abs/run.sh', 'is followed in the same simple command by a reserved word'),
+        ('mixed_quoting_spells_reserved_word_after_assignment_before_shell_given_a_script', "cat x | a=1 \"w\"$'\\x68'i\\le bash /abs/run.sh", 'is followed in the same simple command by a reserved word'),
+        ('time_p_before_assignment_and_reserved_word_before_shell_given_a_script', 'cat x | time -p a=1 while bash /abs/run.sh', 'is followed in the same simple command by a reserved word'),
+        ('bang_time_p_before_array_assignment_and_reserved_word_before_python_given_a_script', 'cat x | ! time -p a=(1) until python3 /abs/s.py', 'is followed in the same simple command by a reserved word'),
+        ('time_double_dash_before_assignment_and_reserved_word_before_shell_given_a_script', 'cat x | time -- a=1 while bash /abs/run.sh', 'is followed in the same simple command by a reserved word'),
+        ('time_double_dash_before_python_dash', 'time -- python3 -', "'-' names standard input as the program"),
+        ('time_p_double_dash_before_piped_shell', 'cat /abs/run.sh | time -p -- bash', 'no script operand while standard input is a pipe'),
+        ('ansi_c_escaped_shell_name_piped', "cat /abs/run.sh | $'\\x62ash'", 'no script operand while standard input is a pipe'),
+        ('ansi_c_escaped_heredoc_delimiter_ends_the_body', "cat <<$'E\\x4fF'\nhi\nEOF\ncat /abs/run.sh | bash", 'no script operand while standard input is a pipe'),
+        ('over_refusal_listed_name_as_argument_after_reserved_word', 'cat x | a=1 while echo bash', 'no script operand while standard input is a pipe'),
+        ('over_refusal_listed_name_before_a_dot_suffix', 'cat /abs/python.log | a=1 while cat', 'is followed in the same simple command by a reserved word'),
+        ('over_refusal_c_string_listed_name_before_a_dot_suffix', "bash -c 'cat /abs/python.log | grep x'", 'names an interpreter together with a pipe'),
+        ('heredoc_body_escaped_substitution_is_text', 'cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_substitution_runs_a_script', 'cat <<EOF\n$(python3 /abs/s.py)\nEOF', 'here-document body holds a $( or a backtick'),
+        ('c_string_substitution_runs_a_script', "bash -c 'echo $(python3 /abs/s.py)'", 'names an interpreter together with a pipe'),
+        ('c_string_names_an_interpreter_as_text', "bash -c 'echo python3'", 'not followed by a script path'),
+        ('c_string_locale_quoting', 'bash -c \'echo $"hi"\'', 'holds $\'...\' or $"..." quoting'),
+        ('c_string_python_no_operand', "bash -c 'python3'", 'not followed by a script path'),
+        ('c_string_python_dash', "bash -c 'python3 -'", 'not followed by a script path'),
+        ('c_string_python_stdin_path', "bash -c 'python3 /dev/stdin'", 'not followed by a script path'),
+        ('c_string_shell_s', "bash -c 'bash -s'", 'not followed by a script path'),
+        ('piped_c_string_shell_output_redirection', "cat /abs/run.sh | bash -c 'bash >/dev/null'", 'names an interpreter together with a pipe'),
+        ('piped_c_string_shell_comment', "cat /abs/run.sh | bash -c 'bash # c'", 'not followed by a script path'),
+        ('c_string_python_option_argument', "bash -c 'python3 -W ignore'", 'not followed by a script path'),
+        ('piped_c_string_dot_slash_shell', "cat /abs/run.sh | bash -c './sh'", 'not followed by a script path'),
+        ('c_string_line_continuation_in_name', "bash -c 'pyth\\\non3 -'", 'not followed by a script path'),
+        ('c_string_output_procsub_feeds_a_shell', "bash -c 'echo hi > >(bash)'", 'names an interpreter together with a pipe'),
+        ('c_string_output_procsub_in_parameter_expansion', "bash -c 'cat /abs/r.sh > ${x:->(bash)}'", 'names an interpreter together with a pipe'),
+        ('c_string_names_an_interpreter_unterminated_quote', 'bash -c "python3 \'unterminated"', 'names an interpreter together with a pipe'),
+        ('c_string_script_output_redirected', "bash -c 'python3 /abs/s.py > /abs/out'", 'names an interpreter together with a pipe'),
+        ('heredoc_body_names_an_interpreter_unterminated_expansion', 'cat <<EOF\n${x python3\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_names_an_interpreter_beside_an_expansion', 'cat <<EOF\npython3 at ${HOME}\nEOF', 'here-document body holds a $( or a backtick'),
+        ('allowance_guard_c_string_names_an_interpreter_beside_a_pipe', "bash -c 'cat /abs/run.sh | python3 \"a'", 'names an interpreter together with a pipe'),
+        ('allowance_guard_heredoc_body_unterminated_substitution_names_an_interpreter', 'cat <<EOF\n$(echo x | python3 -\nEOF', 'here-document body holds a $( or a backtick'),
+        ('allowance_guard_heredoc_body_unterminated_expansion_names_an_interpreter', 'cat <<EOF\n${x\ncat /abs/run.sh | bash\nEOF', 'here-document body holds a $( or a backtick'),
+        ('allowance_guard_nested_heredoc_open_substitution_names_an_interpreter', 'cat <<EOF\n$(cat <<EOF\ncat /abs/run.sh | bash\nEOF)\nEOF', 'here-document body holds a $( or a backtick'),
+        ('allowance_guard_nested_heredoc_ends_body_early_names_an_interpreter', 'cat <<EOF\n$(cat <<EOF\ncat /abs/run.sh | bash\nEOF\n)\nEOF', 'here-document body holds a $( or a backtick'),
+        ('allowance_guard_nested_heredoc_open_backtick_names_an_interpreter', 'cat <<EOF\n`cat <<EOF\ncat /abs/run.sh | bash\nEOF\necho done', 'here-document body holds a $( or a backtick'),
+        ('parse_unterminated_subscript', 'cat /abs/run.sh | a[ 1 bash', 'could not be parsed'),
+        ('parse_unterminated_quote', "python3 'unterminated", 'could not be parsed'),
+        ('parse_unterminated_substitution', 'echo $(python3 -', 'could not be parsed'),
+        ('shell_option_cluster_o_first_pipe', 'cat /abs/run.sh | bash -ox pipefail', 'no script operand while standard input is a pipe'),
+        ('shell_option_cluster_o_last_pipe', 'cat /abs/run.sh | bash -xo pipefail', 'no script operand while standard input is a pipe'),
+        ('shell_option_cluster_two_o_pipe', 'cat /abs/run.sh | bash -oxo pipefail errexit', 'no script operand while standard input is a pipe'),
+        ('c_string_after_option_cluster_o_first', 'bash -ox pipefail -c "cat /abs/run.sh | python3 -"', 'names an interpreter together with a pipe'),
+        ('c_string_before_option_cluster_o_first', 'bash -c "cat /abs/run.sh | python3 -" -ox pipefail', 'names an interpreter together with a pipe'),
+        ('c_string_after_o_argument_in_cluster_oc', 'bash -oc pipefail "cat /abs/run.sh | python3 -"', 'names an interpreter together with a pipe'),
+        ('c_string_plus_cluster', "bash +c 'cat /abs/run.sh | python3 -'", 'names an interpreter together with a pipe'),
+        ('c_string_plus_cluster_x', "bash +xc 'cat /abs/run.sh | python3 -'", 'names an interpreter together with a pipe'),
+        ('c_string_plus_cluster_o', "bash +oc pipefail 'cat /abs/run.sh | python3 -'", 'names an interpreter together with a pipe'),
+        ('stdin_plus_s_with_operand', 'cat /abs/run.sh | bash +s /abs/x.sh', '-s reads the commands from standard input'),
+        ('c_string_after_bare_plus', "bash + -c 'cat /abs/run.sh | python3 -'", 'names an interpreter together with a pipe'),
+        ('bare_plus_no_operand_pipe', 'cat /abs/run.sh | bash +', 'no script operand while standard input is a pipe'),
+        ('bare_plus_then_s', 'cat /abs/run.sh | bash + -s', '-s reads the commands from standard input'),
+        ('dash_bare_plus_then_s', 'cat /abs/run.sh | dash + -s', '-s reads the commands from standard input'),
+        ('env_split_string_attached_at_top_level', 'env -Spython3', 'no script operand, so the program is read from standard input'),
+        ('env_long_split_string_at_top_level', 'env --split-string=python3', 'no script operand, so the program is read from standard input'),
+        ('over_refusal_operator_in_array_list_subscript', 'a=([;]=x)', "an operator inside an array assignment's list"),
+        ('over_refusal_time_p_subscript_after_pipe', 'cat x | time -p a[ 1 ]=1 bash', 'no script operand while standard input is a pipe'),
+        ('over_refusal_arithmetic_bracket_quoted_in_substitution', "echo $[ $(printf ']' | wc -c) + 1 ]", 'runs past the end of its arithmetic expression'),
+        ('over_refusal_c_string_quoted_script_path', 'bash -c "python3 \'/abs/a b.py\'"', 'names an interpreter together with a pipe'),
+        ('over_refusal_c_string_python_option_before_script', "bash -c 'python3 -u /abs/s.py'", 'not followed by a script path'),
+        ('over_refusal_c_string_shell_option_before_script', "bash -c 'bash -x /abs/run.sh'", 'not followed by a script path'),
+        ('over_refusal_c_string_ansi_c_quoting_in_command_text', "bash -c $'echo hi'", 'refused unread'),
+        ('over_refusal_c_string_by_expansion_script_path', 'bash -c "python3 /abs/$f.py"', 'built by expansion and names an interpreter'),
+        ('over_refusal_c_string_by_expansion_dot', 'bash -c "cd $d && ls ."', 'built by expansion and names an interpreter'),
+        ('control_escape_before_sharp_s_in_piped_assignment', "printf 'echo QA_OK\\n' | a=$'\\c\u00df' bash", 'no script operand while standard input is a pipe'),
+        ('control_escape_before_ff_ligature_in_piped_assignment', "printf 'echo QA_OK\\n' | a=$'\\c\ufb00' bash", 'no script operand while standard input is a pipe'),
+        ('control_escape_before_apostrophe_n_in_piped_assignment', "printf 'echo QA_OK\\n' | a=$'\\c\u0149' bash", 'no script operand while standard input is a pipe'),
+        ('ansi_c_escape_bash_keeps_in_assignment_before_piped_shell', "cat /abs/run.sh | a=$'\\q' bash", 'no script operand while standard input is a pipe'),
+        ('ansi_c_escape_bash_keeps_in_assignment_before_reserved_word', "cat /abs/run.sh | a=$'\\d' while bash /abs/run.sh", 'is followed in the same simple command by a reserved word'),
+        ('ansi_c_escape_bash_keeps_beside_python_reading_dash', "python3 - $'\\q'", "'-' names standard input as the program"),
+        ('env_operand_kept_escape_name_before_piped_shell', "cat x | env $'\\q'=1 bash", 'no script operand while standard input is a pipe'),
+        ('env_operand_kept_escape_name_before_piped_python', "cat x | env $'\\d'=1 python3", 'no script operand, so the program is read from standard input'),
+        ('env_ignore_environment_operand_kept_escape_name_before_piped_shell', "cat x | env -i $'\\q'=1 bash", 'no script operand while standard input is a pipe'),
+        ('env_operand_kept_hex_escape_name_before_piped_shell', "cat x | env $'\\x'=1 bash", 'no script operand while standard input is a pipe'),
+        ('env_operand_kept_control_escape_name_before_piped_shell', "cat x | env $'\\c'=1 bash", 'no script operand while standard input is a pipe'),
+        ('nohup_env_operand_kept_escape_name_before_piped_shell', "cat x | nohup env $'\\q'=1 bash", 'no script operand while standard input is a pipe'),
+        ('timeout_env_operand_kept_escape_name_before_piped_shell', "cat x | timeout 5 env $'\\q'=1 bash", 'no script operand while standard input is a pipe'),
+        ('sudo_operand_kept_escape_name_before_piped_shell', "cat x | sudo $'\\q'=1 bash", 'no script operand while standard input is a pipe'),
+        ('env_operand_single_quoted_backslash_name_before_piped_shell', "cat x | env '\\q'=1 bash", 'no script operand while standard input is a pipe'),
+        ('env_operand_hyphenated_name_before_piped_shell', 'cat x | env a-b=1 bash', 'no script operand while standard input is a pipe'),
+        ('env_operand_digit_name_before_piped_shell', 'cat x | env 1=1 bash', 'no script operand while standard input is a pipe'),
+        ('sudo_operand_single_quoted_backslash_name_before_piped_shell', "cat x | sudo '\\q'=1 bash", 'no script operand while standard input is a pipe'),
+        ('sudo_operand_hyphenated_name_before_piped_shell', 'cat x | sudo a-b=1 bash', 'no script operand while standard input is a pipe'),
+        ('sudo_operand_digit_name_before_piped_shell', 'cat x | sudo 1=1 bash', 'no script operand while standard input is a pipe'),
+        ('over_refusal_reserved_word_grep_pattern_with_dot_path', 'LC_ALL=C grep -rnw in . | head', 'is followed in the same simple command by a reserved word'),
+        ('over_refusal_quoted_reserved_word_grep_pattern_with_dot_path', 'LC_ALL=C grep -rw "if" . | head', 'is followed in the same simple command by a reserved word'),
+        ('over_refusal_reserved_word_rg_pattern_with_dot_path', 'NO_COLOR=1 rg -w done . | head -5', 'is followed in the same simple command by a reserved word'),
+        ('over_refusal_reserved_word_find_name_with_dot_path', 'LC_ALL=C find . -name for | sort', 'is followed in the same simple command by a reserved word'),
+        ('named_descriptor_redirection_before_here_string_python', "{fd}>o python3 - <<<'print(1)'", "'-' names standard input as the program"),
+        ('named_descriptor_redirection_before_piped_shell', 'cat x | {fd}>/dev/null bash', 'no script operand while standard input is a pipe'),
+        ('named_descriptor_input_redirection_before_piped_shell', 'cat x | {fd}<o bash', 'no script operand while standard input is a pipe'),
+        ('named_descriptor_redirection_before_assignment_and_reserved_word', 'cat x | {fd}>o a=1 while bash', 'no script operand while standard input is a pipe'),
+        ('named_descriptor_redirection_between_assignments', 'cat x | a=1 {fd}>o b=2 bash', 'no script operand while standard input is a pipe'),
+        ('named_descriptor_redirection_after_piped_shell', 'cat x | bash {fd}>/dev/null', 'no script operand while standard input is a pipe'),
+        ('named_array_element_descriptor_before_piped_shell', 'cat x | {a[1]}>/dev/null bash', 'no script operand while standard input is a pipe'),
+        ('over_refusal_quoted_named_descriptor', "cat x | '{fd}'>o bash", 'no script operand while standard input is a pipe'),
+        ('braced_hex_escape_builds_piped_shell_name', "cat x | $'\\x{62}ash'", 'no script operand while standard input is a pipe'),
+        ('braced_hex_escape_builds_python_name', "$'\\x{70}ython3' -", "'-' names standard input as the program"),
+        ('braced_hex_escape_builds_reserved_word_before_piped_shell', "cat x | a=1 $'\\x{77}hile' bash", 'no script operand while standard input is a pipe'),
+        ('braced_hex_escape_builds_reserved_word_before_python_script', "cat x | a=1 $'\\x{77}hile' python3 /abs/s.py", 'is followed in the same simple command by a reserved word'),
+        ('glob_question_mark_shell_name_piped', 'cat x | /bin/ba?h', 'built by a glob or a brace expansion'),
+        ('glob_bracket_shell_name_piped', 'cat x | /bin/ba[s]h', 'built by a glob or a brace expansion'),
+        ('glob_star_shell_name_piped', 'cat x | /bin/ba*h', 'built by a glob or a brace expansion'),
+        ('brace_expansion_shell_name_piped', 'cat x | {,bash}', 'built by a glob or a brace expansion'),
+        ('glob_python_name_reading_dash', '/usr/bin/pyth?n3 -', 'built by a glob or a brace expansion'),
+        ('brace_expansion_python_name_reading_dash', '{,python3} -', 'built by a glob or a brace expansion'),
+        ('glob_shell_name_here_string', "/bin/ba?h <<<'echo hi'", 'built by a glob or a brace expansion'),
+        ('glob_shell_name_after_wrapper_piped', 'cat x | env /bin/ba?h', 'built by a glob or a brace expansion'),
+        ('over_refusal_glob_name_of_no_interpreter_piped', 'cat x | /abs/bin/fil?er', 'built by a glob or a brace expansion'),
+        ('wrappers_nested_past_the_limit_nohup_piped', 'cat x | nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup bash', 'more than 16 wrappers are nested'),
+        ('wrappers_nested_past_the_limit_env_assignment_piped', 'cat x | env a=1 env a=1 env a=1 env a=1 env a=1 env a=1 env a=1 env a=1 env a=1 env a=1 env a=1 env a=1 env a=1 env a=1 env a=1 env a=1 env a=1 bash', 'more than 16 wrappers are nested'),
+        ('wrappers_nested_past_the_limit_env_hyphenated_operand_here_string', "cat x | env a-b=1 env a-b=1 env a-b=1 env a-b=1 env a-b=1 env a-b=1 env a-b=1 env a-b=1 env a-b=1 env a-b=1 env a-b=1 env a-b=1 env a-b=1 env a-b=1 env a-b=1 env a-b=1 env a-b=1 bash <<< 'echo 1'", 'more than 16 wrappers are nested'),
+        ('wrappers_nested_past_the_limit_command_piped', 'cat x | command command command command command command command command command command command command command command command command command bash', 'more than 16 wrappers are nested'),
+        ('wrappers_nested_past_the_limit_nice_piped', 'cat x | nice nice nice nice nice nice nice nice nice nice nice nice nice nice nice nice nice bash', 'more than 16 wrappers are nested'),
+        ('wrappers_nested_past_the_limit_sudo_piped', 'cat x | sudo sudo sudo sudo sudo sudo sudo sudo sudo sudo sudo sudo sudo sudo sudo sudo sudo bash', 'more than 16 wrappers are nested'),
+        ('wrappers_nested_past_the_limit_python_dash_here_string', "nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup python3 - <<< 'print(1)'", 'more than 16 wrappers are nested'),
+        ('env_operand_substitution_before_python_piped', 'cat x | env "$(printf a=1)" python3', 'cannot be determined with certainty'),
+        ('env_operand_variable_before_python_dash_piped', 'cat x | env $V python3 -', 'cannot be determined with certainty'),
+        ('sudo_operand_substitution_before_shell_piped', 'cat x | sudo $(echo a=1) bash', 'cannot be determined with certainty'),
+        ('env_operand_variable_before_shell_piped', 'cat x | env $V bash', 'cannot be determined with certainty'),
+        ('variable_command_word_before_shell_piped', 'cat x | $V bash', 'cannot be determined with certainty'),
+        ('substitution_command_word_after_assignment_before_shell_piped', 'cat x | a=1 $(true) bash', 'cannot be determined with certainty'),
+        ('env_split_string_escaped_separator_after_operand_piped', "printf 'echo QA_OK\\n' | env -S $'a-b=1\\_bash'", 'cannot be determined with certainty'),
+        ('env_split_string_escaped_separator_before_shell_option_piped', "printf 'echo QA_OK\\n' | env -S $'bash\\_-s'", 'cannot be determined with certainty'),
+        ('env_split_string_escaped_separator_after_assignment_piped', "printf 'echo QA_OK\\n' | env -S $'a=1\\_bash'", 'cannot be determined with certainty'),
+        ('env_split_string_comment_before_shell_piped', "cat x | env -S '#x' bash", 'cannot be determined with certainty'),
+        ('env_split_string_variable_reference_piped', "cat x | env -S '${SHELL}'", 'cannot be determined with certainty'),
+        ('sudo_stops_at_assignment_so_option_shaped_word_is_an_operand_piped', 'cat x | sudo a=1 -u nobody bash', 'cannot be determined with certainty'),
+        ('over_refusal_variable_command_word_piped', 'cat x | $PAGER', 'cannot be determined with certainty'),
+        ('over_refusal_expansion_as_wrapper_option_argument_piped', 'cat x | sudo -u "$USER" tee /abs/out', 'cannot be determined with certainty'),
+        ('over_refusal_env_split_string_backslash_piped', "cat x | env -S 'grep -e a\\tb'", 'cannot be determined with certainty'),
+        ('over_refusal_sudo_assignment_before_option_piped', 'cat x | sudo a=1 -E tee /abs/out', 'cannot be determined with certainty'),
+        ('sudo_auth_type_option_argument_before_python_dash_piped', 'cat x | sudo -a auth python3 -', "'-' names standard input as the program"),
+        ('sudo_login_class_option_argument_before_piped_shell', 'cat x | sudo -c class bash', 'no script operand while standard input is a pipe'),
+        ('sudo_long_option_argument_as_next_word_before_piped_shell', 'cat x | sudo --user nobody bash', 'no script operand while standard input is a pipe'),
+        ('sudo_unknown_option_before_piped_shell', 'cat x | sudo -z nobody bash', 'cannot be determined with certainty'),
+        ('sudo_unknown_option_in_cluster_before_piped_shell', 'cat x | sudo -Ez nobody bash', 'cannot be determined with certainty'),
+        ('sudo_unknown_long_option_before_piped_shell', 'cat x | sudo --frobnicate nobody bash', 'cannot be determined with certainty'),
+        ('sudo_ambiguous_abbreviated_long_option_piped', 'cat x | sudo --log nobody tee /abs/out', 'cannot be determined with certainty'),
+        ('sudo_short_host_option_as_its_own_word_before_piped_shell', 'cat x | sudo -h bash', 'cannot be determined with certainty'),
+        ('sudo_short_host_option_as_its_own_word_with_host_before_piped_shell', 'cat x | sudo -h host bash', 'cannot be determined with certainty'),
+        ('over_refusal_sudo_short_host_option_as_its_own_word_piped', 'cat x | sudo -h host tee /abs/out', 'cannot be determined with certainty'),
+        ('over_refusal_sudo_short_host_option_ending_a_cluster_piped', 'cat x | sudo -Eh host tee /abs/out', 'cannot be determined with certainty'),
+        ('over_refusal_sudo_short_host_option_alone_piped', 'cat x | sudo -h', 'cannot be determined with certainty'),
+        ('sudo_short_host_option_with_attached_host_before_piped_shell', 'cat x | sudo -hhost bash', 'no script operand while standard input is a pipe'),
+        ('sudo_long_host_option_with_equals_before_piped_shell', 'cat x | sudo --host=host bash', 'no script operand while standard input is a pipe'),
+        ('sudo_long_help_option_takes_no_argument_before_piped_shell', 'cat x | sudo --help bash', 'no script operand while standard input is a pipe'),
+        ('sudo_preserve_env_list_after_equals_before_piped_shell', 'cat x | sudo --preserve-env=PATH bash', 'no script operand while standard input is a pipe'),
+        ('over_refusal_wrappers_nested_past_the_limit_without_feed', 'nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup echo hi', 'more than 16 wrappers are nested'),
+        ('shell_after_arithmetic_command_in_piped_group', 'cat x | { (( n++ )); bash; }', 'no script operand while standard input is a pipe'),
+        ('shell_in_loop_body_after_arithmetic_condition_piped', 'cat x | while (( 1 )); do bash; done', 'no script operand while standard input is a pipe'),
+        ('shell_after_arithmetic_comparison_after_do_piped', 'cat x | while read -r n; do (( $n > 5 )) && bash; done', 'no script operand while standard input is a pipe'),
+        ('shell_in_substitution_inside_piped_arithmetic_command', 'cat x | (( $(bash) ))', 'no script operand while standard input is a pipe'),
+        ('word_after_arithmetic_command_piped', 'cat x | (( 1 )) bash', 'cannot be determined with certainty'),
+        ('piped_doubled_parenthesis_subshells_and_list', 'cat /abs/run.sh | ((true) && (bash))', 'no script operand while standard input is a pipe'),
+        ('piped_doubled_parenthesis_subshells_semicolon_list', 'cat /abs/run.sh | ((echo hi); (bash))', 'no script operand while standard input is a pipe'),
+        ('piped_doubled_parenthesis_subshells_tight_list', 'cat /abs/run.sh | ((:);(bash))', 'no script operand while standard input is a pipe'),
+        ('piped_doubled_parenthesis_subshells_pipeline', 'cat /abs/run.sh | ((bash)|(cat))', 'no script operand while standard input is a pipe'),
+        ('piped_tripled_parenthesis_arithmetic_then_subshell', 'cat /abs/run.sh | (((:));(bash))', 'no script operand while standard input is a pipe'),
+        ('piped_if_condition_doubled_parenthesis_subshells', 'cat /abs/run.sh | if ((:) && (bash)); then :; fi', 'no script operand while standard input is a pipe'),
+        ('piped_negated_doubled_parenthesis_subshells', 'cat /abs/run.sh | ! ((:) && (bash))', 'no script operand while standard input is a pipe'),
+        ('piped_timed_doubled_parenthesis_subshells', 'cat /abs/run.sh | time ((:) && (bash))', 'no script operand while standard input is a pipe'),
+        ('piped_doubled_parenthesis_subshells_python', 'cat /abs/run.sh | ((:) ; (python3))', 'no script operand, so the program is read from standard input'),
+        ('piped_brace_group_doubled_parenthesis_subshells', 'cat /abs/run.sh | { ((echo A); (bash)); }', 'no script operand while standard input is a pipe'),
+        ('piped_loop_body_doubled_parenthesis_subshells', 'cat /abs/run.sh | while true; do ((echo A); (bash)); break; done', 'no script operand while standard input is a pipe'),
+        ('piped_coproc_doubled_parenthesis_subshells', 'cat /abs/run.sh | coproc ((:) ; (bash))', 'no script operand while standard input is a pipe'),
+        ('piped_dollar_doubled_parenthesis_command_substitution', 'cat /abs/run.sh | echo $((true) && (bash))', 'no script operand while standard input is a pipe'),
+        ('piped_dollar_doubled_parenthesis_tight_substitution', 'cat /abs/run.sh | echo $((:);(bash))', 'no script operand while standard input is a pipe'),
+        ('piped_doubled_parenthesis_quoted_parenthesis_unsettled', 'cat /abs/run.sh | ((echo ")"); (bash))', 'may read either as arithmetic or as nested subshells'),
+        ('glob_wrapper_head_env_piped', 'cat x | /b*/env cat', 'built by a glob or a brace expansion'),
+        ('brace_wrapper_head_env_piped', 'cat x | /b{in,in}/env cat', 'built by a glob or a brace expansion'),
+        ('glob_wrapper_head_nohup_piped', 'cat x | /b*/nohup cat', 'built by a glob or a brace expansion'),
+        ('over_refusal_glob_wrapper_head_before_script_here_string',"/b*/env python3 -I /abs/script.py <<< 'x'", 'built by a glob or a brace expansion'),
+        ('glob_wrapper_head_without_feed', '/b*/env python3 -I /abs/script.py', 'built by a glob or a brace expansion'),
+        ('glob_wrapper_head_nohup_without_feed', '/b*/nohup cat', 'built by a glob or a brace expansion'),
+        ('glob_wrapper_head_before_nested_c_program', '/b*/env bash -c "cat x | bash"', 'built by a glob or a brace expansion'),
+        ('brace_wrapper_head_before_nested_c_program', '/b{in,in}/env bash -c "cat x | bash"', 'built by a glob or a brace expansion'),
+        ('bracket_wrapper_head_before_nested_c_program', '/usr/bin/[e]nv bash -c "cat x | bash"', 'built by a glob or a brace expansion'),
+        ('character_class_wrapper_head_before_nested_c_program', 'e[[:alpha:]]v bash -c "cat x | bash"', 'built by a glob or a brace expansion'),
+        ('equivalence_class_wrapper_head_before_nested_c_program', 'e[[=n=]]v bash -c "cat x | bash"', 'built by a glob or a brace expansion'),
+        ('collating_symbol_wrapper_head_before_nested_c_program', 'e[[.n.]]v bash -c "cat x | bash"', 'built by a glob or a brace expansion'),
+        ('leading_character_class_wrapper_head_before_nested_c_program', '[[:alpha:]]nv bash -c "cat x | bash"', 'built by a glob or a brace expansion'),
+        ('over_refusal_glob_wrapper_option_argument_without_feed', 'env -u H* python3 /abs/script.py', 'built by a glob or a brace expansion'),
+        ('over_refusal_glob_wrapper_operand_without_feed', 'timeout 5* python3 /abs/script.py', 'built by a glob or a brace expansion'),
+        ('over_refusal_brace_wrapper_option_without_feed', 'nohup -{a,b} python3 /abs/script.py', 'built by a glob or a brace expansion'),
+        ('over_refusal_glob_python_name_with_no_standard_input_shape', '/usr/bin/pyth?n3', 'built by a glob or a brace expansion'),
+        ('over_refusal_glob_shell_name_given_a_file_on_standard_input', '/bin/ba?h < /abs/run.sh', 'built by a glob or a brace expansion'),
+        ('over_refusal_glob_name_that_names_no_wrapper_without_feed', '/usr/bin/pyth?n3 -I /abs/script.py', 'built by a glob or a brace expansion'),
+        ('over_refusal_bracket_word_is_the_command', 'cat /abs/run.sh | a[ 1 ] bash', 'built by a glob or a brace expansion'),
+        ('arithmetic_substitution_holding_case_unsettled', '(( $(case x in x) echo 1;; esac) ))', 'may read either as arithmetic or as nested subshells'),
+        ('arithmetic_substitution_holding_comment_unsettled', '(( $(echo 1 # )\n) ))', 'may read either as arithmetic or as nested subshells'),
+        ('piped_arithmetic_substitution_holding_case_after_do_unsettled', 'cat /abs/run.sh | (( $(while false; do case x in x) :;; esac; done; echo 1) ))', 'may read either as arithmetic or as nested subshells'),
+        ('sudo_unknown_long_option_without_feed', 'sudo --frobnicate nobody python3 /abs/script.py', 'cannot be determined with certainty'),
+        ('sudo_ambiguous_abbreviated_long_option_without_feed', 'sudo --log nobody tee /abs/out', 'cannot be determined with certainty'),
+        ('sudo_unknown_long_option_before_nested_c_program', 'sudo --frobnicate nobody bash -c "cat x | bash"', 'cannot be determined with certainty'),
+        ('sudo_ambiguous_abbreviated_long_option_before_nested_c_program', 'sudo --log nobody bash -c "cat x | bash"', 'cannot be determined with certainty'),
+        ('sudo_abbreviated_long_option_before_nested_c_program', 'sudo --us nobody bash -c "cat x | bash"', 'names an interpreter together with a pipe'),
+        ('sudo_abbreviated_long_option_with_equals_before_nested_c_program', 'sudo --us=nobody bash -c "cat x | bash"', 'names an interpreter together with a pipe'),
+        ('sudo_abbreviated_long_option_argument_before_piped_shell', 'cat x | sudo --us nobody bash', 'no script operand while standard input is a pipe'),
+        ('bash_after_piped_for_brace_body_ends', 'cat /abs/a | for i in 1; { :; }; bash', 'refused by default'),
+        ('bash_after_piped_case_ends', 'cat /abs/a | case x in x) :;; esac; bash', 'refused by default'),
+        ('piped_function_keyword_definition', 'cat /abs/run.sh | function foo { bash; }', 'refused by default'),
+        ('piped_function_parens_definition', 'cat /abs/run.sh | foo() { bash; }', 'refused by default'),
+        ('bash_after_piped_for_brace_body_with_do_in_list', 'cat /abs/a | for x in do; { :; }; bash', 'refused by default'),
+        ('piped_function_definition_in_brace_group', 'cat /abs/run.sh | { foo() { bash; }; }', 'refused by default'),
+        ('piped_function_definition_after_do', 'cat /abs/run.sh | while read -r l; do foo() { bash; }; done', 'refused by default'),
+        ('piped_function_definition_after_then', 'cat /abs/run.sh | if true; then foo() { bash; }; fi', 'refused by default'),
+        ('piped_input_procsub_stays_a_residual', 'cat /abs/a | diff <(bash) /abs/b', 'refused by default'),
+        ('pipe_ends_at_newline_after_array_assignment', 'cat /abs/run.sh | a=()\nbash', 'refused by default'),
+        ('quoted_procsub_text_in_parameter_expansion', 'echo hi | tee "${x:->(bash)}"', 'refused by default'),
+        ('redirection_after_assignment_ends_the_assignments', 'cat /abs/run.sh | a=1 3>/dev/null b[ 2 ]=2 bash', 'refused by default'),
+        ('residual_gap_descriptor_00_procsub', 'bash 00< <(cat /abs/run.sh)', 'refused by default'),
+        ('residual_gap_redirection_only_exec', 'exec < <(cat /abs/run.sh); bash', 'refused by default'),
+        ('named_descriptor_redirection_shell_given_a_script', 'cat x | {fd}>/dev/null bash /abs/run.sh', 'refused by default'),
+        ('subscript_assignment_prefix_before_non_interpreter', 'cat /abs/run.sh | a[0]=1 cat', 'refused by default'),
+        ('heredoc_body_unterminated_substitution_names_no_interpreter', 'cat <<EOF\n$(echo\nEOF', 'refused by default'),
+        ('heredoc_body_unterminated_expansion_names_no_interpreter', 'cat <<EOF\n${x\nEOF', 'refused by default'),
+        ('nested_heredoc_open_substitution_names_no_interpreter', 'cat <<EOF\n$(cat <<EOF\n$(date)\nEOF)\nEOF', 'refused by default'),
+        ('nested_heredoc_open_backtick_names_no_interpreter', 'cat <<EOF\n`cat <<EOF\nhi\nEOF\necho done', 'refused by default'),
+        ('glob_shell_name_in_heredoc_body_refused_by_default', 'cat <<EOF\n$(cat /abs/run.sh | /bin/ba?h)\nEOF', 'refused by default'),
+        ('glob_shell_name_in_c_string', "bash -c 'cat /abs/run.sh | /bin/ba?h'", 'refused by default'),
+        ('glob_python_name_in_c_string', "bash -c 'cat /abs/run.sh | /usr/bin/pyth?n3 -'", 'refused by default'),
+        ('stdin_path_double_slash', "python3 //dev/stdin <<<'print(1)'", 'refused by default'),
+        ('stdin_path_dot_component', "python3 /dev/./stdin <<<'print(1)'", 'refused by default'),
+        ('stdin_path_thread_self', "python3 /proc/thread-self/fd/0 <<<'print(1)'", 'refused by default'),
+        ('arithmetic_substitution_with_case_as_an_argument_piped', 'cat x | (( $(echo case) + 1 ))', 'refused by default'),
+        ('arithmetic_substitution_with_a_length_expansion_piped', 'cat x | (( $(echo ${#x}) + $# ))', 'refused by default'),
+        ('piped_input_procsub_runs_shell_variable', 'cat /abs/a | diff <($BASH) /abs/b', 'refused by default'),
+        ('piped_input_procsub_runs_quoted_shell_variable', 'cat /abs/a | diff <("$BASH") /abs/b', 'refused by default'),
+        ('piped_input_procsub_runs_positional_zero', 'cat /abs/a | diff <($0) /abs/b', 'refused by default'),
+        ('piped_input_procsub_runs_shell_path_variable', 'cat /abs/a | diff <($SHELL) /abs/b', 'refused by default'),
+        ('piped_input_procsub_runs_name_split_by_expansion', 'cat /abs/a | diff <(b${x}ash) /abs/b', 'refused by default'),
+        ('piped_input_procsub_runs_name_completed_by_default_value', 'cat /abs/a | diff <(${x:-b}ash) /abs/b', 'refused by default'),
+        ('piped_input_procsub_runs_python_name_split_by_expansion', 'cat /abs/a | diff <(py${x}thon3) /abs/b', 'refused by default'),
+        ('piped_input_procsub_runs_env_with_shell_variable', 'cat /abs/a | diff <(env $BASH) /abs/b', 'refused by default'),
+        ('piped_cat_procsub_runs_shell_variable', 'cat /abs/a | cat <($BASH)', 'refused by default'),
+        ('shell_variable_numbered_stdin_procsub', '$BASH 00< <(cat /abs/run.sh)', 'refused by default'),
+        ('name_split_by_expansion_numbered_stdin_procsub', 'b${x}ash 00< <(cat /abs/run.sh)', 'refused by default'),
+        ('redirection_only_exec_then_shell_variable', 'exec < <(cat /abs/run.sh); $BASH', 'refused by default'),
+        ('piped_eval_of_name_split_by_expansion', 'cat x | eval b${x}ash', 'refused by default'),
+        ('residual_gap_descriptor_00_here_string', "bash 00<<<'echo hi'", 'refused by default'),
+    )
+    # (id, command text)
+    ALLOWED = (
+        ('python3_script', 'python3 -I /abs/script.py'),
+        ('plus_cluster_x_with_script', 'bash +x /abs/run.sh'),
+        ('plus_cluster_o_with_script', 'bash +o pipefail /abs/run.sh'),
+        ('bare_plus_with_script', 'bash + /abs/run.sh'),
+        ('python3_script_heredoc_data', "python3 -I /abs/script.py <<'EOF'\ndata\nEOF"),
+        ('python3_script_after_double_dash', 'python3 -I -- /abs/script.py'),
+        ('python3_c', "python3 -I -c 'print(1)'"),
+        ('python3_c_in_cluster', "python3 -Ic 'print(1)'"),
+        ('python3_module', 'python3 -m json.tool /abs/x.json'),
+        ('python3_version', 'python3 --version'),
+        ('env_python_script', 'env -i PATH=/usr/bin python3 /abs/script.py'),
+        ('timeout_python_script', 'timeout -s KILL 60 python3 -I /abs/script.py'),
+        ('bash_script', 'bash /abs/run.sh'),
+        ('bash_script_heredoc_data', "bash /abs/run.sh <<'EOF'\ndata\nEOF"),
+        ('bash_c', "bash -c 'echo hi'"),
+        ('sh_c_in_cluster_with_pipe', "printf x | sh -ec 'cat'"),
+        ('bash_bare', 'bash'),
+        ('bash_file_stdin', 'bash < /abs/run.sh'),
+        ('perl_e', "perl -e 'print 1'"),
+        ('perl_script', 'perl /abs/x.pl'),
+        ('ruby_e', "ruby -e 'puts 1'"),
+        ('node_e', "node -e '1'"),
+        ('node_script', 'node /abs/x.js'),
+        ('php_r', "php -r 'echo 1;'"),
+        ('php_f', 'php -f /abs/x.php'),
+        ('source_file', 'source /abs/env.sh'),
+        ('dot_file', '. /abs/env.sh'),
+        ('cat_quoted_heredoc_body_is_data', "cat <<'EOF'\npython3 -\nbash -s\nEOF"),
+        ('cat_write_heredoc', "cat > /abs/gen.py <<'EOF'\nimport sys\nEOF"),
+        ('cat_unquoted_heredoc', 'cat <<EOF\nbash -s\nEOF'),
+        ('grep_herestring', "grep -c x <<<'python3 -'"),
+        ('pipe_to_non_interpreter', "printf 'x' | wc -c"),
+        ('command_v_lookup', 'command -v python3'),
+        ('echo_mention', "echo 'python3 - <<EOF'"),
+        ('arithmetic_command', '(( x = 1 << 2 ))'),
+        ('diff_procsub_operands', 'diff <(cat /abs/a) <(cat /abs/b)'),
+        ('pipe_continued_to_non_interpreter', "printf 'x' |\nwc -c"),
+        ('piped_while_body_script', 'cat /abs/list | while read -r l; do bash /abs/run.sh; done'),
+        ('unpiped_while_bare_bash', 'while true; do bash; break; done'),
+        ('bash_after_piped_loop_ends', 'cat /abs/a | while read -r l; do :; done; bash'),
+        ('source_file_after_double_dash', 'source -- /abs/env.sh'),
+        ('python_free_threaded_script', 'python3.13t -I /abs/script.py'),
+        ('env_cluster_python_script', 'env -iC /tmp python3 /abs/script.py'),
+        ('sudo_cluster_python_script', 'sudo -Eu nobody python3 /abs/script.py'),
+        ('substitution_in_parameter_expansion_runs_no_interpreter', 'echo ${x:-$(pwd)}'),
+        ('substitution_in_arithmetic_expansion_runs_no_interpreter', 'echo $(( $(cat /abs/n) + 1 ))'),
+        ('named_coproc_simple_command', 'coproc MYPROC sleep 1'),
+        ('array_element_is_not_a_command', 'a=(python3)'),
+        ('array_element_in_brace_group_is_not_a_command', '{ a=(python3); }'),
+        ('array_element_in_subshell_is_not_a_command', '(a=(python3))'),
+        ('appended_array_elements_are_not_a_command', 'a+=(python3 -)'),
+        ('reserved_word_after_assignment_before_non_interpreter', 'cat /abs/run.sh | a=1 while cat'),
+        ('reserved_word_after_assignment_before_python_script', 'a=1 if python3 -I /abs/script.py'),
+        ('reserved_word_after_assignment_before_unpiped_shell', 'a=1 while bash'),
+        ('c_string_double_quoted', 'bash -c "echo hi"'),
+        ('c_string_python_script', "bash -c 'python3 /abs/s.py'"),
+        ('c_string_pipe_to_non_interpreter', "bash -c 'cat /abs/run.sh | grep x'"),
+        ('piped_c_string_non_interpreter', 'cat /abs/run.sh | bash -c "grep x"'),
+        ('piped_c_string_shell_given_a_script', "cat /abs/run.sh | bash -c 'bash /abs/run.sh'"),
+        ('c_string_file_stdin', "bash -c 'bash' < /abs/run.sh"),
+        ('c_string_by_expansion_names_no_interpreter', 'bash -c "echo $HOME"'),
+        ('quoted_delimiter_heredoc_body_is_data', "cat <<'EOF'\n$(cat /abs/run.sh | bash)\nEOF"),
+        ('double_quoted_delimiter_heredoc_body_is_data', 'cat <<"EOF"\n$(cat /abs/run.sh | bash)\nEOF'),
+        ('escaped_delimiter_heredoc_body_is_data', 'cat <<\\EOF\n$(cat /abs/run.sh | bash)\nEOF'),
+        ('quoted_delimiter_heredoc_body_holds_c_string_text', "cat <<'EOF'\nbash -c 'cat /abs/run.sh | bash'\nEOF"),
+        ('c_string_python_isolated_script', "bash -c 'python3 -I /abs/s.py'"),
+        ('c_string_dot_operand', "bash -c 'cd /abs && ls .'"),
+        ('heredoc_body_names_an_interpreter_without_substitution', 'cat <<EOF\npython3 -\nEOF'),
+        ('c_string_unterminated_quote_names_no_interpreter', "bash -c 'echo \"a'"),
+        ('pwd', 'pwd'),
+        ('git_add_all', 'git add -A'),
+        ('shell_option_argument_then_script', 'bash -o pipefail /abs/run.sh'),
+        ('shell_option_then_script', 'bash -x /abs/run.sh'),
+        ('residual_gap_env_split_string_in_c_string', "bash -c 'env -Spython3'"),
+        ('residual_gap_env_long_split_string_in_c_string', "bash -c 'env --split-string=python3'"),
+        ('arithmetic_loop_condition_after_while_piped', 'cat x | while (( $# )); do shift; done'),
+        ('arithmetic_command_in_piped_brace_group', 'cat x | { (( $n )); }'),
+        ('arithmetic_comparison_after_do_piped', 'cat x | while read -r n; do (( $n > 5 )) && echo big; done'),
+        ('arithmetic_command_nested_group_at_end_piped', 'cat x | ((1+(2)))'),
+        ('residual_gap_piped_sudo_shell', 'cat /abs/run.sh | sudo -s'),
+        ('residual_gap_piped_sudo_login_shell', 'cat /abs/run.sh | sudo -i'),
+        ('piped_test_bracket_is_not_a_glob', 'cat x | [ -n y ]'),
+        ('ansi_c_escape_bash_keeps', "echo $'\\q'"),
+        ('env_operand_hyphenated_name_before_python_script', 'env a-b=1 python3 /abs/script.py'),
+        ('sudo_operand_hyphenated_name_before_python_script', 'sudo a-b=1 python3 /abs/script.py'),
+        ('ansi_c_escape_bash_keeps_in_printf_argument', "printf %s $'\\d'"),
+        ('ansi_c_escape_bash_keeps_in_grep_pattern', "grep -P $'\\d+\\t' /abs/f"),
+        ('ansi_c_escape_bash_keeps_in_rg_pattern', "rg $'\\d+\\t' /abs/README.md"),
+        ('ansi_c_escape_bash_keeps_in_sed_script', "sed $'s/\\./,/g' /abs/f"),
+        ('reserved_word_search_pattern_with_absolute_path', 'LC_ALL=C grep -rnw in /abs/src | head'),
+        ('reserved_word_search_pattern_with_no_assignment', 'grep -rnw in . | head'),
+        ('reserved_word_search_pattern_with_no_pipe', 'LC_ALL=C grep -rnw in .'),
+        ('shell_name_as_search_pattern_piped', 'cat x | grep bash'),
+        ('variable_argument_without_feed', 'echo $V'),
+        ('env_assignment_before_literal_command', 'env a=1 printenv'),
+        ('literal_env_operands_piped', 'cat x | env LC_ALL=C sort'),
+        ('literal_sudo_options_piped', 'cat x | sudo -u nobody tee /abs/out'),
+        ('literal_sudo_long_option_argument_piped', 'cat x | sudo --user nobody tee /abs/out'),
+        ('sudo_short_host_option_with_attached_host_piped', 'cat x | sudo -hhost tee /abs/out'),
+        ('sudo_long_host_option_with_equals_piped', 'cat x | sudo --host=host tee /abs/out'),
+        ('sudo_long_help_option_piped', 'cat x | sudo --help tee /abs/out'),
+        ('sudo_short_host_option_as_its_own_word_without_feed', 'sudo -h host python3 /abs/script.py'),
+        ('sudo_preserve_env_list_after_equals_piped', 'cat x | sudo --preserve-env=PATH tee /abs/out'),
+        ('sudo_preserve_env_short_form_piped', 'cat x | sudo -E tee /abs/out'),
+        ('sudo_auth_type_python_script', 'sudo -a auth python3 /abs/script.py'),
+        ('plain_env_split_string_piped', "cat x | env -S 'sort -u'"),
+        ('variable_command_word_without_feed', '$V bash'),
+        ('wrappers_nested_to_the_limit_piped_into_literal_command', 'cat x | nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup nohup grep y'),
+        ('arithmetic_command_piped', 'cat x | (( 1 ))'),
+        ('arithmetic_increment_in_piped_loop_body', 'git log --oneline | while read -r c; do n=1; (( n++ )); done'),
+        ('arithmetic_command_inner_group_piped', 'cat x | (( (1) ))'),
+        ('arithmetic_command_base_notation_piped', 'cat x | (( 16#ff ))'),
+        ('arithmetic_condition_inner_group_after_if_piped', 'cat x | if (( (1) )); then :; fi'),
+        ('sudo_abbreviated_long_option_piped_into_literal_command', 'cat x | sudo --us nobody tee /abs/out'),
+        ('sudo_abbreviated_long_option_before_script', 'sudo --us nobody python3 /abs/script.py'),
+        ('quoted_pattern_argument_of_piped_search', "cat x | grep -e 'a*'"),
+        ('arithmetic_base_notation_beside_substitution', '(( 16#ff + $(echo 1) ))'),
+        ('arithmetic_name_holding_case_beside_substitution', '(( testcase + $(echo 1) ))'),
+        ('arithmetic_substitution_printing_base_notation', '(( $(echo 16#ff) ))'),
+        ('arithmetic_substitution_printing_a_name_holding_case', '(( $(echo testcase) + 1 ))'),
+        ('output_procsub_shell_given_a_script', 'echo hi | tee >(bash /abs/run.sh)'),
+        ('output_procsub_in_parameter_expansion_given_a_script', 'echo hi | tee ${x:->(bash /abs/run.sh)}'),
+        ('arithmetic_shift', 'echo $((1 << 2))'),
+        ('heredoc_body_substitution_pipe_to_non_interpreter', 'cat <<EOF\n$(cat /abs/run.sh | grep x)\nEOF'),
+        ('heredoc_body_substitution_names_no_interpreter', 'cat <<EOF\n$(date)\nEOF'),
+        ('nested_heredoc_ends_body_early_names_no_interpreter', 'cat <<EOF\n$(cat <<EOF\nhi\nEOF\n)\nEOF'),
+        ('substitution_argument_piped_into_literal_command', 'printf %s "$(date)" | wc -c'),
+        ('substitution_argument_of_piped_literal_command', 'cat x | grep "$(date +%Y)"'),
+        ('variable_argument_after_wrapper_piped', 'cat x | env LC_ALL=C grep -e "$P"'),
+        ('arithmetic_counter_after_echo_in_piped_loop_body', 'cat x | while read -r l; do echo "$l"; (( count++ )); done'),
+        ('arithmetic_expansion_inner_groups_piped', 'cat x | echo $(( (1) + (2) ))'),
+        ('glob_argument_of_command_feeding_a_pipe', 'ls *.py | wc -l'),
+        ('glob_argument_of_piped_search', 'cat x | grep -e a*'),
+        ('character_class_argument_after_wrapper_piped', 'cat x | env LC_ALL=C grep -e [[:alpha:]]'),
+        ('brace_argument_of_piped_literal_command', 'cat x | tee /abs/{a,b}.out'),
+    )
+    # The accepted parse-failure allowance: text in a -c string or in an unquoted
+    # here-document body that names no listed interpreter, source or . is allowed even when
+    # it is malformed (bash itself rejects it). Each row pairs an ALLOWED case with a REFUSED
+    # guard in the same malformed shape that names an interpreter, and gives each one's
+    # malformed text (the -c string, or the body up to the line that ends it; in the nested
+    # forms an inner EOF line ends the outer body early, leaving a $( or a backtick open).
+    # (allowed id, allowed text, guard id, guard text)
+    PARSE_FAILURE_ALLOWANCE = (
+        ('c_string_unterminated_quote_names_no_interpreter', 'echo "a',
+         'allowance_guard_c_string_names_an_interpreter_beside_a_pipe',
+         'cat /abs/run.sh | python3 "a'),
+        ('heredoc_body_unterminated_substitution_names_no_interpreter', '$(echo\n',
+         'allowance_guard_heredoc_body_unterminated_substitution_names_an_interpreter',
+         '$(echo x | python3 -\n'),
+        ('heredoc_body_unterminated_expansion_names_no_interpreter', '${x\n',
+         'allowance_guard_heredoc_body_unterminated_expansion_names_an_interpreter',
+         '${x\ncat /abs/run.sh | bash\n'),
+        ('nested_heredoc_open_substitution_names_no_interpreter', '$(cat <<EOF\n$(date)\nEOF)\n',
+         'allowance_guard_nested_heredoc_open_substitution_names_an_interpreter',
+         '$(cat <<EOF\ncat /abs/run.sh | bash\nEOF)\n'),
+        ('nested_heredoc_ends_body_early_names_no_interpreter', '$(cat <<EOF\nhi\n',
+         'allowance_guard_nested_heredoc_ends_body_early_names_an_interpreter',
+         '$(cat <<EOF\ncat /abs/run.sh | bash\n'),
+        ('nested_heredoc_open_backtick_names_no_interpreter', '`cat <<EOF\nhi\n',
+         'allowance_guard_nested_heredoc_open_backtick_names_an_interpreter',
+         '`cat <<EOF\ncat /abs/run.sh | bash\n'),
+    )
+
+    def _run(self, command):
+        self.assertTrue(self.HOOK.is_file(), "the hook does not exist: " + str(self.HOOK))
+        payload = dict(hook_event_name="PreToolUse", tool_name="Bash",
+                       tool_input=dict(command=command))
+        return subprocess.run([sys.executable, "-I", str(self.HOOK)], input=json.dumps(payload),
+                              capture_output=True, text=True, timeout=60)
+
+    def _assert_refused(self, command, evidence):
+        r = self._run(command)
+        self.assertEqual(r.returncode, 2, (command, r.stdout, r.stderr))
+        self.assertEqual(r.stdout, "", command)
+        self.assertTrue(r.stderr.startswith("BLOCKED (stdin-interpreter): "), r.stderr)
+        for marker in ("BLOCKED (", "\nWHY: ",
+                       "\nCONSIDER INSTEAD: write the program to a script file"):
+            self.assertEqual(r.stderr.count(marker), 1, (marker, r.stderr))
+        self.assertIn(evidence, r.stderr)
+
+    def _assert_allowed(self, command):
+        r = self._run(command)
+        self.assertEqual(r.returncode, 0, (command, r.stdout, r.stderr))
+        self.assertEqual(r.stdout + r.stderr, "", command)
+
+    def test_self_test_passes(self):
+        self.assertTrue(self.HOOK.is_file(), "the hook does not exist: " + str(self.HOOK))
+        r = subprocess.run([sys.executable, "-I", str(self.HOOK), "--self-test"],
+                           capture_output=True, text=True, timeout=120)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        total = len(self.REFUSED) + len(self.ALLOWED)
+        self.assertIn(str(total) + "/" + str(total) + " self-test cases pass", r.stdout)
+
+    def test_self_test_has_the_same_cases(self):
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_cases")
+        want = ({(command, True) for _id, command, _evidence in self.REFUSED}
+                | {(command, False) for _id, command in self.ALLOWED})
+        self.assertEqual(len(mod.SELF_TEST), len(want))
+        self.assertEqual(set(mod.SELF_TEST), want)
+
+    # Constructs the reader has failed to model, each planted in a line that feeds standard
+    # input and names an interpreter: (construct, command text, True when the deny-by-default
+    # rule refuses the line on its own). Every line must be refused.
+    UNMODELLED_PLANTED = (
+        ('while form after an assignment and a subscript', 'cat x | a=1 3>out while b[ 0 ]=2 bash /abs/run.sh', True),
+        ('subscript holding an operator before a while word', 'cat x | a=1 b[ ; ]=2 while bash', True),
+        ('array subscript assignment before a shell', 'cat x | a[ 1 ]=1 bash /abs/run.sh', True),
+        ('redirection between assignments before a subscript', 'cat x | a=1 3>/dev/null b[ 2 ]=2 bash /abs/run.sh', True),
+        ('substitution nested in a substitution', 'cat x | echo "$(echo "$(bash)")"', True),
+        ('nested substitution in a redirection target', 'cat x | a=1 >"$(a=1 while b[ 0 ]=2 bash)" cat', True),
+        ('ANSI-C escape spelling a reserved word', "cat x | a=1 $'wh\\x69le' bash", True),
+        ('ANSI-C escape spelling the shell', "cat x | $'\\x62ash'", True),
+        ('named descriptor redirection at the start', 'cat x | {fd}>/dev/null bash /abs/run.sh', True),
+        ('named descriptor redirection between assignments', 'cat x | a=1 {fd}>o b=2 bash', True),
+        ('glob in a command name', 'cat x | /bin/ba?h', True),
+        ('bracket expression in a command name', 'cat x | /bin/ba[s]h', True),
+        ('brace expansion as the command name', 'cat x | {,bash}', True),
+        ('brace expansion in a wrapper name', 'cat x | /b{in,in}/env bash', True),
+        ('extended pattern as the command name', 'shopt -s extglob\ncat x | /usr/bin/@(bash)', True),
+        ('extended pattern inside the command name', 'shopt -s extglob\ncat x | /usr/bin/ba@(s)h', True),
+        ('one-or-more extended pattern', 'shopt -s extglob\ncat x | /usr/bin/+(bash)', True),
+        ('extended pattern in a versioned name', 'shopt -s extglob\ncat x | /usr/bin/python@(3)', True),
+        ('extended pattern in a wrapper name', 'shopt -s extglob\ncat x | /usr/bin/@(env) bash', True),
+        ('extended pattern in a wrapper operand', 'shopt -s extglob\ncat x | env -C /@(tmp) bash', True),
+        ('extended pattern before a nested -c program', "shopt -s extglob\n/usr/bin/@(bash) -c 'cat x | bash'", True),
+        ('parameter expansion beside a glob in a wrapper name', '/usr/b*/env${v:+} bash -c "printf echo | bash"', True),
+    )
+    # Lines the deny-by-default rule leaves allowed: no feed, no listed name, or nothing
+    # outside the modelled set.
+    UNMODELLED_CONTROLS = (
+        'cat /abs/x | grep -c bash',
+        'cat x | sort -u',
+        'python3 -I /abs/script.py "$HOME"',
+        'bash /abs/run.sh $(date +%Y)',
+        "cat x | grep -E '[0-9]+' | python3 -I /abs/s.py",
+        'python3 -I /abs/s.py < /abs/in.txt 2>&1 | tee /abs/out',
+        "cat <<'EOF' | python3 -I /abs/s.py\n$(bash)\nEOF",
+        'cat <<\\EOF\n$(cat /abs/run.sh | bash)\nEOF',
+        "cat x | sh -c 'grep y'",
+    )
+
+    def test_unmodelled_constructs_are_refused_by_default(self):
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_deny_by_default")
+        for construct, command, by_default in self.UNMODELLED_PLANTED:
+            with self.subTest(construct=construct, command=command):
+                self.assertTrue(mod.decide(command), command)
+                if by_default:
+                    problem = mod._deny_by_default(command)
+                    self.assertTrue(problem, command)
+                    self.assertIn("refused by default", problem[1])
+        for command in self.UNMODELLED_CONTROLS:
+            with self.subTest(control=command):
+                self.assertIsNone(mod.decide(command), command)
+                self.assertIsNone(mod._deny_by_default(command), command)
+        self._assert_refused('shopt -s extglob\ncat x | /usr/bin/@(bash)', "refused by default")
+        self._assert_allowed('cat /abs/x | grep -c bash')
+
+    # Lines that feed standard input and name no interpreter as text but hold a construct
+    # that can build a word at run time (a $ in any form, a backtick, an unquoted glob
+    # character, a bracket expression, a brace pattern or an extended pattern), which may
+    # build an interpreter's name: (construct, command text). Each must be refused by the
+    # deny-by-default rule on its own.
+    BUILT_NAME_PLANTED = (
+        ('shell variable in an input process substitution', 'cat /abs/a | diff <($BASH) /abs/b'),
+        ('quoted shell variable in an input process substitution', 'cat /abs/a | diff <("$BASH") /abs/b'),
+        ('positional zero in an input process substitution', 'cat /abs/a | diff <($0) /abs/b'),
+        ('SHELL variable in an input process substitution', 'cat /abs/a | diff <($SHELL) /abs/b'),
+        ('name split by a parameter expansion', 'cat /abs/a | diff <(b${x}ash) /abs/b'),
+        ('name completed by a default value', 'cat /abs/a | diff <(${x:-b}ash) /abs/b'),
+        ('python name split by a parameter expansion', 'cat /abs/a | diff <(py${x}thon3) /abs/b'),
+        ('env given a shell variable', 'cat /abs/a | diff <(env $BASH) /abs/b'),
+        ('shell variable in a process substitution given to cat', 'cat /abs/a | cat <($BASH)'),
+        ('shell variable with a numbered standard-input redirection', '$BASH 00< <(cat /abs/run.sh)'),
+        ('split name with a numbered standard-input redirection', 'b${x}ash 00< <(cat /abs/run.sh)'),
+        ('shell variable after an exec of redirections', 'exec < <(cat /abs/run.sh); $BASH'),
+        ('eval of a split name under a pipe', 'cat x | eval b${x}ash'),
+        ('backtick building the name', 'cat x | `printf bash`'),
+        ('command substitution building the name', 'cat x | $(printf bash)'),
+        ('ANSI-C quoting in a substitution', "cat x | $(printf $'b\\x61sh')"),
+        ('glob standing for a letter', 'cat x | /bin/ba?h'),
+        ('star glob in a command name', 'cat x | /bin/b*h'),
+        ('bracket expression standing for a letter', 'cat x | diff <(/bin/ba[r-t]h) /abs/b'),
+        ('brace pattern building the name', 'cat x | diff <(/bin/{b,}a{s,}h) /abs/b'),
+        ('brace sequence building the name', 'cat x | diff <(python{2..3}) /abs/b'),
+        ('extended pattern building the name', 'shopt -s extglob\ncat x | diff <(/bin/b@(a)sh) /abs/b'),
+        ('unquoted here-document body building the name', 'cat <<EOF\n$(cat /abs/run.sh | b${x}ash)\nEOF'),
+    )
+    # Lines the built-name condition leaves to the rest of the rule: a construct that is
+    # quoted (a glob, bracket or brace inside quotes), a $ only in the body of a
+    # here-document whose delimiter is quoted, a glob only in an argument of a command
+    # that is not the command receiving the feed, or no feed at all.
+    BUILT_NAME_CONTROLS = (
+        'ls /abs/*.py | wc -l',
+        "cat x | grep -c 'ba?h'",
+        'cat x | grep -c "ba[s]h"',
+        "cat x | grep -c '{a,b}'",
+        "cat <<'EOF' | python3 -I /abs/s.py\n$(b${x}ash)\nEOF",
+        'ls /abs/*.py',
+        'echo $BASH',
+    )
+
+    def test_names_built_at_run_time_are_refused_by_default(self):
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_built_names")
+        for construct, command in self.BUILT_NAME_PLANTED:
+            with self.subTest(construct=construct, command=command):
+                self.assertTrue(mod.decide(command), command)
+                problem = mod._deny_by_default(command)
+                self.assertTrue(problem, command)
+                self.assertIn("refused by default", problem[1])
+        for command in self.BUILT_NAME_CONTROLS:
+            with self.subTest(control=command):
+                self.assertIsNone(mod.decide(command), command)
+                self.assertIsNone(mod._deny_by_default(command), command)
+        self._assert_refused('cat /abs/a | diff <(b${x}ash) /abs/b', "can build a word at run time")
+        self._assert_refused('exec < <(cat /abs/run.sh); $BASH', "refused by default")
+
+    # Lines the deny-by-default rule refuses on its own, read at the command that receives
+    # the feed: an interpreter there with no literal program, or a command word there (or a
+    # wrapper word before it) that is built at run time or lies outside the modelled set:
+    # (case, command text).
+    CONSUMER_PLANTED = (
+        ('shell behind a numbered here-string descriptor', "bash 00<<<'echo hi'"),
+        ('variable run by eval under a pipe', 'cat x | eval "$SHELL"'),
+        ('variable run by xargs under a pipe', 'cat x | xargs $PY'),
+        ('glob name run by xargs under a pipe', 'cat x | xargs /bin/ba?h'),
+        ('variable duration before the command under a pipe', 'cat x | timeout $T cat'),
+        ('variable command after sudo options under a pipe', 'cat x | sudo -u nobody $PY'),
+        ('brace pattern after an env assignment under a pipe', 'cat x | env A=1 py{thon3,}'),
+        ('subscript assignment before the command under a pipe', 'cat x | a[0]=1 cat'),
+        ('tilde command word under a pipe', 'cat x | ~/bin/tool'),
+        ('shell in a piped group', 'cat x | { cat; bash; }'),
+        ('shell in a piped loop body', 'cat x | while read -r l; do bash; done'),
+        ('shell in a piped function definition', 'cat x | f() { bash; }'),
+        ('shell in an input process substitution of a piped command', 'cat x | diff <(bash) /abs/b'),
+        ('interpreter in an output process substitution', 'cat x | tee >(python3)'),
+        ('interpreter given a variable program under a pipe', 'cat x | python3 -I "$S"'),
+        ('named descriptor before a piped interpreter', 'cat x | {fd}>/dev/null python3 -I /abs/s.py'),
+        ('piped shell in a -c program behind a built command word', '$SH -c "cat x | bash"'),
+    )
+    # Lines it leaves allowed: a $, a glob or an interpreter's name only in a word that is
+    # not the command word of a command that receives a feed, an interpreter there given a
+    # literal program, and a variable program the line sets once to literal text.
+    CONSUMER_CONTROLS = (
+        'printf %s "$(date)" | wc -c',
+        'cat x | grep "$(date +%Y)"',
+        'cat x | env LC_ALL=C grep -e "$P"',
+        'ls /abs/*.py | wc -l',
+        'echo $((1 << 2))',
+        'cat <<EOF\n$(date)\nEOF',
+        'git -C /abs/repo log | grep -c python3',
+        'cat x | xargs -I{} cp {} /abs/out',
+        'cat x | while read -r l; do [ -n "$l" ] && echo "$l"; done',
+        'cat x | while read -r l; do echo "$l"; done; bash /abs/run.sh',
+        'python3 -I /abs/s.py --id "$ID" < /abs/in.txt',
+        'cat x | python3 -I /abs/s.py "$1" > /abs/out',
+        'python3 -I -c "import sys; print(1)" "$A" < /abs/in',
+        'T=/abs/tool.py; printf %s "$X" | python3 -I $T --append',
+    )
+
+    def test_deny_by_default_reads_the_command_that_receives_the_feed(self):
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_consumers")
+        for case, command in self.CONSUMER_PLANTED:
+            with self.subTest(case=case, command=command):
+                self.assertTrue(mod.decide(command), command)
+                problem = mod._deny_by_default(command)
+                self.assertTrue(problem, command)
+                self.assertIn("refused by default", problem[1])
+                self.assertIn("the command that receives", problem[1])
+        for command in self.CONSUMER_CONTROLS:
+            with self.subTest(control=command):
+                self.assertIsNone(mod.decide(command), command)
+                self.assertIsNone(mod._deny_by_default(command), command)
+        self._assert_refused("bash 00<<<'echo hi'", "the command that receives a here-string")
+        self._assert_allowed('printf %s "$(date)" | wc -c')
+
+    # A variable program operand is resolved only from an assignment-only simple command
+    # at the top level of the shell; each line below sets it some other way.
+    SET_ONCE_NOT_TOP_LEVEL = (
+        'T=/abs/s.py true; cat /abs/in.py | python3 -I $T',
+        '(T=/abs/s.py); cat /abs/in.py | python3 -I $T',
+        'false && T=/abs/s.py; cat /abs/in.py | python3 -I $T',
+        'false || T=/abs/s.py; cat /abs/in.py | python3 -I $T',
+        'echo $(T=/abs/s.py); cat /abs/in.py | python3 -I $T',
+        'T=/abs/s.py | true; cat /abs/in.py | python3 -I $T',
+        'T=/abs/s.py & cat /abs/in.py | python3 -I $T',
+        '{ T=/abs/s.py; }; cat /abs/in.py | python3 -I $T',
+        'if true; then T=/abs/s.py; fi; cat /abs/in.py | python3 -I $T',
+        'g() { T=/abs/s.py; }; cat /abs/in.py | python3 -I $T',
+        'T=/abs/s.sh true; cat /abs/run.sh | bash $T',
+        "T=/abs/s.sh true; bash $T <<< 'echo hi'",
+    )
+    SET_ONCE_TOP_LEVEL = (
+        'T=/abs/tool.py; printf %s "$X" | python3 -I $T --append',
+        'T=/abs/tool.py && printf %s "$X" | python3 -I $T --append',
+        'cd /abs; T=/abs/tool.py\nprintf %s "$X" | python3 -I $T',
+        'X=/abs; T=/abs/tool.py; w(){ python3 -I $T --id "$1" < $X/w.txt; }; w a',
+        "T=/abs/tool.py; cat > /abs/w.txt <<'EOF'\nrow\nEOF\npython3 -I $T < /abs/w.txt",
+    )
+    # Each condition under which the line's assignment does not resolve the variable.
+    SET_ONCE_CONDITIONS = (
+        'T=/abs/a.py; T=/abs/b.py; cat x | python3 -I $T',
+        'T=/abs/a.py; eval :; cat x | python3 -I $T',
+        'T=/abs/a.py; source /abs/env; cat x | python3 -I $T',
+        'T=/abs/a.py; . /abs/env; cat x | python3 -I $T',
+        'T=-; cat x | python3 -I $T',
+        'T=/dev/stdin; cat x | python3 -I $T',
+        'T=/abs/a.py; read T; cat x | python3 -I $T',
+        'cat x | python3 -I $T; T=/abs/a.py',
+    )
+    EVAL_TEXT_REFUSED = (
+        "cat /abs/run.sh | eval 'bash -s'",
+        "cat /abs/run.sh | eval 'true; bash'",
+        "cat /abs/run.sh | eval ' bash'",
+        'cat /abs/run.sh | eval "cat | bash"',
+        "cat /abs/run.sh | eval true ';' bash",
+        "cat /abs/run.sh | eval 'a=1 bash'",
+        "cat /abs/run.sh | eval '(bash)'",
+        "cat /abs/run.sh | eval '{ bash; }'",
+        "cat /abs/run.sh | eval '' bash",
+        "cat /abs/run.sh | eval -- 'true; bash'",
+    )
+    EVAL_TEXT_ALLOWED = ("cat x | eval 'grep y'", "cat x | eval -- grep y")
+    FUNCTION_BODY_REFUSED = (
+        'f() { bash; }; cat /abs/run.sh | f',
+        'function f { bash; }; cat /abs/run.sh | f',
+        'f() { bash; }; f < <(cat /abs/run.sh)',
+        'f() { cat; bash; }; cat /abs/run.sh | f',
+        'g() { bash; }; f() { g; }; cat /abs/run.sh | f',
+    )
+    FUNCTION_BODY_ALLOWED = (
+        'f() { grep y; }; cat x | f',
+        'T=/abs/s.py; f() { python3 -I $T; }; cat x | f',
+    )
+    DESCRIPTOR_OPERAND_REFUSED = (
+        'cat /abs/run.sh | bash /dev/fd/3 3<&0',
+        'bash /dev/fd/3 3< <(cat /abs/run.sh)',
+        "python3 /dev/fd/3 3<<<'print(1)'",
+        'cat /abs/run.sh | python3 -I /dev/fd/5 5<&0',
+        "python3 //dev/stdin <<< 'print(1)'",
+        "python3 /dev/./stdin <<< 'print(1)'",
+        "python3 /proc/thread-self/fd/0 <<< 'print(1)'",
+        'cat x | bash /dev/stdin',
+        'cat x | python3 /dev/fd/0',
+        'cat x | source /proc/self/fd/0',
+        'cat /abs/run.sh | xargs -a /abs/list bash /dev/stdin',
+    )
+    DESCRIPTOR_OPERAND_ALLOWED = (
+        'cat x | bash /abs/run.sh',
+        'python3 -I /abs/s.py < /abs/in.txt',
+    )
+    RUNNERS_REFUSED = (
+        'cat /abs/run.sh | stdbuf -o0 bash',
+        'cat /abs/run.sh | stdbuf -o 0 bash',
+        'cat /abs/run.sh | stdbuf --output 0 bash',
+        'cat /abs/run.sh | setsid -w bash',
+        'cat /abs/run.sh | setsid bash',
+        'cat /abs/run.sh | ionice -c3 bash',
+        'cat /abs/run.sh | ionice -c 3 bash',
+        'cat /abs/run.sh | flock /abs/lock bash',
+        'cat /abs/run.sh | flock -w 5 /abs/lock bash',
+        'cat /abs/run.sh | flock /abs/lock -c bash',
+        'cat /abs/run.sh | flock -c /abs/lock grep y',
+        'cat /abs/run.sh | busybox sh',
+        'cat /abs/run.sh | rbash',
+        'cat /abs/run.sh | builtin source /dev/stdin',
+        'cat /abs/run.sh | builtin exec bash',
+        'cat /abs/run.sh | builtin eval bash',
+        'cat /abs/run.sh | command builtin exec bash',
+    )
+    RUNNERS_ALLOWED = (
+        'cat x | stdbuf -o0 grep y',
+        'cat x | setsid grep y',
+        'cat x | ionice -c3 grep y',
+        'cat x | flock /abs/lock grep y',
+        "cat x | flock /abs/lock -c 'grep y'",
+        'cat x | busybox grep y',
+        'cat x | builtin echo hi',
+    )
+    # xargs options that take an argument, and --max-lines, which takes none unattached.
+    XARGS_REFUSED = (
+        'cat /abs/run.sh | xargs -a /abs/list bash',
+        'cat /abs/run.sh | xargs -d , bash',
+        'cat /abs/run.sh | xargs -E end bash',
+        'cat /abs/run.sh | xargs -I {} bash',
+        'cat /abs/run.sh | xargs -L 1 bash',
+        'cat /abs/run.sh | xargs -n 1 bash',
+        'cat /abs/run.sh | xargs -P 2 bash',
+        'cat /abs/run.sh | xargs -s 99 bash',
+        'cat /abs/run.sh | xargs -a /dev/null --max-lines bash',
+    )
+    XARGS_ALLOWED = (
+        'cat x | xargs -a /abs/list grep y',
+        'cat x | xargs -n 1 grep bash',
+        'cat x | xargs --max-lines grep y',
+        'cat x | xargs --max-lines=1 echo',
+    )
+    SHELL_STRING_REFUSED = (
+        "bash -c 'cat /abs/run.sh | /bin/ba?h'",
+        "bash -c 'cat /abs/run.sh | /usr/bin/pyth?n3 -'",
+        "cat /abs/in.py | bash -c 'env -Spython3'",
+        'cat /abs/run.sh | xargs -a /dev/null sh -c bash',
+        "cat /abs/run.sh | sh -c 'grep -q x; bash'",
+        "eval 'cat /abs/run.sh | bash'",
+    )
+    SHELL_STRING_ALLOWED = (
+        "cat x | bash -c 'grep y'",
+        "bash -c 'env -Spython3'",
+        "bash -c 'echo hi'",
+    )
+    # Feeds read as a named file (<& and <>): refused with -s, allowed with no operand.
+    FILE_FEED_REFUSED = ('bash -s <&3', 'bash -s <> /abs/f')
+    FILE_FEED_ALLOWED = ('bash <> /abs/f', 'bash < /abs/run.sh')
+    ARITHMETIC_ALLOWED = (
+        'cat x | ((1+(2)))',
+        'cat x | (( (1)+((2)) ))',
+        'cat x | while (( $# )); do shift; done',
+        'cat x | (( n = $1 + 1 ))',
+    )
+    ARITHMETIC_REFUSED = ('cat x | (( $(echo 1) ))', 'cat x | (( `echo 1` ))')
+    # Forms known to be allowed that the module docstring's RESIDUAL section names.
+    RESIDUAL_ALLOWED = (
+        'coproc cat /abs/run.sh; bash <&63',
+        'coproc cat /abs/run.sh; bash 0>&${COPROC[0]}',
+        'cat /abs/run.sh | sudo -s',
+        'cat /abs/run.sh | sudo -i',
+        'cat /abs/run.sh | doas bash',
+        "x='a[$(bash)]'; cat /abs/run.sh | (( x ))",
+    )
+    # One example line for each further form the RESIDUAL section names; \n in the
+    # section's example stands for each newline of the line.
+    RESIDUAL_NESTING_COUNT = 'echo esac; if false; then\nT=/abs/s.py\nfi; cat /abs/in.py | python3 -I $T'
+    RESIDUAL_FUNCTION_NAMED_AS_WRAPPER = 'nice() { bash; }; cat /abs/run.sh | nice grep y'
+    RESIDUAL_DESCRIPTOR_PARENT_PART = 'cat /abs/run.py | python3 /proc/self/task/../fd/0'
+    RESIDUAL_EVALUATED_SUBSCRIPT = "cat /abs/run.sh | let 'a[$(bash)]'"
+
+    def _deny_by_default_module(self, name):
+        return load_linter_module(".claude/hooks/block-stdin-interpreter.py", name)
+
+    def _assert_rows(self, mod, refused, allowed):
+        for command in refused:
+            with self.subTest(refused=command):
+                self.assertTrue(mod.decide(command), command)
+                problem = mod._deny_by_default(command)
+                self.assertTrue(problem, command)
+                self.assertIn("refused by default", problem[1])
+        for command in allowed:
+            with self.subTest(allowed=command):
+                self.assertIsNone(mod.decide(command), command)
+
+    def test_variable_resolved_only_from_a_top_level_assignment(self):
+        mod = self._deny_by_default_module("_stdin_interpreter_top_level_set")
+        self._assert_rows(mod, self.SET_ONCE_NOT_TOP_LEVEL, self.SET_ONCE_TOP_LEVEL)
+
+    def test_variable_resolution_conditions(self):
+        mod = self._deny_by_default_module("_stdin_interpreter_set_conditions")
+        for command in self.SET_ONCE_CONDITIONS:
+            with self.subTest(refused=command):
+                self.assertTrue(mod.decide(command), command)
+        self.assertIsNone(mod.decide(self.SET_ONCE_TOP_LEVEL[0]))
+
+    def test_eval_operands_read_as_a_line_with_the_feed(self):
+        mod = self._deny_by_default_module("_stdin_interpreter_eval_text")
+        self._assert_rows(mod, self.EVAL_TEXT_REFUSED, self.EVAL_TEXT_ALLOWED)
+
+    def test_function_defined_on_the_line_read_through_its_body(self):
+        mod = self._deny_by_default_module("_stdin_interpreter_function_body")
+        self._assert_rows(mod, self.FUNCTION_BODY_REFUSED, self.FUNCTION_BODY_ALLOWED)
+
+    def test_descriptor_path_is_no_literal_program_operand(self):
+        mod = self._deny_by_default_module("_stdin_interpreter_descriptor_path")
+        self._assert_rows(mod, self.DESCRIPTOR_OPERAND_REFUSED, self.DESCRIPTOR_OPERAND_ALLOWED)
+
+    def test_added_runners_read_as_wrappers(self):
+        mod = self._deny_by_default_module("_stdin_interpreter_runners")
+        self._assert_rows(mod, self.RUNNERS_REFUSED, self.RUNNERS_ALLOWED)
+
+    def test_xargs_option_readings(self):
+        mod = self._deny_by_default_module("_stdin_interpreter_xargs_options")
+        self._assert_rows(mod, self.XARGS_REFUSED, self.XARGS_ALLOWED)
+
+    def test_shell_string_read_with_the_feed_it_inherits(self):
+        mod = self._deny_by_default_module("_stdin_interpreter_shell_string")
+        self._assert_rows(mod, self.SHELL_STRING_REFUSED, self.SHELL_STRING_ALLOWED)
+
+    def test_file_feeds_by_duplication_and_read_write(self):
+        mod = self._deny_by_default_module("_stdin_interpreter_file_feeds")
+        self._assert_rows(mod, self.FILE_FEED_REFUSED, self.FILE_FEED_ALLOWED)
+
+    def test_arithmetic_command_builds_no_word(self):
+        mod = self._deny_by_default_module("_stdin_interpreter_arithmetic")
+        self._assert_rows(mod, self.ARITHMETIC_REFUSED, self.ARITHMETIC_ALLOWED)
+
+    def test_residual_forms_stay_allowed(self):
+        """Each form the module docstring's RESIDUAL section names, with its example, is
+        allowed: a change that refuses one must also update that section."""
+        mod = self._deny_by_default_module("_stdin_interpreter_residual")
+        doc = " ".join(mod.__doc__.split())
+        self.assertIn("RESIDUAL. This hook is a best-effort text guard over an open shell "
+                      "grammar", doc)
+        residual = doc.split("RESIDUAL. ", 1)[1]
+        for command in self.RESIDUAL_ALLOWED:
+            with self.subTest(allowed=command):
+                self.assertIsNone(mod.decide(command), command)
+                self.assertIn("``" + " ".join(command.split()) + "``", residual)
+
+    def _assert_residual_example_allowed(self, name, command):
+        mod = self._deny_by_default_module(name)
+        self.assertIsNone(mod.decide(command), command)
+        residual = " ".join(mod.__doc__.split()).split("RESIDUAL. ", 1)[1]
+        shown = " ".join(command.replace("\n", "\\n").split())
+        self.assertIn("``" + shown + "``", residual)
+
+    def test_assignment_cancelled_by_a_closing_word_spelling_stays_resolved(self):
+        """A word spelt like a closing keyword cancels an opener in the nesting count, so
+        an assignment in an if that never runs still resolves the variable: allowed, and
+        named in the RESIDUAL section."""
+        self._assert_residual_example_allowed("_stdin_interpreter_residual_nesting",
+                                              self.RESIDUAL_NESTING_COUNT)
+
+    def test_residual_example_of_wrapper_named_function_is_allowed_and_documented(self):
+        """The RESIDUAL example in which the line defines a function under a modelled
+        wrapper's name (nice) and pipes into that name is allowed by decide, and the example
+        is named in the RESIDUAL section."""
+        self._assert_residual_example_allowed("_stdin_interpreter_residual_function",
+                                              self.RESIDUAL_FUNCTION_NAMED_AS_WRAPPER)
+
+    def test_descriptor_path_with_a_parent_part_stays_a_literal_program(self):
+        """A descriptor path spelt with a .. part is read as a literal program operand:
+        allowed, and named in the RESIDUAL section."""
+        self._assert_residual_example_allowed("_stdin_interpreter_residual_descriptor",
+                                              self.RESIDUAL_DESCRIPTOR_PARENT_PART)
+
+    def test_quoted_subscript_evaluated_by_let_stays_allowed(self):
+        """let evaluates a quoted subscript whose substitution reads the feed: allowed, and
+        named in the RESIDUAL section."""
+        self._assert_residual_example_allowed("_stdin_interpreter_residual_subscript",
+                                              self.RESIDUAL_EVALUATED_SUBSCRIPT)
+
+    def test_doubled_parenthesis_reading_matches_host_bash(self):
+        """Each doubled-parenthesis shape in each place an arithmetic command may stand.
+
+        Host bash's own reading is the reference: the function body bash prints for the
+        line (parsed, never run) begins with (( for an arithmetic command and with ( ( for a
+        subshell holding a subshell. The hook must read the same, and a piped line whose
+        subshells run bash must be refused while a genuine arithmetic line is allowed, except
+        an arithmetic line that names an interpreter (((bash)), a variable named bash) or
+        holds a $( substitution: the deny-by-default rule reads it as the
+        command that receives the pipe, so in a piped line it is refused by default.
+        """
+        bash = shutil.which("bash")
+        if bash is None:
+            self.skipTest("no bash on this host to compare with")
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_doubled_parenthesis")
+        shapes = (
+            '(( 1 ))', '((1+(2)))', '(( (1) ))', '(((1)))', '((n++))', '(( (1)+((2)) ))',
+            '((bash))', '(( $(echo 1) ))', '((true) && (bash))', '((echo hi); (bash))',
+            '((:);(bash))', '((bash)|(cat))', '(((:));(bash))', '((:) ; (bash))',
+            '((bash) )', '((:)|(bash))', '(( (:) );(bash))',
+            '(( 16#ff + $(echo 1) ))', '(( testcase + $(echo 1) ))', '(( $(echo 16#ff) ))',
+            '(( $(echo testcase) + 1 ))',
+        )
+        places = (
+            ('start', '{}'), ('after_do', 'while false; do {}; done'),
+            ('after_while', 'while {}; do break; done'), ('after_brace', '{{ {}; }}'),
+            ('after_time', 'time {}'), ('after_bang', '! {}'), ('after_if', 'if {}; then :; fi'),
+        )
+        names_an_interpreter = frozenset(('((bash))',))
+        checked, readings = 0, set()
+        for shape in shapes:
+            for place, template in places:
+                line = template.format(shape)
+                with self.subTest(shape=shape, place=place):
+                    r = subprocess.run([bash, "--norc", "--noprofile", "-c",
+                                        "f() {\n" + line + "\n}\ndeclare -f f"],
+                                       capture_output=True, text=True, timeout=60,
+                                       env={"PATH": os.defpath, "LC_ALL": "C"})
+                    self.assertEqual(r.returncode, 0, (line, r.stdout, r.stderr))
+                    body = r.stdout.split("\n", 2)[2]
+                    bash_arithmetic = body.startswith("((", body.index("("))
+                    tokens, _end = mod._lex(line, 0, 0, None)
+                    hook_arithmetic = any(t[0] == "W" and t[1].arithmetic and t[1].text == shape
+                                          for t in tokens)
+                    self.assertEqual(hook_arithmetic, bash_arithmetic, (line, body))
+                    problem = mod.decide("cat /abs/run.sh | " + line)
+                    if bash_arithmetic and (shape in names_an_interpreter
+                                            or "$(" in shape):
+                        self.assertIsNotNone(problem, line)
+                        self.assertIn("refused by default", problem[1], line)
+                    elif bash_arithmetic:
+                        self.assertIsNone(problem, line)
+                    else:
+                        self.assertIsNotNone(problem, line)
+                        self.assertIn("standard input is a pipe", problem[1], line)
+                    readings.add(bash_arithmetic)
+                    checked += 1
+        self.assertEqual(checked, len(shapes) * len(places))
+        self.assertEqual(readings, {True, False})
+
+    def test_parse_failure_allowance_beside_its_guard(self):
+        """Malformed text naming no listed name is allowed; the same shape naming one is not.
+
+        Each text is checked to be one this hook's own reader cannot parse, so a row that
+        stops being malformed fails here instead of pinning nothing.
+        """
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_allowance")
+        allowed = dict(self.ALLOWED)
+        refused = {case_id: (command, evidence) for case_id, command, evidence in self.REFUSED}
+        self.assertGreaterEqual(len(self.PARSE_FAILURE_ALLOWANCE), 6)
+        for allowed_id, allowed_text, guard_id, guard_text in self.PARSE_FAILURE_ALLOWANCE:
+            with self.subTest(allowed=allowed_id, guard=guard_id):
+                self.assertIn(guard_id, refused)
+                built = allowed_id not in allowed
+                if built:
+                    self.assertIn(allowed_id, refused)
+                    command, built_evidence = refused[allowed_id]
+                    self.assertEqual(built_evidence, "refused by default")
+                    self.assertTrue(mod._builds_a_word(command), command)
+                else:
+                    command = allowed[allowed_id]
+                guard, evidence = refused[guard_id]
+                self.assertIn(allowed_text, command)
+                self.assertIn(guard_text, guard)
+                for text in (allowed_text, guard_text):
+                    with self.assertRaises(mod.ParseError):
+                        mod._lex(text, 0, 0, None)
+                if built:
+                    self._assert_refused(command, "can build a word at run time")
+                else:
+                    self._assert_allowed(command)
+                self._assert_refused(guard, evidence)
+        self.assertIn('c_string_unterminated_quote_names_no_interpreter', allowed)
+
+    # Prefix elements for the generated test below: assignments (scalar, array, subscript
+    # without and with blanks, and a subscript holding ;, &&, || or a newline), a
+    # redirection by number and one by a {NAME} descriptor (placed before and after the
+    # others by the ordering), and each reserved word the hook lists.
+    PREFIX_ASSIGNMENTS = ("a=1", "a=(1)", "a[0]=1", "a[ 0 ]=1", "b[ ; ]=2", "b[ && ]=2",
+                          "b[ || ]=2", "b[\n]=2")
+    PREFIX_REDIRECTION = "3>/dev/null"
+    # A {NAME} word before a redirection operator: bash reads it as the descriptor.
+    PREFIX_NAMED_REDIRECTION = "{fd}>/dev/null"
+    PREFIX_RESERVED = ("!", "[[", "]]", "case", "coproc", "do", "done", "elif", "else",
+                       "esac", "fi", "for", "function", "if", "in", "select", "then",
+                       "until", "while", "{", "}")
+    # (text before the prefix, text after it): an interpreter reading standard input.
+    PREFIX_INTERPRETERS = (("cat /abs/run.sh | ", " bash"), ("", " python3 -"))
+    RESERVED_AFTER_ASSIGNMENT = "is followed in the same simple command by a reserved word"
+
+    def test_assignment_prefix_then_reserved_word_every_ordered_combination(self):
+        """Every ordered combination of one to three prefix elements before an interpreter.
+
+        When an assignment element comes before a reserved word element, the hook refuses
+        the command: an assignment prefix followed by a reserved word in a command line that
+        feeds standard input to an interpreter. Otherwise that rule does not refuse it (any
+        other rule may). The decision is the hook's own decide(), so the 61,566 commands
+        run in process rather than one hook process each.
+        """
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_prefixes")
+        self.assertEqual(set(self.PREFIX_RESERVED), set(mod.ASSIGNED_RESERVED))
+        elements = ([(text, "assignment") for text in self.PREFIX_ASSIGNMENTS]
+                    + [(self.PREFIX_REDIRECTION, "redirection")]
+                    + [(self.PREFIX_NAMED_REDIRECTION, "redirection")]
+                    + [(text, "reserved") for text in self.PREFIX_RESERVED])
+        combos = ([(a,) for a in elements] + [(a, b) for a in elements for b in elements]
+                  + [(a, b, c) for a in elements for b in elements for c in elements])
+        missed, misread, total = [], [], 0
+        for combo in combos:
+            kinds = [kind for _text, kind in combo]
+            rule = any(kind == "assignment" and "reserved" in kinds[k + 1:]
+                       for k, kind in enumerate(kinds))
+            prefix = " ".join(text for text, _kind in combo)
+            for before, after in self.PREFIX_INTERPRETERS:
+                command = before + prefix + after
+                total += 1
+                problem = mod.decide(command)
+                if rule and problem is None:
+                    missed.append(command)
+                elif (not rule and problem is not None
+                      and self.RESERVED_AFTER_ASSIGNMENT in problem[1]):
+                    misread.append(command)
+        self.assertEqual(total, 61566)
+        self.assertEqual(missed, [], str(len(missed)) + " allowed: " + repr(missed[:20]))
+        self.assertEqual(misread, [], str(len(misread)) + " refused by the rule without "
+                         "an assignment before a reserved word: " + repr(misread[:20]))
+
+    # Substitution contexts for the nested test below, each wrapping the text at {}: a $( ),
+    # a backtick, a <( ) and a >( ), each written as a word and as a redirection's target.
+    NESTED_CONTEXTS = ("echo $({})", "echo `{}`", "echo <({})", "echo >({})",
+                       'echo >"$({})"', "echo >`{}`", "echo < <({})", "echo > >({})")
+    # The interpreters above, and a shell given a script path, which only the rule refuses.
+    NESTED_INTERPRETERS = PREFIX_INTERPRETERS + (("cat /abs/run.sh | ", " bash /abs/run.sh"),)
+    # Leading shell words before the prefix: time, time -p and time -- (bash skips a -- after
+    # time or time -p), alone and after !.
+    TIME_LEADS = ("", "time ", "time -p ", "time -- ", "time -p -- ", "! time ", "! time -p ")
+
+    @classmethod
+    def nested_contexts(cls):
+        """Each context at one level, and each ordered pair at two levels (outer, inner).
+
+        A backtick inside a backtick is left out: bash needs the inner one escaped, and the
+        hook states nested backticks as a residual.
+        """
+        one = list(cls.NESTED_CONTEXTS)
+        two = [outer.replace("{}", inner) for outer in one for inner in one
+               if not ("`" in outer and "`" in inner)]
+        return one + two
+
+    @classmethod
+    def nested_prefix_cases(cls):
+        """(command, rule) for one and two prefix elements in every nested context.
+
+        rule is True when an assignment element comes before a reserved word element.
+        """
+        elements = ([(text, "assignment") for text in cls.PREFIX_ASSIGNMENTS]
+                    + [(cls.PREFIX_REDIRECTION, "redirection")]
+                    + [(cls.PREFIX_NAMED_REDIRECTION, "redirection")]
+                    + [(text, "reserved") for text in cls.PREFIX_RESERVED])
+        combos = [(a,) for a in elements] + [(a, b) for a in elements for b in elements]
+        for context in cls.nested_contexts():
+            for combo in combos:
+                kinds = [kind for _text, kind in combo]
+                rule = any(kind == "assignment" and "reserved" in kinds[k + 1:]
+                           for k, kind in enumerate(kinds))
+                prefix = " ".join(text for text, _kind in combo)
+                for before, after in cls.NESTED_INTERPRETERS:
+                    yield before + context.replace("{}", prefix + after), rule
+
+    @staticmethod
+    def quoting_forms(word):
+        """(form, text): each spelling of word that bash reads as word once it has removed
+        the quoting (ANSI-C escapes decoded, a NUL ending its $'...' segment)."""
+        first, rest = word[0], word[1:]
+
+        def ansi_c(chars, spec):
+            return "".join(spec % ord(ch) for ch in chars)
+
+        return (
+            ("plain", word),
+            ("single quotes", "'" + word + "'"),
+            ("double quotes", '"' + word + '"'),
+            ("leading backslash", "\\" + word),
+            ("backslash before each character", "".join("\\" + ch for ch in word)),
+            ("partly single-quoted", first + "'" + rest + "'"),
+            ("partly double-quoted", '"' + first + '"' + rest),
+            ("line continuation", first + "\\\n" + rest if rest else "\\\n" + word),
+            ("ANSI-C quoting", "$'" + word + "'"),
+            ("ANSI-C hexadecimal escapes", "$'" + ansi_c(word, "\\x%02x") + "'"),
+            ("ANSI-C braced hexadecimal escapes", "$'" + ansi_c(word, "\\x{%x}") + "'"),
+            ("ANSI-C octal escapes", "$'" + ansi_c(word, "\\%03o") + "'"),
+            ("ANSI-C \\u escapes", "$'" + ansi_c(word, "\\u%04x") + "'"),
+            ("ANSI-C \\U escapes", "$'" + ansi_c(word, "\\U%08x") + "'"),
+            ("ANSI-C segment ended by a NUL", "$'" + first + "\\0zz'" + rest),
+            ("locale quoting", '$"' + word + '"'),
+            ("mixed quoting", '"' + first + '"' + "$'" + ansi_c(rest, "\\x%02x") + "'"),
+        )
+
+    @classmethod
+    def quoting_prefix_cases(cls):
+        """(command, rule) for each quoting form of each reserved word behind each time
+        lead: after each assignment (rule True) and with no assignment (rule False)."""
+        for reserved in cls.PREFIX_RESERVED:
+            for _form, text in cls.quoting_forms(reserved):
+                for lead in cls.TIME_LEADS:
+                    for before, after in cls.NESTED_INTERPRETERS:
+                        yield before + lead + text + after, False
+                        for assignment in cls.PREFIX_ASSIGNMENTS:
+                            yield before + lead + assignment + " " + text + after, True
+
+    def _check_prefix_cases(self, module_name, cases, total):
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py", module_name)
+        missed, misread, count = [], [], 0
+        for command, rule in cases:
+            count += 1
+            problem = mod.decide(command)
+            if rule and problem is None:
+                missed.append(command)
+            elif (not rule and problem is not None
+                  and self.RESERVED_AFTER_ASSIGNMENT in problem[1]):
+                misread.append(command)
+        self.assertEqual(count, total)
+        self.assertEqual(missed, [], str(len(missed)) + " allowed: " + repr(missed[:20]))
+        self.assertEqual(misread, [], str(len(misread)) + " refused by the rule without "
+                         "an assignment before a reserved word: " + repr(misread[:20]))
+
+    def test_assignment_prefix_then_reserved_word_in_every_nested_context(self):
+        """One and two prefix elements inside each substitution kind, at one and two levels.
+
+        The rule applies in every nested command context: a $( ), a backtick, a <( ) or a
+        >( ), written as a word or as a redirection's target, and one inside another. The
+        decision is the hook's own decide(), so the 202,368 commands run in process.
+        """
+        self.assertEqual(len(self.nested_contexts()), 68)
+        self._check_prefix_cases("_stdin_interpreter_nested", self.nested_prefix_cases(),
+                                 202368)
+
+    def test_assignment_prefix_then_reserved_word_every_quoting_and_time_form(self):
+        """Each quoting form of each reserved word, behind time, time -p and time --.
+
+        bash removes the quoting before it reads the word as a command's name, so each form
+        after an assignment is refused in a command line that feeds an interpreter, and none
+        without an assignment is refused by that rule. 67,473 commands, run in process.
+        """
+        for _form, text in self.quoting_forms("while"):
+            with self.subTest(text=text):
+                self.assertEqual(self._bash_word(text), "while")
+        self._check_prefix_cases("_stdin_interpreter_quoting", self.quoting_prefix_cases(),
+                                 67473)
+
+    # Wrappers that set NAME=VALUE operands before the command they run: env (alone, with
+    # options and after --), env behind nohup and timeout, and sudo (alone and with options).
+    OPERAND_WRAPPERS = ("env ", "env -i ", "env -u HOME ", "env -iC /tmp ", "env -- ",
+                        "nohup env ", "timeout 5 env ", "timeout -s KILL 5 env -i ",
+                        "sudo ", "sudo -u nobody ", "sudo -E ")
+    # Operand shapes holding an = whose name is not a valid shell identifier, or whose name
+    # only quoting or an escape makes: GNU env, and sudo by its VAR=value form, set each as
+    # an environment entry, so the command is the next operand.
+    OPERAND_SHAPES = ("$'\\q'=1", "$'\\d'=1", "$'\\x'=1", "$'\\c'=1", "'\\q'=1",
+                      '"\\q"=1', "a-b=1", "1=1", "=1", "a.b=1", "'a b'=1", "a=1 b-c=2",
+                      "a-b=1 c=2")
+    # (text before the wrapper, text after the operands, refused).
+    OPERAND_COMMANDS = (("cat /abs/run.sh | ", " bash", True),
+                        ("cat /abs/run.sh | ", " python3", True),
+                        ("", " python3 -", True),
+                        ("", " python3 /abs/script.py", False))
+
+    def test_wrapper_operand_with_an_equals_sign_is_skipped_as_an_assignment(self):
+        """Each env or sudo wrapper crossed with each operand shape holding an =.
+
+        GNU env reads every operand holding an = after its options as NAME=VALUE whatever the
+        name, and runs the next operand as the command, so an interpreter after such an
+        operand is checked as the command: one reading standard input is refused, and one
+        given a script path is allowed. 572 commands, run in process.
+        """
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_wrapper_operands")
+        missed, misread, count = [], [], 0
+        for wrapper in self.OPERAND_WRAPPERS:
+            for shape in self.OPERAND_SHAPES:
+                for before, after, refused in self.OPERAND_COMMANDS:
+                    command = before + wrapper + shape + after
+                    count += 1
+                    problem = mod.decide(command)
+                    if refused and problem is None:
+                        missed.append(command)
+                    elif not refused and problem is not None:
+                        misread.append((command, problem[1]))
+        self.assertEqual(count, 572)
+        self.assertEqual(missed, [], str(len(missed)) + " allowed: " + repr(missed[:20]))
+        self.assertEqual(misread, [], str(len(misread)) + " refused: " + repr(misread[:20]))
+
+    # Wrappers for the generated test below: none, each listed wrapper alone and with
+    # options, and two wrappers in a row.
+    UNCERTAIN_WRAPPERS = ("", "env ", "env -i ", "env -u HOME ", "command ", "command -p ",
+                          "exec ", "exec -a name ", "nice ", "nice -n 5 ", "timeout 5 ",
+                          "timeout -s KILL 5 ", "nohup ", "sudo ", "sudo -u nobody ",
+                          "time -p ", "/usr/bin/time ", "nohup env ")
+    # (shape, refused with no standard-input feed): text after the wrappers at which the
+    # hook cannot tell which word is the command. Wrappers nested past the limit, a
+    # command word built by a glob, a bracket or a brace expansion (it may name a wrapper),
+    # and a sudo long option that is neither a long name nor a prefix of exactly one
+    # (refused whatever the standard input is); an expansion or a substitution where a
+    # command, a wrapper option or a wrapper operand is read; env -S text holding a
+    # backslash escape, a $ or a #; a sudo NAME=VALUE operand followed by an option.
+    UNCERTAIN_SHAPES = (
+        ("nohup " * 17, True), ("env a=1 " * 17, True), ("sudo " * 17, True),
+        ("$V ", False), ('"$V" ', False), ("${V} ", False), ("$(echo a=1) ", False),
+        ('"$(printf a=1)" ', False), ("`true` ", False), ("$((1)) ", False),
+        ("a* ", True), ("?=1 ", True), ("{a,b} ", True),
+        ("env -S $'a=1\\_' ", False), ("env -S 'a=1\\_' ", False),
+        ("env -S 'a=1 ${X}' ", False), ("env -S '#x' ", False),
+        ("env --split-string=$'a-b=1\\_' ", False), ("env -iS $'a=1\\_' ", False),
+        ("sudo a=1 -u nobody ", False), ("sudo a-b=1 -E ", False), ("sudo a=1 -- ", False),
+        ("/b*/env cat ", True), ("/b{in,in}/env cat ", True), ("/b*/nohup cat ", True),
+        ("[e]nv cat ", True), ("/u*/bin/sudo -u nobody ", True),
+        ("sudo --frobnicate nobody ", True), ("sudo --log nobody ", True),
+    )
+    # (text before the wrapper, text after the shape, standard input is fed).
+    UNCERTAIN_COMMANDS = (("cat /abs/run.sh | ", "bash", True),
+                          ("cat /abs/run.sh | ", "python3", True),
+                          ("", "python3 - <<< 'print(1)'", True),
+                          ("", "python3 /abs/script.py", False))
+
+    def test_uncertain_command_word_every_wrapper_and_shape(self):
+        """Each wrapper crossed with each shape at which the command word is uncertain.
+
+        When standard input is fed, the hook refuses the line rather than guess which word
+        is the command; with no feed, only the shapes marked so are refused (wrappers nested
+        past the limit, a command word built by a pattern, a sudo long option sudo would
+        not resolve to one option). The decision is the hook's own decide(), so the 2,088
+        commands run in process.
+        """
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_uncertain")
+        missed, misread, count = [], [], 0
+        for wrapper in self.UNCERTAIN_WRAPPERS:
+            for shape, always in self.UNCERTAIN_SHAPES:
+                for before, after, fed in self.UNCERTAIN_COMMANDS:
+                    command = before + wrapper + shape + after
+                    count += 1
+                    problem = mod.decide(command)
+                    if (fed or always) and problem is None:
+                        missed.append(command)
+                    elif not (fed or always) and problem is not None:
+                        misread.append((command, problem[1]))
+        self.assertEqual(count, 2088)
+        self.assertEqual(missed, [], str(len(missed)) + " allowed: " + repr(missed[:20]))
+        self.assertEqual(misread, [], str(len(misread)) + " refused: " + repr(misread[:20]))
+
+    # Pattern forms for the generated test below: each unquoted pattern character, a
+    # bracket expression holding a character class, an equivalence class or a collating
+    # symbol, and a brace list and a brace sequence.
+    GLOB_FORMS = ("a*", "a?", "[a]", "[[:alpha:]]", "[[=a=]]", "[[.a.]]", "{a,b}", "{a..b}")
+    # Each position a pattern may take after the wrappers of the test above: the command
+    # word, a wrapper's own name (bare and after a directory), and a word a wrapper reads
+    # as its option, its option argument or its operand.
+    GLOB_POSITIONS = ("{} ", "e{}v cat ", "/b{}/env cat ", "env -u {} ", "env -C {} ",
+                      "env {}=1 ", "env -S {} ", "command -{} ", "exec -a {} ",
+                      "nice -n {} ", "nice -{} ", "timeout {} ", "timeout -s {} 5 ",
+                      "nohup -{} ", "sudo -u {} ", "sudo --user={} ", "sudo {}=1 ",
+                      "/usr/bin/time -o {} ")
+
+    def test_glob_in_every_wrapper_position_is_refused_whatever_the_feed(self):
+        """Each pattern form in each command-word, wrapper-name and wrapper-operand
+        position, after each wrapper of the generated test above and before each of its
+        commands, is refused whether or not standard input is fed.
+
+        What a pattern matches is not worked out (a bracket expression may hold a class
+        bash reads in full), so which word is the command is not known and the line is
+        refused rather than guessed. 18 wrappers, 18 positions, 8 forms and 4 commands:
+        10,368 commands, run in process.
+        """
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_glob_positions")
+        missed, count = [], 0
+        for wrapper in self.UNCERTAIN_WRAPPERS:
+            for position in self.GLOB_POSITIONS:
+                for form in self.GLOB_FORMS:
+                    for before, after, _fed in self.UNCERTAIN_COMMANDS:
+                        command = before + wrapper + position.format(form) + after
+                        count += 1
+                        if mod.decide(command) is None:
+                            missed.append(command)
+        self.assertEqual(count, 10368)
+        self.assertEqual(missed, [], str(len(missed)) + " allowed: " + repr(missed[:20]))
+
+    # sudo's full option table, kept here apart from the hook's own copy: (short letter,
+    # long name, takes an argument). Source: sudo's manual, sudo(8), upstream at
+    # https://www.sudo.ws/docs/man/sudo.man/ (the latest version, read 2026-11-17).
+    # --preserve-env takes a list only after an = (--preserve-env=list), so it is read as
+    # taking none as a word of its own, as -E takes none.
+    SUDO_OPTION_TABLE = (
+        ("A", "askpass", False), ("a", "auth-type", True), ("B", "bell", False),
+        ("b", "background", False), ("C", "close-from", True), ("c", "login-class", True),
+        ("D", "chdir", True), ("E", "preserve-env", False), ("e", "edit", False),
+        ("g", "group", True), ("H", "set-home", False), ("h", "host", True),
+        ("i", "login", False), ("K", "remove-timestamp", False),
+        ("k", "reset-timestamp", False), ("l", "list", False), ("N", "no-update", False),
+        ("n", "non-interactive", False), ("P", "preserve-groups", False),
+        ("p", "prompt", True), ("R", "chroot", True), ("r", "role", True),
+        ("S", "stdin", False), ("s", "shell", False), ("T", "command-timeout", True),
+        ("t", "type", True), ("U", "other-user", True), ("u", "user", True),
+        ("V", "version", False), ("v", "validate", False),
+    )
+    # The options sudo's manual lists with a required argument, short form beside long
+    # form, as read from the source named above.
+    SUDO_MANUAL_ARGUMENT_OPTIONS = (
+        ("a", "auth-type"), ("C", "close-from"), ("c", "login-class"), ("D", "chdir"),
+        ("g", "group"), ("h", "host"), ("p", "prompt"), ("R", "chroot"), ("r", "role"),
+        ("T", "command-timeout"), ("t", "type"), ("U", "other-user"), ("u", "user"),
+    )
+    # Short options the manual lists both with no argument and with one (-h is --help and
+    # also -h host): with nothing attached, the next word may be the argument or the command.
+    SUDO_OPTION_EITHER_KIND = ("-h",)
+
+    def test_sudo_option_table_matches_the_manual(self):
+        """The hook's sudo option table gives an argument to exactly the options sudo's
+        manual lists with a required argument, and to no other.
+
+        --preserve-env takes its list only after an = (--preserve-env=list) and -E takes
+        none; --help takes none; -h, which the manual lists both as --help and as -h host,
+        is the one short option whose argument is not known when nothing is attached to it.
+        The test's own copy of the table agrees with the hook's, and the hook names its
+        upstream source beside the table.
+        """
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_sudo_manual")
+        short_takes = {k for k, takes in mod.SUDO_SHORT_OPTIONS.items() if takes}
+        long_takes = {k for k, takes in mod.SUDO_LONG_OPTIONS.items() if takes}
+        self.assertEqual(len(self.SUDO_MANUAL_ARGUMENT_OPTIONS), 13)
+        self.assertEqual(short_takes, {s for s, _l in self.SUDO_MANUAL_ARGUMENT_OPTIONS})
+        self.assertEqual(long_takes, {l for _s, l in self.SUDO_MANUAL_ARGUMENT_OPTIONS})
+        self.assertIs(mod.SUDO_SHORT_OPTIONS["E"], False)
+        self.assertIs(mod.SUDO_LONG_OPTIONS["preserve-env"], False)
+        self.assertEqual(mod.SUDO_LONG_EQUALS_ONLY, frozenset(("preserve-env",)))
+        self.assertIs(mod.SUDO_LONG_OPTIONS["help"], False)
+        self.assertEqual(mod.SUDO_SHORT_EITHER_KIND,
+                         frozenset(o[1:] for o in self.SUDO_OPTION_EITHER_KIND))
+        self.assertEqual({s: t for s, _l, t in self.SUDO_OPTION_TABLE},
+                         dict(mod.SUDO_SHORT_OPTIONS))
+        longs = {l: t for _s, l, t in self.SUDO_OPTION_TABLE}
+        longs["help"] = False
+        self.assertEqual(longs, dict(mod.SUDO_LONG_OPTIONS))
+        source = self.HOOK.read_text(encoding="utf-8")
+        self.assertIn("https://www.sudo.ws/docs/man/sudo.man/", source)
+        self.assertIn("read 2026-11-17", source)
+
+    def test_sudo_option_argument_every_form_and_shape(self):
+        """Each sudo option that takes an argument, in each spelling, crossed with each
+        uncertain shape and each command of the generated test above.
+
+        The argument is written apart (-a v1), attached (-av1), at the end of a cluster
+        (-Ea v1, -Eav1) and in the long form (--auth-type v1, --auth-type=v1), so the word
+        after it is never read as the command. With no shape the command follows the
+        option at once: an interpreter fed standard input is refused and one given a
+        script path is allowed. 9,360 commands, run in process.
+        """
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_sudo_arguments")
+        wrappers = []
+        for short, long, takes in self.SUDO_OPTION_TABLE:
+            if takes:
+                wrappers += ["sudo -" + short + " v1 ", "sudo -" + short + "v1 ",
+                             "sudo -E" + short + " v1 ", "sudo -E" + short + "v1 ",
+                             "sudo --" + long + " v1 ", "sudo --" + long + "=v1 "]
+        self.assertEqual(len(wrappers), 78)
+        missed, misread, count = [], [], 0
+        for wrapper in wrappers:
+            for shape, always in (("", False),) + self.UNCERTAIN_SHAPES:
+                for before, after, fed in self.UNCERTAIN_COMMANDS:
+                    command = before + wrapper + shape + after
+                    count += 1
+                    problem = mod.decide(command)
+                    if (fed or always) and problem is None:
+                        missed.append(command)
+                    elif not (fed or always) and problem is not None:
+                        misread.append((command, problem[1]))
+        self.assertEqual(count, 9360)
+        self.assertEqual(missed, [], str(len(missed)) + " allowed: " + repr(missed[:20]))
+        self.assertEqual(misread, [], str(len(misread)) + " refused: " + repr(misread[:20]))
+
+    def _sudo_long_name(self, given):
+        """The long name sudo's getopt_long reads given as, from the test's own copy of the
+        table: an exact long name, or else the one long name given is a prefix of; None for
+        a prefix of more than one long name and for a name no long name starts with."""
+        longs = {long for _short, long, _takes in self.SUDO_OPTION_TABLE} | {"help"}
+        if given in longs:
+            return given
+        names = [name for name in longs if name.startswith(given)]
+        return names[0] if len(names) == 1 else None
+
+    def test_sudo_option_outside_the_table_or_with_an_unwanted_value_is_refused(self):
+        """Each letter and digit as a sudo short option, and long names, read against the
+        table above.
+
+        A long option is looked up with any =value stripped, as sudo's getopt_long looks it
+        up: an exact long name, or else a prefix of exactly one long name (--us, --use and
+        --auth are --user, --user and --auth-type). An option in the table is read as the
+        table says, so a literal command after it stays allowed in a pipe. A short option
+        outside the table is refused in a pipe as cannot be determined, because whether it
+        takes the next word decides which word is the command; with no standard-input feed
+        it is not refused. A long option outside the table (--frobnicate) is refused as
+        cannot be determined with a feed and without one. A long option that takes no
+        argument given one after an = (--shell=x) is refused in a pipe as cannot be
+        determined, since the table says it takes no value, and not refused with no feed.
+        -h as a word of its own is refused in a pipe the same way: sudo's manual lists it
+        both as --help, which takes no argument, and as -h host, which takes one.
+        """
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_sudo_table")
+        table = {short: takes for short, _long, takes in self.SUDO_OPTION_TABLE}
+        longs = {long: takes for _short, long, takes in self.SUDO_OPTION_TABLE}
+        wrong = []
+        letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        options = ["-" + ch for ch in letters] + ["--" + name for name in longs]
+        options += ["--frobnicate", "--us", "--use", "--auth", "--shell=x"]
+        for option in options:
+            given_value = False
+            unknown_long = False
+            if len(option) == 2:
+                known = table.get(option[1:])
+            else:
+                given, equals, _value = option[2:].partition("=")
+                name = self._sudo_long_name(given)
+                known = longs.get(name) if name is not None else None
+                unknown_long = name is None
+                given_value = bool(equals) and known is False
+            self.assertEqual(option == "--shell=x", given_value, option)
+            arg = " v1" if known and not given_value else ""
+            fed = mod.decide("cat /abs/run.sh | sudo " + option + arg + " tee /abs/out")
+            unfed = mod.decide("sudo " + option + arg + " python3 /abs/script.py")
+            if known is None or option in self.SUDO_OPTION_EITHER_KIND or given_value:
+                if fed is None or "cannot be determined with certainty" not in fed[1]:
+                    wrong.append((option, "fed", fed and fed[1]))
+            elif fed is not None:
+                wrong.append((option, "fed", fed[1]))
+            if unknown_long:
+                if unfed is None or "cannot be determined with certainty" not in unfed[1]:
+                    wrong.append((option, "unfed", unfed and unfed[1]))
+            elif unfed is not None:
+                wrong.append((option, "unfed", unfed[1]))
+        self.assertEqual(len(options), 97)
+        self.assertEqual(wrong, [])
+
+    def test_sudo_long_option_prefix_is_read_as_getopt_long_reads_it(self):
+        """Every prefix of each sudo long name, and long names no long name starts with,
+        crossed with each command of the generated test above.
+
+        An exact long name, or else a prefix of exactly one long name, is that option and
+        takes that option's argument kind (--us v1 and --us=v1 are --user v1), so the word
+        after one that takes an argument is never read as the command: an interpreter fed
+        standard input is refused and one given a script path is allowed. A prefix of more
+        than one long name (--log: --login and --login-class) and a name no long name
+        starts with are refused whatever the standard input is. The expected reading comes
+        from the test's own copy of the table. Run in process.
+        """
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_sudo_prefixes")
+        longs = {long: takes for _short, long, takes in self.SUDO_OPTION_TABLE}
+        longs["help"] = False
+        prefixes = sorted({name[:k] for name in longs for k in range(1, len(name) + 1)})
+        prefixes += ["frobnicate", "users", "user-name", "x"]
+        wrappers = []
+        for prefix in prefixes:
+            name = self._sudo_long_name(prefix)
+            if name is None:
+                wrappers.append(("sudo --" + prefix + " v1 ", True))
+            elif longs[name]:
+                wrappers += [("sudo --" + prefix + " v1 ", False),
+                             ("sudo --" + prefix + "=v1 ", False)]
+            else:
+                wrappers.append(("sudo --" + prefix + " ", False))
+        always_count = sum(1 for _wrapper, always in wrappers if always)
+        self.assertEqual(self._sudo_long_name("us"), "user")
+        self.assertIsNone(self._sudo_long_name("log"))
+        self.assertGreater(always_count, 0)
+        self.assertGreater(len(wrappers) - always_count, 0)
+        missed, misread, count = [], [], 0
+        for wrapper, always in wrappers:
+            for before, after, fed in self.UNCERTAIN_COMMANDS:
+                command = before + wrapper + after
+                count += 1
+                problem = mod.decide(command)
+                if (fed or always) and problem is None:
+                    missed.append(command)
+                elif not (fed or always) and problem is not None:
+                    misread.append((command, problem[1]))
+        self.assertEqual(count, 4 * len(wrappers))
+        self.assertEqual(missed, [], str(len(missed)) + " allowed: " + repr(missed[:20]))
+        self.assertEqual(misread, [], str(len(misread)) + " refused: " + repr(misread[:20]))
+
+    def test_uncertain_command_word_rows_through_the_entry_point(self):
+        """Each listed uncertain form is refused with its reason, and each ordinary
+        command in the allowed list stays allowed, through the hook's entry point."""
+        refused = {case_id: (command, evidence) for case_id, command, evidence in self.REFUSED}
+        allowed = dict(self.ALLOWED)
+        for case_id in self.UNCERTAIN_REFUSED_IDS:
+            with self.subTest(refused=case_id):
+                command, evidence = refused[case_id]
+                self._assert_refused(command, evidence)
+        for case_id in self.UNCERTAIN_ALLOWED_IDS:
+            with self.subTest(allowed=case_id):
+                if case_id in allowed:
+                    self._assert_allowed(allowed[case_id])
+                else:
+                    # The uncertain-word rule allows it; it feeds standard input and holds
+                    # a construct that can build a word, so the deny-by-default rule
+                    # refuses it.
+                    command, evidence = refused[case_id]
+                    self.assertEqual(evidence, "refused by default")
+                    self._assert_refused(command, "can build a word at run time")
+
+    UNCERTAIN_REFUSED_IDS = (
+        'wrappers_nested_past_the_limit_nohup_piped',
+        'wrappers_nested_past_the_limit_env_assignment_piped',
+        'wrappers_nested_past_the_limit_env_hyphenated_operand_here_string',
+        'wrappers_nested_past_the_limit_command_piped',
+        'wrappers_nested_past_the_limit_nice_piped',
+        'wrappers_nested_past_the_limit_sudo_piped',
+        'wrappers_nested_past_the_limit_python_dash_here_string',
+        'env_operand_substitution_before_python_piped',
+        'env_operand_variable_before_python_dash_piped',
+        'sudo_operand_substitution_before_shell_piped',
+        'env_operand_variable_before_shell_piped',
+        'variable_command_word_before_shell_piped',
+        'substitution_command_word_after_assignment_before_shell_piped',
+        'env_split_string_escaped_separator_after_operand_piped',
+        'env_split_string_escaped_separator_before_shell_option_piped',
+        'env_split_string_escaped_separator_after_assignment_piped',
+        'env_split_string_comment_before_shell_piped',
+        'env_split_string_variable_reference_piped',
+        'sudo_stops_at_assignment_so_option_shaped_word_is_an_operand_piped',
+        'over_refusal_variable_command_word_piped',
+        'over_refusal_expansion_as_wrapper_option_argument_piped',
+        'over_refusal_env_split_string_backslash_piped',
+        'over_refusal_sudo_assignment_before_option_piped',
+        'over_refusal_wrappers_nested_past_the_limit_without_feed',
+        'sudo_unknown_option_before_piped_shell',
+        'sudo_unknown_option_in_cluster_before_piped_shell',
+        'sudo_unknown_long_option_before_piped_shell',
+        'sudo_ambiguous_abbreviated_long_option_piped',
+        'sudo_unknown_long_option_without_feed',
+        'sudo_ambiguous_abbreviated_long_option_without_feed',
+        'sudo_unknown_long_option_before_nested_c_program',
+        'sudo_ambiguous_abbreviated_long_option_before_nested_c_program',
+        'glob_wrapper_head_without_feed',
+        'glob_wrapper_head_nohup_without_feed',
+        'glob_wrapper_head_before_nested_c_program',
+        'brace_wrapper_head_before_nested_c_program',
+        'bracket_wrapper_head_before_nested_c_program',
+        'character_class_wrapper_head_before_nested_c_program',
+        'equivalence_class_wrapper_head_before_nested_c_program',
+        'collating_symbol_wrapper_head_before_nested_c_program',
+        'leading_character_class_wrapper_head_before_nested_c_program',
+        'over_refusal_glob_wrapper_option_argument_without_feed',
+        'over_refusal_glob_wrapper_operand_without_feed',
+        'over_refusal_brace_wrapper_option_without_feed',
+        'over_refusal_glob_name_that_names_no_wrapper_without_feed',
+        'sudo_short_host_option_as_its_own_word_before_piped_shell',
+        'sudo_short_host_option_as_its_own_word_with_host_before_piped_shell',
+        'over_refusal_sudo_short_host_option_as_its_own_word_piped',
+        'over_refusal_sudo_short_host_option_ending_a_cluster_piped',
+        'over_refusal_sudo_short_host_option_alone_piped',
+    )
+    UNCERTAIN_ALLOWED_IDS = (
+        'shell_name_as_search_pattern_piped',
+        'variable_argument_without_feed',
+        'env_assignment_before_literal_command',
+        'substitution_argument_piped_into_literal_command',
+        'substitution_argument_of_piped_literal_command',
+        'literal_env_operands_piped',
+        'literal_sudo_options_piped',
+        'literal_sudo_long_option_argument_piped',
+        'sudo_short_host_option_with_attached_host_piped',
+        'sudo_long_host_option_with_equals_piped',
+        'sudo_long_help_option_piped',
+        'plain_env_split_string_piped',
+        'variable_argument_after_wrapper_piped',
+        'variable_command_word_without_feed',
+        'wrappers_nested_to_the_limit_piped_into_literal_command',
+        'sudo_abbreviated_long_option_piped_into_literal_command',
+        'sudo_abbreviated_long_option_before_script',
+        'quoted_pattern_argument_of_piped_search',
+        'glob_argument_of_command_feeding_a_pipe',
+        'glob_argument_of_piped_search',
+        'character_class_argument_after_wrapper_piped',
+        'brace_argument_of_piped_literal_command',
+    )
+
+    def _bash_word(self, text):
+        """The word the hook's reader makes of text, as bash would after quote removal."""
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_quoting_word")
+        tokens, _end = mod._lex(text, 0, 0, None)
+        self.assertEqual(len(tokens), 1, (text, tokens))
+        return tokens[0][1].text
+
+    # The decoy arena of the sibling-import tests, reused for the launch check below.
+    HOOKS = HookSiblingImportIsolationTests.HOOKS
+    DECOYS = HookSiblingImportIsolationTests.DECOYS
+    DECOY_SOURCE = HookSiblingImportIsolationTests.DECOY_SOURCE
+    _repo_arena = HookSiblingImportIsolationTests._repo_arena
+    _run_hook = HookSiblingImportIsolationTests._run_hook
+    _assert_no_decoy = HookSiblingImportIsolationTests._assert_no_decoy
+
+    def test_stdin_interpreter_decoys_not_imported(self):
+        # The hook loads no repository helper and does not isolate sys.path itself: its
+        # standard library imports (shlex among them) stay clear of a decoy module beside
+        # it because settings.json launches it under python3 -I. This test checks that
+        # launch line, then runs the hook the same way beside the decoys.
+        settings = json.loads((REPO_ROOT / ".claude" / "settings.json").read_text(encoding="utf-8"))
+        launches = []
+
+        def walk(node):
+            if isinstance(node, dict):
+                for value in node.values():
+                    walk(value)
+            elif isinstance(node, list):
+                for value in node:
+                    walk(value)
+            elif isinstance(node, str) and "block-stdin-interpreter.py" in node:
+                launches.append(node)
+
+        walk(settings)
+        self.assertEqual(len(launches), 1, launches)
+        self.assertTrue(launches[0].startswith("/usr/bin/python3 -I "), launches[0])
+        with tempfile.TemporaryDirectory() as td:
+            root, env = self._repo_arena(td, 'block-stdin-interpreter.py')
+            d = root / '.claude' / 'hooks'
+            r = self._run_hook(d, env, 'block-stdin-interpreter.py', dict(tool_name='Bash', tool_input=dict(command="python3 -I - <<'EOF'\nEOF")))
+            self._assert_no_decoy(env)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn('BLOCKED (stdin-interpreter)', r.stderr)
+
+    def test_malformed_payload_or_other_tool_fails_open(self):
+        self.assertTrue(self.HOOK.is_file(), "the hook does not exist: " + str(self.HOOK))
+        for raw in ("", "not json", "[]",
+                    json.dumps(dict(tool_name="Read", tool_input=dict(command="python3 -")))):
+            with self.subTest(raw=raw):
+                r = subprocess.run([sys.executable, "-I", str(self.HOOK)], input=raw,
+                                   capture_output=True, text=True, timeout=60)
+                self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                self.assertEqual(r.stdout + r.stderr, "")
+
+    # One command for each path on which the $'...' decoder cannot complete, with the text
+    # its refusal must hold: a \U value above 10FFFF, and an error raised while decoding
+    # (a lone surrogate after \c has no UTF-8 encoding).
+    UNDECODED_ESCAPES = (
+        ("echo $'\\U00110000'", "this hook does not decode (\\U00110000)"),
+        ("echo $'\\c\ud800'", "whose escapes could not be decoded (UnicodeEncodeError)"),
+    )
+
+    # An escape bash does not decode, which bash keeps as a backslash followed by the
+    # character: a character with no escape meaning, \x, \u or \U with no digit, and \c at
+    # the end of the quote. A line that feeds no interpreter is allowed (None); a line that
+    # feeds a shell through such a quote is refused by the shell rule, with that text.
+    KEPT_ESCAPES = (
+        ("echo $'\\q'", None),
+        ("cat /abs/run.sh | a=$'\\q' bash", "no script operand while standard input is a pipe"),
+        ("echo $'\\x'", None),
+        ("echo $'\\xg'", None),
+        ("echo $'\\u'", None),
+        ("echo $'\\U'", None),
+        ("echo $'\\c'", None),
+    )
+
+    def test_escape_bash_does_not_decode_is_kept_through_the_entry_point(self):
+        """An escape bash keeps as a backslash and the character is read so through the
+        hook's JSON entry point: a line that feeds no interpreter is allowed, and a line that
+        feeds a shell through such a quote is refused by the shell rule, not as a parse
+        failure."""
+        for command, evidence in self.KEPT_ESCAPES:
+            with self.subTest(command=command):
+                if evidence is None:
+                    self._assert_allowed(command)
+                else:
+                    self._assert_refused(command, evidence)
+                    self.assertNotIn("could not be parsed", self._run(command).stderr)
+
+    def test_undecodable_ansi_c_escape_refused_through_the_entry_point(self):
+        """Each path on which the $'...' decoder cannot complete refuses the line through the
+        hook's JSON entry point, as a parse failure, rather than letting it through."""
+        for command, evidence in self.UNDECODED_ESCAPES:
+            with self.subTest(command=command):
+                self._assert_refused(command, "the command text could not be parsed (a $' ' quote")
+                self._assert_refused(command, evidence)
+
+    def test_unexpected_error_in_the_reader_refuses(self):
+        """An exception raised anywhere in reading the command text refuses the line.
+
+        Each reader function in turn is replaced by one that raises, and the hook's own
+        main() reads a payload whose command it otherwise allows: the refusal names the
+        exception's type and keeps the message contract. An error inside the $'...'
+        decoding is refused by the decoder itself, as a parse failure."""
+        import contextlib
+        import io
+        # The line without the pipe is allowed; the piped line is refused only by the
+        # deny-by-default rule (the command that receives the pipe has a subscript
+        # assignment before its command word), so a refusal that names the injected error
+        # comes from the error, not from a reader rule.
+        for command in ("echo $'x' hi", "echo $'x' hi | a[0]=1 cat"):
+            payload = json.dumps(dict(hook_event_name="PreToolUse", tool_name="Bash",
+                                      tool_input=dict(command=command)))
+            for name in ("_lex", "_ansi_c", "_decode_ansi_c", "_commands", "_decide_one",
+                         "_reserved_after_assignment", "_decide_text"):
+                with self.subTest(reader=name, command=command):
+                    mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                             "_stdin_interpreter_injected" + name)
+                    problem = mod.decide(command)
+                    if "|" in command:
+                        self.assertIsNotNone(problem, command)
+                        self.assertIn("refused by default", problem[1])
+                    else:
+                        self.assertIsNone(problem)
+                    self.assertTrue(callable(getattr(mod, name, None)), name)
+
+                    def raises(*_args, **_kwargs):
+                        raise RuntimeError("injected into the reader")
+
+                    setattr(mod, name, raises)
+                    err, saved = io.StringIO(), sys.stdin
+                    sys.stdin = io.StringIO(payload)
+                    try:
+                        with contextlib.redirect_stderr(err):
+                            code = mod.main()
+                    finally:
+                        sys.stdin = saved
+                    stderr = err.getvalue()
+                    self.assertEqual(code, 2, stderr)
+                    if name == "_decode_ansi_c":
+                        reason = ("the command text could not be parsed (a $' ' quote whose "
+                                  "escapes could not be decoded (RuntimeError))")
+                    else:
+                        reason = "reading the command text raised an unexpected RuntimeError"
+                    self.assertTrue(stderr.startswith(
+                        "BLOCKED (stdin-interpreter): " + reason + ", so whether an "
+                        "interpreter reads its program from standard input cannot be "
+                        "decided"), stderr)
+                    for marker in ("BLOCKED (", "\nWHY: ",
+                                   "\nCONSIDER INSTEAD: write the program to a script file"):
+                        self.assertEqual(stderr.count(marker), 1, (marker, stderr))
+
+    # Characters outside ASCII after \c, beside every byte value U+0000 to U+00FF: two-,
+    # three- and four-byte UTF-8 forms; characters whose uppercase form is more than one
+    # character (sharp s, the ff ligature, n preceded by an apostrophe, iota with dialytika
+    # and tonos); one whose uppercase form is another single character (y with diaeresis);
+    # one whose lowercase form is longer (capital I with dot above); and the last code
+    # points of the basic and the full range.
+    CONTROL_ESCAPE_SAMPLE = ("\u00df", "\ufb00", "\u0149", "\u0390", "\u00ff", "\u0130",
+                             "\u00e9", "\u0100", "\u20ac", "\u4e2d", "\uffff",
+                             "\U0001f600", "\U0010ffff")
+
+    @staticmethod
+    def bash_control_escape(ch):
+        """The text bash makes of a control escape before ch, written as this hook writes
+        bytes: the first byte of the UTF-8 encoding of ch with its low five bits kept (0x7F
+        for a question mark), then the other bytes of ch, each as the character of that byte
+        value. No uppercase form of ch is taken."""
+        data = ch.encode("utf-8")
+        return chr(0x7F if data[0] == 0x3F else data[0] & 0x1F) + "".join(map(chr, data[1:]))
+
+    def test_every_control_escape_decodes_as_bash_does(self):
+        """A control escape before each character of each byte value (U+0000 to U+00FF) and
+        before each sampled character outside ASCII decodes as bash decodes it, and the same
+        escape in an assignment before a shell reading a pipe is refused.
+
+        The quote is left out of the loop: after the escape letter it ends the quote, leaving
+        \c at the end of the text, which bash keeps as a backslash and c (checked last). A
+        backslash after the escape
+        letter is written doubled, which bash reads as one control backslash. A NUL in the
+        decoded text ends the segment, as in bash."""
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_control_escapes")
+        chars = [chr(value) for value in range(0x100)] + list(self.CONTROL_ESCAPE_SAMPLE)
+        wrong, allowed, count = [], [], 0
+        for ch in chars:
+            if ch == "'":
+                continue
+            if ch == "\\":
+                text, want = "$'\\c\\\\z'", "\x1cz"
+            else:
+                text, want = "$'\\c" + ch + "z'", self.bash_control_escape(ch) + "z"
+            want = want.split("\0", 1)[0]
+            count += 1
+            try:
+                tokens, _end = mod._lex(text, 0, 0, None)
+                got = tokens[0][1].text if len(tokens) == 1 else tokens
+            except Exception as exc:
+                got = exc
+            if got != want:
+                wrong.append((text, want, got))
+            command = "cat /abs/run.sh | a=" + text + " bash"
+            try:
+                problem = mod.decide(command)
+            except Exception as exc:
+                problem = None, "raised " + type(exc).__name__
+                allowed.append((command, problem[1]))
+                continue
+            if problem is None:
+                allowed.append((command, "allowed"))
+        self.assertEqual(count, 255 + len(self.CONTROL_ESCAPE_SAMPLE))
+        self.assertEqual(wrong, [], str(len(wrong)) + " decoded wrongly: " + repr(wrong[:20]))
+        self.assertEqual(allowed, [], str(len(allowed)) + " not refused: " + repr(allowed[:20]))
+        tokens, _end = mod._lex("$'\\c'", 0, 0, None)
+        self.assertEqual([token[1].text for token in tokens], ["\\c"])
+
+    # Each escape bash's $'...' quoting accepts, with the text bash 5.3.9 makes of it: the
+    # one-character escapes, \nnn, \xHH, \x{H...} (every hexadecimal digit after the
+    # brace, the value's low byte kept, then one } when one follows), \uHHHH, \UHHHHHHHH
+    # and \cX (each \cX form is covered by the test above). \u and \U are read as the
+    # Unicode character, a stated residual.
+    ANSI_C_ESCAPES = (
+        ("\\a", "\a"), ("\\b", "\b"), ("\\e", "\x1b"), ("\\E", "\x1b"), ("\\f", "\f"),
+        ("\\n", "\n"), ("\\r", "\r"), ("\\t", "\t"), ("\\v", "\v"), ("\\\\", "\\"),
+        ("\\'", "'"), ('\\"', '"'), ("\\?", "?"),
+        ("\\1", "\x01"), ("\\41", "!"), ("\\101", "A"), ("\\1011", "A1"), ("\\777", "\xff"),
+        ("\\x4", "\x04"), ("\\x41", "A"), ("\\x411", "A1"),
+        ("\\x{1}", "\x01"), ("\\x{62}", "b"), ("\\x{062}", "b"), ("\\x{162}", "b"),
+        ("\\x{FFFFFFFF62}", "b"), ("\\x{62", "b"), ("\\x{6g2}", "\x06g2}"), ("\\x{}", "\0"),
+        ("\\x{zz}", "\0"),
+        ("\\u41", "A"), ("\\u0041", "A"), ("\\u00e9", "\u00e9"), ("\\u20ac", "\u20ac"),
+        ("\\U41", "A"), ("\\U0001f600", "\U0001f600"), ("\\cA", "\x01"),
+    )
+
+    def test_every_ansi_c_escape_decodes_as_bash_does(self):
+        """Each escape bash's $'...' quoting accepts decodes as bash 5.3.9 decodes it, and
+        none lets a shell reading a pipe through when it is written in an assignment before
+        it. Generated over the braced hexadecimal form: every byte value, with and without
+        bits above the low byte, decodes to that byte, and an interpreter's name or a
+        reserved word spelt with it is refused where the plain spelling is."""
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_ansi_c_escapes")
+        cases = [(escape, want) for escape, want in self.ANSI_C_ESCAPES]
+        for value in range(0x100):
+            cases.append(("\\x{%x}" % value, chr(value)))
+            cases.append(("\\x{%X}" % (0x100 + value), chr(value)))
+            cases.append(("\\x{00%02x}" % value, chr(value)))
+        wrong, allowed = [], []
+        for escape, want in cases:
+            text = "$'" + escape + "z'"
+            want = (want + "z").split("\0", 1)[0]
+            try:
+                tokens, _end = mod._lex(text, 0, 0, None)
+                got = tokens[0][1].text if len(tokens) == 1 else tokens
+            except Exception as exc:
+                got = exc
+            if got != want:
+                wrong.append((text, want, got))
+            command = "cat /abs/run.sh | a=" + text + " bash"
+            if mod.decide(command) is None:
+                allowed.append(command)
+        self.assertEqual(len(cases), len(self.ANSI_C_ESCAPES) + 768)
+        self.assertEqual(wrong, [], str(len(wrong)) + " decoded wrongly: " + repr(wrong[:20]))
+        self.assertEqual(allowed, [], str(len(allowed)) + " not refused: " + repr(allowed[:20]))
+
+        def braced(word, spec):
+            return "$'" + "".join(spec % ord(ch) for ch in word) + "'"
+
+        missed = []
+        for spec in ("\\x{%x}", "\\x{%04x}", "\\x{1%02x}"):
+            for command, evidence in (
+                    ("cat /abs/run.sh | " + braced("bash", spec), "no script operand while standard input is a pipe"),
+                    (braced("python3", spec) + " -", "'-' names standard input as the program"),
+                    ("cat /abs/run.sh | a=1 " + braced("while", spec) + " bash", "no script operand while standard input is a pipe"),
+                    ("cat /abs/run.sh | a=1 " + braced("while", spec) + " python3 /abs/s.py", "is followed in the same simple command by a reserved word")):
+                problem = mod.decide(command)
+                if problem is None or evidence not in problem[1]:
+                    missed.append((command, problem))
+        self.assertEqual(missed, [], repr(missed))
+
+    def test_every_printable_escape_decodes_as_host_bash_does(self):
+        """A backslash before each printable ASCII character in $'...' quoting, alone and
+        before a further z, decodes as the host's bash decodes it: an escape bash knows is
+        decoded, and one it does not know is kept as a backslash followed by the character.
+        Each such text is allowed as an argument of echo, and refused in an assignment before
+        a shell reading a pipe."""
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_printable_escapes")
+        texts = []
+        for value in range(0x20, 0x7F):
+            texts.append("$'\\" + chr(value) + "'")
+            texts.append("$'\\" + chr(value) + "z'")
+        self.assertEqual(len(texts), 190)
+        bash = shutil.which("bash")
+        self.assertIsNotNone(bash, "no bash on PATH to compare with")
+        ran = subprocess.run([bash, "-c", "printf '%s\\0' " + " ".join(texts)],
+                             capture_output=True, timeout=60, env=dict(os.environ, LC_ALL="C"))
+        self.assertEqual(ran.returncode, 0, ran.stderr)
+        decoded = ran.stdout.decode("latin-1").split("\0")
+        self.assertEqual(len(decoded), len(texts) + 1, decoded)
+        wrong, refused, allowed, by_default = [], [], [], []
+        for text, want in zip(texts, decoded):
+            try:
+                tokens, _end = mod._lex(text, 0, 0, None)
+                got = tokens[0][1].text if len(tokens) == 1 else tokens
+            except Exception as exc:
+                got = exc
+            if got != want:
+                wrong.append((text, want, got))
+            if mod._deny_by_default("echo " + text) is not None:
+                by_default.append("echo " + text)
+            elif mod.decide("echo " + text) is not None:
+                refused.append("echo " + text)
+            if mod.decide("cat /abs/run.sh | a=" + text + " bash") is None:
+                allowed.append("cat /abs/run.sh | a=" + text + " bash")
+        self.assertEqual(wrong, [], str(len(wrong)) + " decoded unlike bash: " + repr(wrong[:20]))
+        self.assertEqual(refused, [], str(len(refused)) + " refused: " + repr(refused[:20]))
+        self.assertEqual(allowed, [], str(len(allowed)) + " not refused: " + repr(allowed[:20]))
+        # A < or | inside the quote is not a feed: no command receives one, so the
+        # deny-by-default rule refuses none of them.
+        self.assertEqual(by_default, [])
+
+    # Ordinary search commands the reserved-word rule refuses, and the nearby forms it
+    # allows, each written in the hook's docstring as stated there.
+    SEARCH_REACH = (
+        ("LC_ALL=C grep -rnw in . | head", True),
+        ('LC_ALL=C grep -rw "if" . | head', True),
+        ("NO_COLOR=1 rg -w done . | head -5", True),
+        ("LC_ALL=C find . -name for | sort", True),
+        ("LC_ALL=C grep -rw do /abs/bash | head", True),
+        ("LC_ALL=C grep -rw if /abs/src | grep -c bash", True),
+        ("GREP_COLOR=1 grep -w then /abs/sh.txt | head", True),
+        ("LC_ALL=C grep -rw in . <<< x", True),
+        ("grep -rnw in . | head", False),
+        ("LC_ALL=C grep -rnw in /abs/src | head", False),
+        ("LC_ALL=C grep -rnw in .", False),
+    )
+
+    def test_docstring_states_search_reach_and_launch_isolation(self):
+        """The docstring gives each search-command example with the outcome the hook gives
+        it, and states that import isolation depends on the python3 -I launch."""
+        mod = load_linter_module(".claude/hooks/block-stdin-interpreter.py",
+                                 "_stdin_interpreter_docstring")
+        doc = " ".join(mod.__doc__.split())
+        for command, refused in self.SEARCH_REACH:
+            with self.subTest(command=command):
+                self.assertIn("``" + command + "``", doc)
+                problem = mod.decide(command)
+                self.assertEqual(problem is not None, refused, (command, problem))
+                if refused:
+                    self.assertIn("is followed in the same simple command by a reserved word",
+                                  problem[1])
+        self.assertIn("Import isolation depends on the launch line", doc)
+        self.assertIn("/usr/bin/python3 -I", doc)
+        self.assertIn("Self-test: ``python3 -I .claude/hooks/block-stdin-interpreter.py "
+                      "--self-test``", doc)
+
+
+def _stdin_interpreter_case(command, evidence=None):
+    if evidence is None:
+        def test(self):
+            self._assert_allowed(command)
+    else:
+        def test(self):
+            self._assert_refused(command, evidence)
+    return test
+
+
+for _case_id, _command, _evidence in StdinInterpreterHookTests.REFUSED:
+    setattr(StdinInterpreterHookTests, "test_refused_" + _case_id,
+            _stdin_interpreter_case(_command, _evidence))
+for _case_id, _command in StdinInterpreterHookTests.ALLOWED:
+    setattr(StdinInterpreterHookTests, "test_allowed_" + _case_id,
+            _stdin_interpreter_case(_command))
+del _case_id, _command, _evidence
 
 
 class HookLeaseAssignmentGrammarTests(unittest.TestCase):
@@ -66327,10 +73531,14 @@ class AlignmentCitationExistenceTests(LinterTestCase):
 
     # --- identifiers are not editions ---
     def test_an_asvs_identifier_is_not_an_edition_for_later_tokens(self) -> None:
-        for body in ("ASVS V1.2.4 and V1.2.99\n", "ASVS V7.2-V7.99\n", "ASVS V7.2\u2013V7.99\n"):
+        # Each needle is the later token's finding, so a crash that exits 1 does not pass. Each
+        # body's own first valid token must not be flagged; a false flag on it fails the test at that body.
+        for body, earlier, later in (("ASVS V1.2.4 and V1.2.99\n", "V1.2.4", "V1.2.99"),
+                                     ("ASVS V7.2-V7.99\n", "V7.2", "V7.99"),
+                                     ("ASVS V7.2\u2013V7.99\n", "V7.2", "V7.99")):
             r = self._run("asvs-idnotedition.md", body)
-            self.assertNotEqual(r.returncode, 0, body + r.stdout)
-            self.assertNotIn("'V1.2.4'", r.stdout)
+            self.assertLinterFails(r, f"'{later}' is not a valid")
+            self.assertNotIn(f"'{earlier}'", r.stdout, body)
 
     # --- chapters, tables and held editions ---
     def test_dotless_capital_v_after_the_name_is_a_chapter_not_an_edition(self) -> None:
@@ -66824,6 +74032,21 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         with self.assertRaises(AssertionError) as caught:
             case.assertIdentifierScopeProbes(run)
         self.assertTrue(str(caught.exception).startswith("TEST-PROBE-CONTROL: asvs 'V9.9.9'"))
+        run.assert_called_once_with("ASVS requirement V9.9.9.\n")
+
+    def test_helper_refuses_a_twin_report_with_a_cannot_run_exit(self) -> None:
+        # The twin must exit with the findings code 1: a run that prints the quoted token and
+        # then exits 2 (cannot run) is not a report, so the control fails before the template.
+        from unittest.mock import Mock
+        case = LinterTestCase()
+        case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9", "ASVS {probe}.")
+        run = Mock(side_effect=[subprocess.CompletedProcess([], 2, "x.md:1: 'V9.9.9' finding\n", ""),
+                                subprocess.CompletedProcess([], 0, "OK\n", "")])
+        with self.assertRaises(AssertionError) as caught:
+            case.assertIdentifierScopeProbes(run)
+        self.assertTrue(str(caught.exception).startswith(
+            "TEST-PROBE-CONTROL: asvs 'V9.9.9': the run callable did not report it in the twin "
+            "(exit 2, expected exit 1)"), str(caught.exception))
         run.assert_called_once_with("ASVS requirement V9.9.9.\n")
 
     def test_probe_location_follows_the_engine_line_model(self) -> None:
@@ -74721,8 +81944,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
     P = "/__hook_contract__/grc_library"
     SHIPPED_HOOKS = ("block-branch-to-main-edit", "block-bulk-git-add",
-                     "block-repeated-tool-failure", "block-unbumped-version-commit",
-                     "block-verification-pipes")
+                     "block-repeated-tool-failure", "block-stdin-interpreter",
+                     "block-unbumped-version-commit", "block-verification-pipes")
     # The shipped hooks whose main() takes argv.
     ARGV_MAIN = {"block-branch-to-main-edit", "block-repeated-tool-failure"}
 
@@ -74849,6 +82072,22 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             label="shell-complexity", verb="run",
             at=("main", "sys.stderr.write(", 7),
             evidence=("inspection limit", "refusing it", "fewer nested groups"))
+        add = group("block-stdin-interpreter", "write", ("main", "print("))
+        for case_id, command, evidence, function, fragment in (
+                ('python-dash', "python3 -I - <<'EOF'\nEOF", "'-' names standard input as the program", '_decide_one', 'names standard input as the program'),
+                ('perl-no-operand', "perl -w <<'EOF'\nprint 1;\nEOF", 'no script operand, so the program is read from standard input', '_decide_one', 'no script operand, so the program is read from standard input'),
+                ('bash-s', "bash -s <<'EOF'\necho hi\nEOF", '-s reads the commands from standard input', '_decide_one', '-s reads the commands from standard input'),
+                ('bash-here-document', "bash <<'EOF'\necho hi\nEOF", 'no script operand while standard input is a here-document', '_decide_one', 'no script operand while standard input is a '),
+                ('sh-here-string', "sh <<<'echo hi'", 'no script operand while standard input is a here-string', '_decide_one', 'no script operand while standard input is a '),
+                ('zsh-pipe', 'cat /abs/run.sh | zsh', 'no script operand while standard input is a pipe', '_decide_one', 'no script operand while standard input is a '),
+                ('bash-procsub', 'bash <(cat /abs/run.sh)', 'a process substitution is the program', '_decide_one', 'a process substitution is the program'),
+                ('source-procsub', 'source <(cat /abs/env.sh)', 'a process substitution is the sourced program', '_decide_one', 'a process substitution is the sourced program'),
+                ('stdin-path', "python3 /dev/stdin <<<'print(1)'", 'the program path names standard input', '_decide_one', 'the program path names standard input'),
+                ('source-stdin-path', "source /dev/stdin <<<'x=1'", 'the sourced path names standard input', '_decide_one', 'the sourced path names standard input'),
+                ('parse-failure', "python3 'unterminated", 'could not be parsed', 'decide', 'could not be parsed'),
+        ):
+            add(case_id, command, evidence=(evidence,), sites=((function, fragment),))
+
         # Only the shipped hooks have cases; cases[hook] raises KeyError for a shipped
         # hook without them.
         return {hook: cases[hook] for hook in cls.SHIPPED_HOOKS}
@@ -74991,7 +82230,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 if hook == "block-branch-to-main-edit":
                     payload.update(tool_name="Edit", tool_input={"file_path": self.P + "/doc.md"})
                     m(mod, "_current_branch", arg)
-                elif hook in ("block-bulk-git-add", "block-verification-pipes"):
+                elif hook in ("block-bulk-git-add", "block-stdin-interpreter",
+                              "block-verification-pipes"):
                     bash(arg)
                 elif hook == "block-repeated-tool-failure":
                     prior, count = arg
@@ -75411,7 +82651,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()
-        self.assertEqual(len(registered), 5)
+        self.assertEqual(len(registered), 6)
         self.assertEqual(registered, set(self._case_registry()))
         for hook, cases in self._case_registry().items():
             self.assertTrue(cases, hook)
@@ -78384,1015 +85624,6 @@ class ProvisionIndexTests(LinterTestCase):
                          [("PIPEDA s. 10.1", "10.1", "explicit")])
 
 
-class StoreScopeCeilingTests(LinterTestCase):
-    """lint_common's shared store scope and its use by gate 50 (row integrity, worker provenance)
-    and gate 59 (detailed-mirror header parity).
-
-    The invariant every test here serves: a missing or wrong record for a merged PR or for the
-    branch's declared own PR is never deferred, and ambiguity fails closed (no deferral). Under a
-    clean-base scope no own PR is known, so an undeclared (trailer-only) own PR's entries defer
-    until it merges. A branch declares its own PR through the single new singular root header
-    naming a PR absent from the merge-base root headers and from origin/main's root headers and
-    merge subjects, all read offline; no other ref is consulted, and historical edits, roll-ups,
-    a merged PR's header and fenced or commented example headers never declare. One shared
-    case-insensitive grammar reads every PR identity and range. Every reader is raw (no masking);
-    mirror uncertainty (unknown or unrecognized boundaries, fence or comment delimiters) disables
-    further deferral."""
-
-    def setUp(self) -> None:
-        super().setUp()
-        from unittest.mock import patch
-        self.patch = patch
-        self.mp = load_linter_module(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "_mp_scope")
-        import lint_common
-        self.lc = lint_common
-
-    # ---- fixtures ----
-
-    _BASE_ROOT = ("**2026-11-22 | 2026.12.9 | PR #521** - t\n\n"
-                  "**2026-11-21 | 2026.12.8 | PR #520** - t\n")
-    _OWN_522_ROOT = "**2026-11-23 | 2026.12.10 | PR #522** - own\n\n"
-    _HDR = "| Date | PR | Families | Tier | Disposition |\n|---|---|---|---|---|\n"
-    _LATER_PR_ROWS = ("| 2026-09-30 | #2652 | c | T | SHIP final |\n"
-                      "| 2026-09-30 | #2652 | c | T | IN PROGRESS: review dispatched |\n")
-    _OWN_PR_ROWS = ("| 2026-09-30 | #2650 | c | T | SHIP final |\n"
-                    "| 2026-09-30 | #2650 | c | T | IN PROGRESS: review dispatched |\n")
-    MARKER = "- **Worker provenance:** applied, path not recorded\n"
-
-    @staticmethod
-    def header(pr: int, version: int | None = None) -> str:
-        return f"**2026-12-30 | 2026.12.{version or pr} | PR #{pr}**\n"
-
-    @staticmethod
-    def pending_rows(pr: int) -> str:
-        return f"| 2026-09-30 | #{pr} | c | T | IN PROGRESS |\n" * 2
-
-    def scope(self, root: str, base: str | None, main: str | None,
-              merged: tuple[int, ...] | None = ()):
-        """store_scope with every offline git reader replaced by a fixture value."""
-        spans = None if merged is None else tuple((n, n) for n in merged)
-        with self.patch.object(self.lc, "merge_base_changelog", return_value=base), \
-                self.patch.object(self.lc, "main_changelog", return_value=main), \
-                self.patch.object(self.lc, "main_merged_prs", return_value=spans):
-            return self.lc.store_scope(root)
-
-    def capture(self, function, *args):
-        import contextlib
-        out, err = io.StringIO(), io.StringIO()
-        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-            rc = function(*args)
-        return rc, out.getvalue(), err.getvalue()
-
-    # Gate 59's root grammar requires the "# Changelog" title as the root's first non-blank line,
-    # so every gate 59 fixture root, and the origin/main root it is compared against, gets it as 1
-    # added line 1 unless the text already starts with it.
-    ROOT_TITLE_LINE = "# Changelog\n"
-
-    @classmethod
-    def titled(cls, text: str) -> str:
-        """``text`` with the ``# Changelog`` title line added when it does not start with it."""
-        return text if text.startswith(cls.ROOT_TITLE_LINE) else cls.ROOT_TITLE_LINE + text
-
-    def mirror_gate(self, root: str, mirror: str, scope):
-        """Gate 59's main() in process, with a fixed scope and in-memory surfaces; the root gets
-        the ``# Changelog`` title."""
-        root = self.titled(root)
-        with self.patch.object(self.mp, "resolve_working", return_value=Path("/mirror")), \
-                self.patch.object(self.mp, "read_text_safe",
-                                  side_effect=lambda p: mirror if str(p) == "/mirror" else root), \
-                self.patch.object(self.mp, "store_scope", return_value=scope):
-            return self.capture(self.mp.main, [])
-
-    def git(self, root: Path, *args: str) -> str:
-        return subprocess.run(
-            ["git", "-C", str(root), "-c", "user.name=t", "-c", "user.email=t@example.com", *args],
-            check=True, capture_output=True, text=True).stdout
-
-    def origin_main(self, root: Path, base_text: str, *subjects: str) -> None:
-        """Make ``root`` a repository whose origin/main holds ``base_text`` as .working/CHANGELOG.md,
-        committed under ``subjects`` (the first commit adds the file)."""
-        self.git(root, "init", "-q", "-b", "main")
-        (root / ".working").mkdir(parents=True, exist_ok=True)
-        (root / ".working/CHANGELOG.md").write_text(self.titled(base_text), encoding="utf-8")
-        self.git(root, "add", ".working/CHANGELOG.md")
-        for subject in subjects or ("base",):
-            self.git(root, "commit", "-q", "--allow-empty", "-m", subject)
-        self.git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
-
-    def mirror_pair(self, root: Path, root_text: str, mirror_text: str, *,
-                    base_root_text: str | None = None, subjects: tuple[str, ...] = ()) -> None:
-        """Write the two gate-59 surfaces. With ``base_root_text`` the fixture is a git repository
-        whose origin/main holds that text; without it the fixture has no merge-base and the gate
-        must fail closed."""
-        if base_root_text is not None:
-            self.origin_main(root, base_root_text, *subjects)
-        (root / ".working").mkdir(parents=True, exist_ok=True)
-        (root / ".working/CHANGELOG.md").write_text(self.titled(root_text), encoding="utf-8")
-        d = root / ".working" / "changelog-details"
-        d.mkdir(parents=True, exist_ok=True)
-        (d / "CHANGELOG-detailed.md").write_text(mirror_text, encoding="utf-8")
-
-    def run_mirror_gate(self, root_text: str, mirror_text: str, **kwargs):
-        """Gate 59's real CLI under ``--root`` against a fixture repository."""
-        with tempfile.TemporaryDirectory() as tmp:
-            self.mirror_pair(Path(tmp), root_text, mirror_text, **kwargs)
-            return run_linter(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", tmp)
-
-    @staticmethod
-    def new_header(pr: int) -> str:
-        """A compact new-repository header dated on or after EPOCH_START (#1 on 2026-11-09)."""
-        return f"**2026-11-{8 + pr:02d} | 2026.12.{pr} | PR #{pr}**\n"
-
-    def test_epoch_branch_missing_its_own_mirror_entry_fails(self) -> None:
-        # A branch declares new PR #3 in its root, but the store mirror holds no entry for #3 at
-        # all, so no #3 header is offered to deferral and this test does not exercise own-PR
-        # deferral protection. The root header is compared (CUTOFF_PR is 1 and there is no floor),
-        # so the gate fails naming #3 (under the old floor of 463 it passed). The next test covers
-        # an own entry missing while another open PR's is present.
-        base = self.new_header(2) + self.new_header(1)
-        r = self.run_mirror_gate(self.new_header(3) + base, base, base_root_text=base,
-                                 subjects=("First (#1)", "Second (#2)"))
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("MISSING from the detailed mirror (>= #1): #3\n", r.stdout)
-
-    def test_epoch_own_pr_missing_while_another_open_pr_is_present_fails(self) -> None:
-        # The branch declares #1 and the store mirror holds only open PR #2's entry. Under the
-        # former floor rule (#2, taken from the raw mirror before deferral) root #1 left scope and
-        # #2 was deferred, so the gate passed comparing nothing. With no floor, #1 is compared and
-        # named, while #2 still defers as another open PR.
-        r = self.run_mirror_gate(self.new_header(1), self.new_header(2),
-                                 base_root_text="# Changelog\n")
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("MISSING from the detailed mirror (>= #1): #1\n", r.stdout)
-        self.assertIn(": deferred #2: ", r.stdout)
-        self.assertIn("declared own PR #1", r.stdout)
-
-    def test_epoch_own_pr_missing_while_mirror_holds_high_numbers_fails(self) -> None:
-        # The branch declares #1 and the mirror holds only entries numbered #3127 and #3126 dated
-        # on EPOCH_START (so not old records). Under the former floor rule the floor became #3126,
-        # root #1 left scope and both entries deferred above the ceiling, so the gate passed. With
-        # no floor, #1 is compared and named.
-        mirror = ("**2026-11-09 | 2026.12.3128 | PR #3127**\n"
-                  "**2026-11-09 | 2026.12.3127 | PR #3126**\n")
-        r = self.run_mirror_gate(self.new_header(1), mirror, base_root_text="# Changelog\n")
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("MISSING from the detailed mirror (>= #1): #1\n", r.stdout)
-        self.assertNotIn("at or above #3126", r.stdout)
-
-    def test_zero_compared_degraded_line_counts_deferred_headers(self) -> None:
-        # A weekly-only root and a mirror whose only entry defers. The DEGRADED line says no PR was
-        # compared and gives the deferred count, instead of claiming that neither file holds a
-        # qualifying header.
-        scope = self.lc.StoreScope(None, None, 1, None)
-        rc, out, _ = self.mirror_gate("# Changelog\n\n## Week of 2026-11-09\n",
-                                      self.new_header(5), scope)
-        self.assertEqual(rc, 0, out)
-        self.assertIn(": deferred #5: ", out)
-        self.assertIn("DEGRADED: gate 59 compared no PR: ", out)
-        self.assertIn("(1 detailed-mirror header(s) deferred)", out)
-
-    def test_epoch_old_mirror_entries_fail_before_deferral(self) -> None:
-        # Old-repository entries (#3127, #3126, dated before EPOCH_START) left at the top of the
-        # store mirror sit above the clean-base ceiling (#2), so the store scope would defer them
-        # as open PRs and the gate would pass having flagged nothing. The epoch rule runs before
-        # deferral: they fail, named as records to archive, and none is deferred.
-        base = self.new_header(2) + self.new_header(1)
-        old = ("**2026-10-30 | 2026.10.1760 | PR #3127**\n"
-               "**2026-10-29 | 2026.10.1759 | PR #3126**\n")
-        r = self.run_mirror_gate(base, old + base, base_root_text=base,
-                                 subjects=("First (#1)", "Second (#2)"))
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("are old-repository records to archive", r.stdout)
-        self.assertIn("line 1 PR #3127 (2026-10-30), line 2 PR #3126 (2026-10-29)", r.stdout)
-        self.assertNotIn(": deferred ", r.stdout)
-
-    def stacked_child(self, root: Path, *, own_entry: bool, parent: str) -> str:
-        """origin/main holds merged #2660; branch ``parent`` adds open #2653's entry; branch
-        ``child`` is stacked on it, is never rebased and, with ``own_entry``, adds its own #2662
-        entry. ``parent`` then stays ``at-stack-point``, is ``advanced`` (one more commit, still
-        open), is ``squash-merged`` (a ``(#2653)`` commit carrying its entry lands on origin/main
-        and the ref is deleted), or is ``merge-committed`` (advanced, merged by a ``Merge pull
-        request #2653`` commit, and deleted). Returns the child's root CHANGELOG text."""
-        base = self.header(2660)
-        entry = self.header(2653, 2661)
-        self.origin_main(root, base, "Lost-device table (#2660)")
-        self.git(root, "checkout", "-q", "-b", "parent")
-        (root / ".working").mkdir(parents=True, exist_ok=True)
-        (root / ".working/CHANGELOG.md").write_text(self.titled(entry + base), encoding="utf-8")
-        self.git(root, "commit", "-q", "-am", "parent work")
-        self.git(root, "checkout", "-q", "-b", "child")
-        text = self.titled((self.header(2662) if own_entry else "") + entry + base)
-        (root / ".working/CHANGELOG.md").write_text(text, encoding="utf-8")
-        (root / "README.md").write_text("child\n", encoding="utf-8")
-        self.git(root, "add", ".working/CHANGELOG.md", "README.md")
-        self.git(root, "commit", "-q", "-m", "child work")
-        if parent in ("advanced", "merge-committed"):
-            self.git(root, "checkout", "-q", "parent")
-            self.git(root, "commit", "-q", "--allow-empty", "-m", "parent advances")
-        self.git(root, "checkout", "-q", "main")
-        if parent == "squash-merged":
-            (root / ".working").mkdir(parents=True, exist_ok=True)
-            (root / ".working/CHANGELOG.md").write_text(self.titled(entry + base), encoding="utf-8")
-            self.git(root, "commit", "-q", "-am", "Parent feature (#2653)")
-        elif parent == "merge-committed":
-            self.git(root, "merge", "-q", "--no-ff", "-m", "Merge pull request #2653 from a/parent",
-                     "parent")
-        self.git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
-        self.git(root, "checkout", "-q", "child")
-        if parent in ("squash-merged", "merge-committed"):
-            self.git(root, "branch", "-q", "-D", "parent")
-        return text
-
-    # ---- the shared parser and ceiling ----
-
-    def test_ceiling_reads_header_pr_cell_not_summary(self) -> None:
-        # Kills: a greedy whole-line token read on an unambiguous compact header (the summary
-        # tail's #9999 would raise the ceiling).
-        text = ("**2026-09-29 | 2026.09.1353 | PR #2649** - routed from #9999\n\n"
-                "**2026-09-29 | 2026.09.1352 | PR #2648** - text\n")
-        self.assertEqual(self.lc.store_pr_ceiling(text), 2649)
-        self.assertEqual(self.lc.store_pr_ceiling(self.header(521).rstrip() + " - mentions #9999"), 521)
-
-    def test_ceiling_reads_legacy_and_rolled_up_forms(self) -> None:
-        # Kills: dropping any of the three header alternates from CHANGELOG_HEADER_PRS_RE.
-        lc = self.lc
-        self.assertEqual(lc.store_pr_ceiling("## 2026-07-01, Library Version 2026.07.9, PR #521\n"), 521)
-        self.assertEqual(lc.store_pr_ceiling("**Week of 2026-09-21 (PRs #2426-#2639)** text\n"), 2639)
-        self.assertEqual(
-            lc.store_pr_ceiling("**2026-09-27 | 2026.09.1300 | PRs #2600-#2610 (11 PRs)**\n"), 2610)
-
-    def test_no_root_header_means_no_ceiling(self) -> None:
-        # Kills: reading a bare-prose `PR #9999` token as a header.
-        for text in (None, "", "# Changelog\n\nprose naming PR #9999\n"):
-            self.assertIsNone(self.lc.store_pr_ceiling(text), repr(text))
-
-    def test_legacy_multi_pr_header_reads_every_pr_token(self) -> None:
-        # A repeated `PR` label after `,` or `&` must not end the cell. Kills: reverting the legacy
-        # capture to a `#[\d \t,#and-]` class, and dropping stacked connectors (the Oxford `, and`
-        # case).
-        cases = [
-            ("## 2026-09-29, Library Version 2026.09.1354, PR #2650, PR #2649", [2650, 2649]),
-            ("## 2026-07-01, Library Version 2026.07.9, PR #520 & PR #521", [520, 521]),
-            ("## 2026-09-30, Library Version 2026.09.1, PR #524, PR #525, and PR #521", [524, 525, 521]),
-        ]
-        for line, expected in cases:
-            with self.subTest(line=line):
-                self.assertEqual(self.lc.changelog_header_prs(line), expected)
-                self.assertEqual(self.lc.store_pr_ceiling(line + "\n"), max(expected))
-
-    def test_header_prs_reads_bare_range_endpoints(self) -> None:
-        # A range endpoint without `#` counts on every header form; the `(N PRs)` count and the
-        # version cell never read as PRs. Kills: extracting with the `#`-requiring token alone
-        # (yields the first endpoint only) and dropping `-` from the connector alternation.
-        cases = [
-            ("**2026-09-30 | 2026.09.1360 | PRs #2640-2645 (6 PRs)**", [2640, 2645]),
-            ("**Week of 2026-09-21 (PRs #2426-2639)**", [2426, 2639]),
-            ("## 2026-07-01, Library Version 2026.07.9, PRs #520-522", [520, 522]),
-            ("## 2026-07-01, Library Version 2026.07.9, PR #2650 & 2651", [2650, 2651]),
-        ]
-        for line, expected in cases:
-            with self.subTest(line=line):
-                self.assertEqual(self.lc.changelog_header_prs(line), expected)
-        self.assertEqual(
-            self.lc.store_pr_ceiling("**2026-09-30 | 2026.09.1360 | PRs #2655-2657 (3 PRs)**\n"), 2657)
-
-    def test_stacked_connectors_and_ambiguous_cells(self) -> None:
-        # Oxford connectors keep every key, so a mixed-scope entry is kept; a legacy header naming
-        # a further #N beyond the cell is AMBIGUOUS: the deferral side yields [] (kept) while the
-        # ceiling side reads the whole line. Kills: a single-connector run (drops #521 and defers
-        # at ceiling 521), and dropping the ambiguity probe.
-        lc = self.lc
-        oxford = "## 2026-07-04, Library Version 2026.07.11, PR #524, PR #525, and PR #521"
-        self.assertFalse(lc.above_store_ceiling(lc.changelog_header_prs(oxford), 521))
-        tail = "## 2026-09-30, Library Version 2026.09.1361, PR #9999 (follow-up to PR #2650)"
-        self.assertEqual(lc.changelog_header_prs(tail), [])
-        self.assertFalse(lc.above_store_ceiling(lc.changelog_header_prs(tail), 2657))
-        self.assertEqual(lc.store_pr_ceiling(tail + "\n"), 9999)
-        self.assertEqual(
-            lc.store_pr_ceiling("## 2026-09-30, Library Version 2026.09.1, PR #2650 (see PR #9999)\n"),
-            9999, "the ambiguous tail raises the ceiling (mutant M1 reads 2650)")
-
-    def test_ambiguous_cell_ceiling_reads_runs_and_line_tokens(self) -> None:
-        # The ceiling side unions the parsed runs (bare endpoint 530) with the whole-line tokens
-        # (tail #9999), and the protection side uses the same over-read. Kills: the ambiguous
-        # branch reading `#N` tokens alone (520), the runs alone (M1: 520 on the second fixture),
-        # and a protection side that ignores the ambiguous tail.
-        lc = self.lc
-        text = "## 2026-09-30, Library Version 2026.09.1, PRs #520-530 (follow-up to PR #500)"
-        self.assertEqual(lc.changelog_header_prs(text), [])
-        self.assertEqual(lc.store_pr_ceiling(text + "\n"), 530)
-        self.assertEqual(
-            lc.store_pr_ceiling("## 2026-07-01, Library Version 2026.07.9, PR #520 (see PR #9999)\n"), 9999)
-        base = self.header(2659) + "## 2026-09-29, Library Version 2026.09.1, PR #2600 (see PR #2655)\n"
-        scope = self.scope(self.header(2661) + base, base, base)
-        self.assertEqual(scope.own_pr, 2661)
-        self.assertFalse(lc.above_store_ceiling([2655], scope),
-                         "a PR named in an ambiguous root tail is protected, never another open PR")
-
-    def test_ceiling_reads_raw_text_examples_can_only_raise_it(self) -> None:
-        # NO masking: a fenced or commented header lookalike raises the ceiling, which can only
-        # reduce deferral. Kills: reintroducing any example mask into store_pr_ceiling.
-        fenced = ("```\n**2026-10-01 | 2026.10.1 | PR #9999** - example\n```\n"
-                  "**2026-09-29 | 2026.09.1353 | PR #2649** - real\n")
-        self.assertEqual(self.lc.store_pr_ceiling(fenced), 9999)
-        commented = ("<!--\n**2026-09-29 | 2026.09.1354 | PR #2650**\n-->\n"
-                     "**2026-09-28 | 2026.09.1353 | PR #2640**\n")
-        self.assertEqual(self.lc.store_pr_ceiling(commented), 2650)
-
-    def test_above_store_ceiling_is_fail_closed(self) -> None:
-        # Kills: `>` -> `>=` (defers the ceiling, the declared own PR), `min` -> `max` (the mixed
-        # entry), dropping the empty-token guard, and dropping the None-ceiling guard.
-        f = self.lc.above_store_ceiling
-        cases = [([2651], 2650, True), ([2650], 2649, True), ([2650], 2650, False),
-                 ([2648, 2651], 2649, False), ([], 2649, False), ([2651], None, False),
-                 ([11, 10], 10, False)]
-        for prs, ceiling, expected in cases:
-            with self.subTest(prs=prs, ceiling=ceiling):
-                self.assertEqual(f(prs, ceiling), expected)
-        self.assertFalse(f(self.lc.StorePRs([2651], certain=False), 2650),
-                         "an uncertain identity is never deferred")
-
-    # ---- mirror deferral flags ----
-
-    def test_store_deferral_flags_confine_ceiling_deferral_to_the_initial_run(self) -> None:
-        # Without the open-PR rule, ceiling deferral ends at the first header naming a PR at or
-        # below the ceiling, so a lookalike below the own entry is EVALUATED (the
-        # unreadable-origin/main half of test_mirror_gate_lookalike_below_own_entry). Kills (M3):
-        # dropping the positional latch (indices 5-6 read deferred), ending the run on ANY boundary
-        # (indices 1-2 read kept), and deferring on a None ceiling. The same latch holds for a
-        # StoreScope built without the open-PR rule. A scope whose origin/main is unreadable
-        # declares nothing, so it defers nothing at all.
-        lines = ["preamble",
-                 "**2026-10-01 | 2026.10.2 | PR #2652** - later PR's entry",
-                 "its body",
-                 "**2026-09-30 | 2026.09.9 | PR #2650** - the branch's own entry",
-                 "its body",
-                 "**2026-10-01 | 2026.10.1 | PR #9999** - lookalike below the own entry",
-                 "an example body"]
-        expected = [False, True, True, False, False, False, False]
-        flags = self.lc.store_deferral_flags(lines, 2650)
-        self.assertEqual([d for d, _ in flags], expected)
-        self.assertEqual(flags[1][1], [2652], "the governing entry's keys ride on its body lines")
-        self.assertEqual(flags[5][1], [9999])
-        self.assertEqual([d for d, _ in self.lc.store_deferral_flags(lines, None)], [False] * 7)
-        ceiling_only = self.lc.StoreScope(2650, 2650, 2650, None)
-        self.assertFalse(ceiling_only.open_rule)
-        self.assertEqual([d for d, _ in self.lc.store_deferral_flags(lines, ceiling_only)], expected)
-        blind = self.scope(self.header(2650), "", None)
-        self.assertEqual((blind.own_pr, blind.ceiling, blind.open_rule), (None, None, False))
-        self.assertEqual([d for d, _ in self.lc.store_deferral_flags(lines, blind)], [False] * 7)
-
-    # ---- the own-PR declaration ----
-
-    def test_declared_own_pr_is_the_single_new_root_header(self) -> None:
-        # A new own header declares; an unchanged file and a PR-less new header do not. Two new
-        # identities no longer resolve to the topmost (one of them may be a stacked parent's), so
-        # the old "topmost wins" and the M2 "maximum wins" mutants both fail here; an empty
-        # merge-base makes every header new and no longer declares; an edited historical header no
-        # longer declares.
-        lc = self.lc
-        base = self._BASE_ROOT
-        work = "**2026-07-05 | 2026.07.12 | PR #524** - own\n\n" + base
-        self.assertEqual(lc.declared_own_pr(work, base), 524)
-        self.assertEqual(lc.own_pr_declaration(work, base), (524, ""))
-        self.assertIsNone(lc.declared_own_pr(base, base))
-        self.assertIsNone(lc.declared_own_pr(work, ""))
-        two_new = ("**2026-07-05 | 2026.07.12 | PR #524** - own\n\n"
-                   "**2026-07-06 | 2026.07.13 | PR #526** - out-of-order insert\n\n" + base)
-        own, why = lc.own_pr_declaration(two_new, base)
-        self.assertIsNone(own)
-        self.assertIn("lines 1, 3", why)
-        self.assertIsNone(lc.declared_own_pr("## 2026-07-05, Library Version 2026.07.12\n" + base, base))
-        self.assertIsNone(lc.declared_own_pr(base.replace(" - t", " - retitled", 1), base))
-
-    def test_declaration_checks_range_interiors_and_rejects_unknown_identity(self) -> None:
-        # A PR inside a base range is not new; a combined new identity, a PR-less new header and an
-        # unrecognized new header (at the declaration) all fail closed, the last even when a valid
-        # own header is also present.
-        lc = self.lc
-        base = "**Week of 2026-09-21 (PRs #2400-2659)**\n"
-        self.assertIsNone(lc.declared_own_pr(self.header(2500) + base, base))
-        self.assertEqual(lc.declared_own_pr(self.header(2661) + base, base), 2661)
-        self.assertIsNone(lc.declared_own_pr(
-            "**2026-09-30 | 2026.09.2661 | PRs #2660 and #2661**\n" + base, base))
-        self.assertIsNone(lc.declared_own_pr("**2026-09-30 | MILESTONE:** changed\n" + base, base))
-        self.assertIsNone(lc.declared_own_pr(base, base))
-        self.assertIsNone(lc.declared_own_pr(
-            "**2026-09-30 \u2014 2026.09.2661 \u2014 PR #2661**\n" + base, base))
-        self.assertIsNone(lc.declared_own_pr("### 2026-09-30 PR #2660\n" + self.header(2661) + base, base))
-
-    def test_open_parent_header_without_own_entry_is_the_stated_residue(self) -> None:
-        # The residue accepted by removing the stacked-parent concept: a child that
-        # has not yet written its own entry carries only its open parent's header,
-        # which offline is indistinguishable from an own entry, so it declares
-        # whether the parent's ref sits at the stack point or has moved on, and
-        # the child's own #2662 then defers. Pinned so that any change to it is
-        # deliberate; the note names the declared PR, so the misdeclaration is loud.
-        for parent in ("at-stack-point", "advanced"):
-            with self.subTest(parent=parent), tempfile.TemporaryDirectory() as tmp:
-                root = Path(tmp)
-                text = self.stacked_child(root, own_entry=False, parent=parent)
-                scope = self.lc.store_scope(text, repo_root=root)
-                self.assertEqual((scope.own_pr, scope.ceiling), (2653, 2660))
-                self.assertTrue(self.lc.above_store_ceiling([2662], scope))
-                self.assertIn("declared own PR #2653",
-                              self.lc.store_deferral_note([2662], scope, "h", 1))
-
-    def test_store_scope_composes_ceiling_and_gates_deferral_on_the_declaration(self) -> None:
-        # A clean-base scope uses the root maximum without declaring an own PR. Kills: a headerless
-        # root turning None into 0; the fail-closed branches (merge-base, origin/main headers,
-        # origin/main subjects) keeping a ceiling or printing nothing; dropping the declaration
-        # from the tuple; and `ceiling = own` when an older own PR sits below a higher root header
-        # (M10: #2658 would read as exceeding ceiling #2655 instead of as another open PR, and
-        # #2661 would name the wrong ceiling).
-        base = self._BASE_ROOT
-        work = "**2026-07-05 | 2026.07.12 | PR #524** - own\n\n" + base
-        s = self.scope(work, base, base, merged=(520, 521))
-        self.assertEqual((s.root_max, s.own_pr, s.ceiling, s.note, s.open_rule), (524, 524, 524, None, True))
-        self.assertTrue(self.lc._contains_pr(s.merged_prs, 521))
-        s2 = self.scope(base, base, base)
-        self.assertEqual((s2.own_pr, s2.ceiling, s2.open_rule), (None, 521, True))
-        self.assertIn("clean-base", s2.note)
-        s4 = self.scope("# Changelog\n", "# Changelog\n", "# Changelog\n")
-        self.assertEqual((s4.root_max, s4.ceiling), (None, None))
-        s3 = self.scope(work, None, base)
-        self.assertIsNone(s3.ceiling)
-        self.assertIn("fail-closed", s3.note)
-        self.assertIn("merge-base", s3.note)
-        for main, merged in ((None, (520, 521)), (base, None)):
-            with self.subTest(main=main, merged=merged):
-                s5 = self.scope(work, base, main, merged=merged)
-                self.assertEqual((s5.own_pr, s5.ceiling, s5.open_rule), (None, None, False))
-                self.assertIn("fail-closed", s5.note)
-                self.assertIn("origin/main evidence", s5.note)
-        late = self.header(2660) + self.header(2659)
-        s6 = self.scope(self.header(2655) + late, late, late)
-        self.assertEqual((s6.own_pr, s6.ceiling), (2655, 2660))
-        reason = self.lc.store_deferral_reason
-        self.assertTrue(reason([2658], s6).startswith("every named PR is another open PR"))
-        self.assertEqual(reason([2661], s6), "every named PR exceeds store-scope ceiling #2660")
-        self.assertIsNone(reason([2659], s6))
-
-    # ---- clean-base scope ----
-
-    def test_clean_base_open_entries_above_and_below_ceiling_defer(self) -> None:
-        base = self.header(2660) + self.header(2649)
-        mirror = self.header(2662) + self.header(2660) + self.header(2658) + self.header(2649)
-        r = self.run_mirror_gate(base, mirror, base_root_text=base)
-        self.assertEqual(r.returncode, 0, r.stdout)
-        self.assertIn("deferred #2662", r.stdout)
-        self.assertIn("deferred #2658", r.stdout)
-        self.assertIn("clean-base", r.stdout)
-        self.assertNotIn("#None", r.stdout)
-
-    def test_clean_base_merged_pr_missing_root_entry_fails(self) -> None:
-        base = self.header(2660)
-        mirror = self.header(2662) + base
-        r = self.run_mirror_gate(base, mirror, base_root_text=base)
-        self.assertEqual(r.returncode, 0, r.stdout)
-        self.assertIn("deferred #2662", r.stdout)
-        for subject in ("Fix (#2662)", "Merge pull request #2662 from a/topic"):
-            with self.subTest(subject=subject):
-                r = self.run_mirror_gate(base, mirror, base_root_text=base, subjects=(subject,))
-                self.assertEqual(r.returncode, 1, r.stdout)
-                self.assertIn("MISSING from root", r.stdout)
-                self.assertIn("#2662", r.stdout)
-                self.assertNotIn("deferred", r.stdout)
-
-    def test_clean_base_merged_pr_missing_mirror_entry_fails(self) -> None:
-        base = self.header(2661) + self.header(2660)
-        r = self.run_mirror_gate(base, self.header(2662) + base, base_root_text=base)
-        self.assertEqual(r.returncode, 0, r.stdout)
-        self.assertIn("deferred #2662", r.stdout)
-        r = self.run_mirror_gate(base, self.header(2662) + self.header(2660),
-                                 base_root_text=base)
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("MISSING from the detailed mirror", r.stdout)
-        self.assertIn("#2661", r.stdout)
-
-    def test_clean_base_main_header_ranges_protect_missing_root(self) -> None:
-        base = self.header(2660)
-        mirror = self.header(2662) + base
-        scope = self.scope(base, base, base)
-        rc, out, err = self.mirror_gate(base, mirror, scope)
-        self.assertEqual(rc, 0, out + err)
-        for main in (self.header(2662) + base,
-                     "**Week of 2026-09-21 (PRs #2661-2663)**\n" + base):
-            with self.subTest(main=main):
-                scope = self.scope(base, base, main)
-                rc, out, err = self.mirror_gate(base, mirror, scope)
-                self.assertEqual(rc, 1, out + err)
-                self.assertIn("MISSING from root", out)
-                self.assertNotIn("deferred", out)
-
-    def test_clean_base_historical_milestone_is_not_a_new_header(self) -> None:
-        base = self.header(2660) + "**2026-11-29 | MILESTONE:** Historical split.\n"
-        mirror = self.header(2662) + base
-        r = self.run_mirror_gate(base, mirror, base_root_text=base)
-        # The milestone still declares nothing (clean-base scope holds and #2662 defers), but the
-        # root grammar admits no milestone line, so the run fails on that line alone.
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("clean-base", r.stdout)
-        self.assertIn("deferred #2662", r.stdout)
-        self.assertIn("are outside the root grammar", r.stdout)
-        self.assertIn("'**2026-11-29 | MILESTONE:** Historical split.'", r.stdout)
-        self.assertNotIn("MISSING", r.stdout)
-        r = self.run_mirror_gate("**2026-12-31 | MILESTONE:** New unexplained header.\n" + base,
-                                 mirror, base_root_text=base)
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("no own-PR declaration", r.stdout)
-        self.assertNotIn("deferred", r.stdout)
-
-    def test_clean_base_all_evidence_readers_must_succeed(self) -> None:
-        base = self.header(2660)
-        scope = self.scope(base, base, base)
-        self.assertTrue(self.lc.above_store_ceiling([2662], scope))
-        for merge_base, main, merged in ((None, base, ()), (base, None, ()), (base, base, None)):
-            with self.subTest(merge_base=merge_base, main=main, merged=merged):
-                scope = self.scope(base, merge_base, main, merged)
-                self.assertEqual((scope.own_pr, scope.ceiling, scope.open_rule),
-                                 (None, None, False))
-                self.assertFalse(self.lc.above_store_ceiling([2662], scope))
-                self.assertIn("fail-closed", scope.note)
-
-    def test_clean_base_root_uncertainty_disables_deferral(self) -> None:
-        base = self.header(2660)
-        self.assertTrue(self.lc.above_store_ceiling([2662], self.scope(base, base, base)))
-        for text in (None, "", "# Changelog\n",
-                     base.rstrip() + " - corrected\n",
-                     "### 2026-09-30: unknown\n" + base,
-                     self.header(2661) + base,
-                     "**Week of 2026-09-21 (PRs #2659-2660)**\n" + base):
-            with self.subTest(text=text):
-                scope = self.scope(text, base, self.header(2661) + base)
-                self.assertFalse(scope.open_rule, scope)
-                self.assertFalse(self.lc.above_store_ceiling([2662], scope))
-        # Even unchanged delimiters are not a clean basis.
-        for prefix in (chr(96) * 3 + "\n", "~~~\n", "<!--\n", "-->\n"):
-            text = prefix + base
-            scope = self.scope(text, text, text)
-            self.assertFalse(scope.open_rule, scope)
-            self.assertFalse(self.lc.above_store_ceiling([2662], scope))
-
-    def test_git_reads_are_offline_and_fail_closed(self) -> None:
-        # The mocked counterpart of test_git_readers_against_a_real_repository. Every reader runs
-        # local git only, under the given root; every failure reads as None. Kills: a reader that
-        # fetches or calls an API, or lists any other ref (none is read; any unlisted command
-        # fails), and merge subjects read from bodies or bare prose `#N`.
-        import subprocess as sp
-        replies = [
-            (["merge-base", "HEAD", "origin/main"], "abc\n"),
-            (["show", "abc:.working/CHANGELOG.md"], self.header(2659)),
-            (["show", "origin/main:.working/CHANGELOG.md"], self.header(2662)),
-            (["log", "--format=%s", "origin/main", "--"],
-             "Fix (#2660)\nMerge pull request #2658 from a/b\nprose naming #9999\n"),
-        ]
-
-        def fake(args, **kwargs):
-            self.assertEqual(args[:3], ["git", "-C", "/fixture"])
-            for command, stdout in replies:
-                if args[3:] == command:
-                    return sp.CompletedProcess(args, 0, stdout, "")
-            self.fail(f"unexpected git command: {args}")
-        with self.patch.object(self.lc.subprocess, "run", side_effect=fake):
-            self.assertEqual(self.lc.merge_base_changelog("/fixture"), self.header(2659))
-            self.assertEqual(self.lc.main_changelog("/fixture"), self.header(2662))
-            self.assertEqual(self.lc.main_merged_prs("/fixture"), ((2658, 2658), (2660, 2660)))
-            scope = self.lc.store_scope(self.header(2661) + self.header(2659), repo_root="/fixture")
-            self.assertEqual((scope.own_pr, scope.ceiling, scope.open_rule), (2661, 2661, True))
-            self.assertFalse(self.lc.above_store_ceiling([2662], scope), "merged on origin/main")
-        for error in (OSError("git unavailable"), sp.CalledProcessError(1, ["git"])):
-            with self.subTest(error=error), \
-                    self.patch.object(self.lc.subprocess, "run", side_effect=error):
-                for reader in (self.lc.merge_base_changelog, self.lc.main_changelog,
-                               self.lc.main_merged_prs):
-                    self.assertIsNone(reader())
-                scope = self.lc.store_scope(self.header(2661))
-                self.assertIsNone(scope.ceiling)
-                self.assertIn("fail-closed", scope.note)
-        with self.patch.object(self.lc, "_store_git_text", side_effect=["abc\n", None]):
-            self.assertIsNone(self.lc.merge_base_changelog())
-
-    def test_git_readers_against_a_real_repository(self) -> None:
-        # The git readers against real git. Kills: reading the working-tree CHANGELOG instead of
-        # `git show <merge-base>:` (the post-edit assertion), returning "" instead of None outside
-        # a repository or without origin/main, and merge subjects read from anything but
-        # origin/main. A CHANGELOG absent at the merge-base is unreadable (None, fail closed), no
-        # longer "" (which would declare every entry).
-        lc = self.lc
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            for reader in (lc.merge_base_changelog, lc.main_changelog, lc.main_merged_prs):
-                self.assertIsNone(reader(root), f"{reader.__name__}: not a git work tree")
-            self.git(root, "init", "-q", "-b", "main")
-            (root / ".working").mkdir(parents=True, exist_ok=True)
-            (root / ".working/CHANGELOG.md").write_text(self._BASE_ROOT, encoding="utf-8")
-            self.git(root, "add", ".working/CHANGELOG.md")
-            self.git(root, "commit", "-q", "-m", "Base entries (#521)")
-            self.git(root, "commit", "-q", "--allow-empty", "-m", "Merge pull request #519 from a/b")
-            self.assertIsNone(lc.merge_base_changelog(root), "no origin/main: fail closed")
-            self.assertIsNone(lc.main_merged_prs(root))
-            self.git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
-            self.git(root, "commit", "-q", "--allow-empty", "-m", "Local only (#530)")
-            self.assertEqual(lc.merge_base_changelog(root), self._BASE_ROOT)
-            self.assertEqual(lc.main_changelog(root), self._BASE_ROOT)
-            self.assertEqual(lc.main_merged_prs(root), ((519, 519), (521, 521)),
-                             "origin/main's subjects only; the local (#530) commit is not merged")
-            (root / ".working").mkdir(parents=True, exist_ok=True)
-            (root / ".working/CHANGELOG.md").write_text(self._OWN_522_ROOT, encoding="utf-8")
-            self.assertEqual(lc.merge_base_changelog(root), self._BASE_ROOT,
-                             "the merge-base text, not the working tree's")
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            self.git(root, "init", "-q", "-b", "main")
-            (root / "README.md").write_text("x\n", encoding="utf-8")
-            self.git(root, "add", "README.md")
-            self.git(root, "commit", "-q", "-m", "base")
-            self.git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
-            self.assertIsNone(lc.merge_base_changelog(root))
-            self.assertIn("fail-closed", lc.store_scope(self._OWN_522_ROOT, repo_root=root).note)
-
-    # ---- protection of merged and own PRs ----
-
-    def test_merged_entry_missing_root_line_still_fails(self) -> None:
-        # A PR merged on origin/main whose root line this branch lacks is protected, so its mirror
-        # entry fails as missing from root, even above the ceiling (the branch is behind main).
-        # Kills: protecting only this branch's root headers.
-        root = self.header(2661) + self.header(2658)
-        main = self.header(2662) + self.header(2659) + self.header(2658)
-        scope = self.scope(root, self.header(2658), main)
-        for pr in (2659, 2662):
-            with self.subTest(pr=pr):
-                self.assertFalse(self.lc.above_store_ceiling([pr], scope))
-                rc, out, err = self.mirror_gate(root, self.header(pr) + root, scope)
-                self.assertEqual(rc, 1, out + err)
-                self.assertIn("MISSING from root", out)
-                self.assertIn(f"#{pr}", out)
-                self.assertNotIn(f"deferred #{pr}", out)
-
-    def test_origin_main_unreadable_declares_nothing_and_prints_note(self) -> None:
-        # A declaration needs origin/main's root headers AND merge subjects, so with either
-        # unreadable nothing is declared, nothing defers (not even above the ceiling) and a note
-        # says so. Kills: declaring from the merge-base alone, a ceiling or open-PR rule without
-        # that evidence, and dropping the note.
-        root, base = self.header(2661) + self.header(2659), self.header(2659)
-        for main, merged in ((None, ()), (self.header(2665) + base, None)):
-            with self.subTest(main=main, merged=merged):
-                scope = self.scope(root, base, main, merged=merged)
-                self.assertEqual((scope.own_pr, scope.ceiling, scope.open_rule), (None, None, False))
-                self.assertIn("fail-closed", scope.note)
-                for pr in (2653, 2662, 2666):
-                    self.assertFalse(self.lc.above_store_ceiling([pr], scope))
-                rc, out, err = self.mirror_gate(root, self.header(2662) + root + self.header(2653), scope)
-                self.assertEqual(rc, 1, out + err)
-                self.assertIn(scope.note, out)
-                self.assertIn("MISSING from root", out)
-                self.assertNotIn("deferred", out)
-
-    # ---- register rows ----
-
-    # ---- gate 59 CLI under --root against fixture repositories ----
-
-    def test_mirror_gate_later_pr_header_is_deferred(self) -> None:
-        # PR #523's store entry is visible on #522's branch (#522 declared, ceiling 522). Kills:
-        # dropping the deferral in main() (rc 1), and M7: resolving the scope against REPO_ROOT
-        # instead of the --root fixture (no declaration there, rc 1).
-        r = self.run_mirror_gate(
-            self._OWN_522_ROOT + self._BASE_ROOT,
-            "**2026-11-24 | 2026.12.11 | PR #523** - later PR\n\n" + self._OWN_522_ROOT + self._BASE_ROOT,
-            base_root_text=self._BASE_ROOT)
-        self.assertEqual(r.returncode, 0, r.stdout)
-        self.assertIn("deferred #523: every named PR exceeds store-scope ceiling #522", r.stdout)
-        self.assertIn("declared own PR #522", r.stdout)
-
-    def test_mirror_gate_own_pr_at_ceiling_is_evaluated(self) -> None:
-        # The declared PR is the ceiling: its mirror record is compared, never deferred. Kills: `>`
-        # -> `>=` and any caller-local `>=` re-filter (rc 0, "deferred").
-        r = self.run_mirror_gate(
-            self._OWN_522_ROOT + self._BASE_ROOT,
-            "**2026-11-23 | 2026.12.11 | PR #522** - own\n\n" + self._BASE_ROOT,
-            base_root_text=self._BASE_ROOT)
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("DIFFERENT Library Versions", r.stdout)
-        self.assertIn("#522", r.stdout)
-        self.assertNotIn("deferred", r.stdout)
-
-    def test_mirror_gate_clean_base_defers_until_own_header_lands(self) -> None:
-        # The shape of a recorded incident: the mirror carries #522 before the root entry lands.
-        # Under clean-base the own PR is unknown, so #522 (a trailer-only PR's own entry included)
-        # defers with a note until its root header lands; it then declares and parity is evaluated
-        # with no note. Kills: a no-declaration scope that still disables all deferral, and a note
-        # naming "#None".
-        r = self.run_mirror_gate(self._BASE_ROOT, self._OWN_522_ROOT + self._BASE_ROOT,
-                                 base_root_text=self._BASE_ROOT)
-        self.assertEqual(r.returncode, 0, r.stdout)
-        self.assertIn("clean-base", r.stdout)
-        self.assertIn("deferred #522", r.stdout)
-        self.assertNotIn("#None", r.stdout)
-        r = self.run_mirror_gate(self._OWN_522_ROOT + self._BASE_ROOT,
-                                 self._OWN_522_ROOT + self._BASE_ROOT, base_root_text=self._BASE_ROOT)
-        self.assertEqual(r.returncode, 0, r.stdout)
-        self.assertNotIn("deferred", r.stdout)
-        self.assertNotIn("note:", r.stdout)
-
-    def test_mirror_gate_no_merge_base_fails_closed(self) -> None:
-        # No repository and no origin/main: nothing defers and the gate says so. Kills: a
-        # root-maximum fallback (rc 0) and a silent fail-closed.
-        r = self.run_mirror_gate(self._OWN_522_ROOT + self._BASE_ROOT,
-                                 "**2026-11-24 | 2026.12.11 | PR #523** - later PR\n\n"
-                                 + self._OWN_522_ROOT + self._BASE_ROOT)
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("MISSING from root", r.stdout)
-        self.assertIn("#523", r.stdout)
-        self.assertIn("fail-closed", r.stdout)
-        self.assertIn("merge-base", r.stdout)
-        self.assertNotIn("deferred", r.stdout)
-
-    def test_mirror_gate_multi_pr_legacy_header_fails_classification(self) -> None:
-        # A legacy header naming #520 and #524 fails entry classification (one header per PR)
-        # before the deferral flags are read, so this is a classification regression only; it does
-        # not reach the deferral decision. The shared helper's `min` rule (lint_common, "every
-        # named PR exceeds the ceiling") is still pinned: `min` -> `max` there fails
-        # test_above_store_ceiling_is_fail_closed and test_stacked_connectors_and_ambiguous_cells.
-        r = self.run_mirror_gate(
-            self._OWN_522_ROOT + self._BASE_ROOT,
-            "## 2026-11-24, Library Version 2026.12.11, PR #520 and PR #524\n\n"
-            + self._OWN_522_ROOT + self._BASE_ROOT,
-            base_root_text=self._BASE_ROOT)
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("#524", r.stdout)
-        self.assertNotIn("deferred", r.stdout)
-
-    def test_mirror_gate_record_key_and_deferral_share_one_pr_rule(self) -> None:
-        # The record-key check in main (a mirror record defers only when its own PR is among the
-        # PRs its line's deferral flags name) is reached directly, with the shared deferral flags
-        # mocked: the #9998 line is flagged as deferring #9999 only, and the #9997 line as
-        # deferring itself. With the check, #9998 is kept (and fails as missing from root) while
-        # #9997 defers; without it both defer and the gate passes. The shared parser returns the
-        # bold-cell PR for every full-match line, so real flags cannot produce this mismatch today:
-        # the check is defence in depth.
-        import contextlib
-        import types
-        from unittest import mock
-        root_text = "**2026-12-28 | 2026.12.1353 | PR #2650** - t\n"
-        mirror_text = ("**2026-12-31 | 2026.12.1400 | PR #9998** - flagged for #9999 only\n\n"
-                       "**2026-12-30 | 2026.12.1399 | PR #9997** - flagged for itself\n\n"
-                       + root_text)
-
-        def flags(lines, scope):
-            return [(True, [9999]) if "PR #9998" in line
-                    else (True, [9997]) if "PR #9997" in line else (False, [])
-                    for line in lines]
-
-        with tempfile.TemporaryDirectory() as tmp:
-            (Path(tmp) / ".working/changelog-details").mkdir(parents=True)
-            (Path(tmp) / ".working/CHANGELOG.md").write_text(self.titled(root_text),
-                                                             encoding="utf-8")
-            (Path(tmp) / ".working/changelog-details/CHANGELOG-detailed.md").write_text(
-                mirror_text, encoding="utf-8")
-            out = io.StringIO()
-            with mock.patch.object(self.mp, "store_scope",
-                                   return_value=types.SimpleNamespace(note=None, own_pr=None)), \
-                    mock.patch.object(self.mp, "store_deferral_flags", side_effect=flags), \
-                    mock.patch.object(self.mp, "store_deferral_note",
-                                      side_effect=lambda prs, scope, where, lineno:
-                                      f"deferred #{prs[0]} (line {lineno})"), \
-                    contextlib.redirect_stdout(out):
-                rc = self.mp.main(["--root", tmp])
-        self.assertEqual(rc, 1, out.getvalue())
-        self.assertIn("MISSING from root .working/CHANGELOG.md (>= #1): #9998\n", out.getvalue())
-        self.assertIn("deferred #9997 (line 3)", out.getvalue())
-        self.assertNotIn("deferred #9999", out.getvalue())
-
-    def test_mirror_gate_follow_up_tail_fails_classification(self) -> None:
-        # A legacy header with a trailing "(follow-up to PR #2650)" does not fully match the
-        # comparison shape, so entry classification fails it before deferral, naming both PRs. It
-        # is never deferred.
-        base = "**2026-12-28 | 2026.12.1353 | PR #2650** - t\n"
-        work = "**2026-12-30 | 2026.12.1360 | PR #2657** - t\n\n" + base
-        r = self.run_mirror_gate(
-            work,
-            "## 2026-12-30, Library Version 2026.12.1361, PR #9999 (follow-up to PR #2650)\n\n" + work,
-            base_root_text=base)
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("one header per PR is required: line 1 (#2650, #9999)", r.stdout)
-        self.assertNotIn("deferred", r.stdout)
-
-    def test_mirror_gate_version_floor_fails_before_deferral(self) -> None:
-        # With readable evidence, an old record dated on EPOCH_START at 2026.11.65 deferred as
-        # another open PR's entry, then rc 0. It now fails as an old-repository record before
-        # deferral (the 2026.12.1 lookalike in test_mirror_gate_lookalike_below_own_entry is the
-        # deferring control).
-        r = self.run_mirror_gate(
-            self._OWN_522_ROOT + self._BASE_ROOT,
-            self._OWN_522_ROOT + "**2026-11-09 | 2026.11.65 | PR #9999** - old epoch-day record\n\n"
-            + self._BASE_ROOT,
-            base_root_text=self._BASE_ROOT)
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("below VERSION_FLOOR 2026.11.66", r.stdout)
-        self.assertIn("PR #9999 (2026.11.65)", r.stdout)
-        self.assertNotIn("deferred", r.stdout)
-
-    def test_mirror_gate_multi_pr_header_fails_before_deferral(self) -> None:
-        # An entry candidate must name exactly 1 PR, so a legacy header naming open PRs #523 and
-        # #524 fails before store-scope deferral instead of deferring both.
-        r = self.run_mirror_gate(
-            self._OWN_522_ROOT + self._BASE_ROOT,
-            "## 2026-11-24, Library Version 2026.12.11, PR #523 and PR #524\n\n"
-            + self._OWN_522_ROOT + self._BASE_ROOT,
-            base_root_text=self._BASE_ROOT)
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("one header per PR is required: line 1 (#523, #524)", r.stdout)
-        self.assertNotIn("deferred", r.stdout)
-
-    def test_mirror_gate_lookalike_below_own_entry(self) -> None:
-        # As a stated residue, with readable origin/main evidence a plain, unmarked lookalike below
-        # the own entry reads as another open PR's entry and defers LOUDLY (the note names #9999).
-        # The unreadable-origin/main half, where it is evaluated, is pinned in process by
-        # test_store_deferral_flags_confine_ceiling_deferral_to_the_initial_run and
-        # test_open_rule_reaches_below_own_entry_and_lookalike_residue.
-        r = self.run_mirror_gate(
-            self._OWN_522_ROOT + self._BASE_ROOT,
-            self._OWN_522_ROOT + "**2026-12-31 | 2026.12.1 | PR #9999** - unmarked lookalike\n\n"
-            + self._BASE_ROOT,
-            base_root_text=self._BASE_ROOT)
-        self.assertEqual(r.returncode, 0, r.stdout)
-        self.assertIn("deferred #9999", r.stdout)
-
-    def test_mirror_gate_no_root_header_defers_nothing(self) -> None:
-        # No parseable root header: no declaration, nothing deferred, the mirror-only #522 fails
-        # loudly. Kills: a None ceiling read as 0, and a silent no-deferral state.
-        r = self.run_mirror_gate("# Changelog\n", "**2026-11-23 | 2026.12.10 | PR #522** - t\n",
-                                 base_root_text="# Changelog\n")
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("#522", r.stdout)
-        self.assertIn("no own-PR declaration", r.stdout)
-        self.assertNotIn("deferred", r.stdout)
-        self.assertNotIn("fail-closed", r.stdout)
-
-    def test_mirror_gate_reads_raw_records_no_masking(self) -> None:
-        # On the ROOT surface: literal `<!--` and `-->` in root prose span the real #522 root
-        # header, which must still be required in the mirror. Kills (M9): masking either surface
-        # read in main() (rc 0). The literal delimiter also makes the root ambiguous, so nothing is
-        # declared.
-        base = "**2026-11-22 | 2026.12.9 | PR #521** - t\n"
-        work = ("**2026-11-24 | 2026.12.11 | PR #523** - own\n"
-                "Notes: the gate reads `<!--` literally.\n"
-                "**2026-11-23 | 2026.12.10 | PR #522** - never mirrored\n"
-                "end of the `-->` note.\n" + base)
-        r = self.run_mirror_gate(work, "**2026-11-24 | 2026.12.11 | PR #523** - own\n\n" + base,
-                                 base_root_text=base)
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("MISSING from the detailed mirror", r.stdout)
-        self.assertIn("#522", r.stdout)
-        self.assertIn("no own-PR declaration", r.stdout)
-
-    def test_mirror_gate_merged_pr_without_root_header_fails(self) -> None:
-        # Through the CLI: #523 merged on origin/main with a `Changelog:` trailer (a `(#523)`
-        # subject, no root header). Its mirror entry is evaluated and fails as on main. Kills:
-        # merged status from header absence alone (rc 0, #523 deferred as another open PR).
-        r = self.run_mirror_gate(
-            "**2026-11-25 | 2026.12.12 | PR #524** - own\n\n" + self._BASE_ROOT,
-            "**2026-11-25 | 2026.12.12 | PR #524** - own\n\n"
-            "**2026-11-24 | 2026.12.11 | PR #523** - trailer-only merge\n\n" + self._BASE_ROOT,
-            base_root_text=self._BASE_ROOT,
-            subjects=("Base entries (#521)", "Trailer-only fix (#523)"))
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("MISSING from root", r.stdout)
-        self.assertIn("#523", r.stdout)
-        self.assertNotIn("deferred", r.stdout)
-
-    def test_mirror_gate_deleted_parent_header_does_not_declare(self) -> None:
-        # Through the CLI: the parent was squash-merged and its ref deleted; the unrebased child
-        # has not written its own root entry yet, so its own #2662 mirror entry is evaluated
-        # (missing from root) with a no-declaration note. Kills: the merged parent's #2653 header
-        # declaring (ceiling 2660, #2662 deferred above it, rc 0).
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            self.stacked_child(root, own_entry=False, parent="squash-merged")
-            d = root / ".working" / "changelog-details"
-            d.mkdir(parents=True)
-            (d / "CHANGELOG-detailed.md").write_text(
-                self.header(2662) + self.header(2653, 2661) + self.header(2660), encoding="utf-8")
-            r = run_linter(".claude/skills/corpus-management/tools/lint-changelog-mirror-header-parity.py", "--root", tmp)
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("no own-PR declaration", r.stdout)
-        self.assertIn("MISSING from root", r.stdout)
-        self.assertIn("#2662", r.stdout)
-        self.assertNotIn("deferred", r.stdout)
-
-    def test_mirror_gate_fenced_example_header_does_not_declare(self) -> None:
-        # Through the CLI: a fenced example header above the root entries (the branch has not
-        # written its own entry) declares nothing, so own #2662's mirror entry is evaluated. Kills:
-        # fence-blind declaration (#9999 declared, #2662 deferred as another open PR, rc 0).
-        base = self.header(2660)
-        fence = chr(96) * 3 + "\n"
-        root_text = fence + "**2026-12-31 | 2026.12.1 | PR #9999** - example\n" + fence + base
-        r = self.run_mirror_gate(root_text, self.header(2662) + base, base_root_text=base,
-                                 subjects=("Lost-device table (#2660)",))
-        self.assertEqual(r.returncode, 1, r.stdout)
-        self.assertIn("no own-PR declaration", r.stdout)
-        self.assertIn("delimiter", r.stdout)
-        self.assertIn("#2662", r.stdout)
-        self.assertNotIn("deferred", r.stdout)
-
-    def test_gate_59_keeps_ambiguous_record_key_and_ordering_checks(self) -> None:
-        # Scope never weakens the duplicate, version-agreement or ordering checks for evaluated
-        # records. The ambiguous legacy header no longer fully matches the comparison shape, so
-        # entry classification fails it before deferral, naming both PRs; a plain duplicate still
-        # fails the duplicate check.
-        root, base = self.header(2661) + self.header(2659), self.header(2659)
-        scope = self.scope(root, base, base)
-        mirror = "## 2026-12-30, Library Version 2026.12.2662, PR #9999 (see PR #2659)\n" + root
-        rc, out, err = self.mirror_gate(root, mirror, scope)
-        self.assertEqual(rc, 1, out + err)
-        self.assertNotIn("deferred", out)
-        self.assertIn("one header per PR is required: line 1 (#2659, #9999)", out)
-        rc, out, err = self.mirror_gate(root, root + self.header(2659), scope)
-        self.assertEqual(rc, 1, out + err)
-        self.assertNotIn("deferred", out)
-        self.assertIn("appearing more than once", out)
-        rc, out, err = self.mirror_gate(root, self.header(2661, 2660) + self.header(2659), scope)
-        self.assertEqual(rc, 1, out + err)
-        self.assertIn("DIFFERENT Library Versions", out)
-        rc, out, err = self.mirror_gate(root, self.header(2661, 2659) + self.header(2659, 2661), scope)
-        self.assertEqual(rc, 1, out + err)
-        self.assertIn("ordering violated", out)
-
-    # ---- gate 50 main() and CLI ----
-
-    class _Stub:
-        def __init__(self, text: str) -> None:
-            self._text = text
-
-        def read_text(self, **kwargs) -> str:
-            return self._text
-
-    # ---- gate 50 Check 6 online own-PR verification ----
-
-    class _GhRunner:
-        """Scripted stand-in for the gate's ``_gh_runner`` seam: it answers the two local
-        git reads and the one gh call from fixture values, records every argv and the gh
-        call's environment (the GH_HOST pin), and never starts a process, so these tests
-        cannot touch git, gh or the network."""
-
-        def __init__(self, branch="tooling/own", gh=None, gh_exc=None,
-                     url="git@github.com:jposluns/grc_library.git", branch_rc=0, url_rc=0):
-            self.branch, self.url, self.gh, self.gh_exc = branch, url, gh, gh_exc
-            self.branch_rc, self.url_rc = branch_rc, url_rc
-            self.calls: list[list[str]] = []
-            self.gh_env: dict[str, str] | None = None
-
-        def __call__(self, argv, *, timeout, env=None):
-            self.calls.append(list(argv))
-            if argv[0] == "git" and "rev-parse" in argv:
-                return subprocess.CompletedProcess(argv, self.branch_rc, self.branch + "\n", "")
-            if argv[0] == "git" and "remote" in argv:
-                return subprocess.CompletedProcess(argv, self.url_rc, self.url + "\n", "")
-            assert argv[0] == "gh", argv
-            self.gh_env = env
-            if self.gh_exc is not None:
-                raise self.gh_exc
-            rc, stdout, stderr = self.gh
-            return subprocess.CompletedProcess(argv, rc, stdout, stderr)
-
-    @staticmethod
-    @staticmethod
-    def _own_pr_json(state="OPEN", head="tooling/own", cross=False,
-                     owner="jposluns", name="grc_library", number=2651, url=None):
-        """The full gh answer the hardened verifier demands: state, head branch, the
-        head-repository identity fields and the host-naming url. ``cross`` takes a
-        bool or a raw JSON token (so a subcase can model null or a quoted string);
-        ``url`` defaults to the PR's canonical github.com address, takes any
-        replacement string, or is omitted entirely with ``url=False``."""
-        if cross is True or cross is False:
-            cross = "true" if cross else "false"
-        if url is None:
-            url = f"https://github.com/{owner}/{name}/pull/{number}"
-        url_field = "" if url is False else f', "url": "{url}"'
-        return (f'{{"state": "{state}", "headRefName": "{head}", '
-                f'"isCrossRepository": {cross}, '
-                f'"headRepositoryOwner": {{"login": "{owner}"}}, '
-                f'"headRepository": {{"name": "{name}"}}{url_field}}}')
-
-    def test_legacy_tail_naming_a_pr_is_uncertain(self) -> None:
-        # The legacy cell runs to the end of the line; in the earlier repository its tail was
-        # probed for `#N` alone, so an unsupported continuation naming a PR by label or bare number
-        # (`/ PR 2665`) left the parsed prefix CERTAIN. The tail is now probed with the shared
-        # case-insensitive grammar too, so any PR identity in it (labelled or bare, in any case, or
-        # with its label glued on) makes the header uncertain: evaluated, never deferred. A tail
-        # naming no PR stays certain, and a grammar connector still continues the identity itself.
-        # Kills: the `#N`-only tail probe, and a case-sensitive or label-only one.
-        lc = self.lc
-        prefix = "## 2026-09-30, Library Version 2026.09.2665, PR #2664"
-        for tail in (" / PR 2665", " / pr 2665", " / PRs 2665", " / 2665", " / PR2665", " / #2665"):
-            with self.subTest(tail=tail):
-                self.assertEqual(lc.changelog_header_prs(prefix + tail), [])
-        self.assertEqual(lc.changelog_header_prs(prefix), [2664])
-        self.assertEqual(lc.changelog_header_prs(prefix + " (tooling)"), [2664])
-        self.assertEqual(lc.changelog_header_prs(prefix + " and PR 2665"), [2664, 2665])
-
-
 class AIQTCutoverTests(unittest.TestCase):
     """Pinned AIQT mutation controls: vendored bytes, release root, rendered rules, index block."""
 
@@ -79640,7 +85871,7 @@ class AIQTCutoverTests(unittest.TestCase):
         self.assertEqual(leftovers, [])
 
 
-class AIQTBoundaryRegressionTests(unittest.TestCase):
+class AIQTBoundaryRegressionTests(LinterTestCase):
     """Boundary regressions, including real entry points and negative controls."""
 
     load = staticmethod(AIQTCutoverTests.load)
@@ -79679,7 +85910,8 @@ class AIQTBoundaryRegressionTests(unittest.TestCase):
             p = Path(tmp) / 'standard-uncertain.md'
             p.write_text('# Requirement\n\nThe service MUST encrypt data. TODO: confirm.\n')
             result = run_linter('.claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py', p)
-            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+            # The needle is the finding line itself, so a crash that exits 1 does not pass.
+            self.assertLinterFails(result, 'L3 [near TODO]')
 
     def test_d10_entry_point_rejects_malformed_and_unknown_scope_metadata(self):
         from unittest.mock import patch
@@ -85100,7 +91332,7 @@ class BaselinePinLinterTests(LinterTestCase):
             encoding="utf-8")
         release = re.findall(r'^const VERSION = "(\d+\.\d+\.\d+)";$', builder,
                              re.M)
-        self.assertEqual(release, ["1.11.1"], "the pinned builder's release")
+        self.assertEqual(release, ["1.12.4"], "the pinned builder's release")
         self.assertEqual(pin["version"], release[0],
                          "the pin names the release of its card builder")
         result = run_linter(self.SCRIPT)

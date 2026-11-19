@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
-"""Added-line diff reading for the CHANGELOG checks.
+"""Added-line diff reading and public line shapes for the CHANGELOG checks.
 
-The CHANGELOG checks that read the lines a change ADDS (delta gates D3
+The CHANGELOG checks that read the lines a change ADDS (delta gates D1
+``.claude/skills/corpus-management/tools/check-changelog-on-pr.py``, D3
 ``.claude/skills/corpus-management/tools/check-changelog-dash-on-pr.py`` and D7 ``.claude/skills/corpus-management/tools/check-changelog-length-on-pr.py``,
 and ``.claude/skills/corpus-management/tools/preflight-changelog.py``) share this one pinned ``git diff`` and its parser.
+
+The public ``.working/CHANGELOG.md`` carries weekly summaries only (maintainer-directed
+2026-11-13): a weekly paragraph headed ``**Week of YYYY-MM-DD (PRs #FIRST-#LAST)**`` and, for
+periods older than 3 months, a monthly paragraph headed ``**YYYY-MM (PRs #FIRST-#LAST)**``. The
+per-change entries and any daily summaries belong to the private per-change record. The line
+shapes below (:func:`public_line_kind`) are the one definition D1 and D7 share.
 In the earlier repository, each gate split ``git diff`` text with splitlines() and
 skipped every line starting "+++", so an added line whose text starts with "++"
 escaped the check, and a CR, U+2028 or U+0085 inside an added line split it into
@@ -183,6 +190,90 @@ def refuse_links(paths: Iterable[str], rev: "str | None" = None, *,
                 f"{path} has mode {mode.decode()} in {where}, {_LINK_MODES[mode]}, not a "
                 "regular file or directory, so the diff does not show the lines of the file it "
                 "leads to")
+
+
+def read_blob(rev: str, path: str, *, cwd: "Path | str | None" = None,
+              env: "dict[str, str] | None" = None) -> bytes:
+    """The bytes of ``path`` (from the repository root) in the tree of commit ``rev``; a git
+    failure raises :class:`GitQueryFailed`."""
+    return _git_query(["show", f"{rev}:{path}"], cwd=cwd, env=env)
+
+
+# Public changelog line shapes. ASCII-only, so a digit outside 0-9 never reads as a date or a
+# PR number. A period heading names its first and last PR; a range must rise.
+WEEKLY_HEADER_RE = re.compile(
+    r"^\*\*Week of (\d{4}-\d{2}-\d{2}) \(PRs #([1-9][0-9]*)(?:-#([1-9][0-9]*))?\)\*\*$", re.ASCII)
+MONTHLY_HEADER_RE = re.compile(
+    r"^\*\*(\d{4}-\d{2}) \(PRs #([1-9][0-9]*)(?:-#([1-9][0-9]*))?\)\*\*$", re.ASCII)
+# The weekly sections written before the per-change record moved out of the public file
+# (``## Week of YYYY-MM-DD`` with ``- `` bullets) stay as history; they name no PR range.
+LEGACY_WEEK_HEADING_RE = re.compile(r"^## Week of (\d{4}-\d{2}-\d{2})$", re.ASCII)
+TITLE = "# Changelog"
+# A daily summary heading, ``**YYYY-MM-DD (PRs #A-#B)**`` (or a version range).
+DAILY_HEADING_RE = re.compile(r"^[ \t>*_#+-]*\d{4}-\d{2}-\d{2} \((?:PRs?|versions) [^)]*\)\**\s*$",
+                              re.ASCII)
+# Any other line that opens, after markup only, with a full date: a per-change entry
+# (``**2026-11-12 | 2026.11.93 | PR #29** - ...``), a daily roll-up or a dated legacy header.
+DATED_LINE_RE = re.compile(r"^[ \t>*_#+-]*\d{4}-\d{2}-\d{2}(?![0-9])", re.ASCII)
+# A per-change scaffold bullet (``- PR #29: ...``).
+PR_BULLET_RE = re.compile(r"^[ \t>*_#+-]*PRs? #\d+\s*:", re.ASCII | re.IGNORECASE)
+SCAFFOLD_MARKERS = ("TIER-SCAFFOLD", "CONDENSE-SCAFFOLD")
+# Kinds that open or close a section of the public file.
+STRUCTURAL_KINDS = frozenset({"title", "weekly", "monthly", "legacy-weekly", "daily",
+                              "per-change", "heading", "scaffold"})
+
+
+def period_range(match: "re.Match[str]") -> tuple[int, int]:
+    """(first PR, last PR) of a weekly or monthly heading match."""
+    first = int(match.group(2))
+    return first, int(match.group(3)) if match.group(3) else first
+
+
+def public_line_kind(text: str) -> str:
+    """The kind of one public changelog line (one ``str.splitlines()`` part, without its line
+    end): ``blank``, ``title``, ``weekly`` or ``monthly`` (a period heading whose PR range
+    rises), ``legacy-weekly``, ``daily`` (a daily summary heading), ``per-change`` (a dated
+    entry or a ``PR #N:`` bullet), ``scaffold`` (an unauthored scaffold marker), ``heading``
+    (any other ``#`` heading or bold line, a period heading with a falling or equal range
+    among them) or ``text``."""
+    if not text.strip():
+        return "blank"
+    if text == TITLE:
+        return "title"
+    for kind, pattern in (("weekly", WEEKLY_HEADER_RE), ("monthly", MONTHLY_HEADER_RE)):
+        match = pattern.match(text)
+        if match:
+            first, last = period_range(match)
+            if match.group(3) and last <= first:
+                return "heading"
+            return kind
+    if LEGACY_WEEK_HEADING_RE.match(text):
+        return "legacy-weekly"
+    if any(marker in text for marker in SCAFFOLD_MARKERS):
+        return "scaffold"
+    if DAILY_HEADING_RE.match(text):
+        return "daily"
+    if DATED_LINE_RE.match(text) or PR_BULLET_RE.match(text):
+        return "per-change"
+    stripped = text.lstrip(" \t")
+    if stripped.startswith("#") or stripped.startswith("**"):
+        return "heading"
+    return "text"
+
+
+def public_line_parts(text: str) -> list[tuple[int, str]]:
+    """(LF line number, part) for every ``str.splitlines()`` part of every LF-ended line of
+    ``text``: a CR, U+2028, U+0085 or another line boundary inside a line starts a new part
+    (a renderer may start a new line there), and the part keeps its LF line's number. A line
+    with no text gives one empty part."""
+    lines = text.split("\n")
+    if lines and lines[-1] == "":
+        lines.pop()
+    out: list[tuple[int, str]] = []
+    for number, line in enumerate(lines, start=1):
+        for part in line.splitlines() or [""]:
+            out.append((number, part))
+    return out
 
 
 _DIFF_HUNK_RE = re.compile(rb"@@ -\d+(?:,(\d+))? \+(\d+)(?:,(\d+))? @@")
