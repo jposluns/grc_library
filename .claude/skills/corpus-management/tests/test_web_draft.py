@@ -28084,15 +28084,22 @@ class MarkdownReadingTableTests(unittest.TestCase):
     result, or refused, with the BuildError message). Every outcome was
     recorded by calling the function unchanged; a row that looks wrong is
     still main's behaviour and is pinned as such, so a reader change has
-    to change the row it touches.
+    to change the row it touches. ROWS holds main's behaviour only, and
+    only for readers main has: the rows for the shared readers main does
+    not have (read_markdown_sections, read_markdown_paragraph and
+    md_thematic_break) are in SHARED_READER_ROWS, which records their
+    behaviour with no main counterpart. A row where a reader departs from
+    main on purpose is in PLANNED_DEPARTURES instead, its comment giving
+    main's outcome for the same input.
 
     The readers, by structure:
 
     - level-one title lines: _narrative_body_lines (the first non-blank
       line must start with '# '), _classify_narrative_line (a body line led
       by a hash), _adopter_purpose (its no-Purpose fallback skips a
-      stripped line starting with '# '), _adopter_metadata and
-      _adopter_sections (neither treats a title line as structure), and
+      title line by the rule its docstring states),
+      _adopter_metadata and _adopter_sections (neither treats a title
+      line as structure), and
       _llms_links (a line starting with '# ').
     - level-two and level-three headings: _classify_narrative_line and
       render_narrative_body (through _narrative_blocks), _adopter_sections,
@@ -28105,11 +28112,16 @@ class MarkdownReadingTableTests(unittest.TestCase):
       _adopter_purpose, read_domain_purpose and
       parse_compliance_tsc_status.
     - fenced code blocks and lines inside them: _adopter_fence_line (used
-      by _adopter_metadata, _adopter_purpose and _adopter_sections),
-      _classify_narrative_line, and, with no fence handling at all,
-      _narrative_body_lines, _adopter_first_paragraph, read_domain_purpose,
-      the citations register readers, parse_reverse_matrix and
-      _llms_links.
+      by _adopter_metadata, _adopter_purpose and _adopter_sections, and by
+      parse_reverse_matrix, which reads every line fence-blind as main
+      does and has one fence check, a departure from main: it leaves out
+      an instrument table lying wholly inside a fence opened and closed
+      within one section),
+      _classify_narrative_line, _narrative_body_lines (which refuses a
+      fence line before its metadata terminator, a departure from
+      main, which accepts that input), and, with no fence
+      handling at all, _adopter_first_paragraph, read_domain_purpose,
+      the citations register readers and _llms_links.
     - thematic breaks in a body: _classify_narrative_line and _llms_links.
     - register tables under or above the first level-two heading:
       parse_citations_register_sections, parse_citations_register and
@@ -28139,6 +28151,16 @@ class MarkdownReadingTableTests(unittest.TestCase):
       parse_adopter_docs, which reads them itself, with each refusal (a
       link without backticked text or a .md target, a target that is not
       a tracked file inside the repository, and text that is not a link).
+    - the shared section, paragraph and thematic-break readers:
+      read_markdown_sections (each level-two heading rule, with fences
+      untracked and toggled; the citations register readers,
+      parse_compliance_matrix, parse_reverse_matrix, _adopter_purpose
+      and read_domain_purpose read their sections through it),
+      read_markdown_paragraph (each line that stops a paragraph;
+      _adopter_first_paragraph and the Purpose paragraphs of
+      _adopter_purpose and read_domain_purpose read through it) and
+      md_thematic_break (which the no-Purpose fallback of _adopter_purpose
+      and the list fold of read_domain_purpose also use).
 
     For render_narrative_body an accepted row records the table of
     contents (the second element of its result), which only level-two
@@ -28151,6 +28173,10 @@ class MarkdownReadingTableTests(unittest.TestCase):
     parse_adopter_docs reads the input as the Related Documents value of
     one otherwise valid adopter document, the only file in a temporary
     ADOPTER_DOCS_DIR, and records the related documents of each record.
+    read_markdown_sections reads the input as a triple of the text, the
+    heading rule and the fence mode; read_markdown_paragraph reads it as
+    a pair of the text, split on LF into its line list, and the start
+    index.
 
     Every reader this docstring names, as a reading-family name or as
     code in backticks, is in READERS with rows of its own; a helper
@@ -28189,6 +28215,12 @@ class MarkdownReadingTableTests(unittest.TestCase):
                 result = fn(arg.split("\n"))
             elif name == "_llms_links":
                 result = fn("llms.txt", arg)
+            elif name == "read_markdown_sections":
+                body, heading, fences = arg
+                result = fn(body, heading=heading, fences=fences)
+            elif name == "read_markdown_paragraph":
+                body, start = arg
+                result = fn(body.split("\n"), start)
             elif name == "read_domain_purpose":
                 with tempfile.TemporaryDirectory() as tmp:
                     (Path(tmp) / "dom").mkdir()
@@ -28253,7 +28285,8 @@ class MarkdownReadingTableTests(unittest.TestCase):
          '\n'
          '**End of Document**\n',
          ('accepted', ['', 'Body line.', ''])),
-        # Differs: _adopter_purpose skips an indented title line, this refuses it.
+        # Differs: the no-Purpose fallback of _adopter_purpose skips an
+        # indented title line; this refuses it.
         ('_narrative_body_lines',
          '  # Title\n'
          '\n'
@@ -28266,8 +28299,9 @@ class MarkdownReadingTableTests(unittest.TestCase):
          '**End of Document**\n',
          ('refused',
           "doc.md: narrative source has no leading '# ' title line")),
-        # Differs: _adopter_purpose keeps '#\tTitle' as lede prose after the
-        # metadata block; _llms_links refuses the tab as a control character.
+        # Differs: the no-Purpose fallback of _adopter_purpose skips
+        # '#\tTitle' as a title line after the metadata block; _llms_links
+        # refuses the tab as a control character.
         ('_narrative_body_lines',
          '#\tTitle\n'
          '\n'
@@ -28280,8 +28314,8 @@ class MarkdownReadingTableTests(unittest.TestCase):
          '**End of Document**\n',
          ('refused',
           "doc.md: narrative source has no leading '# ' title line")),
-        # Differs: after the metadata block _adopter_purpose keeps a bare '#'
-        # as the lede.
+        # Differs: after the metadata block the no-Purpose fallback of
+        # _adopter_purpose skips a bare '#' as a title line.
         ('_narrative_body_lines',
          '#\n'
          '\n'
@@ -28341,7 +28375,13 @@ class MarkdownReadingTableTests(unittest.TestCase):
         ('_adopter_purpose',
          '# Title\n\n**Version:** 1.0.0\n\nIntro.\n',
          ('accepted', 'Intro.')),
-        # Differs: _narrative_body_lines and _llms_links refuse an indented title.
+        # Differs: _narrative_body_lines and _llms_links refuse an indented
+        # title. This fallback skips it by the title rule (stated in the
+        # _adopter_purpose docstring), but any line before the metadata
+        # line is dropped anyway because reading has not started, so the
+        # outcome does not rest on the title rule; the row
+        # with the indented title after the metadata line, two rows
+        # below, is the one that exercises that rule.
         ('_adopter_purpose',
          '  # Title\n\n**Version:** 1.0.0\n\nIntro.\n',
          ('accepted', 'Intro.')),
@@ -28351,14 +28391,6 @@ class MarkdownReadingTableTests(unittest.TestCase):
         ('_adopter_purpose',
          '**Version:** 1.0.0\n\n  # Title\n\nIntro.\n',
          ('accepted', 'Intro.')),
-        # Looks wrong: a hash-tab title after the metadata block becomes the lede.
-        ('_adopter_purpose',
-         '**Version:** 1.0.0\n\n#\tTitle\n\nIntro.\n',
-         ('accepted', '#\tTitle')),
-        # Looks wrong: a bare hash after the metadata block becomes the lede.
-        ('_adopter_purpose',
-         '**Version:** 1.0.0\n\n#\n\nIntro.\n',
-         ('accepted', '#')),
         ('_adopter_metadata',
          '# Title\n\n**Version:** 1.0.0\n',
          ('accepted', {'Version': '1.0.0'})),
@@ -28413,9 +28445,9 @@ class MarkdownReadingTableTests(unittest.TestCase):
          ('refused',
           "doc.md: only '## ' and '### ' section headings are supported in "
           "the body: '##\\tHeading'")),
-        # Differs: _adopter_metadata stops at an indented level-two heading and
-        # _adopter_purpose matches an indented Purpose heading, but
-        # _adopter_sections and _adopter_first_paragraph do not read it as one.
+        # Differs: _adopter_metadata and _adopter_first_paragraph stop at an
+        # indented level-two heading and _adopter_purpose matches an indented
+        # Purpose heading, but _adopter_sections does not read it as one.
         ('_classify_narrative_line',
          '  ## Heading',
          ('refused',
@@ -28485,17 +28517,10 @@ class MarkdownReadingTableTests(unittest.TestCase):
         # Empty heading text stops the paragraph here (the regex needs only '##'
         # and whitespace).
         ('_adopter_first_paragraph', '## \nPara.', ('accepted', '')),
-        # Looks wrong: a bare '##' is read as prose and joins the paragraph.
-        ('_adopter_first_paragraph', '##\nPara.', ('accepted', '## Para.')),
         ('_adopter_first_paragraph', '### Sub\nPara.', ('accepted', 'Para.')),
         ('_adopter_first_paragraph',
          'Para.\n### Sub\nMore.',
          ('accepted', 'Para.')),
-        # Looks wrong: an indented level-two heading joins the paragraph.
-        # Differs: read_domain_purpose and _adopter_metadata stop at it.
-        ('_adopter_first_paragraph',
-         'Para.\n  ## Next\nMore.',
-         ('accepted', 'Para. ## Next More.')),
         ('_adopter_purpose', '## Purpose\n\nLede.\n', ('accepted', 'Lede.')),
         ('_adopter_purpose',
          '## 1. Overview\n\nLede.\n',
@@ -28517,11 +28542,6 @@ class MarkdownReadingTableTests(unittest.TestCase):
         ('read_domain_purpose',
          '## 1. Purpose\n\nLede.\n',
          ('refused', "dom/README.md has no '## Purpose' paragraph")),
-        # Looks wrong: a level-three heading line joins the Purpose lede.
-        # Differs: _adopter_first_paragraph skips or stops at it.
-        ('read_domain_purpose',
-         '## Purpose\n\nLede one\n### Sub\nmore\n',
-         ('accepted', 'Lede one ### Sub more')),
         ('read_domain_purpose',
          '## Purpose\n\nLede one\n  ## Next\nmore\n',
          ('accepted', 'Lede one')),
@@ -28530,8 +28550,9 @@ class MarkdownReadingTableTests(unittest.TestCase):
          ('refused',
           "crosswalk: compliance matrix section 'Nonsense' names no "
           'DOMAIN_SCOPE domain (renamed domain or schema change?)')),
-        # Looks wrong: an extra space after '##' survives into the section name in
-        # the message; the slug is stripped, so '##  Governance domain' would read.
+        # An extra space after '##' is kept in the section name in the
+        # message, though the slug is stripped, so '##  Governance domain'
+        # reads.
         ('parse_compliance_matrix',
          '##  Nonsense domain\n',
          ('refused',
@@ -28557,7 +28578,9 @@ class MarkdownReadingTableTests(unittest.TestCase):
           "shapes (a blank line, a '# ' or '## ' heading, a '> ' block-quote "
           "line, or a '- [label](https://...)' list item): '### Sub'")),
         # Differs: parse_compliance_tsc_status needs the exact line '---' and
-        # refuses an indented one; _classify_narrative_line reads '---  ' as prose.
+        # refuses an indented one. On main, _classify_narrative_line reads
+        # '---  ' as prose ('p'); a planned departure refuses it as a
+        # horizontal rule.
         ('_narrative_body_lines',
          '# Title\n'
          '\n'
@@ -28625,30 +28648,29 @@ class MarkdownReadingTableTests(unittest.TestCase):
          '\n'
          '**End of Document**\n',
          ('refused', "doc.md: no '---' metadata terminator found")),
-        # Looks wrong: a '---' inside a fence before the metadata block is taken
-        # as the metadata terminator; the body then opens with the fence.
+        # A fence and no '---' line anywhere: refused as having no
+        # metadata terminator, not as fenced code before one.
         ('_narrative_body_lines',
          '# Title\n'
          '\n'
          '```\n'
-         '---\n'
+         'x\n'
          '```\n'
-         '\n'
-         '---\n'
          '\n'
          'Body line.\n'
          '\n'
          '**End of Document**\n',
-         ('accepted', ['```', '', '---', '', 'Body line.', ''])),
+         ('refused', "doc.md: no '---' metadata terminator found")),
         ('_adopter_metadata',
          '**Version:** 1.0.0\n---\n**Owner:** x\n',
          ('accepted', {'Version': '1.0.0'})),
         ('_adopter_metadata',
          '**Version:** 1.0.0\n  ---  \n**Owner:** x\n',
          ('accepted', {'Version': '1.0.0'})),
-        # Differs: _narrative_body_lines refuses '----' as a terminator, and
-        # _adopter_first_paragraph, _adopter_purpose and read_domain_purpose read
-        # it as prose.
+        # Differs: _narrative_body_lines refuses '----' as a terminator,
+        # _adopter_first_paragraph stops at it, the no-Purpose fallback of
+        # _adopter_purpose skips it, and read_domain_purpose reads it as
+        # prose.
         ('_adopter_metadata',
          '**Version:** 1.0.0\n----\n**Owner:** x\n',
          ('accepted', {'Version': '1.0.0'})),
@@ -28670,38 +28692,24 @@ class MarkdownReadingTableTests(unittest.TestCase):
         ('_adopter_first_paragraph',
          'Para.\n  ---  \nMore.',
          ('accepted', 'Para.')),
-        # Looks wrong: '----' joins the paragraph. Differs: _adopter_metadata stops.
-        ('_adopter_first_paragraph',
-         'Para.\n----\nMore.',
-         ('accepted', 'Para. ---- More.')),
-        # Looks wrong: '***' joins the paragraph.
-        ('_adopter_first_paragraph',
-         'Para.\n***\nMore.',
-         ('accepted', 'Para. *** More.')),
         ('_adopter_purpose',
          '**Version:** 1.0.0\n\n---\n\nIntro.\n',
          ('accepted', 'Intro.')),
         ('_adopter_purpose',
          '**Version:** 1.0.0\n\n  ---  \n\nIntro.\n',
          ('accepted', 'Intro.')),
-        # Looks wrong: '----' after the metadata block becomes the lede.
+        # Looks wrong: the no-Purpose fallback skips a level-three heading
+        # only when it is flush with white space after its hashes, so an
+        # indented one after the metadata block becomes the lede.
         ('_adopter_purpose',
-         '**Version:** 1.0.0\n\n----\n\nIntro.\n',
-         ('accepted', '----')),
-        # Looks wrong: '***' after the metadata block becomes the lede.
-        ('_adopter_purpose',
-         '**Version:** 1.0.0\n\n***\n\nIntro.\n',
-         ('accepted', '***')),
+         '**Version:** 1.0.0\n\n  ### Sub\n\nIntro.\n',
+         ('accepted', '### Sub')),
         ('read_domain_purpose',
          '## Purpose\n\nLede one\n---\nmore\n',
          ('accepted', 'Lede one')),
         ('read_domain_purpose',
          '## Purpose\n\nLede one\n  ---  \nmore\n',
          ('accepted', 'Lede one')),
-        # Looks wrong: '----' joins the Purpose lede.
-        ('read_domain_purpose',
-         '## Purpose\n\nLede one\n----\nmore\n',
-         ('accepted', 'Lede one ---- more')),
         ('read_domain_purpose',
          '## Purpose\n\n---\n\nLede.\n',
          ('refused', "dom/README.md has no '## Purpose' paragraph")),
@@ -28850,25 +28858,10 @@ class MarkdownReadingTableTests(unittest.TestCase):
         ('_adopter_purpose',
          '```\n## Purpose\n\nInside.\n```\n## Purpose\n\nOutside.\n',
          ('accepted', 'Outside.')),
-        # Looks wrong: the no-Purpose fallback does not track fences, so the
-        # opening fence line joins the paragraph and the level-two line inside
-        # the fence ends the scan; the flattener then strips the backticks of
-        # that one-line paragraph, leaving an empty lede. Differs: the Purpose
-        # search above it honours fences.
-        ('_adopter_purpose',
-         '**Version:** 1.0.0\n\n```\n## Next\n```\n\nIntro.\n',
-         ('accepted', '')),
         # Differs: _adopter_sections honours the fence; this reader does not.
         ('_adopter_first_paragraph',
          '```\n## Inside\n```',
          ('accepted', '```')),
-        # Looks wrong: the level-two line inside the fence ends the Purpose
-        # section, so the paragraph is the opening fence line alone; dropping
-        # its backticks leaves an empty lede, and the no-paragraph refusal
-        # does not fire.
-        ('read_domain_purpose',
-         '## Purpose\n\n```\n## Inside\n```\n',
-         ('accepted', '')),
         # Looks wrong: a register table inside a fence is read as register rows.
         ('parse_citations_register_sections',
          '## Standards\n'
@@ -28888,14 +28881,71 @@ class MarkdownReadingTableTests(unittest.TestCase):
               'upstream': 'https://www.iso.org',
               'verified': '2026-01-01',
               'version': '2022'}])])),
-        # Looks wrong: an instrument table inside a fence is read as rows.
+        # A heading line inside a fence is a heading: the table after the
+        # closing fence is filed under it.
         ('parse_reverse_matrix',
-         '## Instrument\n'
+         '## Real\n'
+         '```\n'
+         '## Inst\n'
          '```\n'
          '| Area | Library documents | Alignment type |\n'
          '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('accepted',
+          {'Inst': {'area_label': 'Area',
+                    'rows': [{'alignment': 'Direct',
+                              'area': 'Area one',
+                              'paths': ['governance/x.md']}]}})),
+        # A fence never closed before a heading hides neither the heading
+        # nor its table.
+        ('parse_reverse_matrix',
+         '```\n'
+         '## Instrument\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('accepted',
+          {'Instrument': {'area_label': 'Area',
+                          'rows': [{'alignment': 'Direct',
+                                    'area': 'Area one',
+                                    'paths': ['governance/x.md']}]}})),
+        # A fence line between the header and the separator interrupts the
+        # table.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '| Area | Library documents | Alignment type |\n'
+         '```\n'
+         '| --- | --- | --- |\n'
          '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n'
          '```\n',
+         ('refused',
+          "crosswalk: reverse matrix table under 'Instrument' is interrupted "
+          'or carries an unexpected table line')),
+        # A stray table line inside a fence after an instrument table is
+        # refused, never dropped.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n'
+         '```\n'
+         '| Stray |\n'
+         '```\n',
+         ('refused',
+          "crosswalk: reverse matrix table under 'Instrument' is interrupted "
+          'or carries an unexpected table line')),
+        # A plain two-column table outside a fence, in a section before
+        # the instrument table, is skipped line by line: its section is
+        # not an instrument section.
+        ('parse_reverse_matrix',
+         '## Notes\n'
+         '| Key | Value |\n'
+         '| --- | --- |\n'
+         '| a | b |\n'
+         '## Instrument\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
          ('accepted',
           {'Instrument': {'area_label': 'Area',
                           'rows': [{'alignment': 'Direct',
@@ -28930,10 +28980,6 @@ class MarkdownReadingTableTests(unittest.TestCase):
         ('_classify_narrative_line',
          '===',
          ('refused', "doc.md: setext heading underlines unsupported: '==='")),
-        # Looks wrong: a thematic break with trailing spaces is a paragraph,
-        # while '---' is refused. Differs: _narrative_body_lines accepts '---  '
-        # as its metadata terminator.
-        ('_classify_narrative_line', '---  ', ('accepted', 'p')),
         ('_llms_links',
          '---\n',
          ('refused',
@@ -28973,6 +29019,29 @@ class MarkdownReadingTableTests(unittest.TestCase):
                      'upstream': 'https://www.iso.org',
                      'verified': '2026-01-01',
                      'version': '2022'}})),
+        # A table of another schema beside the register table is skipped
+        # line by line; only the register table's rows are read.
+        ('parse_citations_register_sections',
+         '## Standards\n'
+         '\n'
+         '| Key | Value |\n'
+         '| --- | --- |\n'
+         '| a | b |\n'
+         '\n'
+         '| Standard ID | Current version | Publication date | Topic | '
+         'Superseded versions | Upstream check location | Last verified '
+         '(UTC) |\n'
+         '| --- | --- | --- | --- | --- | --- | --- |\n'
+         '| ISO 1 | 2022 | 2022-01 | Topic one. | None | https://www.iso.org '
+         '| 2026-01-01 |\n',
+         ('accepted',
+          [('Standards',
+            [{'date': '2022-01',
+              'id': 'ISO 1',
+              'topic': 'Topic one.',
+              'upstream': 'https://www.iso.org',
+              'verified': '2026-01-01',
+              'version': '2022'}])])),
         # Differs: parse_citations_register accepts a table above the first
         # level-two heading; parse_reverse_matrix ignores it without naming it.
         ('parse_citations_register_sections',
@@ -29428,16 +29497,15 @@ class MarkdownReadingTableTests(unittest.TestCase):
         ('read_domain_purpose',
          '## Purpose\n\nLead-in:\n\n- One. More.\n- Two.\n',
          ('accepted', 'Lead-in: One; Two.')),
-        # Looks wrong: a paragraph after the list folds into the last item,
-        # so 'After.' joins 'Two.' and only the first sentence survives.
+        # Main folds the paragraph after the list into the last item, so
+        # 'After.' joins 'Two.' and only the first sentence survives; the
+        # reader as changed ends the list at the blank line before 'After.'.
+        # Both give this outcome.
         ('read_domain_purpose',
          '## Purpose\n\nLead-in:\n\n1. One\n   wrapped.\n2. Two.\n\nAfter.\n',
          ('accepted', 'Lead-in: One wrapped; Two.')),
-        # Looks wrong: a fence of plain code joins the paragraph, and stripping
-        # the backticks leaves the code as the lede.
-        ('_adopter_purpose',
-         '**Version:** 1.0.0\n\n```\nplain\n```\n\nIntro.\n',
-         ('accepted', 'plain')),
+        # The Purpose paragraph is read fence-blind, so the fenced code is
+        # the lede. Differs: the no-Purpose fallback skips fenced lines.
         ('_adopter_purpose',
          '## Purpose\n\n```\nplain\n```\n',
          ('accepted', 'plain')),
@@ -29823,6 +29891,684 @@ class MarkdownReadingTableTests(unittest.TestCase):
           'adopter doc .claude/skills/corpus-management/docs/fixture.md has '
           "Related Documents text that is not a link: ';' (each entry is "
           '[`path`](target.md))')),
+        # Looks wrong: a Purpose paragraph ending in a colon with prose,
+        # not a list, after it keeps its colon, so the page renders a
+        # dangling colon, as the reader's docstring states.
+        ('read_domain_purpose',
+         '## Purpose\n\nLead-in:\n\nProse after.\n',
+         ('accepted', 'Lead-in:')),
+        # Looks wrong: a header inside a fence is read as an instrument
+        # header, so the table after the closing fence interrupts it.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '```\n'
+         '| Area | Library documents | Alignment type |\n'
+         '```\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('refused',
+          "crosswalk: reverse matrix table under 'Instrument' is "
+          'interrupted or carries an unexpected table line')),
+        # A fence line with no pair in its section fences nothing, so the
+        # table after it is the instrument table.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '```\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('accepted',
+          {'Instrument': {'area_label': 'Area',
+                          'rows': [{'alignment': 'Direct',
+                                    'area': 'Area one',
+                                    'paths': ['governance/x.md']}]}})),
+        # A closed fence pair before an unfenced instrument table in the
+        # same section fences no table line, so the table is read as the
+        # section's instrument table.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '```\n'
+         'example\n'
+         '```\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n',
+         ('accepted',
+          {'Instrument': {'area_label': 'Area',
+                          'rows': [{'alignment': 'Direct',
+                                    'area': 'Area one',
+                                    'paths': ['governance/x.md']}]}})),
+        # A closed fence pair after an unfenced instrument table in the
+        # same section fences no table line, so the table is read as the
+        # section's instrument table.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n'
+         '```\n'
+         'example\n'
+         '```\n',
+         ('accepted',
+          {'Instrument': {'area_label': 'Area',
+                          'rows': [{'alignment': 'Direct',
+                                    'area': 'Area one',
+                                    'paths': ['governance/x.md']}]}})),
+    )
+
+    # Rows for the shared readers main does not have, in the same form as
+    # ROWS: read_markdown_sections, md_thematic_break and
+    # read_markdown_paragraph. They record the behaviour of these readers
+    # with no main counterpart, so test_each_row_matches_main never reads
+    # them.
+    SHARED_READER_ROWS = (
+        # Each level-two heading rule on the same lines: flush takes only
+        # a line starting with '## ', an empty heading included.
+        ('read_markdown_sections',
+         ('intro\n## A\n  ## B\n##\tC\n## \n#### D\n', 'flush', 'none'),
+         ('accepted',
+          [(None, None, ((1, 'intro', False),)),
+           ('A', (2, '## A', False),
+            ((3, '  ## B', False), (4, '##\tC', False))),
+           ('', (5, '## ', False), ((6, '#### D', False),))])),
+        # flush-text takes a tab after the hashes but not an indent, and
+        # not '## ' with one space and nothing after it.
+        ('read_markdown_sections',
+         ('intro\n## A\n  ## B\n##\tC\n## \n#### D\n', 'flush-text', 'none'),
+         ('accepted',
+          [(None, None, ((1, 'intro', False),)),
+           ('A', (2, '## A', False), ((3, '  ## B', False),)),
+           ('C', (4, '##\tC', False),
+            ((5, '## ', False), (6, '#### D', False)))])),
+        # flush-text reads '##' then two spaces as an empty heading: the
+        # first space separates and the second is heading text, which
+        # strips to ''.
+        ('read_markdown_sections',
+         ('intro\n##  \ntext\n', 'flush-text', 'none'),
+         ('accepted',
+          [(None, None, ((1, 'intro', False),)),
+           ('', (2, '##  ', False), ((3, 'text', False),))])),
+        # stripped takes an indent but not a tab after the hashes or an
+        # empty heading.
+        ('read_markdown_sections',
+         ('intro\n## A\n  ## B\n##\tC\n## \n#### D\n', 'stripped', 'none'),
+         ('accepted',
+          [(None, None, ((1, 'intro', False),)),
+           ('A', (2, '## A', False), ()),
+           ('B', (3, '  ## B', False),
+            ((4, '##\tC', False), (5, '## ', False),
+             (6, '#### D', False)))])),
+        # stripped-text takes an indent and a tab but not an empty heading.
+        ('read_markdown_sections',
+         ('intro\n## A\n  ## B\n##\tC\n## \n#### D\n', 'stripped-text', 'none'),
+         ('accepted',
+          [(None, None, ((1, 'intro', False),)),
+           ('A', (2, '## A', False), ()),
+           ('B', (3, '  ## B', False), ()),
+           ('C', (4, '##\tC', False),
+            ((5, '## ', False), (6, '#### D', False)))])),
+        # With fences untracked a heading inside a fence is a heading.
+        ('read_markdown_sections',
+         ('## A\n```\n## x\n```\n## B\n', 'flush', 'none'),
+         ('accepted',
+          [(None, None, ()),
+           ('A', (1, '## A', False), ((2, '```', False),)),
+           ('x', (3, '## x', False), ((4, '```', False),)),
+           ('B', (5, '## B', False), ())])),
+        # With fences toggled the fence lines and the lines between them
+        # are fenced and never a heading.
+        ('read_markdown_sections',
+         ('## A\n```\n## x\n```\n## B\n', 'flush', 'toggle'),
+         ('accepted',
+          [(None, None, ()),
+           ('A', (1, '## A', False),
+            ((2, '```', True), (3, '## x', True), (4, '```', True))),
+           ('B', (5, '## B', False), ())])),
+        # The toggle does not match the fence character: '~~~' closes a
+        # fence that '```' opened.
+        ('read_markdown_sections',
+         ('```\n## x\n~~~\n## y\n', 'flush', 'toggle'),
+         ('accepted',
+          [(None, None,
+            ((1, '```', True), (2, '## x', True), (3, '~~~', True))),
+           ('y', (4, '## y', False), ())])),
+        # A fence marker indented four columns is not a fence line.
+        ('read_markdown_sections',
+         ('    ```\n## y\n', 'flush', 'toggle'),
+         ('accepted',
+          [(None, None, ((1, '    ```', False),)),
+           ('y', (2, '## y', False), ())])),
+        # A fence never closed runs to the end of the text.
+        ('read_markdown_sections',
+         ('```\n## x\n', 'flush', 'toggle'),
+         ('accepted',
+          [(None, None, ((1, '```', True), (2, '## x', True)))])),
+        ('md_thematic_break', '---', ('accepted', True)),
+        ('md_thematic_break', '----', ('accepted', True)),
+        ('md_thematic_break', '***', ('accepted', True)),
+        ('md_thematic_break', '___', ('accepted', True)),
+        ('md_thematic_break', '- - -', ('accepted', True)),
+        ('md_thematic_break', ' -\t- -  ', ('accepted', True)),
+        ('md_thematic_break', '--', ('accepted', False)),
+        ('md_thematic_break', '-*-', ('accepted', False)),
+        ('md_thematic_break', '---a', ('accepted', False)),
+        ('md_thematic_break', '', ('accepted', False)),
+        # A blank line after text stops the paragraph.
+        ('read_markdown_paragraph',
+         ('One\ntwo\n\nThree', 0),
+         ('accepted', (['One', 'two'], 2))),
+        # Blank lines and a level-three heading before text are skipped.
+        ('read_markdown_paragraph',
+         ('\n### Sub\n\n  Text\nmore', 0),
+         ('accepted', (['Text', 'more'], 5))),
+        # A level-three heading after text stops the paragraph.
+        ('read_markdown_paragraph',
+         ('Text\n### Sub\nmore', 0),
+         ('accepted', (['Text'], 1))),
+        # A level-two heading stops the paragraph: flush, bare, with a tab
+        # and indented.
+        ('read_markdown_paragraph',
+         ('Text\n## X\nmore', 0),
+         ('accepted', (['Text'], 1))),
+        ('read_markdown_paragraph',
+         ('Text\n##\nmore', 0),
+         ('accepted', (['Text'], 1))),
+        ('read_markdown_paragraph',
+         ('Text\n##\tX\nmore', 0),
+         ('accepted', (['Text'], 1))),
+        ('read_markdown_paragraph',
+         ('Text\n  ## X\nmore', 0),
+         ('accepted', (['Text'], 1))),
+        # A level-two heading before text stops it with no paragraph.
+        ('read_markdown_paragraph',
+         ('## X\nText', 0),
+         ('accepted', ([], 0))),
+        # A thematic break stops the paragraph, before or after text.
+        ('read_markdown_paragraph',
+         ('Text\n---\nmore', 0),
+         ('accepted', (['Text'], 1))),
+        ('read_markdown_paragraph',
+         ('Text\n***\nmore', 0),
+         ('accepted', (['Text'], 1))),
+        ('read_markdown_paragraph',
+         ('Text\n- - -\nmore', 0),
+         ('accepted', (['Text'], 1))),
+        ('read_markdown_paragraph',
+         ('***\n\nText', 0),
+         ('accepted', ([], 0))),
+        # Looks wrong: a level-one title line does not stop the paragraph
+        # and joins it. This matches main: _adopter_first_paragraph and the
+        # Purpose paragraph of read_domain_purpose join such a line too.
+        ('read_markdown_paragraph',
+         ('Text\n# Title\nmore', 0),
+         ('accepted', (['Text', '# Title', 'more'], 3))),
+        # Looks wrong: before any text it starts the paragraph, which also
+        # matches main.
+        ('read_markdown_paragraph',
+         ('# Title\nText', 0),
+         ('accepted', (['# Title', 'Text'], 2))),
+        # The reader is fence-blind: fence lines join the paragraph.
+        ('read_markdown_paragraph',
+         ('Text\n```\ncode', 0),
+         ('accepted', (['Text', '```', 'code'], 3))),
+        # Reading starts at the start index; the end of the lines stops it.
+        ('read_markdown_paragraph',
+         ('Skip\n\nText\nmore', 2),
+         ('accepted', (['Text', 'more'], 4))),
+    )
+
+    # Rows where a reader departs from main on purpose, in the same form
+    # as ROWS. Each comment gives main's outcome for the input; the row
+    # gives the outcome of the reader as changed. The departures:
+    # - parse_reverse_matrix reads every line as main does, then leaves
+    #   out a section whose instrument table lies wholly inside a fence
+    #   opened and closed within that section (a fence line paired with
+    #   the next fence line of the section, whatever either fence
+    #   character); its rows differ from main because of that one check
+    #   alone.
+    # - _adopter_first_paragraph reads through read_markdown_paragraph, so
+    #   a bare '##', an indented level-two heading and every thematic
+    #   break stop the paragraph, and an indented or bare level-three or
+    #   deeper heading is a sub-heading. The Purpose paragraph of
+    #   _adopter_purpose is read the same way, so a stop before any text
+    #   gives an empty lede and the fallback is not read.
+    # - the no-Purpose fallback of _adopter_purpose skips a title line
+    #   (the rule is stated in the _adopter_purpose docstring) and every
+    #   thematic break, and tracks fences: it skips a fence line and
+    #   every line inside a fence, and a level-two line inside a fence
+    #   does not end it.
+    # - read_domain_purpose reads its Purpose paragraph through
+    #   read_markdown_paragraph, so a level-three or deeper heading before
+    #   text is skipped and after text stops the paragraph, and a bare
+    #   '##', a level-two heading written with a tab and every thematic
+    #   break stop it; it refuses a paragraph that is empty once
+    #   flattened and the licence sentence is dropped; its list fold ends
+    #   at every thematic break, and a non-item line after a blank line
+    #   ends the list.
+    # - _narrative_body_lines refuses a fence line (three backticks or
+    #   three tildes, indented or not) before its metadata terminator,
+    #   and _classify_narrative_line refuses a thematic break followed by
+    #   spaces or tabs as a horizontal rule.
+    PLANNED_DEPARTURES = (
+        # Planned departure from main, which accepts this input and reads
+        # the fenced table as section 'Instrument'. Here the fenced table
+        # is read and its section is then left out, so this matrix has no
+        # instrument section. Differs: the citations readers read a
+        # fenced register table and keep its section.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '```\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n'
+         '```\n',
+         ('refused',
+          'crosswalk: reverse matrix parsed to zero instrument sections '
+          '(schema change?)')),
+        # Planned departure from main, which accepts this input as two
+        # sections, 'A' (the fenced table) and 'B'. Here the fenced table
+        # under 'A' is read and section 'A' is then left out, so only 'B'
+        # is returned.
+        ('parse_reverse_matrix',
+         '## A\n'
+         '```\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n'
+         '```\n'
+         '## B\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area two | [`governance/y.md`](../governance/y.md) | Direct |\n',
+         ('accepted',
+          {'B': {'area_label': 'Area',
+                 'rows': [{'alignment': 'Direct',
+                           'area': 'Area two',
+                           'paths': ['governance/y.md']}]}})),
+        # Planned departure from main, which accepts this input and reads
+        # the table between tilde fences as section 'Instrument'. Here a
+        # tilde fence fences as a backtick fence does, so this matrix has
+        # no instrument section.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '~~~\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n'
+         '~~~\n',
+         ('refused',
+          'crosswalk: reverse matrix parsed to zero instrument sections '
+          '(schema change?)')),
+        # Planned departure from main, which accepts this input and reads
+        # the table as section 'Instrument'. Here a backtick fence line
+        # and the next fence line pair whatever their fence characters,
+        # though Markdown does not close a backtick fence with tildes, so
+        # this matrix has no instrument section.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '```\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n'
+         '~~~\n',
+         ('refused',
+          'crosswalk: reverse matrix parsed to zero instrument sections '
+          '(schema change?)')),
+        # Planned departure from main, which accepts this input and reads
+        # the table as section 'Instrument'. Fences pair within one
+        # section only, so the first fence line under 'Instrument', which
+        # in Markdown closes the fence opened under 'Example', pairs with
+        # the last line, and a table Markdown shows outside any fence is
+        # left out: this matrix has no instrument section.
+        ('parse_reverse_matrix',
+         '## Example\n'
+         '```\n'
+         '## Instrument\n'
+         '```\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area one | [`governance/x.md`](../governance/x.md) | Direct |\n'
+         '```\n',
+         ('refused',
+          'crosswalk: reverse matrix parsed to zero instrument sections '
+          '(schema change?)')),
+        # Planned departure from main, which refuses this input as a
+        # section with no rows ("crosswalk: reverse matrix section(s)
+        # with zero rows: Instrument"). Here the fenced header is left
+        # out, so this matrix has no instrument section.
+        ('parse_reverse_matrix',
+         '## Instrument\n'
+         '```\n'
+         '| Area | Library documents | Alignment type |\n'
+         '```\n',
+         ('refused',
+          'crosswalk: reverse matrix parsed to zero instrument sections '
+          '(schema change?)')),
+        # Planned departure from main, which refuses this input as a
+        # section with no rows ("crosswalk: reverse matrix section(s)
+        # with zero rows: A"). Here the fenced header under 'A' is left
+        # out, so only 'B' is returned.
+        ('parse_reverse_matrix',
+         '## A\n'
+         '```\n'
+         '| Area | Library documents | Alignment type |\n'
+         '```\n'
+         '## B\n'
+         '| Area | Library documents | Alignment type |\n'
+         '| --- | --- | --- |\n'
+         '| Area two | [`governance/y.md`](../governance/y.md) | Direct |\n',
+         ('accepted',
+          {'B': {'area_label': 'Area',
+                 'rows': [{'alignment': 'Direct',
+                           'area': 'Area two',
+                           'paths': ['governance/y.md']}]}})),
+        # Planned departure from main, which refuses this input naming
+        # both sections as having no rows ("crosswalk: reverse matrix
+        # section(s) with zero rows: A, B"). Here the fenced header under
+        # 'A' is left out, so only 'B' is named.
+        ('parse_reverse_matrix',
+         '## A\n'
+         '```\n'
+         '| Area | Library documents | Alignment type |\n'
+         '```\n'
+         '## B\n'
+         '| Area | Library documents | Alignment type |\n',
+         ('refused',
+          'crosswalk: reverse matrix section(s) with zero rows: B')),
+        # Planned departure from main, which accepts this input as '#\tTitle':
+        # the hash-tab title after the metadata block becomes the lede. Here
+        # it is skipped as a title line.
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n#\tTitle\n\nIntro.\n',
+         ('accepted', 'Intro.')),
+        # Planned departure from main, which accepts this input as '#': the
+        # bare hash after the metadata block becomes the lede. Here it is
+        # skipped as an empty title line.
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n#\n\nIntro.\n',
+         ('accepted', 'Intro.')),
+        # Planned departure from main, which accepts this input as
+        # '## Para.': a bare '##' joins the paragraph. Here it is an empty
+        # level-two heading and stops the read before any text.
+        ('_adopter_first_paragraph', '##\nPara.', ('accepted', '')),
+        # Planned departure from main, which accepts this input as
+        # 'Para. ## Next More.': an indented level-two heading joins the
+        # paragraph. Here it stops the paragraph, as it stops
+        # read_domain_purpose and _adopter_metadata.
+        ('_adopter_first_paragraph',
+         'Para.\n  ## Next\nMore.',
+         ('accepted', 'Para.')),
+        # Planned departure from main, which accepts this input as
+        # 'Para. ---- More.': '----' joins the paragraph. Here it is a
+        # thematic break and stops the paragraph.
+        ('_adopter_first_paragraph',
+         'Para.\n----\nMore.',
+         ('accepted', 'Para.')),
+        # Planned departure from main, which accepts this input as
+        # 'Para. *** More.': '***' joins the paragraph. Here it is a
+        # thematic break and stops the paragraph.
+        ('_adopter_first_paragraph',
+         'Para.\n***\nMore.',
+         ('accepted', 'Para.')),
+        # Planned departure from main, which accepts this input as
+        # 'Para. ### Sub More.': an indented level-three heading joins the
+        # paragraph. Here it is a sub-heading and stops the paragraph.
+        ('_adopter_first_paragraph',
+         'Para.\n  ### Sub\nMore.',
+         ('accepted', 'Para.')),
+        # Planned departure from main, which accepts this input as
+        # 'Para. ### More.': a bare '###' joins the paragraph. Here it is
+        # an empty sub-heading and stops the paragraph.
+        ('_adopter_first_paragraph',
+         'Para.\n###\nMore.',
+         ('accepted', 'Para.')),
+        # Planned departure from main, which accepts this input as '----':
+        # the break after the metadata block becomes the lede. Here every
+        # thematic break is skipped.
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n----\n\nIntro.\n',
+         ('accepted', 'Intro.')),
+        # Planned departure from main, which accepts this input as '***'.
+        # Here every thematic break is skipped.
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n***\n\nIntro.\n',
+         ('accepted', 'Intro.')),
+        # Planned departure from main, which accepts this input as '- - -'.
+        # Here every thematic break is skipped.
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n- - -\n\nIntro.\n',
+         ('accepted', 'Intro.')),
+        # Planned departure from main, which accepts this input as '': the
+        # opening fence line joins the paragraph, the level-two line inside
+        # the fence ends the scan and the flattener strips the backticks.
+        # Here the fallback tracks fences, as the Purpose search does, so
+        # the fenced lines are skipped.
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n```\n## Next\n```\n\nIntro.\n',
+         ('accepted', 'Intro.')),
+        # Planned departure from main, which accepts this input as 'plain':
+        # the fence joins the paragraph and stripping the backticks leaves
+        # the code as the lede. Here the fenced lines are skipped.
+        ('_adopter_purpose',
+         '**Version:** 1.0.0\n\n```\nplain\n```\n\nIntro.\n',
+         ('accepted', 'Intro.')),
+        # Planned departure from main, which accepts this input as
+        # 'Lede. ---- More.': '----' joins the Purpose paragraph. Here it
+        # is a thematic break and stops the paragraph.
+        ('_adopter_purpose',
+         '## Purpose\n\nLede.\n----\nMore.\n',
+         ('accepted', 'Lede.')),
+        # Planned departure from main, which accepts this input as
+        # 'Lede. *** More.': '***' joins the Purpose paragraph. Here it is
+        # a thematic break and stops the paragraph.
+        ('_adopter_purpose',
+         '## Purpose\n\nLede.\n***\nMore.\n',
+         ('accepted', 'Lede.')),
+        # Planned departure from main, which accepts this input as
+        # 'Lede. ## Next More.': an indented level-two heading joins the
+        # Purpose paragraph. Here it stops the paragraph.
+        ('_adopter_purpose',
+         '## Purpose\n\nLede.\n  ## Next\nMore.\n',
+         ('accepted', 'Lede.')),
+        # Planned departure from main, which accepts this input as
+        # 'Lede. ## More.': a bare '##' joins the Purpose paragraph. Here
+        # it is an empty level-two heading and stops the paragraph.
+        ('_adopter_purpose',
+         '## Purpose\n\nLede.\n##\nMore.\n',
+         ('accepted', 'Lede.')),
+        # Planned departure from main, which accepts this input as
+        # 'Lede. ### More.': a bare '###' joins the Purpose paragraph.
+        # Here it is an empty sub-heading and stops the paragraph.
+        ('_adopter_purpose',
+         '## Purpose\n\nLede.\n###\nMore.\n',
+         ('accepted', 'Lede.')),
+        # Planned departure from main, which accepts this input as
+        # 'Lede. ### Sub More.': an indented level-three heading joins the
+        # Purpose paragraph. Here it is a sub-heading and stops the
+        # paragraph.
+        ('_adopter_purpose',
+         '## Purpose\n\nLede.\n  ### Sub\nMore.\n',
+         ('accepted', 'Lede.')),
+        # Planned departure from main, which accepts this input as '***':
+        # the thematic break before any text becomes the lede. Here it
+        # stops the Purpose paragraph before any text, so the lede is
+        # empty, as '---' there gives in main; the fallback is not read.
+        ('_adopter_purpose',
+         '## Purpose\n\n***\n\nLede.\n',
+         ('accepted', '')),
+        # Planned departure from main, which accepts this input as '##':
+        # the bare '##' before any text becomes the lede. Here it is an
+        # empty level-two heading and stops the Purpose paragraph before
+        # any text, so the lede is empty.
+        ('_adopter_purpose',
+         '## Purpose\n\n##\n\nLede.\n',
+         ('accepted', '')),
+        # Planned departure from main, which accepts this input as
+        # '*** Lede.': the thematic break and the line after it become
+        # the Overview lede. Here the break stops the paragraph before
+        # any text, so the lede is empty.
+        ('_adopter_purpose',
+         '## Overview\n\n***\nLede.\n',
+         ('accepted', '')),
+        # Planned departure from main, which accepts this input as
+        # 'Lede one ### Sub more': a level-three heading line joins the
+        # Purpose lede. Here it is a sub-heading and stops the paragraph,
+        # as it stops _adopter_first_paragraph.
+        ('read_domain_purpose',
+         '## Purpose\n\nLede one\n### Sub\nmore\n',
+         ('accepted', 'Lede one')),
+        # Planned departure from main, which accepts this input as
+        # 'Lede one ---- more': '----' joins the Purpose lede. Here it is a
+        # thematic break and stops the paragraph, as '---' does in main.
+        ('read_domain_purpose',
+         '## Purpose\n\nLede one\n----\nmore\n',
+         ('accepted', 'Lede one')),
+        # Planned departure from main, which accepts this input as '': the
+        # level-two line inside the fence ends the Purpose paragraph, so
+        # the paragraph is the opening fence line alone and dropping its
+        # backticks leaves an empty lede. Here an empty lede once
+        # flattened is refused as no paragraph; the paragraph is still
+        # read fence-blind.
+        ('read_domain_purpose',
+         '## Purpose\n\n```\n## Inside\n```\n',
+         ('refused', "dom/README.md has no '## Purpose' paragraph")),
+        # Planned departure from main, which accepts this input as
+        # '### Sub': a level-three heading before the Purpose paragraph
+        # becomes the lede. Here it is skipped as a sub-heading.
+        ('read_domain_purpose',
+         '## Purpose\n\n### Sub\n\nLede.\n',
+         ('accepted', 'Lede.')),
+        # Planned departure from main, which accepts this input as
+        # 'Lede one ##\tNext more': a level-two heading written with a tab
+        # joins the Purpose lede. Here it stops the paragraph, as
+        # '  ## Next' does in main.
+        ('read_domain_purpose',
+         '## Purpose\n\nLede one\n##\tNext\nmore\n',
+         ('accepted', 'Lede one')),
+        # Planned departure from main, which accepts this input as
+        # 'Lede one ## more': a bare '##' joins the Purpose lede. Here it
+        # is an empty level-two heading and stops the paragraph.
+        ('read_domain_purpose',
+         '## Purpose\n\nLede one\n##\nmore\n',
+         ('accepted', 'Lede one')),
+        # Planned departure from main, which accepts this input as
+        # 'Lede one * more': '***' joins the Purpose lede and flattening
+        # leaves one asterisk. Here it is a thematic break and stops the
+        # paragraph.
+        ('read_domain_purpose',
+         '## Purpose\n\nLede one\n***\nmore\n',
+         ('accepted', 'Lede one')),
+        # Planned departure from main, which accepts this input as '*':
+        # '***' before the Purpose paragraph becomes the lede. Here it is
+        # a thematic break before any text, so it is refused as no
+        # paragraph, as '---' there is in main.
+        ('read_domain_purpose',
+         '## Purpose\n\n***\n\nLede.\n',
+         ('refused', "dom/README.md has no '## Purpose' paragraph")),
+        # Planned departure from main, which accepts this input as
+        # 'Lede one - - - more': '- - -' joins the Purpose lede. Here it is
+        # a thematic break and stops the paragraph.
+        ('read_domain_purpose',
+         '## Purpose\n\nLede one\n- - -\nmore\n',
+         ('accepted', 'Lede one')),
+        # Planned departure from main, which accepts this input as
+        # 'Lead-in: Two After.': a paragraph after a one-item list folds
+        # into that item. Here a non-item line after a blank line ends
+        # the list.
+        ('read_domain_purpose',
+         '## Purpose\n\nLead-in:\n\n- Two\n\nAfter\n',
+         ('accepted', 'Lead-in: Two.')),
+        # Planned departure from main, which accepts this input as
+        # 'Lead-in: One; * *.': '* * *' after a list item is read as a
+        # second item. Here it is a thematic break and ends the list fold.
+        ('read_domain_purpose',
+         '## Purpose\n\nLead-in:\n\n- One.\n* * *\n',
+         ('accepted', 'Lead-in: One.')),
+        # Planned departure from main, which accepts this input as '': the
+        # licence sentence is the whole Purpose paragraph and dropping it
+        # leaves an empty lede. Here a lede that is empty once the licence
+        # sentence is dropped is refused as no paragraph.
+        ('read_domain_purpose',
+         '## Purpose\n\n'
+         'All original content is released under CC BY-SA 4.0; a '
+         'quotation that NOTICE.md allows or keeps under its transition '
+         'clause keeps its source licence and is not relicensed under '
+         'CC BY-SA 4.0.\n',
+         ('refused', "dom/README.md has no '## Purpose' paragraph")),
+        # Planned departure from main, which accepts this input as
+        # ['```', '', '---', '', 'Body line.', '']: the '---' inside the
+        # fence before the metadata block is taken as the metadata
+        # terminator and the body opens with the fence. Here a fence line
+        # before the metadata terminator is refused, as the narrative
+        # renderer refuses fenced code in the body.
+        ('_narrative_body_lines',
+         '# Title\n'
+         '\n'
+         '```\n'
+         '---\n'
+         '```\n'
+         '\n'
+         '---\n'
+         '\n'
+         'Body line.\n'
+         '\n'
+         '**End of Document**\n',
+         ('refused',
+          "doc.md: fenced code before the '---' metadata terminator: "
+          "'```'")),
+        # Planned departure from main, which accepts this input as
+        # ['', 'B.', '']: main does not check fences before the metadata
+        # terminator. Here a tilde fence line before it is refused.
+        ('_narrative_body_lines',
+         '# T\n'
+         '\n'
+         '~~~\n'
+         '\n'
+         '---\n'
+         '\n'
+         'B.\n'
+         '\n'
+         '**End of Document**\n',
+         ('refused',
+          "doc.md: fenced code before the '---' metadata terminator: "
+          "'~~~'")),
+        # Planned departure from main, which accepts this input as
+        # ['', 'B.', '']. Here an indented fence line before the metadata
+        # terminator is refused.
+        ('_narrative_body_lines',
+         '# T\n'
+         '\n'
+         '  ```\n'
+         '\n'
+         '---\n'
+         '\n'
+         'B.\n'
+         '\n'
+         '**End of Document**\n',
+         ('refused',
+          "doc.md: fenced code before the '---' metadata terminator: "
+          "'  ```'")),
+        # Planned departure from main, which accepts this input as 'p': a
+        # thematic break with trailing spaces is read as a paragraph while
+        # '---' is refused. Here trailing spaces or tabs after the break
+        # are allowed, so it is refused as a horizontal rule. Differs:
+        # _narrative_body_lines accepts '---  ' as its metadata terminator.
+        ('_classify_narrative_line',
+         '---  ',
+         ('refused', "doc.md: horizontal rules unsupported: '---  '")),
+        # Planned departure from main, which accepts this input as 'p'.
+        # Here a tab after the break is allowed, so it is refused as a
+        # horizontal rule.
+        ('_classify_narrative_line',
+         '---\t',
+         ('refused', "doc.md: horizontal rules unsupported: '---\\t'")),
+        # Planned departure from main, which accepts this input as 'p'.
+        # Here an asterisk break with trailing spaces is refused as a
+        # horizontal rule.
+        ('_classify_narrative_line',
+         '***  ',
+         ('refused', "doc.md: horizontal rules unsupported: '***  '")),
     )
 
     # Every build.py function whose name is in a reading family below is
@@ -29835,7 +30581,7 @@ class MarkdownReadingTableTests(unittest.TestCase):
     READER_FAMILY = re.compile(
         r"^(?:_?parse_|_?read_|_?render_narrative|_narrative_|"
         r"_classify_narrative|_split_narrative|_reject_nested|_adopter_|"
-        r"_llms_|_xw_|_esc_narrative)")
+        r"_llms_|_xw_|_esc_narrative|_?md_)")
     READERS = (
         "_adopter_fence_line", "_adopter_first_paragraph", "_adopter_flatten",
         "_adopter_metadata", "_adopter_purpose", "_adopter_sections",
@@ -29847,25 +30593,31 @@ class MarkdownReadingTableTests(unittest.TestCase):
         "parse_adopter_docs",
         "parse_compliance_matrix", "parse_compliance_tsc_status",
         "parse_reverse_matrix", "read_domain_purpose", "render_narrative_body",
+        "md_thematic_break", "read_markdown_paragraph",
+        "read_markdown_sections",
     )
     # The shared citations reader, the table cell, separator, cell
     # flattening and document-path helpers under the register and matrix
-    # readers, the llms.txt grammar parts under _llms_links, and the
+    # readers, the one fence check under parse_reverse_matrix, the
+    # llms.txt grammar parts under _llms_links, and the
     # inline and heading helpers under the narrative renderer are reached
     # through the tabled readers. The line splitting, line and column, and
     # refusal helpers (_text_lines, _line_column, _grammar_refusal) are
     # reached here through _llms_links; the robots.txt, _headers,
     # _redirects, security.txt and XML grammars share them and read no
-    # Markdown.
+    # Markdown. The heading text match under the flush-text and
+    # stripped-text heading rules (_md_flush_text) is reached through
+    # read_markdown_sections.
     THROUGH = (
         "_parse_citations_register_sections", "_xw_table_cells",
         "_xw_is_separator", "_xw_plain", "_xw_doc_paths",
-        "_llms_destinations",
+        "_xw_fenced_instrument_header", "_llms_destinations",
         "_llms_item", "_llms_prescan", "_llms_prose",
         "_narrative_heading_slug", "_narrative_link_url",
         "_render_narrative_bold", "_render_narrative_em",
         "_render_narrative_inline", "_render_narrative_links",
         "_text_lines", "_line_column", "_grammar_refusal",
+        "_md_flush_text",
     )
     # YAML and TOML readers, the crosswalk display helpers that work on
     # rows already parsed, and compute_figures, whose one Markdown read is
@@ -29881,6 +30633,9 @@ class MarkdownReadingTableTests(unittest.TestCase):
         "_xw_shows_codes", "_xw_names", "_xw_table_intro",
         "_xw_matrix_link", "_xw_views_intro", "_xw_register_block",
     )
+    # build.py function names that the class docstring also uses as
+    # ordinary words ('main's'); the plain-name check leaves these out.
+    PROSE_NAMES = ("main",)
 
     @staticmethod
     def _compliance_matrix_text(build, empty=None):
@@ -29956,7 +30711,13 @@ class MarkdownReadingTableTests(unittest.TestCase):
         "2017 column is being populated) or CROSSWALK_TSC_READING_GUIDE "
         "alone (it is not): ")
 
-    def test_constant_built_rows_match_main(self):
+    def test_constant_built_rows_give_their_built_outcome(self):
+        """Each row here is built at run time from the build.py constants,
+        its expected outcome included, and is checked by calling its reader
+        on the row input (_read_outcome) and comparing the result with that
+        expected outcome. The expected outcomes follow the same constants,
+        so these rows pin each structural rule and refusal of the compliance
+        matrix and reading-guide status readers, not the constants' text."""
         build = self.build
         cols = list(build.CROSSWALK_COMPLIANCE_COLUMNS)
         domains = list(build.DOMAIN_SCOPE)
@@ -30055,8 +30816,38 @@ class MarkdownReadingTableTests(unittest.TestCase):
                                  expected)
 
     def test_each_row_matches_main(self):
+        """Each row of ROWS, main's behaviour for a reader main has, gives
+        its recorded outcome."""
         for name, arg, expected in self.ROWS:
             with self.subTest(function=name, line=arg):
+                self.assertEqual(self._read_outcome(self.build, name, arg),
+                                 expected)
+
+    def test_each_shared_reader_row_gives_its_outcome(self):
+        """Each row of SHARED_READER_ROWS, for a shared reader main does
+        not have, gives its recorded outcome, and no such reader has a
+        row in ROWS or PLANNED_DEPARTURES."""
+        shared = {name for name, _, _ in self.SHARED_READER_ROWS}
+        self.assertEqual(shared, {"read_markdown_sections",
+                                  "md_thematic_break",
+                                  "read_markdown_paragraph"})
+        others = {name for name, _, _ in
+                  self.ROWS + self.PLANNED_DEPARTURES}
+        self.assertEqual(shared & others, set())
+        for name, arg, expected in self.SHARED_READER_ROWS:
+            with self.subTest(function=name, line=arg):
+                self.assertEqual(self._read_outcome(self.build, name, arg),
+                                 expected)
+
+    def test_each_planned_departure_gives_its_planned_outcome(self):
+        """Each row of PLANNED_DEPARTURES gives its recorded outcome,
+        which differs on purpose from main's outcome (given in the
+        row's comment), and no input of PLANNED_DEPARTURES is also an
+        input of ROWS for the same reader."""
+        inputs = [(name, arg) for name, arg, _ in self.ROWS]
+        for name, arg, expected in self.PLANNED_DEPARTURES:
+            with self.subTest(function=name, line=arg):
+                self.assertNotIn((name, arg), inputs)
                 self.assertEqual(self._read_outcome(self.build, name, arg),
                                  expected)
 
@@ -30093,6 +30884,23 @@ class MarkdownReadingTableTests(unittest.TestCase):
         self.assertIn(("render_narrative_body", self.NARRATIVE_SAMPLE,
                        ("accepted", toc)), self.ROWS)
 
+    def test_unknown_heading_rule_or_fence_mode_raises_value_error(self):
+        """read_markdown_sections refuses a heading rule outside
+        MD_HEADING_RULES and a fence mode outside MD_FENCE_MODES with a
+        ValueError naming the value."""
+        cases = (
+            ("no-such-rule", "none",
+             "unknown Markdown heading rule 'no-such-rule'"),
+            ("flush", "no-such-mode",
+             "unknown Markdown fence mode 'no-such-mode'"),
+        )
+        for heading, fences, message in cases:
+            with self.subTest(heading=heading, fences=fences):
+                with self.assertRaises(ValueError) as caught:
+                    self.build.read_markdown_sections(
+                        "## A\n", heading=heading, fences=fences)
+                self.assertEqual(str(caught.exception), message)
+
     def test_every_reader_is_pinned_and_every_named_reader_has_rows(self):
         functions = {
             n for n, f in inspect.getmembers(self.build, inspect.isfunction)
@@ -30116,7 +30924,9 @@ class MarkdownReadingTableTests(unittest.TestCase):
         named = set(re.findall(r"`([A-Za-z_][A-Za-z0-9_]*)`", doc)) | {
             w for w in re.findall(r"\b[A-Za-z_][A-Za-z0-9_]*\b", doc)
             if self.READER_FAMILY.match(w)}
-        tabled = {name for name, _, _ in self.ROWS}
+        tabled = {name for name, _, _ in
+                  self.ROWS + self.SHARED_READER_ROWS
+                  + self.PLANNED_DEPARTURES}
         with self.subTest(check="the docstring names readers"):
             self.assertTrue(named)
         with self.subTest(
@@ -30127,11 +30937,26 @@ class MarkdownReadingTableTests(unittest.TestCase):
             self.assertEqual(readers, tabled)
         # A plain-text word in the docstring that is a build.py function
         # name, inside a reading family or not, is in READERS or THROUGH.
-        plain = set(re.findall(r"\b_?[a-z][a-z_]+\b(?=[ ,.()\n])", doc))
+        plain_name = r"\b_*[a-z][a-z_]+\b(?=[ ,.()\n])"
+        plain = set(re.findall(plain_name, doc))
+        prose = set(self.PROSE_NAMES)
         with self.subTest(
                 check="every build.py function the docstring names in "
-                      "plain text is in READERS or THROUGH"):
-            self.assertEqual((plain & functions) - readers - through, set())
+                      "plain text, other than a name in PROSE_NAMES, is "
+                      "in READERS or THROUGH"):
+            self.assertEqual(
+                (plain & functions) - prose - readers - through, set())
+        with self.subTest(
+                check="every name in PROSE_NAMES is a build.py function "
+                      "the docstring uses"):
+            self.assertEqual(prose - (functions & plain), set())
+        with self.subTest(check="no name in PROSE_NAMES is in a list"):
+            self.assertEqual(prose & pinned, set())
+        with self.subTest(
+                check="a name with two leading underscores is collected"):
+            self.assertIn("__planted_name",
+                          set(re.findall(plain_name,
+                                         "It calls __planted_name here.")))
 
 
 if __name__ == "__main__":
