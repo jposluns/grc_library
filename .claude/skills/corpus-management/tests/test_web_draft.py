@@ -1089,7 +1089,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
         return (emitted, self.mod._LEDGER_OTHER, None,
                 self.mod._owner_token_count(emitted))
 
-    def test_every_round_one_and_two_spelling_fails(self):
+    def test_every_owner_token_spelling_and_markup_carrier_fails(self):
         # The spelling matrix (flips: disable the count comparison, or
         # skip the character-reference, percent or JavaScript-escape
         # decode, or keep whitespace or backslashes in the view): every
@@ -1518,7 +1518,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
                              {"synthetic/index.html": list(entries)})
         self.assertIn(f"| {target} | /synthetic/ | one |", text)
 
-    def test_round_five_faked_boundaries_fail(self):
+    def test_faked_destination_boundaries_fail(self):
         # Faked boundaries (flips: skip a WHATWG cleaning step so a tab,
         # newline, carriage return or backslash still splits a
         # destination, restore the old refresh regex that cut the URL at
@@ -1588,7 +1588,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
         self.assertIn("| Corpus target | Website location | Link text |",
                       text)
 
-    def test_round_five_cleaned_destinations_consume_entries(self):
+    def test_cleaned_destinations_consume_entries(self):
         # Cleaned destinations (flips: drop one WHATWG cleaning step from
         # _clean_destination_value, or the quoted-URL cut from the refresh
         # grammar): a destination the browser reads as EXACTLY the
@@ -2158,7 +2158,7 @@ class RepoLinkAllowListTests(unittest.TestCase):
         self.assertIn("| Corpus target | Website location | Link text |",
                       text)
 
-    def test_round_eight_llms_counterexamples_are_refused(self):
+    def test_llms_counterexamples_are_refused(self):
         # The llms.txt line shapes (flip: let a line that is none of the
         # llms.txt shapes through instead of refusing it): in the
         # earlier repository, each of these let text no renderer links
@@ -3607,7 +3607,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         return [unescape(re.sub(r"<[^>]+>", "", item))
                 for item in re.findall(r"<li>(.*?)</li>", block.group(1))]
 
-    def test_r2_concern_chips_carry_no_near_duplicate_plain_names(self):
+    def test_concern_chips_carry_no_near_duplicate_plain_names(self):
         """In the earlier repository, a dedupe collapsed only the
         instrument-aliased spellings, so near-duplicate plain names (ETSI EN
         304 223 with and without its date, OECD AI Principles with its dated
@@ -3642,7 +3642,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             ["NIST AI 600-1 (Generative AI Profile)"],
             "the profile keeps exactly one spelling")
 
-    def test_r2_document_chips_link_the_two_aliased_spellings(self):
+    def test_document_chips_link_the_two_aliased_spellings(self):
         """In the earlier repository, the chips "EU AI Act 2024" and "NIST
         AI RMF 1.0: Govern function" on /documents/ai/policy-ai-compliance/
         opened a search though their instrument pages exist; both spellings
@@ -3654,7 +3654,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             '<a href="/crosswalk/nist-ai-rmf/">'
             "NIST AI RMF 1.0: Govern function</a>", html)
 
-    def test_r2_narrative_tables_are_named_by_their_preceding_heading(self):
+    def test_narrative_tables_have_no_counted_name_and_carry_heading_labels(self):
         """In the earlier repository, the narrative table regions were
         named "Table n", which tells a reader which table, not what it
         holds; the region's aria-label is the table's preceding section
@@ -3677,7 +3677,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.draft_html["decisions/outcome-maps/"
                             "outcome-map-control-effectiveness/index.html"])
 
-    def test_r2_copy_status_region_renders_exactly_where_copy_js_loads(self):
+    def test_copy_status_region_renders_exactly_where_copy_js_loads(self):
         """In the earlier repository, the copy-status live region sat in
         every template though no draft page loaded copy.js (the script is
         opt-in per page), leaving a status element nothing wrote to. The
@@ -3691,7 +3691,7 @@ class DraftSiteRenderTests(unittest.TestCase):
                 f"{rel}: the copy-status region renders exactly where "
                 "copy.js loads")
 
-    def test_r2_policies_gap_sentence_states_only_the_checkable_reliance(self):
+    def test_policies_gap_sentence_states_only_the_checkable_reliance(self):
         """In the earlier repository, the policies page said the domains
         with no policy or template "rely on the overarching security and
         governance policies", a claim nothing checked. The sentence now
@@ -12038,7 +12038,7 @@ class DraftSiteRenderTests(unittest.TestCase):
     # The taxonomy spellings of the added instruments that were once left
     # unaliased, each with the instrument it names, pinned so the coverage
     # check below cannot pass on a taxonomy that no longer carries them.
-    _XW_ADDED_ROUND2 = {
+    _XW_ADDED_ONCE_UNALIASED = {
         "ISO/IEC 27002:2022 §8.16": "iso-iec-27002",
         "ISO/IEC 27701:2025 §5.3, Annex A.1.2.9, A.3.4": "iso-iec-27701",
         "PIPL Art. 45": "pipl",
@@ -12143,7 +12143,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         spellings, which the taxonomy still carries."""
         names = {n for d in self._full_taxonomy()
                  for n in d.get("frameworks", [])}
-        self.assertLessEqual(set(self._XW_ADDED_ROUND2), names,
+        self.assertLessEqual(set(self._XW_ADDED_ONCE_UNALIASED), names,
                              "the taxonomy carries the pinned spellings")
         unresolved = []
         for key in self._XW_ADDED:
@@ -12156,7 +12156,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         self.assertEqual(unresolved, [],
                          "a spelling of an added instrument counts toward "
                          "no page")
-        for name, key in self._XW_ADDED_ROUND2.items():
+        for name, key in self._XW_ADDED_ONCE_UNALIASED.items():
             with self.subTest(name=name):
                 self.assertIn(key, self.mod.crosswalk_alias_keys(name))
 
@@ -12177,7 +12177,7 @@ class DraftSiteRenderTests(unittest.TestCase):
     # pinned: their only prose source is
     # .claude/skills/corpus-management/specs/specification-audit-programme.md,
     # which the taxonomy (this sweep's scope) does not walk.
-    _XW_FOLLOWUP2 = {
+    _XW_INSTRUMENT_SPELLINGS = {
         "ISO/IEC 27001:2022 Annex A.5.33": "iso-iec-27001",
         "ISO/IEC 27001:2022 Annex A.5.7": "iso-iec-27001",
         "ISO/IEC 27001:2022 §9.1": "iso-iec-27001",
@@ -12240,7 +12240,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         mod = self.mod
         full = self._full_taxonomy()
         names = {n for d in full for n in d.get("frameworks", [])}
-        self.assertLessEqual(set(self._XW_FOLLOWUP2), names,
+        self.assertLessEqual(set(self._XW_INSTRUMENT_SPELLINGS), names,
                              "the taxonomy carries the pinned spellings")
         mapped = set(mod.CROSSWALK_ALIASES) | set(mod.CROSSWALK_ALIAS_PARTS)
         matchers = {key: re.compile(pattern)
@@ -12252,7 +12252,7 @@ class DraftSiteRenderTests(unittest.TestCase):
             and any(m.search(name) for m in matchers.values()))
         self.assertEqual(unaliased, [],
                          "a single-instrument spelling has no alias")
-        for name, key in self._XW_FOLLOWUP2.items():
+        for name, key in self._XW_INSTRUMENT_SPELLINGS.items():
             with self.subTest(name=name):
                 self.assertEqual(mod.crosswalk_alias_keys(name), (key,))
                 hrefs = self._citation_hrefs(key)
@@ -12892,7 +12892,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         Security, Security and Partnership); compound wording that ends in
         a one-word held title and another kind's noun is read as naming
         that title under the kind-noun rule, though the compound names no
-        part (finding WCO-SWEEP-REV7-0922), so "Annex IV F, the information
+        part (a known guard limit), so "Annex IV F, the information
         technology element" (names Technology) and "Section VI, the crisis
         communication section" (names Communication) are reported; a
         multi-word held title used as ordinary words is reported whatever
@@ -13214,7 +13214,7 @@ class DraftSiteRenderTests(unittest.TestCase):
         order emphasis, footnote marker, full stop, so emphasis after a
         full stop ("Pillar II Standard 2 (Security).**") and a closing
         curly quotation mark (U+201D) after a citation are reported as
-        trailing text (finding WCO-SWEEP-REV7-0922); a lone capital letter
+        trailing text (a known guard limit); a lone capital letter
         used as an ordinary word inside a description ("the U.S. rules",
         "the A-to-M list", the pronoun "I") is reported too; a part name
         with a lowercase or numeric identifier inside a description ("the
@@ -13666,9 +13666,9 @@ class DraftSiteRenderTests(unittest.TestCase):
         held title (_WCO_ELEMENT_ROWS); four stay pillar-only
         (_WCO_PILLAR_ONLY_ROWS). No single held element clearly fits the
         library charter, the BASC programme overview or the logistics
-        sector annex; for the full CTPAT minimum security criteria register
-        (review round 2, codex NOTE), no single element adequately
-        represents the document's breadth. Each pinned cell passes the
+        sector annex; for the full CTPAT minimum security criteria register,
+        no single element adequately represents the document's breadth.
+        Each pinned cell passes the
         matrix guard, and the matrix's pillar-only cells are exactly the
         four, so a new pillar-only cell, or one of the seven losing its
         element, fails."""
@@ -13690,9 +13690,8 @@ class DraftSiteRenderTests(unittest.TestCase):
             self.test_wco_safe_pillar_only_cells_reviewed_for_elements
             .__doc__.split())
         self.assertIn("for the full CTPAT minimum security criteria "
-                      "register (review round 2, codex NOTE), no single "
-                      "element adequately represents the document's "
-                      "breadth", doc)
+                      "register, no single element adequately "
+                      "represents the document's breadth", doc)
         self.assertNotRegex(doc, r"clearly fits [^.;]*CTPAT")
 
     def test_wco_safe_element_cells_cite_no_bare_pillar(self):
@@ -14892,8 +14891,8 @@ class DraftSiteRenderTests(unittest.TestCase):
                     self.assertTrue(any(": unread text after it:" in finding
                                         for finding in findings), findings)
                 self.assertIn(shown, unread)
-        self.assertIn("finding WCO-SWEEP-REV7-0922", described)
-        self.assertIn("finding WCO-SWEEP-REV7-0922", unread)
+        self.assertIn("(a known guard limit)", described)
+        self.assertIn("(a known guard limit)", unread)
 
     def test_wco_safe_alignment_references_name_held_parts(self):
         """In the earlier repository, framework-alignment tables gave WCO
@@ -17149,7 +17148,7 @@ class DraftAdventureGuardTests(unittest.TestCase):
             self._comply)
 
 
-class DraftIntegrationRound2GuardTests(unittest.TestCase):
+class DraftCompoundAliasAndAdopterTypeGuardTests(unittest.TestCase):
     """24 and 26: a compound crosswalk alias whose parts do not rejoin to its
     string, that also sits in CROSSWALK_ALIASES, whose part names no
     configured instrument, or none of whose parts names an instrument (26),
@@ -17994,7 +17993,7 @@ class GeneratorOkLineTests(unittest.TestCase):
                       "committed artefact(s)")
 
 
-class SiteReviewFixRound2Tests(unittest.TestCase):
+class CorpusTextAndCommittedMapTests(unittest.TestCase):
     """Corpus-text fixes and committed-map units, no site render needed."""
 
     @classmethod
@@ -18096,7 +18095,7 @@ class SiteReviewFixRound2Tests(unittest.TestCase):
             "nist-ai-rmf")
 
 
-class SiteReviewFixRound3Tests(unittest.TestCase):
+class MatrixPurposeCorpusTextTests(unittest.TestCase):
     """A corpus-text fix, no site render needed (two related fixes sit in
     the /comply/ and instrument-register tests)."""
 
@@ -24738,7 +24737,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
                         getattr(self, name)()
 
 
-class MscRegisterRound2Tests(unittest.TestCase):
+class MscRegisterClaimsAndStatusTests(unittest.TestCase):
     """The CTPAT MSC controls register remediation: the earlier coverage
     and AEO-S table fixes carried onto the programme-claims wording, the
     retitle, the status sweep and the held HMRC lines the AEO-S table
@@ -24847,7 +24846,7 @@ class MscRegisterRound2Tests(unittest.TestCase):
         self.assertGreaterEqual(rows, 50)
         self.assertEqual(offending, [])
 
-    def test_msc_register_round_1_coverage_claims_and_domain_8(self):
+    def test_msc_register_coverage_claims_and_domain_8(self):
         """In the earlier repository, the purpose said the register covers "the
         full set" of the 2020 criteria "across all security domains" and the
         overview said the 2020 MSC "apply to all CTPAT entity types" in "seven
@@ -24871,7 +24870,7 @@ class MscRegisterRound2Tests(unittest.TestCase):
             with self.subTest(control=control):
                 self.assertRegex(text, rf"(?m)^\| {control} \| ")
 
-    def test_msc_aeo_s_table_carries_round_1_onto_the_programme_wording(self):
+    def test_msc_aeo_s_table_carries_remediation_to_programme_wording(self):
         """The earlier remediation, carried onto the programme-claims rows:
         the AEO-S table has a row for each of the eight domains; the
         Corporate Security row keeps "HMRC AEO application documentation"
@@ -24965,7 +24964,7 @@ class MscRegisterRound2Tests(unittest.TestCase):
                 self.assertIn(excerpt, held[number - 1])
 
 
-class MscRegisterRound3Tests(unittest.TestCase):
+class MscRegisterClaimPinTests(unittest.TestCase):
     """The CTPAT MSC controls register remediation, continued. Each claim pin
     in _CLAIMS names one row and the phrases it must carry: the obligation
     (for the Purpose and the index cell, the statement) and every qualifier
@@ -25302,7 +25301,7 @@ class MscRegisterRound3Tests(unittest.TestCase):
     # earlier repository gave it when these tests were written (register
     # lines 21, 50, 53, 92, 119, 140, 150 to 154, 164, 167 and 171; index
     # line 375).
-    _R2_PURPOSE = (
+    _EARLIER_PURPOSE = (
         "This register documents the organization's implementation status "
         "against the CTPAT Minimum Security Criteria in eight domains: "
         "corporate security, physical security, access controls, personnel "
@@ -25317,7 +25316,7 @@ class MscRegisterRound3Tests(unittest.TestCase):
         "(register-ctpat-united-states-it-controls.md), "
         "which focuses specifically on IT and cybersecurity criteria."
     )
-    _R2_CS3 = (
+    _EARLIER_CS3 = (
         "| CS-3 | Security assessment conducted to identify vulnerabilities "
         "| Annual security risk and threat assessment of the organization's "
         "supply chain operations, with the measures taken against each risk "
@@ -25330,7 +25329,7 @@ class MscRegisterRound3Tests(unittest.TestCase):
         "the risk assessment | Risk and threat assessment report; gap "
         "assessment record | Not assessed | |"
     )
-    _R2_CS6 = (
+    _EARLIER_CS6 = (
         "| CS-6 | Contingency plans for emergency security situations and "
         "for disaster or terrorist incident recovery, with periodic employee "
         "training and plan testing (held source: WCO SAFE (2025), Annex IV L "
@@ -25338,7 +25337,7 @@ class MscRegisterRound3Tests(unittest.TestCase):
         "IT-9) | Not yet documented | Security contingency plan; training "
         "and test records | Not assessed | |"
     )
-    _R2_FCRA = (
+    _EARLIER_FCRA = (
         "*PE-1 and PE-5 in the United States: where screening uses a "
         "consumer report for employment purposes, the Fair Credit Reporting "
         "Act (15 U.S.C. 1681b(b)(2)(A)) bars procuring the report unless a "
@@ -25348,7 +25347,7 @@ class MscRegisterRound3Tests(unittest.TestCase):
         "writing; subparagraph (B) covers applications made by mail, "
         "telephone, computer or similar means.*"
     )
-    _R2_BP5 = (
+    _EARLIER_BP5 = (
         "| BP-5 | Business partner screening against money laundering and "
         "terrorism financing: verify partner identity and legal status, "
         "conduct legal, criminal and financial background checks taking "
@@ -25360,7 +25359,7 @@ class MscRegisterRound3Tests(unittest.TestCase):
         "CBP text confirms this as a CTPAT criterion) | Not yet documented | "
         "Partner screening records | Not assessed | |"
     )
-    _R2_RAIL = (
+    _EARLIER_RAIL = (
         "*IT-5 for rail carriers: a freight railroad carrier identified in "
         "49 CFR 1580.101, or another TSA-designated freight railroad, must "
         "also report cybersecurity incidents to CISA Central as soon as "
@@ -25370,24 +25369,24 @@ class MscRegisterRound3Tests(unittest.TestCase):
         "notification; confirm the directive in force before relying on "
         "these terms.*"
     )
-    _R2_CV1 = (
+    _EARLIER_CV1 = (
         "| CV-1 | Transport conveyances used for cargo in the supply chain "
         "are capable of being effectively secured (Annex IV H, item a) | Not "
         "yet documented | Conveyance security procedure | Not assessed | |"
     )
-    _R2_CV2 = (
+    _EARLIER_CV2 = (
         "| CV-2 | Conveyances secured when left unattended and checked for "
         "security breaches on return (Annex IV H, item b) | Not yet "
         "documented | Conveyance security procedure; check records | Not "
         "assessed | |"
     )
-    _R2_CV3 = (
+    _EARLIER_CV3 = (
         "| CV-3 | Conveyance operators trained to maintain the security of "
         "the conveyance and the cargo at all times while in custody (Annex "
         "IV H, item c) | Not yet documented | Training records | Not "
         "assessed | |"
     )
-    _R2_CV4 = (
+    _EARLIER_CV4 = (
         "| CV-4 | Inspection of the conveyance structure, including the "
         "reliability of its access controls, using a seven-point inspection "
         "(front wall, left side, right side, floor, ceiling or roof, inside "
@@ -25397,7 +25396,7 @@ class MscRegisterRound3Tests(unittest.TestCase):
         "f; Annex IV H, item e) | Not yet documented | Inspection checklist; "
         "inspection records | Not assessed | |"
     )
-    _R2_CV5 = (
+    _EARLIER_CV5 = (
         "| CV-5 | Operators report actual or suspicious incidents to the "
         "organization's security staff and to Customs, with records kept; "
         "any unusual, suspicious or actual breach of conveyance security "
@@ -25405,7 +25404,7 @@ class MscRegisterRound3Tests(unittest.TestCase):
         "and f) | Not yet documented | Incident reports; notification "
         "records | Not assessed | |"
     )
-    _R2_CORPORATE = (
+    _EARLIER_CORPORATE = (
         "| Corporate Security | HMRC AEO application documentation, "
         "including a security and safety risk and threat assessment covering "
         "all premises relevant to customs-related activities and a security "
@@ -25417,7 +25416,7 @@ class MscRegisterRound3Tests(unittest.TestCase):
         "safety requirements and any specific legal requirements that may "
         "apply to the business (§11.1) |"
     )
-    _R2_PERSONNEL = (
+    _EARLIER_PERSONNEL = (
         "| Personnel Security | Pre-employment screening of staff in "
         "sensitive areas that, at minimum, verifies identity, confirms the "
         "right to work in the UK, confirms the employee has declared any "
@@ -25430,7 +25429,7 @@ class MscRegisterRound3Tests(unittest.TestCase):
         "employment guidance says criminal records checks can in most cases "
         "take place as part of pre-employment vetting |"
     )
-    _R2_CONVEYANCE = (
+    _EARLIER_CONVEYANCE = (
         "| Conveyance and Cargo Unit Security | HMRC's cargo security "
         "criterion covers cargo units, which include containers, tankers, "
         "vans, lorries, vehicles and pipelines: procedures to examine the "
@@ -25447,7 +25446,7 @@ class MscRegisterRound3Tests(unittest.TestCase):
         "boundary security, asks how security incidents are reported and "
         "dealt with and names no recipient) |"
     )
-    _R2_INDEX = (
+    _EARLIER_INDEX = (
         "| Compliance | Register | US CTPAT Minimum Security Criteria "
         "Controls Register | "
         "[`compliance/logistics/register-ctpat-united-states-msc-controls.md`"
@@ -25460,23 +25459,23 @@ class MscRegisterRound3Tests(unittest.TestCase):
     # claim: its row's earlier text; the Personnel Security pins share one
     # earlier row.
     _COUNTEREXAMPLES = {
-        "purpose": _R2_PURPOSE,
-        "CS-3": _R2_CS3,
-        "CS-6": _R2_CS6,
-        "fcra-note": _R2_FCRA,
-        "BP-5": _R2_BP5,
-        "rail-note": _R2_RAIL,
-        "CV-1": _R2_CV1,
-        "CV-2": _R2_CV2,
-        "CV-3": _R2_CV3,
-        "CV-4": _R2_CV4,
-        "CV-5": _R2_CV5,
-        "aeo-corporate": _R2_CORPORATE,
-        "personnel": _R2_PERSONNEL,
-        "personnel-contracts": _R2_PERSONNEL,
-        "ICO": _R2_PERSONNEL,
-        "aeo-conveyance": _R2_CONVEYANCE,
-        "index-frameworks": _R2_INDEX,
+        "purpose": _EARLIER_PURPOSE,
+        "CS-3": _EARLIER_CS3,
+        "CS-6": _EARLIER_CS6,
+        "fcra-note": _EARLIER_FCRA,
+        "BP-5": _EARLIER_BP5,
+        "rail-note": _EARLIER_RAIL,
+        "CV-1": _EARLIER_CV1,
+        "CV-2": _EARLIER_CV2,
+        "CV-3": _EARLIER_CV3,
+        "CV-4": _EARLIER_CV4,
+        "CV-5": _EARLIER_CV5,
+        "aeo-corporate": _EARLIER_CORPORATE,
+        "personnel": _EARLIER_PERSONNEL,
+        "personnel-contracts": _EARLIER_PERSONNEL,
+        "ICO": _EARLIER_PERSONNEL,
+        "aeo-conveyance": _EARLIER_CONVEYANCE,
+        "index-frameworks": _EARLIER_INDEX,
     }
 
     # claim, held path (reference corpus), line, text the line carries.
@@ -26768,7 +26767,8 @@ class HmrcHandbookClaimsTests(unittest.TestCase):
         (_MSC_STATUS_RULE), and every Status cell of every control table holds
         a value the rule defines (_MSC_STATUS_VALUES). The test
         test_msc_register_marks_no_unreviewed_row_implemented (in
-        MscRegisterRound2Tests) checks the rule's first sentence as a substring
+        MscRegisterClaimsAndStatusTests) checks the rule's first sentence as
+        a substring
         and that no Implemented row lacks a Last Reviewed date; it checks
         neither the Not assessed sentence, nor that the rule appears once, nor
         which values the Status cells hold, which this test does."""

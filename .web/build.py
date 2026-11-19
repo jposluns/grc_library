@@ -955,14 +955,14 @@ def load_partials(template_dir):
 def narrative_source_blob_url(page):
     """ONE narrative page's raw Markdown source on GitHub (the blob URL). The
     reading-room pages' "Read the source on GitHub" link uses THIS helper
-    directly, so it keeps pointing at the source even after wave-2 PR-2b flips
-    ``narrative_page_url`` below from the blob to the on-site route."""
+    directly, so it keeps pointing at the source now that
+    ``narrative_page_url`` below gives the on-site route, not the blob."""
     return repo_blob_url(page["path"])
 
 
 def narrative_page_url(page):
     """The link target for ONE narrative-page row: the page's ON-SITE
-    reading-room route (wave-2 PR-2b's blob-to-on-site flip; every narrative
+    reading-room route (never the blob URL; every narrative
     row URL is emitted through this single helper). The route is derived
     from the SAME mapping the render loop writes (``narrative_out_rel``), so
     a row can never point at a route the reading room does not render, and
@@ -970,7 +970,7 @@ def narrative_page_url(page):
     render_page's second substitution pass, the staging-template convention for
     internal links), so the link stays correct under the variant's URL
     prefix. The generated rows render in the v2 and v3 domain templates (the value is
-    inert in v1), so the flip does not touch the frozen root. The
+    inert in v1), so the on-site route does not touch the frozen root. The
     "Read the source on GitHub" link inside the reading-room page keeps
     using ``narrative_source_blob_url`` directly."""
     out_rel = narrative_out_rel(page)
@@ -978,14 +978,14 @@ def narrative_page_url(page):
 
 
 # ---------------------------------------------------------------------------
-# The executive reading room (wave-2 PR-2a; extended to /v3 in PR #1638): registry-listed narrative
+# The executive reading room (extended to /v3 in PR #1638): registry-listed narrative
 # pages rendered ON-SITE by a constrained, stdlib-only Markdown renderer,
 # under the narrative spec's renderer-confinement contract
 # (governance/specification-executive-narrative.md, the reserved website-track gate).
 # ---------------------------------------------------------------------------
 
-# Narrative types that render on-site. Wave-2 PR-2b scope: EVERY published
-# narrative type (PR-2a shipped the Executive Briefs alone). The render loop
+# Narrative types that render on-site: EVERY published narrative type
+# (the reading room first shipped the Executive Briefs alone). The render loop
 # additionally requires every registry narrative_type to appear in this tuple
 # (a loud BuildError otherwise), so a future NEW type cannot silently skip
 # on-site rendering by falling through the type filter.
@@ -998,10 +998,10 @@ NARRATIVE_ROUTE_TYPES = (
     "Outcome Map",
 )
 
-# On-site route prefix for the reading room (wave-2 decision Q2: one exec
+# On-site route prefix for the reading room (one exec
 # vocabulary on-site, /decisions/<subtype>/<slug>/; this deliberately diverges
 # from the registry's executive/... route slugs, a recorded promotion-time
-# note in the wave-2 decision record).
+# note in the reading-room decision record).
 NARRATIVE_ROUTE_PREFIX = "decisions/"
 
 # The section ids each reading-room TEMPLATE uses for its own shell sections,
@@ -1064,7 +1064,7 @@ _NARR_MD_BOLD_RE = re.compile(r"\*\*([^*\s](?:[^*]*[^*\s])?)\*\*")
 # Single-star emphasis, processed AFTER bold extraction on the bold-free
 # segments: the span must open and close against non-space content (so a
 # spaced '3 * 4' star is never emphasis and still raises via the residual-star
-# check downstream). PR-2b SURVEY NOTE: this construct was found in the
+# check downstream). Corpus survey note: this construct was found in the
 # published corpus (oversight-questions-ai-inventory-risk.md leads each
 # question item with an italic span) but was NOT in the build order's
 # anticipated construct list; it is supported deliberately and loudly-guarded
@@ -1592,7 +1592,7 @@ def _render_narrative_links(text, source_rel):
 
 def _render_narrative_bold(text, source_rel):
     """Render one code-free segment's ``**bold**`` spans. Bold is extracted
-    BEFORE links (PR-2b: the published corpus nests links INSIDE bold spans,
+    BEFORE links (the published corpus nests links INSIDE bold spans,
     '**... the [MCP server register](...)**'; the reverse nesting, bold
     inside a link label, appears nowhere in the corpus and now raises via
     the leftover-bracket check rather than rendering), so both the bold
@@ -1878,7 +1878,7 @@ def render_narrative_body(text, source_rel, reserved_shell_ids=None):
 
 def narrative_out_rel(page):
     """Map ONE narrative page's registry route to its on-site output path:
-    ``decisions/<subtype>/<slug>/index.html`` (wave-2 decision Q2, one exec
+    ``decisions/<subtype>/<slug>/index.html`` (one exec
     vocabulary on-site; the registry's route slugs keep their ``executive/``
     prefix, a recorded divergence). The route drives a filesystem write, so
     a shape outside ``executive/<subtype>/<slug>`` in the plain slug charset
@@ -1907,8 +1907,8 @@ def narrative_route_bodies(figures, variant, seen_out_rels):
     route colliding with one raises."""
     # Every registry type must be a routed type: a future NEW narrative
     # type would otherwise fall through the filter below and silently
-    # skip on-site rendering (PR-2b widened the tuple to all six
-    # published types; this check keeps the widening honest). The
+    # skip on-site rendering (the tuple covers all six
+    # published types; this check keeps that coverage honest). The
     # subtype-index table joins the union: a type with a
     # DRAFT_NARRATIVE_SUBTYPES entry but no route would publish an index
     # whose pages the reading room never renders.
@@ -5729,7 +5729,7 @@ CROSSWALK_ALIASES = {
     "PIPEDA Sch 1 Principle 3 (withdrawal of consent)": "pipeda",
     "PIPEDA Sch 1 Principle 9 (amendment)": "pipeda",
     "PIPEDA Sch 1 Principle 9 (Individual Access)": "pipeda",
-    # QC-LAW25-RESEARCH-0405 (maintainer decision 2026-11-06): the
+    # The Law 25 aliases (maintainer decision 2026-11-06): the
     # quebec-law-25 instrument is CQLR c. P-39.1 as amended by S.Q. 2021,
     # c. 25 (Law 25), not the amending act, so every P-39.1 spelling is an
     # alias and no spelling names the amending act alone.
