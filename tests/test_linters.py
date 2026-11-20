@@ -19180,6 +19180,221 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertEqual(result.stdout, "RESULT " + json.dumps({"ascending": [pids, named],
                                                                 "reverse": [pids, named]}) + "\n", detail)
 
+    def test_run_shell_stubbed_proc_scans_skip_a_non_ascii_digit_name(self) -> None:
+        """_procs_under and _all_procs_named read as a process id only a name of ASCII digits, the condition
+        _proc_entry_order sorts first (_is_proc_pid), so a name of other digits, which sorts last, is skipped
+        and not read as a process. A clone of each reads a stand-in listing of self, the Arabic-Indic digits
+        for 12, 10 and 9, where every process is this user's, has its working directory in /stand-in/work
+        and has the command line 'stand-in --flag', and each returns 9 then 10. A helper that tests only
+        str.isdigit() also returns 12, which int() reads from those digits."""
+        driver = (
+            "import io, json, runpy, sys, types\n"
+            "t = runpy.run_path(sys.argv[1])\n"
+            "names = ('self', '\\u0661\\u0662', '10', '9')\n"
+            "def listdir(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return list(names)\n"
+            "def readlink(path):\n"
+            "    assert path.endswith('/cwd'), path\n"
+            "    return '/stand-in/work'\n"
+            "stand_in = types.SimpleNamespace(listdir=listdir, readlink=readlink, getuid=lambda: 4242, sep='/',\n"
+            "                                 stat=lambda path: types.SimpleNamespace(st_uid=4242),\n"
+            "                                 path=types.SimpleNamespace(realpath=lambda path: path))\n"
+            "def stand_in_open(path, mode='r'):\n"
+            "    assert path.endswith('/cmdline') and mode == 'rb', path\n"
+            "    return io.BytesIO(b'stand-in\\0--flag\\0')\n"
+            "def clone(name, **bound):\n"
+            "    fn = t[name]\n"
+            "    g = dict(fn.__globals__)\n"
+            "    g.update(bound)\n"
+            "    return types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)\n"
+            "out = {'under': clone('_procs_under', os=stand_in)(['/stand-in/work']),\n"
+            "       'named': clone('_all_procs_named', os=stand_in, open=stand_in_open)('stand-in --flag')}\n"
+            "print('RESULT', json.dumps(out))\n")
+        result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                     str(REPO_ROOT / "tools" / "run-shell-stubbed.py")], timeout=120)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertTrue(result.stdout.startswith("RESULT "), detail)
+        out = json.loads(result.stdout[len("RESULT "):])
+        named = [[pid, "stand-in --flag"] for pid in (9, 10)]
+        self.assertEqual(out, {"under": [9, 10], "named": named}, detail)
+
+    def test_run_shell_stubbed_proc_pid_refuses_a_twenty_digit_name(self) -> None:
+        """_is_proc_pid accepts at most 19 ASCII digits, so int() cannot raise on a name it accepts. A name
+        of 20 ASCII digits is refused while the same name less its first digit is accepted; _proc_entry_order
+        gives the 20-digit name the key of the other names, (1, 0, name), so it sorts after 9 and 10 and
+        before self in code point order; and a clone of _procs_under and one of _all_procs_named read a
+        stand-in listing of self, that name, 10 and 9, where every process is this user's, has its working
+        directory in /stand-in/work and has the command line 'stand-in --flag', and each returns 9 then 10.
+        Without the cap the name is accepted, given a process id key and returned by both helpers."""
+        driver = (
+            "import io, json, runpy, sys, types\n"
+            "t = runpy.run_path(sys.argv[1])\n"
+            "long = '12345678901234567890'\n"
+            "names = ('self', long, '10', '9')\n"
+            "def listdir(path):\n"
+            "    assert path == '/proc', path\n"
+            "    return list(names)\n"
+            "def readlink(path):\n"
+            "    assert path.endswith('/cwd'), path\n"
+            "    return '/stand-in/work'\n"
+            "stand_in = types.SimpleNamespace(listdir=listdir, readlink=readlink, getuid=lambda: 4242, sep='/',\n"
+            "                                 stat=lambda path: types.SimpleNamespace(st_uid=4242),\n"
+            "                                 path=types.SimpleNamespace(realpath=lambda path: path))\n"
+            "def stand_in_open(path, mode='r'):\n"
+            "    assert path.endswith('/cmdline') and mode == 'rb', path\n"
+            "    return io.BytesIO(b'stand-in\\0--flag\\0')\n"
+            "def clone(name, **bound):\n"
+            "    fn = t[name]\n"
+            "    g = dict(fn.__globals__)\n"
+            "    g.update(bound)\n"
+            "    return types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)\n"
+            "out = {'pid': [t['_is_proc_pid'](long), t['_is_proc_pid'](long[1:])],\n"
+            "       'key': list(t['_proc_entry_order'](long)),\n"
+            "       'order': sorted(names, key=t['_proc_entry_order']),\n"
+            "       'under': clone('_procs_under', os=stand_in)(['/stand-in/work']),\n"
+            "       'named': clone('_all_procs_named', os=stand_in, open=stand_in_open)('stand-in --flag')}\n"
+            "print('RESULT', json.dumps(out))\n")
+        result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                     str(REPO_ROOT / "tools" / "run-shell-stubbed.py")], timeout=120)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertTrue(result.stdout.startswith("RESULT "), detail)
+        out = json.loads(result.stdout[len("RESULT "):])
+        long = "12345678901234567890"
+        named = [[pid, "stand-in --flag"] for pid in (9, 10)]
+        self.assertEqual(out, {"pid": [False, True], "key": [1, 0, long], "order": ["9", "10", long, "self"],
+                               "under": [9, 10], "named": named}, detail)
+
+    def test_run_shell_stubbed_proc_listing_loops_filter_with_is_proc_pid(self) -> None:
+        """Every loop in the tool source whose iterable itself lists /proc or /proc/<pid>/fd (a call of
+        listdir or _capture_listdir on the literal "/proc", or on an f-string "/proc/{...}/fd") filters the
+        names it reads with _is_proc_pid. In a for statement, the first statement that uses the loop name is
+        an if whose test is not _is_proc_pid(name), alone or first in an or, and whose body is continue; a
+        comprehension has an if clause that calls _is_proc_pid(name). Neither calls name.isdigit(). The
+        loops found must include those of _procs_under, _all_procs_named and _session_members and two in
+        _probe_capture (its /proc scan and its /proc/<pid>/fd listing), so the test cannot pass by finding
+        none. A loop over a variable a listing was first assigned to is not checked."""
+        import ast
+        from collections import Counter
+        tree = ast.parse((REPO_ROOT / "tools" / "run-shell-stubbed.py").read_text(encoding="utf-8"))
+        parents = {}
+        for node in ast.walk(tree):
+            for child in ast.iter_child_nodes(node):
+                parents[child] = node
+
+        def outermost_function(node):
+            name = None
+            while node in parents:
+                node = parents[node]
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    name = node.name
+            return name
+
+        def is_listing(node):
+            if not isinstance(node, ast.Call) or not node.args:
+                return False
+            func = node.func
+            called = func.attr if isinstance(func, ast.Attribute) else getattr(func, "id", None)
+            if called not in ("listdir", "_capture_listdir"):
+                return False
+            arg = node.args[0]
+            if isinstance(arg, ast.Constant):
+                return arg.value == "/proc"
+            if isinstance(arg, ast.JoinedStr):
+                parts = arg.values
+                return (len(parts) == 3 and isinstance(parts[0], ast.Constant) and parts[0].value == "/proc/"
+                        and isinstance(parts[1], ast.FormattedValue)
+                        and isinstance(parts[2], ast.Constant) and parts[2].value == "/fd")
+            return False
+
+        def is_pid_call(node, name):
+            return (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                    and node.func.id == "_is_proc_pid" and len(node.args) == 1 and not node.keywords
+                    and isinstance(node.args[0], ast.Name) and node.args[0].id == name)
+
+        def is_negated_pid_call(node, name):
+            if isinstance(node, ast.BoolOp) and isinstance(node.op, ast.Or):
+                node = node.values[0]
+            return isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not) and is_pid_call(node.operand, name)
+
+        def calls_isdigit(nodes, name):
+            return any(isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == "isdigit"
+                       and isinstance(n.func.value, ast.Name) and n.func.value.id == name
+                       for top in nodes for n in ast.walk(top))
+
+        def uses(node, name):
+            return any(isinstance(n, ast.Name) and n.id == name for n in ast.walk(node))
+
+        found, problems = [], []
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.For, ast.AsyncFor)):
+                loops = [(node, "for")]
+            elif isinstance(node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):
+                loops = [(gen, "comprehension") for gen in node.generators]
+            else:
+                continue
+            for loop, kind in loops:
+                if not any(is_listing(n) for n in ast.walk(loop.iter)):
+                    continue
+                owner = outermost_function(loop.iter)
+                where = f"{owner} line {loop.iter.lineno}"
+                found.append((owner, kind))
+                if not isinstance(loop.target, ast.Name):
+                    problems.append(f"{where}: the loop target is not one name")
+                    continue
+                name = loop.target.id
+                if kind == "for":
+                    first = next((stmt for stmt in loop.body if uses(stmt, name)), None)
+                    filtered = (isinstance(first, ast.If) and is_negated_pid_call(first.test, name)
+                                and len(first.body) == 1 and isinstance(first.body[0], ast.Continue))
+                    scope = loop.body
+                else:
+                    filtered = any(is_pid_call(cond, name) for cond in loop.ifs)
+                    scope = loop.ifs
+                if not filtered:
+                    problems.append(f"{where}: {name} is not filtered with _is_proc_pid")
+                if calls_isdigit(scope, name):
+                    problems.append(f"{where}: {name}.isdigit() is called")
+        expected = Counter([("_procs_under", "for"), ("_all_procs_named", "for"), ("_session_members", "for"),
+                            ("_probe_capture", "for"), ("_probe_capture", "comprehension")])
+        self.assertEqual(expected - Counter(found), Counter(), f"loops found: {found}")
+        self.assertEqual(problems, [], f"loops found: {found}")
+
+    def test_run_shell_stubbed_capture_isolate_reads_only_a_proc_pid_name(self) -> None:
+        """_capture_isolate reads a /proc/self/fd name as a descriptor number only when _is_proc_pid accepts it,
+        so a name of other digits that int() reads is not closed as a descriptor. A clone of it, with an empty
+        keep, reads a stand-in listing of 5 and the Arabic-Indic digit for 4, where /dev/null opens at 7; it
+        closes 5 and then 7 only, puts /dev/null on 0, 1 and 2 and returns no notes and no moves. A loop that
+        reads every name int() accepts also closes 4."""
+        driver = (
+            "import json, runpy, sys, types\n"
+            "t = runpy.run_path(sys.argv[1])\n"
+            "closed, duped = [], []\n"
+            "def listdir(path):\n"
+            "    assert path == '/proc/self/fd', path\n"
+            "    return ['5', '\\u0664']\n"
+            "def stand_in_open(path, flags):\n"
+            "    assert path == '/dev/null', path\n"
+            "    return 7\n"
+            "stand_in = types.SimpleNamespace(listdir=listdir, close=closed.append, open=stand_in_open,\n"
+            "                                 dup2=lambda a, b: duped.append([a, b]), devnull='/dev/null',\n"
+            "                                 O_RDWR=2, closerange=None)\n"
+            "fn = t['_capture_isolate']\n"
+            "g = dict(fn.__globals__)\n"
+            "g.update(os=stand_in)\n"
+            "notes, moved = types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)(())\n"
+            "print('RESULT', json.dumps({'closed': closed, 'duped': duped, 'notes': notes, 'moved': moved}))\n")
+        result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                     str(REPO_ROOT / "tools" / "run-shell-stubbed.py")], timeout=120)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertTrue(result.stdout.startswith("RESULT "), detail)
+        out = json.loads(result.stdout[len("RESULT "):])
+        self.assertEqual(out, {"closed": [5, 7], "duped": [[7, 0], [7, 1], [7, 2]], "notes": [], "moved": {}},
+                         detail)
+
     def test_run_shell_stubbed_capture_scan_order_does_not_follow_the_listing(self) -> None:
         """_probe_capture scans /proc in ascending process id order whatever order the listing gives: the scan
         stops at its time limit, so which processes it found before that limit, and so which it describes,
@@ -52129,7 +52344,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         residual-scan.py NO_FS F fd8ff448f4d83f48d3e1116ac9b10d3c5ab8ed4d959ae888924679dd37cb194f
         run-linter-regression.py FIXED F 2c0d701c578569c68c73e4f697425cf0638e49baa9e93d3994ae44de98bb8e17
         run-pr-time-checks.sh FIXED F 2caed4bb6e25ef2dd77397ca021c6af8752991b3a80d5a0c3fc83a38df384c35
-        run-shell-stubbed.py NO_FS F 465d8727efe5b9f21596c6d9885018e729078c79014346c1eea56a041a0fe974
+        run-shell-stubbed.py NO_FS F 13063b04c081c3c00d5311e87bebe7b8eb77a9f2863b85a99406364025e1f4d5
         run_all_audits.sh FIXED F ec86a76e9dec99394069b2fccab2fb84c152f9e9a16214f02358d8e2c60862fc
         run_all_checks.sh FIXED F 7b13d48fdc26605f06ef51f9fb1757c218cff7e23d3121a7b59809613fc4b17c
         scan-publication-instruction-content.py OWN F 17b4f62f443d1a5d247a3dab08dbb7b40bf650929c33fa6a9478eeba26a37900
