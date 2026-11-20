@@ -352,7 +352,7 @@ def _procs_under(paths) -> "list[int]":
     roots = [os.path.realpath(x) + os.sep for x in paths]
     out = []
     for entry in sorted(os.listdir("/proc"), key=_proc_entry_order):
-        if not entry.isdigit():
+        if not _is_proc_pid(entry):
             continue
         try:
             if os.stat(f"/proc/{entry}").st_uid != os.getuid():
@@ -370,7 +370,7 @@ def _all_procs_named(cmdline: str) -> "list[tuple[int, str]]":
     in ascending process id order (_proc_entry_order), not the order the listing gives."""
     out = []
     for entry in sorted(os.listdir("/proc"), key=_proc_entry_order):
-        if not entry.isdigit():
+        if not _is_proc_pid(entry):
             continue
         try:
             with open(f"/proc/{entry}/cmdline", "rb") as fh:
@@ -451,10 +451,22 @@ class _UnparsableStat(Exception):
                 self.add_note(note)
 
 
+def _is_proc_pid(entry: str) -> bool:
+    """Whether a /proc listing name is a process id: ASCII digits only, at most 19 of them (as for the
+    session field of a stat line, _SESSION_FIELD), so int() cannot raise on a name it accepts. The sort
+    key (_proc_entry_order), every loop over a /proc listing, the /proc/<pid>/fd listing of _probe_capture
+    and the /proc/self/fd loop of _capture_isolate test this one condition, so any other name is never
+    read as a process id or a descriptor number (in a /proc listing it sorts last): a run of more than 19
+    ASCII digits, or a name of other characters that str.isdigit() accepts, some of which (superscript
+    digits, for example) int() refuses."""
+    return len(entry) <= 19 and entry.isascii() and entry.isdigit()
+
+
 def _proc_entry_order(entry: str) -> "tuple[int, int, str]":
-    """Sort key for a /proc listing: process ids (ASCII digits) in ascending numeric order, then every
-    other name in code point order. int() is applied only to ASCII digits, so the key never raises."""
-    if entry.isascii() and entry.isdigit():
+    """Sort key for a /proc listing: process ids (_is_proc_pid) in ascending numeric order, then every
+    other name in code point order. int() is applied only to a name _is_proc_pid accepts, at most 19
+    ASCII digits, so it cannot raise."""
+    if _is_proc_pid(entry):
         return (0, int(entry), entry)
     return (1, 0, entry)
 
@@ -518,7 +530,7 @@ def _session_members(sid: int) -> "list[tuple[int, str]]":
     # Ascending process id order, not the listing's own order: that order is the filesystem's, and the
     # members (so the order the kill and the fallback sweep signal them) would follow it.
     for entry in sorted(os.listdir("/proc"), key=_proc_entry_order):
-        if not entry.isdigit():
+        if not _is_proc_pid(entry):
             continue
         fresh = recorded is not None and int(entry) not in recorded
         # Only the open and the read are taken as an exited process (OSError). The close and the parse are
@@ -2985,8 +2997,10 @@ def _capture_isolate(keep, ceiling=1 << 16):
 
     The descriptors closed first are the ones actually open outside keep, listed from /proc/self/fd, so one
     above a lowered soft RLIMIT_NOFILE, or above any limit, is closed as well, and the time taken follows the
-    number open, not the limit. The listing's own descriptor is excluded: os.listdir has closed it before the
-    loop, and closing a number that is no longer open (EBADF) is skipped. Only if /proc/self/fd cannot be
+    number open, not the limit. Only a name _is_proc_pid accepts is read as a descriptor number; any other
+    name, one of non-ASCII digits that int() would read included, is skipped. The listing's own descriptor is
+    excluded: os.listdir has closed it before the loop, and closing a number that is no longer open (EBADF)
+    is skipped. Only if /proc/self/fd cannot be
     listed does it fall back to os.closerange over [0, ceiling) outside keep, called only for nonempty ranges,
     as os.closerange(0, 0) closes every descriptor; a descriptor at or above ceiling (65536 by default) then
     stays open, and a returned line says the fallback was used. Closing comes before the moves (round 7), so
@@ -3019,10 +3033,9 @@ def _capture_isolate(keep, ceiling=1 << 16):
         if low < ceiling:
             os.closerange(low, ceiling)
     for name in names or ():
-        try:
-            fd = int(name)
-        except ValueError:
+        if not _is_proc_pid(name):
             continue
+        fd = int(name)
         if fd in keep:
             continue
         try:
@@ -3183,7 +3196,7 @@ def _probe_capture(pid, sid, stack_fd, budget=5.0, limit=16384, members=64, fds=
                 put("procs", f"pid {p} ({role}) fds: not read (time limit reached)")
                 return
             try:
-                names = sorted((n for n in _capture_listdir(f"/proc/{p}/fd") if n.isdigit()), key=int)
+                names = sorted((n for n in _capture_listdir(f"/proc/{p}/fd") if _is_proc_pid(n)), key=int)
             except Exception as exc:
                 put("procs", f"pid {p} ({role}) fds: unreadable: {exc!r}")
                 return
@@ -3287,7 +3300,7 @@ def _probe_capture(pid, sid, stack_fd, budget=5.0, limit=16384, members=64, fds=
             if stopped(scan_deadline):
                 put("procs", f"process scan stopped at the time limit; {len(found)} processes found before it")
                 break
-            if not entry.isdigit() or int(entry) == pid:
+            if not _is_proc_pid(entry) or int(entry) == pid:
                 continue
             try:
                 # After the command name: state, ppid, pgrp, session.
