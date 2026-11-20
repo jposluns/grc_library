@@ -6,7 +6,7 @@
 # CHANGELOG) in default mode (they validate one specific file, so feeding them
 # an arbitrary changed doc would spuriously FAIL), so a developer gets a quick
 # sound subset-check. It NEVER prints "safe to push" and MUST NOT be the left
-# side of `&& git push`. The full 95-gate .claude/skills/corpus-management/tools/pre-push-guard.sh
+# side of `&& git push`. The full 96-gate .claude/skills/corpus-management/tools/pre-push-guard.sh
 # remains the AUTHORITY and still runs once before every push; it catches
 # everything this omits.
 #
@@ -100,7 +100,7 @@ fi
 
 echo "quick-guard: fast-checking ${#CHANGED[@]} changed .md file(s) against the fast-ready gates."
 echo "NOTE: ITERATION AID ONLY, not the push gate. Run .claude/skills/corpus-management/tools/pre-push-guard.sh before pushing;"
-echo "it runs all 95 gates incl. the register-guarded and corpus-wide ones this omits."
+echo "it runs all 96 gates incl. the register-guarded and corpus-wide ones this omits."
 echo "------------------------------------------------------------"
 
 # The fast-ready gates, in two groups:

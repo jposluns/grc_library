@@ -654,3 +654,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-internal-work-refs
+        name: Internal work reference floor audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-internal-work-refs.py
+        language: system
+        pass_filenames: false
+        always_run: true

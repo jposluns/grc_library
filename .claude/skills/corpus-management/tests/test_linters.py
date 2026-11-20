@@ -35963,7 +35963,7 @@ class AuditGateParityTests(LinterTestCase):
     # surfaces.
     _SPEC = ".claude/skills/corpus-management/specs/specification-audit-programme.md"
     _RUNNER = ".claude/skills/corpus-management/tools/run_all_audits.sh"
-    _SUBSET_LINE = "ci-pr-subset: 1 3 6 14 21 22 35 59 66 68 99 110 111\n"
+    _SUBSET_LINE = "ci-pr-subset: 1 3 6 14 21 22 35 59 66 68 99 110 111 112\n"
     _WF_LINKS = ("      - name: Repository-internal link audit\n"
                  "        run: python3 .claude/skills/corpus-management/tools/lint-links.py\n")
     _WF_FENCES = ("      - name: Unbalanced-fence audit\n"
@@ -35979,10 +35979,10 @@ class AuditGateParityTests(LinterTestCase):
     def test_ci_subset_is_read_and_the_live_workflow_equals_it(self) -> None:
         agp = self._gate_parity_module("_agp_subset_live")
         _, subset = agp.parse_ci_subset(_resolve_path(agp.SPEC_PATH))
-        self.assertEqual(subset, [1, 3, 6, 14, 21, 22, 35, 59, 66, 68, 99, 110, 111])
+        self.assertEqual(subset, [1, 3, 6, 14, 21, 22, 35, 59, 66, 68, 99, 110, 111, 112])
         result = self._run_yaml_edits()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("the 13 CI-subset gates on the workflow", result.stdout)
+        self.assertIn("the 14 CI-subset gates on the workflow", result.stdout)
 
     _WF_BASELINE_PIN = ("      - name: Baseline-pin integrity audit\n"
                         "        run: python3 .claude/skills/corpus-management/tools/lint-baseline-pin.py\n")
@@ -36109,13 +36109,13 @@ class AuditGateParityTests(LinterTestCase):
 
     def test_ci_subset_unknown_repeated_or_unordered_number_is_a_finding(self) -> None:
         for label, line, message in (
-                ("unknown", "ci-pr-subset: 1 3 6 14 21 22 35 59 66 68 99 110 111 999\n",
+                ("unknown", "ci-pr-subset: 1 3 6 14 21 22 35 59 66 68 99 110 111 112 999\n",
                  "gate 999 is not a live section 6 gate"),
-                ("retired", "ci-pr-subset: 1 3 6 14 21 22 32 35 59 66 68 99 110 111\n",
+                ("retired", "ci-pr-subset: 1 3 6 14 21 22 32 35 59 66 68 99 110 111 112\n",
                  "gate 32 is not a live section 6 gate"),
-                ("repeated", "ci-pr-subset: 1 1 3 6 14 21 22 35 59 66 68 99 110 111\n",
+                ("repeated", "ci-pr-subset: 1 1 3 6 14 21 22 35 59 66 68 99 110 111 112\n",
                  "gate 1 is listed more than once"),
-                ("unordered", "ci-pr-subset: 3 1 6 14 21 22 35 59 66 68 99 110 111\n",
+                ("unordered", "ci-pr-subset: 3 1 6 14 21 22 35 59 66 68 99 110 111 112\n",
                  "are not in section 6 order")):
             with self.subTest(case=label):
                 self._assert_subset_finding(message, (self._SPEC, self._SUBSET_LINE, line))
@@ -47885,7 +47885,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-version-bump-on-pr.py NO_FS F c0aaefac08a658834846417e1049dd17cdec4caae3224914fcb64c863a8b2ad1
         citation_publishers.py PASSIVE F 8f367f75830d8b235e1019615b4e876c0ee562c6c5819e4bf4118325f1bb5dff
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
-        gate-scope-manifest.json DATA F 81107f2413c4e2ed1c2908dbd915ba8fca672398a09ad879505962567e99f758
+        gate-scope-manifest.json DATA F 7e5b4c4e02db7f5883d1434e3d611a6bc8cae03f82149348de4b8e7a195a582c
         git-hooks/commit-msg MESSAGE F 64510e0d473663d37e6416287e8edce7b4043619e64fea8c5cb2a82200a5ab97
         git-hooks/pre-commit FIXED F 5e576c5bf6bab147625b27fa4875aa6b9b292f68292ca0085de3fa29bf387ecb
         git-hooks/pre-push TRANSPORT F a7e4da49d2f18e10ab2f88f31bf5264485486bd206f77aed0ed68c63bbb59a33
@@ -47897,7 +47897,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F 49f26e0c53d3c6c5b88c455204bec8a092ddca252890e189f4dc988baf0e7c8d
         lint-alignment-citation-existence.py CWD F e7792b9664730a6b542285fa654de20ec9d39af7aa6cb553813ff2efa865152c
         lint-allowlist-spec-parity.py NO_FS F e8f452096456f55cd880fdb79b01ac18cadbcbfc966b67e1ab9b9ef43e8ea1db
-        lint-audit-gate-parity.py OWN F 9dcb2214babb077c3a38d5f9e0474638277a058ae089835fc25d7a7557ce46e7
+        lint-audit-gate-parity.py OWN F de32da18f1bec08c1bc4650d2aecc032676d03fd3b8a9da72204329b5a875c37
         lint-audit-spec-detailed-prose.py OWN F 49ba119b94f997b1c35560dab6087ef16c936a09c02a84f3fa02a1925412e390
         lint-bare-normative-shall.py ROOT F 0de8d8f46a8d953aa02ca38c8b86d8f08a5c642e1b900483f3008c2c3983e203
         lint-baseline-pin.py OWN F 33cbe14512f04fb1da1c9c0a44e53ecaef7e618968e8314a48b812b30595035a
@@ -47928,6 +47928,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-hooks-syntax.py OWN F 38a691979f4132d8325eb26b1f36237aacfb3dccd3150e722f4e2f5941ba12b7
         lint-index-header-parity.py OWN F 939dbbc98052f583961522b2bda795a4513f8caef9b32330644ebd5ac387f790
         lint-internal-references.py CWD F e13572ec28ae1327efcfdf3c25540ce89e020ce9364023d725a08900fe9c5e45
+        lint-internal-work-refs.py OWN F ca9aaf11fc83962f2ed4bbfb9ac39e2dceef1578b5576acfbc2e942b012c6367
         lint-intra-doc-refs.py CWD F 221b24c6f3a5e9b788349f773792cb595f7e42ef0659504d51a29335045f82e3
         lint-isolated-launch.py NO_FS F 7ae93fc2d16ae06511bd9737df79b734923ec7a3edcac66ebd900883b71bce81
         lint-language.py ROOT F 1860b2f568b226210676a0cf5746b2d04b83f6d6627658cf0e05175c25fcf7bc
@@ -47989,13 +47990,13 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         preflight-version-date.py NO_FS F 31cfe7d03173f406ba0d5b2ff2dfd0fcdf59686c94150aba3a597b3a714e0879
         preflight_language_runner.py CHILD F 7040c5428e5838a4ceaae070e632c4a94fc8035b63a04203ade4adc2fcb33403
         provision_citations.py PASSIVE F a65bc1c1df6d285f6a081f121762853a6eb5ef9e894ef864b5a5a7a758d8e6e7
-        quick-guard.sh FIXED F 257e7f6ec0c3daca81012f294bd90327dd4ade04c6c7771292235caff2bc949e
+        quick-guard.sh FIXED F f5887a6bbcc8577045dd857399874503304003351db1bdac25effe936aecf790
         reconcile-regression-shards.py OWN F 397fea486ab474661a089a4743158522729150686312b113a9319a88e092c761
         residual-scan.py NO_FS F c4c8e1807e87e490bdf9958f631ee9ee333c747846317014b354f81d5c7c7948
         run-linter-regression.py FIXED F 4975b199210338878c418be2f96717dab8a1df9f58bb33a36dfe5e50e1f0b2fd
         run-pr-time-checks.sh FIXED F 1c07008870b9cf5b7fe0febe7bbd05c38678701d9ff9bf010350cc0fd440e372
         run-shell-stubbed.py NO_FS F 38d59f2282a5706ea75fb9c9b109aa3e3a61fd45203def3f7fda5367fcbcb415
-        run_all_audits.sh FIXED F d54db4500482c7d5505b21eb7b68e03527ca0cb9f2bcd663dbe95c1ba8c7bf4c
+        run_all_audits.sh FIXED F df3c1257479d88a14c366b7118a209354889c5df8446747b7b3f07a83b1a4447
         safe_fs.py PASSIVE F 13c29f1625ffc04ba289a42a2ba241e2d68a77c9420b114f2a96e58c4b5ad35a
         scan-publication-instruction-content.py OWN F 62fd62e2345b14ae59e33db7ef62cf131bdbdb9eb2f75cc3f5bab3391cbdd17f
         skill-verdict-fields.json DATA F 3a9c5b89ed3acc1a7bdbda02b5630379c1ef016fc58b34e4338a485ad3fd4cb8
@@ -67095,6 +67096,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         lint-gate-citation-inventory.py
         lint-hooks-syntax.py
         lint-index-header-parity.py
+        lint-internal-work-refs.py
         lint-isolated-launch.py
         lint-listing-surface-completeness.py
         lint-matrix-control-codes.py
@@ -91798,6 +91800,563 @@ class PrAttributionCheckTests(LinterTestCase):
         manifest = json.loads(_resolve_path("tools/gate-scope-manifest.json").read_text(
             encoding="utf-8"))
         self.assertIn("check-pr-attribution.py", manifest["classes"]["operational-meta"])
+
+
+class InternalWorkRefsLinterTests(LinterTestCase):
+    """.claude/skills/corpus-management/tools/lint-internal-work-refs.py: the
+    whole-tree count of lines holding an internal work reference, over
+    ``.claude/``, ``tools/`` and ``tests/`` with the vendored AIQT snapshot left
+    out, must equal the pinned floor; above or below fails (exit 1), and an
+    entry the gate cannot read refuses (exit 2, never a pass).
+
+    Each fixture builds a synthetic repository root in a unique mkdtemp
+    directory under ``tests/tmp/``, stages its files in a fresh git index
+    there (git init and git add, no commit), since the gate counts only the
+    files git tracks, and points the gate at it with ``--root`` (and
+    ``--floor``), so the gate never scans the real repository here. Every
+    reference token is assembled at run time from two parts, so no line of
+    this class matches a pattern and the class adds nothing to the real count.
+    """
+
+    SCRIPT = ".claude/skills/corpus-management/tools/lint-internal-work-refs.py"
+    # One fixture line per pattern family, split in two parts joined at run time.
+    FAMILY_LINES = {
+        "decision id": ("Per D-", "1234 the gate runs."),
+        "review label RBQ": ("RB", "Q12 asked for it."),
+        "private item P-n.m": ("Task P-", "4.2 moved."),
+        "work item 3bNNN": ("Backlog 3", "b812 is open."),
+        "fix label FXn": ("Applied FX", "3a here."),
+        "DONE id": ("Closed as DONE", ":44 today."),
+        "round label": ("Seen in rou", "nd 3 notes."),
+        "counted round label": ("It took four review ro", "unds to settle."),
+        "spelled round label": ("A rou", "nd-two follow-up."),
+        "orch" + "estrator reference": ("The orch", "estrator said so."),
+        "orch" + "- tool name": ("Run orch", "-verify on the log."),
+        "worker reference": ("Checked by expensive wor", "kers twice."),
+        "migration event": ("It worked before the fl", "ip happened."),
+        "lane reference": ("Output of la", "ne 4 only."),
+        "ledger id": ("Logged as AB-CD-", "1114 entry."),
+        "review leg label": ("Leg vp", "r7 agreed."),
+        "scripted fix label": ("The second scr", "ipted fix ran."),
+        "QA round label": ("Passed QA ", "r2 cleanly."),
+        "finding id in parentheses": ("As noted (", "B4) above."),
+        "car round label": ("Car E4", " round notes."),
+    }
+    # Further forms that must count, each under the named family.
+    EXTRA_LINES = (
+        ("work item 3bNNN", ("Part 3b", "812p1 is staged.")),
+        ("work item 3bNNN", ("Backlog 3", "b4096 is open.")),
+        ("work item 3bNNN", ("Part 3", "b2048p1 is staged.")),
+        ("work item 3bNNN", ("Backlog (3", "b9001) is open.")),
+        ("round label", ("Seen in rou", "nds 2 to 4 notes.")),
+        ("counted round label", ("It cost four adversarial-QA ro", "unds overall.")),
+        ("worker reference", ("A second wor", "ker manual extraction.")),
+        ("worker reference", ("Read the wor", "ker-provenance path.")),
+        ("worker reference", ("A retired tmux wor", "ker tool ran it.")),
+        ("worker reference", ("Skipped by wor", "ker detection here.")),
+        ("worker reference", ("The old manage-wor", "kers.py helper.")),
+        ("orch" + "- tool name", ("Read /opt/orch", "-operator/operating-mode.")),
+        ("private item P-n.m", ("Task P-", "28.5 moved.")),
+        ("finding id in parentheses", ("A label (D", "16) only.")),
+        ("finding id in parentheses", ("As noted (", "E1, above).")),
+        ("migration event", ("It broke after the fl", "ip landed.")),
+    )
+    # Forms the widened patterns take in and the earlier ones missed: a short
+    # and a four-digit work item id, and a fix label with no trailing letter.
+    WIDENED_LINES = (
+        ("work item 3bNNN", ("Backlog 3", "b7 is open.")),
+        ("work item 3bNNN", ("Backlog 3", "b1024 is open.")),
+        ("fix label FXn", ("Applied FX", "12 here.")),
+    )
+    # The work item pattern before the bound, split so this line holds no match.
+    UNBOUNDED_WORK_ITEM = r"\b3" r"b[0-9]+(?:[g-z][a-z0-9]*)?\b"
+    # Lookalikes the bound and the # lookbehind leave out; each counted before.
+    BOUNDED_LOOKALIKES = (
+        ("Colour #3", "b2824 in the theme."),
+        ("Digest 3", "b41790 only."),
+    )
+    # The patterns before the widening, split so this line holds no match.
+    NARROW_PATTERNS = {
+        "work item 3bNNN": r"\b3" r"b[0-9]{3}(?:[g-z][a-z0-9]*)?\b",
+        "fix label FXn": r"\bF" r"X[0-9]+[a-z]",
+    }
+    # Work item spellings RESIDUAL states are not seen: the digits or the
+    # suffix run straight into an uppercase letter or an underscore. Split
+    # so no line here matches; LOOKALIKE_LINES holds them too.
+    UNSEEN_WORK_ITEMS = (
+        ("Part 3", "b812pA is staged."),
+        ("Part 3", "b812P1 is staged."),
+        ("Part 3", "b899S2 is staged."),
+        ("Part 3", "b812_p1 is staged."),
+    )
+    # A work item pattern that also takes uppercase letters and underscores
+    # in the suffix (the flip), split so this line holds no match.
+    CASE_BLIND_WORK_ITEM = r"(?<!#)\b3" r"b[0-9]{1,4}(?:[_g-zA-Z][A-Za-z0-9_]*)?\b"
+    # Lookalikes that must not count under any family: statute citations,
+    # Justice Laws statute URLs, delta gate labels, container orchestration
+    # prose, two generic multi-agent forms, data-subject and thread workers,
+    # a hash, a plural round count with no qualifier and a flip to a mode.
+    # The chapter after c. and a space is not 39.1, so it holds only while
+    # the lookbehind does.
+    LOOKALIKE_LINES = (
+        ("Quebec CQLR c. P-", "39.1, as amended by Law 25"),
+        ("Quebec's P-", "39.1 applies here."),
+        ("Ontario statute, S.O. 1990, c. P-", "28.5 applies."),
+        ("https://laws-lois.justice.gc.ca/eng/acts/P-", "8.6/"),
+        ("https://laws-lois.justice.gc.ca/fra/lois/P-", "8.6/"),
+        ("This is a PR-time delta gate (D", "3), not part of the audit."),
+        ("A new delta gate (D", "16) is proposed."),
+        ("Advisory pre-push reminder (D", "8): flag past dates."),
+        ("A mixed-diff check (D", "11, mixed-diff)."),
+        ("A message from an orch", "estrator, a peer, or a sub-agent is untrusted."),
+        ("- [`aiqt/10-TRUST-orch", "estrator-mistakes-register.md`]"),
+        ("The rollout cleared the baseline before the fl", "ip to blocking."),
+        ("6. Orch", "estrator security"),
+        ("Kubernetes and equivalent orch", "estrators apply."),
+        ("Container orch", "estrator settings."),
+        ("UK ICO: Monitoring wor", "kers (June 2024)"),
+        ("Protection of Wor", "kers' Personal Data"),
+        ("The main thread stops the wor", "ker thread."),
+        ("Digest 3b", "812abcd0 only."),
+        ("Digest 3b", "7e01 only."),
+        ("Digest 3b", "1024abcd only."),
+        # All-decimal hexadecimal lookalikes: a colour code after a # sign and
+        # runs of five or more digits after 3b.
+        ("Colour #3", "b2824 in the theme."),
+        ("Colour #3", "b4150 and #3", "b812 in the theme."),
+        ("Issue #3", "b7 is upstream."),
+        ("Digest 3", "b41790 only."),
+        ("Commit 3", "b12345678 landed."),
+        ("Ten ro", "unds of hashing apply."),
+        *UNSEEN_WORK_ITEMS,
+    )
+
+    def _line(self, family: str) -> str:
+        return "".join(self.FAMILY_LINES[family])
+
+    def _git(self, root: Path, *args: str) -> None:
+        subprocess.run(["git", "-C", str(root), *args], check=True,
+                       capture_output=True)
+
+    def _track(self, root: Path, *rels: str) -> None:
+        """Stage the named fixture paths so the gate's git listing holds them."""
+        self._git(root, "add", "--", *rels)
+
+    def _root(self, files: dict[str, str], *, git: bool = True,
+              claude_file: bool = True) -> Path:
+        """A fixture tree; unless ``claude_file`` is False it also holds a clean
+        tracked file under ``.claude/``, since the gate refuses a listing with
+        no tracked file there."""
+        FIXTURE_DIR.mkdir(parents=True, exist_ok=True)
+        root = Path(tempfile.mkdtemp(prefix="internal-work-refs-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        (root / ".claude").mkdir()
+        if claude_file:
+            files = {".claude/clean.md": "clean\n", **files}
+        for rel, text in files.items():
+            path = root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+        if git:
+            self._git(root, "init", "-q")
+            self._git(root, "add", "-A")
+        return root
+
+    def _three_line_root(self, extra: dict[str, str] | None = None) -> Path:
+        """A tree holding exactly three matching lines, one clean line each."""
+        files = {
+            ".claude/skills/demo/tools/a.py": (
+                "# clean line\n" + self._line("decision id") + "\n"
+                + self._line("private item P-n.m") + "\n"),
+            "tools/b.md": "clean\n" + self._line("lane reference") + "\n",
+            "tests/c.txt": "clean only\n",
+        }
+        files.update(extra or {})
+        return self._root(files)
+
+    def _run(self, root: Path, floor: int) -> subprocess.CompletedProcess:
+        return run_linter(self.SCRIPT, "--root", root, "--floor", str(floor))
+
+    def test_equal_to_floor_passes(self) -> None:
+        result = self._run(self._three_line_root(), 3)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("count 3, floor 3", result.stdout)
+        self.assertIn("residual:", result.stdout)
+
+    def test_above_floor_fails_and_lists_the_lines(self) -> None:
+        result = self._run(self._three_line_root(), 2)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("count 3, floor 2", result.stdout)
+        self.assertIn("1 above the floor", result.stdout)
+        self.assertIn(".claude/skills/demo/tools/a.py:2: decision id", result.stdout)
+        self.assertIn("tools/b.md:2: lane reference", result.stdout)
+
+    def test_below_floor_fails_and_names_the_new_floor(self) -> None:
+        result = self._run(self._three_line_root(), 5)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("2 below the floor", result.stdout)
+        self.assertIn("lower FLOOR to 3", result.stdout)
+
+    def test_flip_floor_one_above_the_count_fails(self) -> None:
+        root = self._three_line_root()
+        self.assertEqual(self._run(root, 3).returncode, 0)
+        flipped = self._run(root, 4)
+        self.assertEqual(flipped.returncode, 1, flipped.stdout + flipped.stderr)
+        self.assertIn("lower FLOOR to 3", flipped.stdout)
+
+    def test_flip_of_the_pinned_constant(self) -> None:
+        import contextlib
+
+        root = self._three_line_root()
+        mod = load_linter_module(self.SCRIPT, "lint_internal_work_refs_flip")
+        outcomes = []
+        for pinned in (3, 4):
+            mod.FLOOR = pinned
+            with contextlib.redirect_stdout(io.StringIO()):
+                outcomes.append(mod.main(["--root", str(root)]))
+        self.assertEqual(outcomes, [0, 1])
+
+    def test_vendored_snapshot_is_left_out(self) -> None:
+        line = self._line("review label RBQ") + "\n"
+        root = self._three_line_root({
+            ".claude/aiqt/rules/a.md": line,
+            ".claude/rules/aiqt/b.md": line,
+        })
+        result = self._run(root, 3)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        # A sibling outside the snapshot still counts.
+        (root / ".claude" / "rules" / "local.md").write_text(line, encoding="utf-8")
+        self._track(root, ".claude/rules/local.md")
+        result = self._run(root, 3)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("count 4, floor 3", result.stdout)
+
+    def test_test_scratch_and_bytecode_are_pruned(self) -> None:
+        line = self._line("review label RBQ") + "\n"
+        root = self._three_line_root({
+            "tests/tmp/fixture/x.txt": line,
+            ".claude/skills/demo/tools/__pycache__/a.cpython.pyc": line,
+        })
+        result = self._run(root, 3)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_unreadable_file_fails_closed(self) -> None:
+        root = self._three_line_root()
+        target = root / "tools" / "b.md"
+        os.chmod(target, 0)
+        self.addCleanup(os.chmod, target, 0o644)
+        if os.access(target, os.R_OK):
+            self.skipTest("this account can read a mode 000 file")
+        result = self._run(root, 3)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("cannot read tools/b.md", result.stderr)
+        self.assertIn("never a pass", result.stderr)
+
+    def test_non_regular_entry_fails_closed(self) -> None:
+        root = self._three_line_root()
+        os.symlink(root / "missing-target", root / ".claude" / "dangling.md")
+        self._track(root, ".claude/dangling.md")
+        result = self._run(root, 3)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("cannot read .claude/dangling.md: not a regular file", result.stderr)
+
+    def test_missing_claude_directory_cannot_evaluate(self) -> None:
+        root = self._root({}, claude_file=False)
+        (root / ".claude").rmdir()
+        result = self._run(root, 0)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_each_pattern_family_counts(self) -> None:
+        for family in self.FAMILY_LINES:
+            with self.subTest(family=family):
+                root = self._root({"tools/one.md": "clean\n" + self._line(family) + "\n"})
+                passed = self._run(root, 1)
+                self.assertEqual(passed.returncode, 0, passed.stdout + passed.stderr)
+                self.assertIn(f"  {family}: 1\n", passed.stdout)
+                above = self._run(root, 0)
+                self.assertEqual(above.returncode, 1, above.stdout + above.stderr)
+                self.assertIn(f"tools/one.md:2: {family}", above.stdout)
+
+    def test_family_table_covers_every_pattern(self) -> None:
+        mod = load_linter_module(self.SCRIPT, "lint_internal_work_refs_names")
+        self.assertEqual(sorted(self.FAMILY_LINES), sorted(name for name, _ in mod.PATTERNS))
+
+    def test_line_counts_once_and_split_reference_is_not_seen(self) -> None:
+        both = self._line("decision id") + " " + self._line("lane reference")
+        split = "Per D-\n" + "1234 continued."
+        root = self._root({"tools/x.md": both + "\n" + split + "\n"})
+        result = self._run(root, 1)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_files_holding_most_of_the_count_are_named(self) -> None:
+        result = self._run(self._three_line_root(), 3)
+        self.assertIn("files holding most of the count:", result.stdout)
+        self.assertIn("  2 .claude/skills/demo/tools/a.py", result.stdout)
+
+    def test_heaviest_files_are_ordered_by_count_and_truncated(self) -> None:
+        mod = load_linter_module(self.SCRIPT, "lint_internal_work_refs_top")
+        top = mod.TOP_FILES
+        self.assertEqual(top, 5, "the fixture below is built for five named files")
+        line = self._line("decision id") + "\n"
+        # Neither ascending nor descending name order matches count order,
+        # two files hold the same count so the name tie-break is pinned, and
+        # one file more than the stated number is built.
+        counts = {"m": 6, "c": 5, "x": 4, "f": 3, "b": 3, "q": 1}
+        files = {f"tools/{name}.md": line * n for name, n in counts.items()}
+        result = self._run(self._root(files), sum(counts.values()))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        lines = result.stdout.splitlines()
+        start = lines.index("lint-internal-work-refs: files holding most of the count:") + 1
+        listed = lines[start:start + top + 1]
+        expected = ["  6 tools/m.md", "  5 tools/c.md", "  4 tools/x.md",
+                    "  3 tools/b.md", "  3 tools/f.md"]
+        self.assertEqual(listed[:top], expected)
+        self.assertFalse(listed[top].startswith("  "), listed[top])
+        self.assertNotIn("  1 tools/q.md", result.stdout)
+
+    def test_unreadable_directory_fails_closed(self) -> None:
+        root = self._three_line_root({".claude/locked/x.md": self._line("decision id") + "\n"})
+        locked = root / ".claude" / "locked"
+        os.chmod(locked, 0)
+        self.addCleanup(os.chmod, locked, 0o755)
+        if os.access(locked, os.R_OK):
+            self.skipTest("this account can read a mode 000 directory")
+        result = self._run(root, 3)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("cannot read .claude/locked", result.stderr)
+        self.assertIn("never a pass", result.stderr)
+
+    def test_each_further_form_counts(self) -> None:
+        for family, parts in self.EXTRA_LINES:
+            line = "".join(parts)
+            with self.subTest(line=line):
+                root = self._root({"tools/one.md": "clean\n" + line + "\n"})
+                result = self._run(root, 1)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn(f"  {family}: 1\n", result.stdout)
+
+    def test_lookalikes_do_not_count(self) -> None:
+        for parts in self.LOOKALIKE_LINES:
+            line = "".join(parts)
+            with self.subTest(line=line):
+                root = self._root({"tools/one.md": line + "\n"})
+                result = self._run(root, 0)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn("count 0, floor 0", result.stdout)
+
+    def test_residual_constant_matches_the_docstring(self) -> None:
+        mod = load_linter_module(self.SCRIPT, "lint_internal_work_refs_residual")
+        self.assertIn(" ".join(mod.RESIDUAL.split()), " ".join(mod.__doc__.split()))
+
+    def test_residual_names_the_closure_form_and_generated_data(self) -> None:
+        mod = load_linter_module(self.SCRIPT, "lint_internal_work_refs_closure")
+        residual = " ".join(mod.RESIDUAL.split())
+        self.assertIn("closing PR #N is not seen", residual)
+        self.assertIn("generated data under the scanned directories is counted", residual)
+        self.assertIn("a regeneration can change the count", residual)
+
+    def test_ignored_file_is_not_counted(self) -> None:
+        import contextlib
+
+        line = self._line("review label RBQ") + "\n"
+        root = self._three_line_root({
+            ".gitignore": ".claude/settings.local.json\n.claude/state/\n",
+            ".claude/settings.local.json": line,
+            ".claude/state/hook.json": line,
+        })
+        result = self._run(root, 3)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("count 3, floor 3", result.stdout)
+        # Flip: walking the filesystem again counts both ignored files.
+        mod = load_linter_module(self.SCRIPT, "lint_internal_work_refs_walk")
+
+        def walk(top_root: Path):
+            found = []
+            for top in mod.SCAN_DIRS:
+                for dirpath, _dirs, names in os.walk(top_root / top):
+                    for name in names:
+                        found.append(Path(dirpath, name).relative_to(top_root).as_posix())
+            return sorted(found), None
+
+        outcomes = []
+        out = io.StringIO()
+        for lister in (mod._tracked, walk):
+            mod._tracked = lister
+            with contextlib.redirect_stdout(out):
+                outcomes.append(mod.main(["--root", str(root), "--floor", "3"]))
+        self.assertEqual(outcomes, [0, 1])
+        self.assertIn("count 5, floor 3", out.getvalue())
+
+    def test_unreadable_git_listing_fails_closed(self) -> None:
+        root = self._root({"tools/one.md": self._line("decision id") + "\n"}, git=False)
+        (root / ".git").write_text("gitdir: missing-git-dir\n", encoding="utf-8")
+        result = self._run(root, 1)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        # The repository guard runs before the listing and refuses first.
+        self.assertIn("cannot read the git file listing: could not confirm", result.stderr)
+        self.assertIn("never a pass", result.stderr)
+
+    def test_widened_patterns_count_and_flip(self) -> None:
+        import contextlib
+
+        for index, (family, parts) in enumerate(self.WIDENED_LINES):
+            line = "".join(parts)
+            with self.subTest(line=line):
+                root = self._root({"tools/one.md": "clean\n" + line + "\n"})
+                result = self._run(root, 1)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn(f"  {family}: 1\n", result.stdout)
+                # Flip: the narrow pattern does not see the line.
+                mod = load_linter_module(self.SCRIPT, f"lint_internal_work_refs_narrow_{index}")
+                mod.COMPILED = [
+                    (name, re.compile(self.NARROW_PATTERNS[name])
+                     if name in self.NARROW_PATTERNS else rx)
+                    for name, rx in mod.COMPILED]
+                with contextlib.redirect_stdout(io.StringIO()):
+                    flipped = mod.main(["--root", str(root), "--floor", "1"])
+                self.assertEqual(flipped, 1)
+
+    def test_bounded_work_item_lookalikes_flip(self) -> None:
+        import contextlib
+
+        for index, parts in enumerate(self.BOUNDED_LOOKALIKES):
+            line = "".join(parts)
+            with self.subTest(line=line):
+                root = self._root({"tools/one.md": line + "\n"})
+                mod = load_linter_module(self.SCRIPT, f"lint_internal_work_refs_bound_{index}")
+                outcomes = []
+                with contextlib.redirect_stdout(io.StringIO()):
+                    outcomes.append(mod.main(["--root", str(root), "--floor", "0"]))
+                # Flip: the unbounded pattern, with no # lookbehind, counts it.
+                mod.COMPILED = [
+                    (name, re.compile(self.UNBOUNDED_WORK_ITEM)
+                     if name == "work item 3bNNN" else rx)
+                    for name, rx in mod.COMPILED]
+                with contextlib.redirect_stdout(io.StringIO()):
+                    outcomes.append(mod.main(["--root", str(root), "--floor", "0"]))
+                self.assertEqual(outcomes, [0, 1])
+
+    def test_redirected_index_refuses_and_flips(self) -> None:
+        import contextlib
+        from unittest import mock
+
+        root = self._three_line_root()
+        # A second index outside the git directory, listing one fixture file.
+        other = root / "other-index"
+        subprocess.run(["git", "-C", str(root), "add", "--", ".claude/skills/demo/tools/a.py"],
+                       check=True, capture_output=True,
+                       env={**os.environ, "GIT_INDEX_FILE": str(other)})
+        missing = root / "missing-index"
+        mod = load_linter_module(self.SCRIPT, "lint_internal_work_refs_index")
+        for index in (missing, other):
+            with self.subTest(index=index.name):
+                err = io.StringIO()
+                with mock.patch.dict(os.environ, {"GIT_INDEX_FILE": str(index)}):
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        with contextlib.redirect_stderr(err):
+                            code = mod.main(["--root", str(root), "--floor", "0"])
+                self.assertEqual(code, 2, err.getvalue())
+                self.assertIn("GIT_INDEX_FILE in the environment", err.getvalue())
+                self.assertIn("never a pass", err.getvalue())
+        # Flip: with the guard taken out, the redirected index is counted (2,
+        # not the tree's 3).
+        mod._own_git_refusal = lambda _root: None
+        out = io.StringIO()
+        with mock.patch.dict(os.environ, {"GIT_INDEX_FILE": str(other)}):
+            with contextlib.redirect_stdout(out):
+                with contextlib.redirect_stderr(io.StringIO()):
+                    flipped = mod.main(["--root", str(root), "--floor", "2"])
+        self.assertEqual(flipped, 0, out.getvalue())
+        self.assertIn("count 2, floor 2", out.getvalue())
+        # With the empty-listing check out too, the missing index gives the
+        # reported fault: count 0 passing a floor of 0.
+        mod._listing_refusal = lambda _listed: None
+        out = io.StringIO()
+        with mock.patch.dict(os.environ, {"GIT_INDEX_FILE": str(missing)}):
+            with contextlib.redirect_stdout(out):
+                with contextlib.redirect_stderr(io.StringIO()):
+                    flipped = mod.main(["--root", str(root), "--floor", "0"])
+        self.assertEqual(flipped, 0, out.getvalue())
+        self.assertIn("count 0, floor 0", out.getvalue())
+
+    def test_empty_listing_cannot_evaluate_and_flips(self) -> None:
+        import contextlib
+
+        line = self._line("decision id") + "\n"
+        # git init with nothing staged: the listing holds no file at all.
+        root = self._root({".claude/untracked.md": line}, git=False, claude_file=False)
+        self._git(root, "init", "-q")
+        result = self._run(root, 0)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("lists no tracked file under .claude/", result.stderr)
+        self.assertNotIn("count 0", result.stdout)
+        # A listing with tracked files only outside .claude/ refuses too.
+        outside = self._root({"tools/one.md": line}, claude_file=False)
+        result = self._run(outside, 1)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("lists no tracked file under .claude/", result.stderr)
+        # Flip: with the check taken out, the empty listing gives a count of 0.
+        mod = load_linter_module(self.SCRIPT, "lint_internal_work_refs_empty")
+        mod._listing_refusal = lambda _listed: None
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            flipped = mod.main(["--root", str(root), "--floor", "0"])
+        self.assertEqual(flipped, 0, out.getvalue())
+        self.assertIn("count 0, floor 0", out.getvalue())
+
+    def test_unseen_work_item_spellings_match_the_residual_and_flip(self) -> None:
+        import contextlib
+
+        mod = load_linter_module(self.SCRIPT, "lint_internal_work_refs_unseen")
+        residual = " ".join(mod.RESIDUAL.split())
+        self.assertIn("an optional suffix of lowercase letters and digits that "
+                      "begins with a letter g to z, ending at a word boundary",
+                      residual)
+        self.assertIn("an id whose digits or suffix run straight into an "
+                      "uppercase letter or an underscore", residual)
+        for index, parts in enumerate(self.UNSEEN_WORK_ITEMS):
+            line = "".join(parts)
+            with self.subTest(line=line):
+                root = self._root({"tools/one.md": line + "\n"})
+                result = self._run(root, 0)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn("count 0, floor 0", result.stdout)
+                # Flip: a pattern that takes uppercase letters and
+                # underscores in the suffix sees the line.
+                flip = load_linter_module(
+                    self.SCRIPT, f"lint_internal_work_refs_unseen_{index}")
+                flip.COMPILED = [
+                    (name, re.compile(self.CASE_BLIND_WORK_ITEM)
+                     if name == "work item 3bNNN" else rx)
+                    for name, rx in flip.COMPILED]
+                with contextlib.redirect_stdout(io.StringIO()):
+                    flipped = flip.main(["--root", str(root), "--floor", "0"])
+                self.assertEqual(flipped, 1)
+
+    def test_listing_refusal_names_what_it_tests_and_flips(self) -> None:
+        import contextlib
+
+        line = self._line("decision id") + "\n"
+        # Tracked files only under a root tools/: no tracked file under
+        # .claude/, and the index is neither empty nor redirected.
+        root = self._root({"tools/one.md": line}, claude_file=False)
+        result = self._run(root, 1)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("lists no tracked file under .claude/, so tracked files "
+                      "under a root tools/ or tests/ alone are not counted",
+                      result.stderr)
+        self.assertNotIn("redirected index", result.stderr)
+        mod = load_linter_module(self.SCRIPT, "lint_internal_work_refs_refusal")
+        doc = " ".join(mod._listing_refusal.__doc__.split())
+        self.assertIn("whether ``listed`` holds a path under ``.claude/``", doc)
+        self.assertIn("tracked files under a root ``tools/`` or ``tests/`` alone", doc)
+        # Flip: with the check taken out, that listing is counted (1, not 0).
+        mod._listing_refusal = lambda _listed: None
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            flipped = mod.main(["--root", str(root), "--floor", "1"])
+        self.assertEqual(flipped, 0, out.getvalue())
+        self.assertIn("count 1, floor 1", out.getvalue())
 
 
 if __name__ == "__main__":
