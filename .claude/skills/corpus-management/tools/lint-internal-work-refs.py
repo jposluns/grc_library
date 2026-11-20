@@ -111,7 +111,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.append(str(Path(__file__).resolve().parent))
 import lint_common  # noqa: E402  (this file's own tools directory)
 
 REPO_ROOT = Path(__file__).resolve().parents[4]

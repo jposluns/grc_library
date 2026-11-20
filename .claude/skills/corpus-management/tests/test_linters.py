@@ -47928,7 +47928,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-hooks-syntax.py OWN F 38a691979f4132d8325eb26b1f36237aacfb3dccd3150e722f4e2f5941ba12b7
         lint-index-header-parity.py OWN F 939dbbc98052f583961522b2bda795a4513f8caef9b32330644ebd5ac387f790
         lint-internal-references.py CWD F e13572ec28ae1327efcfdf3c25540ce89e020ce9364023d725a08900fe9c5e45
-        lint-internal-work-refs.py OWN F ca9aaf11fc83962f2ed4bbfb9ac39e2dceef1578b5576acfbc2e942b012c6367
+        lint-internal-work-refs.py OWN F c0f5064e1b8f4d53e83a92d69ccb0fccb65c7703047e4ceb65cf3662a1ad7274
         lint-intra-doc-refs.py CWD F 221b24c6f3a5e9b788349f773792cb595f7e42ef0659504d51a29335045f82e3
         lint-isolated-launch.py NO_FS F 7ae93fc2d16ae06511bd9737df79b734923ec7a3edcac66ebd900883b71bce81
         lint-language.py ROOT F 1860b2f568b226210676a0cf5746b2d04b83f6d6627658cf0e05175c25fcf7bc
