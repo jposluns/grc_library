@@ -269,6 +269,7 @@ run_gate "Table cell-count audit"                                python3 .claude
 run_gate "Isolated-launch import audit"                          python3 .claude/skills/corpus-management/tools/lint-isolated-launch.py
 run_gate "Baseline-pin integrity audit"                          python3 .claude/skills/corpus-management/tools/lint-baseline-pin.py
 run_gate "Public hooks syntax and registration-parity audit"     python3 .claude/skills/corpus-management/tools/lint-hooks-syntax.py
+run_gate "Internal work reference floor audit"                    python3 .claude/skills/corpus-management/tools/lint-internal-work-refs.py
 
 # ----------------------------------------------------------------------
 # Summary

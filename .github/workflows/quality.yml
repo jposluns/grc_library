@@ -73,6 +73,9 @@ jobs:
       - name: Public hooks syntax and registration-parity audit
         run: python3 .claude/skills/corpus-management/tools/lint-hooks-syntax.py
 
+      - name: Internal work reference floor audit
+        run: python3 .claude/skills/corpus-management/tools/lint-internal-work-refs.py
+
       - name: Web generator health check
         run: python3 .web/build.py --check
 

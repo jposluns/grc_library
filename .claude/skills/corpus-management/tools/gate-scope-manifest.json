@@ -97,6 +97,7 @@
       "lint-gate-citation-inventory.py",
       "lint-gate-count-consistency.py",
       "lint-hooks-syntax.py",
+      "lint-internal-work-refs.py",
       "lint-isolated-launch.py",
       "lint-retention-consistency.py",
       "lint-scan-scope-parity.py",
