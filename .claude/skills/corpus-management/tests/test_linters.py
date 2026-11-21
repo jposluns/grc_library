@@ -4691,6 +4691,84 @@ class ShallNearUncertaintyTests(LinterTestCase):
             f"a shall-near-uncertainty phrase inside a ~~~ fence must be "
             f"skipped.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
+    def test_backticked_marker_beside_shall_passes_bare_marker_fails(self) -> None:
+        # A marker inside an inline code span is quoted, not used, so the
+        # CLI passes on it; the same line with the marker bare still fails.
+        quoted = self.make_fixture(
+            "standard-shall-backticked-todo.md",
+            VALID_METADATA + "\n\nThe organization shall act on `TODO 3.4` first.\n",
+        )
+        result = run_linter(".claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py", quoted)
+        self.assertEqual(
+            result.returncode, 0,
+            f"a backticked uncertainty marker must not count.\nstdout:\n"
+            f"{result.stdout}\nstderr:\n{result.stderr}")
+        bare = self.make_fixture(
+            "standard-shall-bare-todo.md",
+            VALID_METADATA + "\n\nThe organization shall act on TODO 3.4 first.\n",
+        )
+        self.assertLinterFails(
+            run_linter(".claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py", bare))
+
+    def test_unmatched_double_backtick_run_does_not_hide_marker(self) -> None:
+        # A double-backtick run with no double-backtick partner on its line
+        # opens no span, so the bare marker after it still fails the CLI.
+        fixture = self.make_fixture(
+            "standard-shall-unmatched-run-todo.md",
+            VALID_METADATA + "\n\nSee `` TODO ` then the organization shall act.\n",
+        )
+        self.assertLinterFails(
+            run_linter(".claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py", fixture))
+
+    def test_reported_marker_is_the_source_text(self) -> None:
+        # The marker is matched on the line with each code span replaced by one
+        # stand-in character, but the finding reports the marker as written in
+        # the source line. A span before the marker shifts the stripped offsets,
+        # so the report maps them back to the source rather than slicing the
+        # source line with them.
+        rows = [
+            ("spans-before", "See `abc` and `defgh` then TODO; the organization shall act.",
+             "[near TODO]"),
+            ("span-before-bracket", "See `abc` first. [Unverified] The organization shall act.",
+             "[near [Unverified]]"),
+        ]
+        for name, line, reported in rows:
+            with self.subTest(name=name):
+                fixture = self.make_fixture(
+                    f"standard-shall-reported-marker-{name}.md",
+                    VALID_METADATA + "\n\n" + line + "\n",
+                )
+                result = run_linter(
+                    ".claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py", fixture)
+                self.assertLinterFails(result, reported + " " + line)
+
+    def test_text_on_two_sides_of_span_never_forms_marker(self) -> None:
+        # Each code span is replaced by one character that is neither whitespace
+        # nor a word character, so no marker pattern of the live vocabulary (each
+        # joins its words with whitespace) can match across a span: the text on
+        # the two sides of a span never forms a marker. With each span replaced
+        # by a space, every row was flagged with a marker its source line does
+        # not hold; the first three rows are the review's probes.
+        rows = [
+            ("draft-revision", "The organization shall act. Draft `SP 800-53` Revision 5 applies."),
+            ("draft-glued-month", "The organization shall act. Draft`x`May applies."),
+            ("bracket-glued", "The organization shall act. [Draft`1`Reference]"),
+            ("draft-reference", "The organization shall act. Draft `foo` Reference here."),
+            ("bracket-spaced", "The organization shall act. [Draft `x` Reference]"),
+        ]
+        for name, line in rows:
+            with self.subTest(name=name):
+                fixture = self.make_fixture(
+                    f"standard-shall-span-no-join-{name}.md",
+                    VALID_METADATA + "\n\n" + line + "\n",
+                )
+                result = run_linter(
+                    ".claude/skills/corpus-management/tools/lint-shall-near-uncertainty.py", fixture)
+                self.assertEqual(
+                    result.returncode, 0,
+                    f"text on the two sides of a code span must not form a marker.\n"
+                    f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
 
 class RefAbsenceClaimsTests(LinterTestCase):
     """Gate 104: line-bound marker binding, claim detection and marker checks.
@@ -11390,6 +11468,28 @@ class ReadmeVersionRiseOnPrTests(DeltaGateRepoTestCase):
                         1, "README.md at the merge base (", "it has no field")
         self.assertRise(self._check(None, self._readme("2026.11.93")),
                         1, "README.md at the merge base (", "there is no README.md")
+
+    def test_malformed_field_at_either_end_flagged(self) -> None:
+        # A malformed value is a finding that names its end, not a version compared: a head
+        # with a suffix passed as a rise (2026.11.94-rc1 read as 2026.11.94), and a merge base
+        # with month 13 made a later December head read as a fall.
+        self.assertRise(self._check(self._readme("2026.11.93"), self._readme("2026.11.94-rc1")),
+                        1, "README.md at the head (", "its value is not a valid YYYY.MM.patch")
+        result = self._check(self._readme("2026.13.0"), self._readme("2026.12.5"))
+        self.assertRise(result, 1, "README.md at the merge base (",
+                        "its value is not a valid YYYY.MM.patch")
+        self.assertNotIn("below 2026.13.0", result.stdout + result.stderr)
+
+    def test_prose_mention_of_the_label_is_not_the_field(self) -> None:
+        # A label inside a line is a prose mention, not the field: the field after it is
+        # read, and a README whose only label is inside a line has no field.
+        prose_first = ("# Library\n\nThe **Library Version:** field names the version.\n\n"
+                       "**Library Version:** 2026.11.93\\\n**Date:** 2026-11-13\n\nA.\n")
+        self.assertRise(self._check(prose_first, self._readme("2026.11.94")),
+                        0, "OK: README.md Library Version 2026.11.94")
+        prose_only = "# Library\n\nThe **Library Version:** 2026.11.94 is the version.\n"
+        self.assertRise(self._check(self._readme("2026.11.93"), prose_only),
+                        1, "README.md at the head (", "it has no field")
 
     # The tool's refusals, quoted exactly as it prints them.
     BASE_REFUSAL = ("ERROR: --base runs the README version-floor check alone, which reads "
@@ -31528,7 +31628,9 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
     def test_runs_clean_on_corpus_at_head(self) -> None:
         # Smoke test: every weekly or monthly range of the checkout's root that the detailed
         # mirror holds the period of covers exactly the mirror's PRs for it, and the mirror passes
-        # its own checks.
+        # its own checks. The test asserts the exit code only: when the mirror holds none of the
+        # root's periods the gate compares no range, exits 0 and prints a DEGRADED line, and this
+        # test still passes, since it does not check for that line.
         result = self._head_range_result()
         if result is None:
             self.skipTest(
@@ -31558,12 +31660,136 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
         self.assertIn('resolve_working(DETAILED_MIRROR_REL[len(".working/"):])', source)
         self.assertNotIn(Path(legacy).stem, source)
 
-    def test_store_holding_only_the_legacy_mirror_is_not_read(self) -> None:
+    # The process-wide open watch the legacy-mirror test installs on first use (None until then).
+    _OPEN_WATCH = None
+
+    @classmethod
+    def _open_watch(cls) -> dict:
+        # One process-wide audit hook (an audit hook cannot be removed, so it is installed once
+        # and stays inert while nothing is watched). It handles two audit events only. Builtin
+        # open, io.open, os.open, Path.read_text and Path.open all raise "open", so the hook
+        # sees each direct open of a watched path whichever of these makes it, not only reads
+        # through one patched helper; it sees each open by the path as given, resolved against
+        # the current working directory. A process started through subprocess.Popen raises
+        # "subprocess.Popen" and is recorded for a watched path when one of its argument words,
+        # joined to the process working directory (the cwd passed to Popen when it is a str,
+        # bytes or path-like object, else the current one) and resolved with os.path.realpath,
+        # equals that path's real path, or when a word contains the real path or the path as
+        # given. So an absolute or a relative argument naming a watched file is recorded; a
+        # relative path embedded in a longer word (for example --file=name) is not.
+        # Residuals: the watch is a best-effort layer, and its list of unrecorded routes is
+        # NOT exhaustive. Some verified examples follow; other routes may exist. (a) Reads
+        # from another thread during the busy window: the hook sets a process-wide "busy"
+        # flag while it calls os.path.realpath and os.getcwd and ignores every audit event
+        # while that flag is set, so an open or a process start made by another thread while
+        # it is set is not recorded. (b) An open relative to a directory descriptor (os.open
+        # with dir_fd, or an opener): the "open" event carries the path as given but not the
+        # descriptor, so a relative path is resolved against the current working directory
+        # instead. A read of a watched file through the descriptor is then neither recorded
+        # nor refused unless the same relative path also names a watched file from the
+        # current working directory, and an open of another file whose relative path names a
+        # watched file from the current working directory is recorded and, for a refused
+        # path, refused, though it does not read that file. (c) A second name for the file,
+        # such as a hard link: os.path.realpath resolves symbolic links but not hard links,
+        # so an open through the other name is seen under its own path and is neither
+        # recorded nor refused. (d) Process-start routes other than subprocess.Popen
+        # (os.system, os.posix_spawn, the os.exec functions) raise other events and are not
+        # recorded. (e) A subprocess.Popen process whose executable argument is a watched
+        # file that no argument word names: the hook checks the argument words only, not the
+        # executable, so such a start is not recorded.
+        # The decisive check is the legacy-mirror test's comparison with the watched file
+        # absent: the same run must give the same exit and output, so any read of that file,
+        # recorded or not, listed above or not, that changes the result fails it. A read by
+        # any unrecorded route that leaves the gate's result unchanged is not caught, by
+        # design, because the test asserts that the result does not depend on the file.
+        # Each watched open is recorded in "opened", and an in-process open of a path in "refuse"
+        # raises PermissionError, so such a read fails loudly. A subprocess.Popen process naming
+        # a refused path is only recorded, never refused: the caller's check that "opened" stays
+        # empty fails it.
+        if cls._OPEN_WATCH is None:
+            watch = {"record": {}, "refuse": set(), "opened": [], "busy": False}
+
+            def hook(event, args):
+                if not watch["record"] or watch["busy"] or not args:
+                    return
+                if event == "subprocess.Popen":
+                    argv = args[1] if len(args) > 1 else None
+                    if isinstance(argv, (str, bytes, os.PathLike)):
+                        argv = [argv]
+                    words = [os.fsdecode(a) for a in (argv or [])
+                             if isinstance(a, (str, bytes, os.PathLike))]
+                    cwd = args[2] if len(args) > 2 else None
+                    resolved = set()
+                    watch["busy"] = True
+                    try:
+                        base = (os.fsdecode(cwd) if isinstance(cwd, (str, bytes, os.PathLike))
+                                else os.getcwd())
+                        for w in words:
+                            try:
+                                resolved.add(os.path.realpath(os.path.join(base, w)))
+                            except (OSError, ValueError):
+                                pass
+                    except (OSError, ValueError):
+                        pass
+                    finally:
+                        watch["busy"] = False
+                    for real, given in list(watch["record"].items()):
+                        if real in resolved or any(real in w or str(given) in w for w in words):
+                            watch["opened"].append(given)
+                    return
+                if event != "open" or not isinstance(args[0], (str, bytes, os.PathLike)):
+                    return
+                watch["busy"] = True
+                try:
+                    real = os.path.realpath(os.fsdecode(args[0]))
+                except (OSError, ValueError):
+                    return
+                finally:
+                    watch["busy"] = False
+                if real in watch["record"]:
+                    watch["opened"].append(watch["record"][real])
+                    if real in watch["refuse"]:
+                        raise PermissionError(
+                            13, "test fixture: the predecessor legacy mirror must not be read", real)
+
+            sys.addaudithook(hook)
+            cls._OPEN_WATCH = watch
+        return cls._OPEN_WATCH
+
+    def test_gate_result_does_not_depend_on_the_legacy_mirror(self) -> None:
         # A store holding only the predecessor's legacy mirror supplies no mirror to
         # this gate: the default run looks up only MIRROR_REL, finds none, does not
         # read the legacy file and takes its no-mirror path (the root's own checks,
         # then the DEGRADED skip line). The legacy file holds a pre-epoch record that
-        # fails the gate if it is read as the mirror.
+        # fails the gate if it is read as the mirror. The check does not rest on the read
+        # path: an audit hook records each direct open of the legacy file (builtin open,
+        # os.open, Path.read_text), seen by the path as given, resolved against the current
+        # working directory, and each process started through subprocess.Popen with an
+        # argument word that, joined to the process working directory (the cwd passed to
+        # Popen when it is a str, bytes or path-like object, else the current one) and
+        # resolved with os.path.realpath, equals the file's real path, or that contains its
+        # real path or its path as given; so an absolute or a relative argument naming it is
+        # recorded, and a relative path embedded in a longer word is not. Each in-process
+        # open also raises; such a process is only recorded, not refused, and then fails the
+        # assertion that nothing was opened. The watch is a best-effort layer, and its list
+        # of unrecorded routes is NOT exhaustive; some verified examples, with other routes
+        # possible: reads from another thread during the hook's busy window, an open relative
+        # to a directory descriptor (os.open with dir_fd, or an opener), a second name for
+        # the file such as a hard link (seen under its own path), process-start routes other
+        # than subprocess.Popen (os.system, os.posix_spawn, the os.exec functions), and a
+        # subprocess.Popen process whose executable argument is the file while no argument
+        # word names it. The decisive check is the comparison with the legacy file absent:
+        # the same run must give the same exit and output, so the gate's result does not
+        # depend on that file, and any read of it, recorded or not, listed above or not, that
+        # changes the result fails this test. A read by any unrecorded route that leaves the
+        # gate's result unchanged is not caught, by design, because this test asserts that
+        # the result does not depend on the file. The run_gate helper makes each default run.
+        # The watch also covers this repository's mirror in the store (store_mirror, at
+        # MIRROR_REL), recorded the same way but never refused, so the positive control can
+        # confirm the gate reads it. A positive control follows: once the same store also
+        # holds MIRROR_REL, the default run reads that file (seen by both the patched helper
+        # and the audit hook), compares the root's range against it and prints no DEGRADED
+        # line, so a gate whose default run always degrades cannot pass this test.
         import contextlib
         from unittest import mock
         mod = load_linter_module(
@@ -31571,6 +31797,7 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             "_mp_legacy_read")
         real_resolve, real_read = mod.resolve_working, mod.read_surface
         looked_up, read = [], []
+        watch = self._open_watch()
         with tempfile.TemporaryDirectory() as tmp:
             repo, store = Path(tmp) / "repo", Path(tmp) / "store"
             (repo / ".working").mkdir(parents=True)
@@ -31580,6 +31807,8 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
             legacy.parent.mkdir(parents=True)
             legacy.write_text("**2026-10-30 | 2026.10.1760 | PR #3127** - old record\n",
                               encoding="utf-8")
+            store_mirror = store / self.MIRROR_REL
+            moved_away = Path(tmp) / "legacy-mirror-moved-away"
 
             def resolve(relpath, **kwargs):
                 # The temporary repository stands in for the checkout, so no private
@@ -31591,22 +31820,153 @@ class ChangelogMirrorHeaderParityTests(LinterTestCase):
                 read.append(Path(path))
                 return real_read(path)
 
-            out = io.StringIO()
-            with mock.patch.dict(os.environ, {"GRC_STORE": str(store)}), \
-                    mock.patch.object(mod, "REPO_ROOT", repo), \
-                    mock.patch.object(mod, "resolve_working", resolve), \
-                    mock.patch.object(mod, "read_surface", read_surface), \
-                    contextlib.redirect_stdout(out):
-                # The store is live: asked for the legacy file by name, the lookup finds it.
+            def run_gate():
+                # run_gate: one default run; returns its exit, its output and new watch records.
+                out = io.StringIO()
+                opened_before = len(watch["opened"])
+                with mock.patch.dict(os.environ, {"GRC_STORE": str(store)}), \
+                        mock.patch.object(mod, "REPO_ROOT", repo), \
+                        mock.patch.object(mod, "resolve_working", resolve), \
+                        mock.patch.object(mod, "read_surface", read_surface), \
+                        contextlib.redirect_stdout(out):
+                    got = mod.main([])
+                return got, out.getvalue(), watch["opened"][opened_before:]
+
+            # The store is live: asked for the legacy file by name, the lookup finds it.
+            with mock.patch.dict(os.environ, {"GRC_STORE": str(store)}):
                 found = real_resolve(self.PREDECESSOR_LEGACY_MIRROR_REL, repo_root=repo)
-                got = mod.main([])
+            watch["record"].update({os.path.realpath(legacy): legacy,
+                                    os.path.realpath(store_mirror): store_mirror})
+            watch["refuse"].add(os.path.realpath(legacy))
+            try:
+                got, out, opened = run_gate()
+                looked_up_absent, read_absent = len(looked_up), len(read)
+                # The same run with the legacy file absent (moved aside, then put back).
+                legacy.rename(moved_away)
+                got_absent, out_absent, opened_absent = run_gate()
+                moved_away.rename(legacy)
+                # Positive control: the same store now also holds this repository's mirror.
+                root_changelog.write_text(self.WEEKLY_RANGE_ROOT, encoding="utf-8")
+                store_mirror.write_text(self._new_headers(3, 2, 1), encoding="utf-8")
+                looked_up_control, read_control = len(looked_up), len(read)
+                got_control, out_control, opened_control = run_gate()
+            finally:
+                watch["record"].clear()
+                watch["refuse"].clear()
+            absent_lookups = looked_up[looked_up_absent:looked_up_control]
+            looked_up, control_lookups = looked_up[:looked_up_absent], looked_up[looked_up_control:]
+            read, control_reads = read[:read_absent], read[read_control:]
         self.assertEqual(found, legacy)
         self.assertEqual(looked_up, [self.MIRROR_REL])
         self.assertIn(root_changelog, read)
         self.assertNotIn(legacy, read)
-        self.assertEqual(got, 0, out.getvalue())
-        self.assertIn("DEGRADED: gate 59 skipped", out.getvalue())
-        self.assertNotIn("#3127", out.getvalue())
+        self.assertEqual(opened, [], out)
+        self.assertEqual(got, 0, out)
+        self.assertIn("DEGRADED: gate 59 skipped", out)
+        self.assertNotIn("#3127", out)
+        self.assertEqual(absent_lookups, [self.MIRROR_REL])
+        self.assertEqual(opened_absent, [], out_absent)
+        self.assertEqual((got_absent, out_absent), (got, out))
+        self.assertEqual(control_lookups, [self.MIRROR_REL])
+        self.assertIn(store_mirror, control_reads)
+        self.assertNotIn(legacy, control_reads)
+        self.assertIn(store_mirror, opened_control)
+        self.assertNotIn(legacy, opened_control)
+        self.assertEqual(got_control, 0, out_control)
+        self.assertIn("every compared root weekly or monthly range (1 compared)", out_control)
+        self.assertNotIn("DEGRADED", out_control)
+        self.assertNotIn("#3127", out_control)
+
+    def test_legacy_mirror_test_fails_for_a_relative_process_path_read(self) -> None:
+        # A variant gate whose default run first starts a process through subprocess.Popen
+        # that reads the legacy mirror by a relative path (python3 -m tokenize, its exit and
+        # output discarded, so the run's result is the same with the file absent), then runs
+        # the real gate. The legacy-mirror test must fail for it: the watch resolves the
+        # relative argument against the process working directory and records the read.
+        # One case passes the store as the cwd; the other passes no cwd and names the file
+        # relative to the current working directory.
+        from unittest import mock
+        name = "test_gate_result_does_not_depend_on_the_legacy_mirror"
+        real_load = load_linter_module
+        rel = self.PREDECESSOR_LEGACY_MIRROR_REL
+        for with_cwd in (True, False):
+            with self.subTest(with_cwd=with_cwd):
+                def variant_load(*a, **k):
+                    mod = real_load(*a, **k)
+                    real_main = mod.main
+
+                    def main(argv):
+                        store = os.environ["GRC_STORE"]
+                        if with_cwd:
+                            arg, cwd = rel, store
+                        else:
+                            arg, cwd = os.path.relpath(os.path.join(store, rel)), None
+                        self.assertFalse(os.path.isabs(arg), arg)
+                        subprocess.Popen([sys.executable, "-I", "-m", "tokenize", arg], cwd=cwd,
+                                         stdout=subprocess.DEVNULL,
+                                         stderr=subprocess.DEVNULL).wait()
+                        return real_main(argv)
+
+                    mod.main = main
+                    return mod
+
+                case = type(self)(name)
+                with mock.patch.dict(getattr(type(self), name).__globals__,
+                                     {"load_linter_module": variant_load}):
+                    outcome = unittest.TestResult()
+                    case.run(outcome)
+                self.assertEqual(outcome.testsRun, 1)
+                self.assertEqual(outcome.errors, [])
+                self.assertEqual(len(outcome.failures), 1, outcome.failures)
+                self.assertIn(Path(rel).name, outcome.failures[0][1])
+
+    def test_legacy_mirror_test_fails_for_a_direct_read(self) -> None:
+        # A variant gate whose default run first reads the legacy mirror directly in process
+        # (builtin open, os.open or Path.read_text), ignores the OSError that read raises (so
+        # the run's result is the same with the file absent), then runs the real gate. The
+        # legacy-mirror test must fail for it, at its assertion that the watch recorded no
+        # open: the audit hook records the direct open whichever of these routes makes it.
+        from unittest import mock
+        name = "test_gate_result_does_not_depend_on_the_legacy_mirror"
+        real_load = load_linter_module
+        rel = self.PREDECESSOR_LEGACY_MIRROR_REL
+
+        def read_open(path):
+            with open(path, encoding="utf-8") as handle:
+                handle.read()
+
+        def read_os_open(path):
+            os.close(os.open(path, os.O_RDONLY))
+
+        def read_path(path):
+            Path(path).read_text(encoding="utf-8")
+
+        for route in (read_open, read_os_open, read_path):
+            with self.subTest(route=route.__name__):
+                def variant_load(*a, **k):
+                    mod = real_load(*a, **k)
+                    real_main = mod.main
+
+                    def main(argv):
+                        try:
+                            route(os.path.join(os.environ["GRC_STORE"], rel))
+                        except OSError:
+                            pass
+                        return real_main(argv)
+
+                    mod.main = main
+                    return mod
+
+                case = type(self)(name)
+                with mock.patch.dict(getattr(type(self), name).__globals__,
+                                     {"load_linter_module": variant_load}):
+                    outcome = unittest.TestResult()
+                    case.run(outcome)
+                self.assertEqual(outcome.testsRun, 1)
+                self.assertEqual(outcome.errors, [])
+                self.assertEqual(len(outcome.failures), 1, outcome.failures)
+                self.assertIn(Path(rel).name, outcome.failures[0][1])
+                self.assertIn("self.assertEqual(opened, [], out)", outcome.failures[0][1])
 
     def test_head_range_test_is_skipped_without_a_mirror(self) -> None:
         # No store and no fallback supplies the mirror: the head test reports a skip, never a pass.
@@ -37529,6 +37889,69 @@ class LibraryVersionMonotonicityTests(LinterTestCase):
         )
 
 
+def readme_version_form_table() -> tuple[tuple[str, tuple[int, int, int] | None], ...]:
+    """The README version field's accepted and refused forms, as rows of (README text,
+    (year, month, patch), or None for a refused form), generated from the field grammar in
+    lint-version-date-consistency.py, which quotes governance/specification-master-project.md
+    section 4.5. Each accepted row combines valid productions; each refused row breaks one
+    production and keeps the others valid, so its refusal is owed to that production."""
+    label = "**Library Version:**"
+    # year = 4DIGIT: "`YYYY` is the four-digit year", ASCII digits only.
+    years = (("2026", 2026), ("2027", 2027), ("1999", 1999))
+    bad_years = ("26", "202", "20266", "2O26", "\uff12\uff10\uff12\uff16",
+                 "\u0662\u0660\u0662\u0666", "")
+    # month = "0" %x31-39 / "1" %x30-32: "`MM` is the two-digit month", 01 to 12.
+    months = tuple((f"{month:02d}", month) for month in range(1, 13))
+    bad_months = ("00", "13", "19", "20", "99", "1", "9", "011", "1\u0661", "")
+    # patch = "0" / %x31-39 *DIGIT: "a sequential counter" that "resets to `0`".
+    patches = (("0", 0), ("7", 7), ("10", 10), ("42", 42), ("102", 102), ("999999", 999999))
+    bad_patches = ("00", "01", "007", "", "\u0660", "1\u0663")
+    # sep = 1*(SP / HTAB): the value sits on the label's line.
+    seps = (" ", "\t", "  ", " \t")
+    bad_seps = ("", "\n", "\n\n", "\r\n", " \n", "\t\n\n", "\x0b", "\x0c", "\u00a0", "\u2028")
+    # end = SP / HTAB / CR / LF / "\" [CR] LF / end-of-text, looked at and not consumed.
+    ends = (" (CalVer, library-wide)\n", "\t(CalVer)\n", "  \n", "\r\n", "\\\n", "\\\r\n",
+            "\n", "")
+    # Any other character joined to the value, then text or the end of the text; a
+    # backslash is refused unless a line feed (after an optional carriage return) follows.
+    joined = (".", ".7", "-rc1", "+b1", "a", ":1", "/1", ",1", ",", ";", ")", ":", "_1",
+              "\u00a0", "\\1", "\\.7", "\\-rc1", "\\x", "\\ ", "\\", "\\\r")
+    # Whole values that are not year "." month "." patch.
+    bad_values = ("2026.11", "2026", "2026.11.", "2026-11-0", "2026/11/0", "v2026.11.0",
+                  "2026..0", "2026.11..0", ".2026.11.0")
+    # field = line-start label ...: a label inside a line is a prose mention, not the field.
+    prefixes = ("The ", "- ", "> ", " ", "\t", "x", "**Date:** 2026-11-13 ")
+    refused_tails = (" (CalVer)\n", "\n", "")
+    rows: list[tuple[str, tuple[int, int, int] | None]] = []
+    for year, year_value in years:
+        for month, month_value in months:
+            for patch, patch_value in patches:
+                for end in ends:
+                    rows.append((f"{label} {year}.{month}.{patch}{end}",
+                                 (year_value, month_value, patch_value)))
+    for sep in seps:
+        for end in ends:
+            rows.append((f"{label}{sep}2026.11.102{end}", (2026, 11, 102)))
+    for prefix in prefixes:
+        rows.append((f"# Library\n\n{prefix}{label} field.\n\n{label} 2026.11.5\\\n",
+                     (2026, 11, 5)))
+    for tail in refused_tails:
+        rows.extend((f"{label} {year}.11.102{tail}", None) for year in bad_years)
+        rows.extend((f"{label} 2026.{month}.102{tail}", None) for month in bad_months)
+        rows.extend((f"{label} 2026.11.{patch}{tail}", None) for patch in bad_patches)
+        rows.extend((f"{label}{sep}2026.11.102{tail}", None) for sep in bad_seps)
+        rows.extend((f"{label} {value}{tail}", None) for value in bad_values)
+        rows.extend((f"{prefix}{label} 2026.11.102{tail}", None) for prefix in prefixes)
+    for version in ("2026.11.0", "2026.11.93"):
+        for character in joined:
+            for tail in (" (CalVer)\n", ""):
+                rows.append((f"{label} {version}{character}{tail}", None))
+    # The first field at the start of a line is the one read: a malformed first field is
+    # not passed over for a later valid one.
+    rows.append((f"{label} 2026.13.0\n{label} 2026.11.5\n", None))
+    return tuple(rows)
+
+
 class VersionDateConsistencyTests(LinterTestCase):
     """.claude/skills/corpus-management/tools/lint-version-date-consistency.py
 
@@ -37816,22 +38239,28 @@ class VersionDateConsistencyTests(LinterTestCase):
     # when weekly reading is switched off.
     EARLIER = "the version's YYYY.MM must not be earlier"
 
-    def test_case_v1_legacy_week_heading_readme_prior_month_flagged(self) -> None:
-        # Invariant 1, legacy form: entries dated 2026-06-01 carried the prior month's 2026.05.x.
+    def test_case_v1_inv3_legacy_week_heading_readme_prior_month_flagged(self) -> None:
+        # Case v1 of the tool's table (invariant 1, legacy form): entries dated 2026-06-01 carried the
+        # prior month's 2026.05.x. A week heading names no version, so invariant 1 has nothing
+        # to read here; invariant 3 (the README month not earlier than the week's) flags it.
         result = self._weekly_run("case-v1", "# Changelog\n\n## Week of 2026-06-01\n\n- A bullet.\n",
                                   "2026.05.144")
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("is the week of 2026-06-01; " + self.EARLIER, result.stdout)
 
-    def test_case_v2_bold_week_heading_readme_prior_month_flagged(self) -> None:
-        # Invariant 1, compact form: a 2026-07-01 entry carried 2026.06.0.
+    def test_case_v2_inv3_bold_week_heading_readme_prior_month_flagged(self) -> None:
+        # Case v2 of the tool's table (invariant 1, compact form): a 2026-07-01 entry carried
+        # 2026.06.0. A week heading names no version, so invariant 1 has nothing to read here;
+        # invariant 3 (the README month not earlier than the week's) flags it.
         result = self._weekly_run(
             "case-v2", "# Changelog\n\n**Week of 2026-07-06 (PRs #520-#521)**\n\nText.\n", "2026.06.0")
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("is the week of 2026-07-06; " + self.EARLIER, result.stdout)
 
-    def test_case_v3_single_pr_week_heading_readme_prior_month_flagged(self) -> None:
-        # Invariant 1, legacy form with its PR clause: the one-PR weekly form.
+    def test_case_v3_inv3_single_pr_week_heading_readme_prior_month_flagged(self) -> None:
+        # Case v3 of the tool's table (invariant 1, legacy form with its PR clause), on the
+        # one-PR weekly form. A week heading names no version, so invariant 1 has nothing to
+        # read here; invariant 3 (the README month not earlier than the week's) flags it.
         result = self._weekly_run(
             "case-v3", "# Changelog\n\n**Week of 2026-06-01 (PRs #99)**\n\nText.\n", "2026.05.144")
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
@@ -37875,6 +38304,177 @@ class VersionDateConsistencyTests(LinterTestCase):
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn(":7: **Week of 2026-12-07 (PRs #10-#14)**) is the week of 2026-12-07; "
                       + self.EARLIER, result.stdout)
+
+    # The README field's forms, from governance/specification-master-project.md section 4.5:
+    # "`YYYY` is the four-digit year", "`MM` is the two-digit month" and "`patch` is a
+    # sequential counter" that "resets to `0`". The section's own examples are the first
+    # four accepted rows.
+    ACCEPTED_VERSIONS = (("2026.05.0", (2026, 5, 0)), ("2026.05.7", (2026, 5, 7)),
+                         ("2026.06.0", (2026, 6, 0)), ("2026.12.42", (2026, 12, 42)),
+                         ("2026.01.0", (2026, 1, 0)), ("2026.11.102", (2026, 11, 102)))
+    # Nearby forms that must be refused: a month outside 01 to 12, a year or month of the
+    # wrong width, a patch with a leading zero, a missing patch, and a value with a dot,
+    # digit, letter, hyphen or plus sign joined after it. Non-ASCII digits, other joined
+    # characters and a value on a later line are refused by the three tests below them.
+    REFUSED_VERSIONS = ("2026.13.0", "2027.00.0", "2026.1.0", "2026.011.0", "26.11.0",
+                        "20266.11.0", "2026.11.00", "2026.11.007", "2026.11.0-rc1",
+                        "2026.11.0.7", "2026.11.0a", "2026.11.0+b1", "2026.11.", "2026.11")
+
+    def _forms_module(self, name):
+        return load_linter_module(
+            ".claude/skills/corpus-management/tools/lint-version-date-consistency.py",
+            f"_version_date_forms_{self._testMethodName}_{name}")
+
+    def test_readme_version_pattern_accepts_each_defined_form(self) -> None:
+        mod = self._forms_module("accepted")
+        for version, parsed in self.ACCEPTED_VERSIONS:
+            # Followed by text (as in the README), a backslash line break, a bare line end
+            # and the end of the text.
+            for tail in (" (CalVer, library-wide)\n", "\\\n", "\n", ""):
+                with self.subTest(version=version, tail=tail):
+                    self.assertEqual(mod.readme_calver(f"**Library Version:** {version}{tail}"),
+                                     parsed)
+
+    def test_readme_version_pattern_refuses_nearby_invalid_forms(self) -> None:
+        mod = self._forms_module("refused")
+        for version in self.REFUSED_VERSIONS:
+            for tail in (" (CalVer)\n", ""):
+                with self.subTest(version=version, tail=tail):
+                    self.assertIsNone(mod.readme_calver(f"**Library Version:** {version}{tail}"))
+
+    # Section 4.5 defines "`YYYY` is the four-digit year" and "`MM` is the two-digit
+    # month": the digits are ASCII 0 to 9. A str pattern's \d matched any Unicode digit,
+    # so a full-width year read as 2026 and an Arabic-Indic digit as part of the patch.
+    NON_ASCII_DIGIT_VERSIONS = ("\uff12\uff10\uff12\uff16.11.0", "2026.11.1\u0663",
+                                "\u0662\u0660\u0662\u0666.11.0", "2026.1\u0661.0",
+                                "2026.11.\u0660")
+
+    def test_readme_version_pattern_refuses_non_ascii_digits(self) -> None:
+        mod = self._forms_module("non_ascii")
+        for version in self.NON_ASCII_DIGIT_VERSIONS:
+            for tail in (" (CalVer)\n", ""):
+                with self.subTest(version=version, tail=tail):
+                    self.assertIsNone(mod.readme_calver(f"**Library Version:** {version}{tail}"))
+
+    # Only a space, tab, carriage return, line feed, a backslash line break (a backslash, an
+    # optional carriage return, then a line feed) or the end of the text may follow the
+    # value; any other character joined to it is refused, not cut off (2026.11.0:1 read as
+    # 2026.11.0 before the end was a positive lookahead, and 2026.11.0\.7 and
+    # 2026.11.0\-rc1 read as 2026.11.0 while any backslash could follow).
+    JOINED_TAILS = (":1", "/1", ",1", ",", ";", ")", ":", "_1", "\u00a0", "\\1", "\\.7",
+                    "\\-rc1", "\\x", "\\", "\\\r")
+
+    def test_readme_version_pattern_refuses_any_other_character_joined_after(self) -> None:
+        mod = self._forms_module("joined")
+        for version in ("2026.11.0", "2026.11.93"):
+            for joined in self.JOINED_TAILS:
+                for tail in (" (CalVer)\n", ""):
+                    with self.subTest(version=version, joined=joined, tail=tail):
+                        self.assertIsNone(mod.readme_calver(
+                            f"**Library Version:** {version}{joined}{tail}"))
+
+    def test_readme_version_pattern_accepts_each_allowed_separator_and_ending(self) -> None:
+        # The value follows the label after spaces or tabs and ends at a space, tab, CR, LF,
+        # backslash line break or the end of the text; each stays accepted.
+        mod = self._forms_module("allowed")
+        for separator in (" ", "\t", "  ", " \t"):
+            for tail in ("  \n", "\t(CalVer)\n", "\r\n", "\\\n", "\\\r\n", "\n", ""):
+                with self.subTest(separator=separator, tail=tail):
+                    self.assertEqual(
+                        mod.readme_calver(f"**Library Version:**{separator}2026.11.102{tail}"),
+                        (2026, 11, 102))
+
+    def test_readme_version_value_on_a_later_line_refused(self) -> None:
+        # The value sits on the label's line: a label with no value on its own line is a
+        # malformed field, not one whose value is read from a later line (\s+ crossed line
+        # ends, so "**Library Version:**\n\n2026.11.0" read as 2026.11.0).
+        mod = self._forms_module("later_line")
+        for gap in ("\n", "\n\n", "\r\n", " \n", "\t\n\n", "\x0b", "\x0c", "\u2028"):
+            text = f"**Library Version:**{gap}2026.11.0\n"
+            with self.subTest(gap=gap):
+                self.assertEqual(mod.readme_field(text)[0], True)
+                self.assertIsNone(mod.readme_calver(text))
+
+    MALFORMED = "the '**Library Version:**' field is not a valid 'YYYY.MM.patch'"
+
+    def test_readme_with_malformed_version_field_flagged(self) -> None:
+        # Each is a finding that names the field (exit 1, as a missing field is); before the
+        # value's end was anchored and its month bounded, each passed against a November
+        # week (2026.13.0 read as later than 2026-11).
+        for index, version in enumerate(("2026.13.0", "2026.11.0-rc1", "2026.11.0.7",
+                                         "2026.11.007")):
+            with self.subTest(version=version):
+                result = self._weekly_run(f"malformed-{index}", self.WEEKLY_ROOT, version)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn(self.MALFORMED, result.stdout)
+
+    def test_first_readme_field_is_the_one_read(self) -> None:
+        # A malformed first field is not passed over for a later valid one.
+        result = run_linter(
+            ".claude/skills/corpus-management/tools/lint-version-date-consistency.py",
+            "--changelog", self.make_fixture("fake-changelog-first-field.md", self.WEEKLY_ROOT),
+            "--readme", self.make_fixture(
+                "fake-readme-first-field.md",
+                "# Fake README\n\n**Library Version:** 2026.13.0\n\n**Library Version:** 2026.11.5\n"),
+        )
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(self.MALFORMED, result.stdout)
+
+    def test_current_readme_version_field_is_well_formed(self) -> None:
+        # The repository's own README still passes the anchored, month-bounded pattern.
+        mod = self._forms_module("current")
+        text = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIsNotNone(mod.readme_calver(text), "README.md Library Version is malformed")
+
+    # The generated table of README forms (readme_version_form_table above, from the field
+    # grammar the tool quotes); the forms the reviews found are rows of it.
+    VERSION_FORM_TABLE = readme_version_form_table()
+
+    def test_readme_version_grammar_table_accepts_each_accepted_row(self) -> None:
+        mod = self._forms_module("table_accepted")
+        rows = [(text, parsed) for text, parsed in self.VERSION_FORM_TABLE if parsed is not None]
+        self.assertIn(("# Library\n\nThe **Library Version:** field.\n\n"
+                       "**Library Version:** 2026.11.5\\\n", (2026, 11, 5)), rows)
+        self.assertEqual({parsed[1] for _, parsed in rows}, set(range(1, 13)))
+        for text, parsed in rows:
+            with self.subTest(text=text):
+                self.assertEqual(mod.readme_calver(text), parsed)
+
+    def test_readme_version_grammar_table_refuses_each_refused_row(self) -> None:
+        mod = self._forms_module("table_refused")
+        rows = [text for text, parsed in self.VERSION_FORM_TABLE if parsed is None]
+        for review_form in ("**Library Version:** 2026.11.0\\1",
+                            "**Library Version:** 2026.11.0\\.7",
+                            "**Library Version:** 2026.11.0\\-rc1",
+                            "**Library Version:** 2026.11.0\\x (CalVer)\n",
+                            "The **Library Version:** 2026.11.102\n"):
+            self.assertIn(review_form, rows)
+        for text in rows:
+            with self.subTest(text=text):
+                self.assertIsNone(mod.readme_calver(text))
+
+    def test_prose_mention_of_the_label_is_not_the_field(self) -> None:
+        # A label inside a line is a prose mention, not the field: the field after it is
+        # read (the prose mention was read as a malformed first field), and a README whose
+        # only label is inside a line has no field (its prose value was read as the field).
+        changelog = self.make_fixture("fake-changelog-prose.md", self.WEEKLY_ROOT)
+        readme = self.make_fixture(
+            "fake-readme-prose.md",
+            "# Fake README\n\nThe **Library Version:** field names the version.\n\n"
+            "**Library Version:** 2026.11.5\\\n**Date:** 2026-11-13\n")
+        result = run_linter(
+            ".claude/skills/corpus-management/tools/lint-version-date-consistency.py",
+            "--changelog", changelog, "--readme", readme)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn(self.MALFORMED, result.stdout)
+        prose_only = self.make_fixture(
+            "fake-readme-prose-only.md",
+            "# Fake README\n\nThe **Library Version:** 2026.11.5 is the version.\n")
+        result = run_linter(
+            ".claude/skills/corpus-management/tools/lint-version-date-consistency.py",
+            "--changelog", changelog, "--readme", prose_only)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("no '**Library Version:** YYYY.MM.patch'", result.stdout)
 
 
 class MetadataLineBreaksTests(LinterTestCase):
@@ -41991,8 +42591,8 @@ class LintCommonHelperTests(unittest.TestCase):
                     self.assertEqual(lc.is_fence_line(line), core.is_fence_line(line))
 
     # changelog_header_prs, which gate 59 reads, moved from the removed store-scope test class;
-    # assertions on the removed store_pr_ceiling and store_scope, and on the deferral helper
-    # above_store_ceiling (no remaining caller), are replaced by assertions on the parser itself.
+    # assertions on the removed store_pr_ceiling and store_scope, and on the store-deferral
+    # helpers (since removed, having no caller), are replaced by assertions on the parser itself.
 
     def test_legacy_multi_pr_header_reads_every_pr_token(self) -> None:
         # A repeated `PR` label after `,` or `&` must not end the cell. Kills: reverting the legacy
@@ -42040,13 +42640,14 @@ class LintCommonHelperTests(unittest.TestCase):
         text = "## 2026-09-30, Library Version 2026.09.1, PRs #520-530 (follow-up to PR #500)"
         self.assertEqual(lc.changelog_header_prs(text), [])
 
-    def test_r8_01_legacy_tail_naming_a_pr_is_uncertain(self) -> None:
+    def test_legacy_tail_naming_a_pr_reads_as_no_identity(self) -> None:
         # The legacy cell runs to the end of the line; in the earlier repository its tail was
         # probed for `#N` alone, so an unsupported continuation naming a PR by label or bare number
-        # (`/ PR 2665`) left the parsed prefix CERTAIN. The tail is now probed with the shared
-        # case-insensitive grammar too, so any PR identity in it (labelled or bare, in any case, or
-        # with its label glued on) makes the header uncertain: evaluated, never deferred. A tail
-        # naming no PR stays certain, and a grammar connector still continues the identity itself.
+        # (`/ PR 2665`) left the parsed prefix read as the identity. The tail is now probed with the
+        # shared case-insensitive grammar too, so any PR identity in it (labelled or bare, in any
+        # case, or with its label glued on) makes the header ambiguous, and an ambiguous header
+        # reads as no identity (an empty PR list). A tail naming no PR keeps the parsed prefix, and
+        # a grammar connector still continues the identity itself.
         # Kills: the `#N`-only tail probe, and a case-sensitive or label-only one.
         lc = self._lint_common()
         prefix = "## 2026-09-30, Library Version 2026.09.2665, PR #2664"
@@ -42059,15 +42660,13 @@ class LintCommonHelperTests(unittest.TestCase):
 
 
 class StoreDeferralHelperTests(unittest.TestCase):
-    """lint_common's store-deferral and own-PR declaration functions: above_store_ceiling,
-    store_deferral_reason, store_deferral_note, store_deferral_flags, own_pr_declaration and
-    declared_own_pr. These tests stay while those functions stay, and go with them.
+    """lint_common's own-PR declaration functions: own_pr_declaration and declared_own_pr.
+    These tests stay while those functions stay, and go with them.
 
-    Moved from the removed store-scope test class. store_scope and its git readers were removed,
-    so a test that built its StoreScope through them builds the same StoreScope directly: each
-    ``*_SCOPE`` tuple below is, field for field, the value store_scope returned for that test's
-    fixture reader values. Assertions on store_pr_ceiling, store_scope and the git readers went
-    with those functions."""
+    Moved from the removed store-scope test class. The store-deferral helpers and the scope
+    type they read had no caller in any tool and were removed, and the tests that existed only
+    for them went with them. Assertions on store_pr_ceiling, store_scope and the git readers
+    went with those functions."""
 
     def setUp(self) -> None:
         super().setUp()
@@ -42082,150 +42681,6 @@ class StoreDeferralHelperTests(unittest.TestCase):
     @staticmethod
     def header(pr: int, version: int | None = None) -> str:
         return f"**2026-12-30 | 2026.12.{version or pr} | PR #{pr}**\n"
-
-    @staticmethod
-    def pairs(*prs: int) -> tuple[tuple[int, int], ...]:
-        return tuple((n, n) for n in prs)
-
-    # The notes store_scope wrote on its fail-closed, clean-base and undeclared scopes.
-    MERGE_BASE_NOTE = ("store scope fail-closed: the merge-base changelog with origin/main "
-                       "is unreadable; every store entry is evaluated.")
-    MAIN_NOTE = ("store scope fail-closed: origin/main evidence (.working/CHANGELOG.md headers "
-                 "or merge subjects) is unreadable, so no own PR can be declared; every "
-                 "store entry is evaluated.")
-    CLEAN_BASE_NOTE = ("store scope: clean-base (no new root header against the merge-base; "
-                       "origin/main headers and merge subjects readable); other open PRs may "
-                       "defer. Offline origin/main may be stale until fetched.")
-    NO_NEW_NOTE = ("store scope: no own-PR declaration (no new root header names a PR absent "
-                   "from the merge-base headers and from origin/main's headers and merge "
-                   "subjects); every store entry is evaluated.")
-
-    # (root_max, own_pr, ceiling, note, branch_prs, merged_prs, open_rule), in StoreScope order.
-    AMBIGUOUS_TAIL_SCOPE = (
-        2661, 2661, 2661, None,
-        pairs(2661, 2661, 2659, 2659, 2600, 2655, 2600, 2655),
-        pairs(2659, 2659, 2600, 2655, 2600, 2655), True)
-    BLIND_SCOPE = (2650, None, None, MAIN_NOTE, pairs(2650, 2650), (), False)
-    OPEN_PARENT_SCOPE = (
-        2660, 2653, 2660, None, pairs(2653, 2653, 2660, 2660), pairs(2660, 2660, 2660), True)
-    OLDER_OWN_SCOPE = (
-        2660, 2655, 2660, None, pairs(2655, 2655, 2660, 2660, 2659, 2659),
-        pairs(2660, 2660, 2659, 2659), True)
-    CLEAN_BASE_SCOPE = (
-        2660, None, 2660, CLEAN_BASE_NOTE, pairs(2660, 2660), pairs(2660, 2660), True)
-    # Keyed by which reader was unreadable: the merge-base, origin/main's root, its subjects.
-    UNREADABLE_SCOPES = (
-        ("merge-base", (2660, None, None, MERGE_BASE_NOTE, pairs(2660, 2660), (), False)),
-        ("origin/main root", (2660, None, None, MAIN_NOTE, pairs(2660, 2660), (), False)),
-        ("origin/main subjects", (2660, None, None, MAIN_NOTE, pairs(2660, 2660), (), False)),
-    )
-    # Keyed by the root text store_scope read against merge-base #2660 and origin/main
-    # #2661 + #2660.
-    UNCERTAIN_ROOT_SCOPES = (
-        (None, (None, None, None, NO_NEW_NOTE, (), (), False)),
-        ("", (None, None, None, NO_NEW_NOTE, (), (), False)),
-        ("# Changelog\n", (None, None, None, NO_NEW_NOTE, (), (), False)),
-        ("**2026-12-30 | 2026.12.2660 | PR #2660** - corrected\n",
-         (2660, None, None, NO_NEW_NOTE, pairs(2660, 2660), (), False)),
-        ("### 2026-09-30: unknown\n**2026-12-30 | 2026.12.2660 | PR #2660**\n",
-         (2660, None, None,
-          "store scope: no own-PR declaration (new root header at line 1 has no parseable PR "
-          "identity); every store entry is evaluated.", pairs(2660, 2660), (), False)),
-        ("**2026-12-30 | 2026.12.2661 | PR #2661**\n**2026-12-30 | 2026.12.2660 | PR #2660**\n",
-         (2661, None, None, NO_NEW_NOTE, pairs(2661, 2661, 2660, 2660), (), False)),
-        ("**Week of 2026-09-21 (PRs #2659-2660)**\n**2026-12-30 | 2026.12.2660 | PR #2660**\n",
-         (2660, None, None,
-          "store scope: no own-PR declaration (the new root header at line 1 names more than "
-          "one PR); every store entry is evaluated.",
-          ((2659, 2659), (2660, 2660), (2659, 2659), (2659, 2660), (2660, 2660), (2660, 2660)),
-          (), False)),
-    )
-    # Keyed by the delimiter line put above #2660 in all three texts.
-    DELIMITER_SCOPES = (
-        (chr(96) * 3 + "\n", (2660, None, None, NO_NEW_NOTE, pairs(2660, 2660), (), False)),
-        ("~~~\n", (2660, None, None, NO_NEW_NOTE, pairs(2660, 2660), (), False)),
-        ("<!--\n", (2660, None, None, NO_NEW_NOTE, pairs(2660, 2660), (), False)),
-        ("-->\n", (2660, None, None, NO_NEW_NOTE, pairs(2660, 2660), (), False)),
-    )
-    MERGED_ON_MAIN_SCOPE = (
-        2661, 2661, 2661, None, pairs(2661, 2661, 2659, 2659),
-        pairs(2662, 2662, 2658, 2660), True)
-
-    def store_scope_value(self, fields: tuple):
-        return self.lc.StoreScope(*fields)
-
-    # ---- the shared parser and ceiling ----
-
-    def test_stacked_connectors_and_ambiguous_cells(self) -> None:
-        # Oxford connectors keep every key, so a mixed-scope entry is kept; a legacy header naming
-        # a further #N beyond the cell is AMBIGUOUS: the deferral side yields [] (kept) while the
-        # ceiling side reads the whole line. Kills: a single-connector run (drops #521 and defers
-        # at ceiling 521), and dropping the ambiguity probe.
-        lc = self.lc
-        oxford = "## 2026-07-04, Library Version 2026.07.11, PR #524, PR #525, and PR #521"
-        self.assertFalse(lc.above_store_ceiling(lc.changelog_header_prs(oxford), 521))
-        tail = "## 2026-09-30, Library Version 2026.09.1361, PR #9999 (follow-up to PR #2650)"
-        self.assertEqual(lc.changelog_header_prs(tail), [])
-        self.assertFalse(lc.above_store_ceiling(lc.changelog_header_prs(tail), 2657))
-
-    def test_ambiguous_cell_ceiling_reads_runs_and_line_tokens(self) -> None:
-        # The ceiling side unions the parsed runs (bare endpoint 530) with the whole-line tokens
-        # (tail #9999), and the protection side uses the same over-read. Kills: the ambiguous
-        # branch reading `#N` tokens alone (520), the runs alone (M1: 520 on the second fixture),
-        # and a protection side that ignores the ambiguous tail.
-        lc = self.lc
-        text = "## 2026-09-30, Library Version 2026.09.1, PRs #520-530 (follow-up to PR #500)"
-        self.assertEqual(lc.changelog_header_prs(text), [])
-        # The scope store_scope built for root #2661 over this base, as merge-base and origin/main.
-        scope = self.store_scope_value(self.AMBIGUOUS_TAIL_SCOPE)
-        self.assertEqual(scope.own_pr, 2661)
-        self.assertFalse(lc.above_store_ceiling([2655], scope),
-                         "a PR named in an ambiguous root tail is protected, never another open PR")
-
-    def test_above_store_ceiling_is_fail_closed(self) -> None:
-        # Kills: `>` -> `>=` (defers the ceiling, the declared own PR), `min` -> `max` (the mixed
-        # entry), dropping the empty-token guard, and dropping the None-ceiling guard.
-        f = self.lc.above_store_ceiling
-        cases = [([2651], 2650, True), ([2650], 2649, True), ([2650], 2650, False),
-                 ([2648, 2651], 2649, False), ([], 2649, False), ([2651], None, False),
-                 ([11, 10], 10, False)]
-        for prs, ceiling, expected in cases:
-            with self.subTest(prs=prs, ceiling=ceiling):
-                self.assertEqual(f(prs, ceiling), expected)
-        self.assertFalse(f(self.lc.StorePRs([2651], certain=False), 2650),
-                         "an uncertain identity is never deferred")
-
-    # ---- mirror deferral flags ----
-
-    def test_store_deferral_flags_confine_ceiling_deferral_to_the_initial_run(self) -> None:
-        # Without the open-PR rule, ceiling deferral ends at the first header naming a PR at or
-        # below the ceiling, so a lookalike below the own entry is EVALUATED (the
-        # unreadable-origin/main half of test_mirror_gate_lookalike_below_own_entry). Kills (M3):
-        # dropping the positional latch (indices 5-6 read deferred), ending the run on ANY boundary
-        # (indices 1-2 read kept), and deferring on a None ceiling. The same latch holds for a
-        # StoreScope built without the open-PR rule. A scope whose origin/main is unreadable
-        # declares nothing, so it defers nothing at all.
-        lines = ["preamble",
-                 "**2026-10-01 | 2026.10.2 | PR #2652** - later PR's entry",
-                 "its body",
-                 "**2026-09-30 | 2026.09.9 | PR #2650** - the branch's own entry",
-                 "its body",
-                 "**2026-10-01 | 2026.10.1 | PR #9999** - lookalike below the own entry",
-                 "an example body"]
-        expected = [False, True, True, False, False, False, False]
-        flags = self.lc.store_deferral_flags(lines, 2650)
-        self.assertEqual([d for d, _ in flags], expected)
-        self.assertEqual(flags[1][1], [2652], "the governing entry's keys ride on its body lines")
-        self.assertEqual(flags[5][1], [9999])
-        self.assertEqual([d for d, _ in self.lc.store_deferral_flags(lines, None)], [False] * 7)
-        ceiling_only = self.lc.StoreScope(2650, 2650, 2650, None)
-        self.assertFalse(ceiling_only.open_rule)
-        self.assertEqual([d for d, _ in self.lc.store_deferral_flags(lines, ceiling_only)], expected)
-        # The scope store_scope built for root #2650 with an empty merge-base text and an
-        # unreadable origin/main.
-        blind = self.store_scope_value(self.BLIND_SCOPE)
-        self.assertEqual((blind.own_pr, blind.ceiling, blind.open_rule), (None, None, False))
-        self.assertEqual([d for d, _ in self.lc.store_deferral_flags(lines, blind)], [False] * 7)
 
     # ---- the own-PR declaration ----
 
@@ -42265,71 +42720,6 @@ class StoreDeferralHelperTests(unittest.TestCase):
         self.assertIsNone(lc.declared_own_pr(
             "**2026-09-30 \u2014 2026.09.2661 \u2014 PR #2661**\n" + base, base))
         self.assertIsNone(lc.declared_own_pr("### 2026-09-30 PR #2660\n" + self.header(2661) + base, base))
-
-    def test_open_parent_header_without_own_entry_is_the_stated_residue(self) -> None:
-        # The residue accepted by removing the stacked-parent concept: a child that
-        # has not yet written its own entry carries only its open parent's header,
-        # which offline is indistinguishable from an own entry, so it declares
-        # whether the parent's ref sits at the stack point or has moved on, and
-        # the child's own #2662 then defers. Pinned so that any change to it is
-        # deliberate; the note names the declared PR, so the misdeclaration is loud.
-        # The child's root is open #2653's entry over merged #2660; the scope is the one
-        # store_scope built for it against merge-base and origin/main #2660 with the merge
-        # subject (#2660), the same for both parent states.
-        scope = self.store_scope_value(self.OPEN_PARENT_SCOPE)
-        self.assertEqual((scope.own_pr, scope.ceiling), (2653, 2660))
-        self.assertTrue(self.lc.above_store_ceiling([2662], scope))
-        self.assertIn("declared own PR #2653",
-                      self.lc.store_deferral_note([2662], scope, "h", 1))
-
-    def test_store_scope_composes_ceiling_and_gates_deferral_on_the_declaration(self) -> None:
-        # `ceiling = own` when an older own PR sits below a higher root header (M10: #2658 would
-        # read as exceeding ceiling #2655 instead of as another open PR, and #2661 would name the
-        # wrong ceiling). The scope is the one store_scope built for root #2655 over #2660 and
-        # #2659 as merge-base and origin/main.
-        s6 = self.store_scope_value(self.OLDER_OWN_SCOPE)
-        self.assertEqual((s6.own_pr, s6.ceiling), (2655, 2660))
-        reason = self.lc.store_deferral_reason
-        self.assertTrue(reason([2658], s6).startswith("every named PR is another open PR"))
-        self.assertEqual(reason([2661], s6), "every named PR exceeds store-scope ceiling #2660")
-        self.assertIsNone(reason([2659], s6))
-
-    # ---- clean-base scope ----
-
-    def test_clean_base_all_evidence_readers_must_succeed(self) -> None:
-        # The clean-base scope (#2660 everywhere) defers another open PR; each scope store_scope
-        # built with one reader unreadable defers nothing.
-        scope = self.store_scope_value(self.CLEAN_BASE_SCOPE)
-        self.assertTrue(self.lc.above_store_ceiling([2662], scope))
-        for unreadable, fields in self.UNREADABLE_SCOPES:
-            with self.subTest(unreadable=unreadable):
-                scope = self.store_scope_value(fields)
-                self.assertEqual((scope.own_pr, scope.ceiling, scope.open_rule),
-                                 (None, None, False))
-                self.assertFalse(self.lc.above_store_ceiling([2662], scope))
-                self.assertIn("fail-closed", scope.note)
-
-    def test_clean_base_root_uncertainty_disables_deferral(self) -> None:
-        self.assertTrue(self.lc.above_store_ceiling(
-            [2662], self.store_scope_value(self.CLEAN_BASE_SCOPE)))
-        for text, fields in self.UNCERTAIN_ROOT_SCOPES:
-            with self.subTest(text=text):
-                scope = self.store_scope_value(fields)
-                self.assertFalse(scope.open_rule, scope)
-                self.assertFalse(self.lc.above_store_ceiling([2662], scope))
-        # Even unchanged delimiters are not a clean basis.
-        for prefix, fields in self.DELIMITER_SCOPES:
-            scope = self.store_scope_value(fields)
-            self.assertFalse(scope.open_rule, scope)
-            self.assertFalse(self.lc.above_store_ceiling([2662], scope))
-
-    def test_git_reads_are_offline_and_fail_closed(self) -> None:
-        # A PR named on origin/main's root is protected. The scope is the one store_scope built
-        # for root #2661 + #2659 from merge-base #2659, origin/main #2662 and the merge subjects
-        # (#2660) and #2658.
-        scope = self.store_scope_value(self.MERGED_ON_MAIN_SCOPE)
-        self.assertEqual((scope.own_pr, scope.ceiling, scope.open_rule), (2661, 2661, True))
-        self.assertFalse(self.lc.above_store_ceiling([2662], scope), "merged on origin/main")
 
 
 class DocumentDateStalenessTests(LinterTestCase):
@@ -47928,7 +48318,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-hooks-syntax.py OWN F 38a691979f4132d8325eb26b1f36237aacfb3dccd3150e722f4e2f5941ba12b7
         lint-index-header-parity.py OWN F 939dbbc98052f583961522b2bda795a4513f8caef9b32330644ebd5ac387f790
         lint-internal-references.py CWD F e13572ec28ae1327efcfdf3c25540ce89e020ce9364023d725a08900fe9c5e45
-        lint-internal-work-refs.py OWN F c0f5064e1b8f4d53e83a92d69ccb0fccb65c7703047e4ceb65cf3662a1ad7274
+        lint-internal-work-refs.py OWN F ec24cae22f04b6bf89b40efd6a5b42abe8cf60f979c934d2719d35c40629e4bd
         lint-intra-doc-refs.py CWD F 221b24c6f3a5e9b788349f773792cb595f7e42ef0659504d51a29335045f82e3
         lint-isolated-launch.py NO_FS F 7ae93fc2d16ae06511bd9737df79b734923ec7a3edcac66ebd900883b71bce81
         lint-language.py ROOT F 1860b2f568b226210676a0cf5746b2d04b83f6d6627658cf0e05175c25fcf7bc
@@ -47978,9 +48368,9 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-ungated-dashes.py NO_FS F 81bd8a51ed9d04864b908024f4cd4bf9d45b123075b626e2b3540accfcaedbec
         lint-unused-imports.py CWD F ca0774461f0ea6a973bc510a7b68f51790eb3c21e2e580470af4fc64c9060b2e
         lint-version-bump-recency.py CWD F 8fd558e8fb978be293e66ee1af301c13f517d582bf101f2969c94a8e771d5a72
-        lint-version-date-consistency.py OWN F 3984ab2ad06ad6ffb4e33e8cd2f41d795534d43c266ad3a369ac97b14c3ef4ec
+        lint-version-date-consistency.py OWN F 1ec8a4a0672d9945863963761f009066842a2795459e5921a3c4bc42d8577b0a
         lint-web-corpus-links.py OWN F e69c56be54024ab612c87f8a39f39807334f029426e5e266f860f41ff251479f
-        lint_common.py PASSIVE F d576a0412f7b576f6235c527d304cf31291b237ae6e2b1f4dbe7120f03db52dc
+        lint_common.py PASSIVE F c6e66110ba84b8ff97a2c10a17b7d6483b6c43bc6faebcd3409b161f3eeb86c9
         matrix_code_parse.py PASSIVE F 62df77ba801019b06afea2a1474836a90dc2e8385f7d99becef9d393c511f622
         measure-regression-timings.py WRITE F 3fa6dd03e89eaf23d6b92a01f4369f11ff863a475bc81926319b7c734fa007d1
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
@@ -67264,9 +67654,17 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         self.assertNotIn(".corpus-management", web)
 
     def test_exclusion_precedes_version_content_filters(self):
+        # No fixture carries a Version, so every Version filter drops every file and
+        # only an observation taken before or at that filter can show where the pack
+        # exclusion runs. Each text names its own file, so the Version filter's input
+        # maps back to a path.
         for p in self.data:
-            self.data[p] = "Plain source text without metadata.\n"
+            self.data[p] = "Plain source text without metadata (%s).\n" % (
+                p.relative_to(self.root).as_posix())
         self.assertIn("lint-version-bump-recency.py", self.SPECIAL)
+        # lint-library-version-monotonicity.py is observed at read_current, the read
+        # its Version filter needs, so a pack exclusion moved after that filter shows
+        # as pack reads in the exclusion run.
         for name in ("lint-library-version-monotonicity.py",):
             with self.subTest(name=name):
                 self.assert_scope_delta(name, [])
@@ -67275,6 +67673,35 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         # Version, so its recency selection is empty in both runs: pin the BOM screen.
         with self.subTest(name="lint-version-bump-recency.py"):
             self.assert_bom_scope_keeps_pack()
+        # Its Version filter (head_version) works on text the BOM screen has already
+        # read, so neither the reads nor the empty selection tell the order: observe
+        # the filter's inputs. The baseline passes the pack to it; the exclusion run
+        # must not, so a Version filter moved ahead of the pack exclusion fails here.
+        name = "lint-version-bump-recency.py"
+        module = self.load(name)
+        owners = {text: p for p, text in self.data.items()}
+        self.assertEqual(len(owners), len(self.data), "fixture texts must be distinct")
+        filtered = []
+        original_head_version = module.head_version
+
+        def version_filter(text, *args, **kwargs):
+            filtered.append(owners[text])
+            return original_head_version(text, *args, **kwargs)
+
+        with self.subTest(name=name + " Version filter"), \
+                self.patch.object(module, "head_version", version_filter):
+            with self.baseline():
+                self.assertEqual(self.effective(name, []), [])
+            before = list(filtered)
+            filtered.clear()
+            self.assertEqual(self.effective(name, []), [])
+            after = list(filtered)
+            pack = {p for p in before
+                    if p.relative_to(self.root).as_posix().startswith(self.PACK)}
+            self.assertTrue(pack, (name, "baseline did not pass the pack to the Version filter"))
+            self.assertTrue(set(before) - pack, (name, "the Version filter saw nothing outside the pack"))
+            self.assertEqual(after, [p for p in before if p not in pack],
+                             (name, "the pack reached the Version filter in the exclusion run"))
 
 
 class CorpusManagementPackActivationTests(unittest.TestCase):
@@ -67282,8 +67709,9 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
     the manifest and every register parse, register paths resolve inside the pack,
     generation is enabled with the ruleset / ownership register / manifest summary in
     three-way agreement, the clause and id-history registers are non-empty and well-formed,
-    the gate register carries its first transfer (lint-language) and the hook register is
-    still empty, and pack Python lives only under
+    the gate register is non-empty (lint-language, its first transfer, and the later
+    transfers) with every entry well-formed, the hook register is still empty, and pack
+    Python lives only under
     .claude/skills/corpus-management/src/tools/. Rewrites the earlier
     CorpusManagementScaffoldInertnessTests as the activation-shape class: the scan-boundary
     exemption removes corpus-content checks from the pack, so WITHOUT this test a malformed
@@ -67302,7 +67730,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.23.9", "0.23.9 makes the release-delta check count public module-level names bound by assignment through a private helper (PATCH); the level a changed value, a binding inside a function or class or an import alias needs is the matching row of _RELEASE_CASES in src/tools/pack_release_delta.py, which test_release_level_table runs through the check. The release history in src/README.md describes each version from 0.22.2")
+        self.assertEqual(man["pack"]["version"], "0.24.0", "0.24.0 adds the public function strip_code_spans to gate 9 (src/tools/gate_lint_shall_near_uncertainty.py), so a marker inside an inline code span is not counted, and changes the shall-near-uncertainty clause to state it (MINOR); the level a changed value, a binding inside a function or class or an import alias needs is the matching row of _RELEASE_CASES in src/tools/pack_release_delta.py, which test_release_level_table runs through the check. The release history in src/README.md describes each version from 0.22.2")
         addons = man["addons"]
         self.assertEqual(addons["available"], ["matrix-fit", "claim-fit", "reference-audit", "publication-screening"])
         self.assertEqual(addons["enabled"], [], "every add-on ships disabled in the skeleton")
@@ -67347,7 +67775,8 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         )
         # Fail-CLOSED on SHAPE, keyed by filename: each register carries its SPECIFIC list
         # collection. The pack populates the generation-side registers (ownership, clauses,
-        # id-history); the gate and hook registers stay empty until a transfer wave fills them.
+        # id-history), the gate register holds the transferred gates and the profiles register
+        # its profiles; the hook register stays empty until a transfer wave fills it.
         expected = {
             "clauses.toml": ("clauses", True),
             "id-history.toml": ("events", True),
@@ -70840,7 +71269,37 @@ class StdinInterpreterHookTests(unittest.TestCase):
         ('over_refusal_listed_name_as_argument_after_reserved_word', 'cat x | a=1 while echo bash', 'no script operand while standard input is a pipe'),
         ('over_refusal_listed_name_before_a_dot_suffix', 'cat /abs/python.log | a=1 while cat', 'is followed in the same simple command by a reserved word'),
         ('over_refusal_c_string_listed_name_before_a_dot_suffix', "bash -c 'cat /abs/python.log | grep x'", 'names an interpreter together with a pipe'),
-        ('heredoc_body_escaped_substitution_is_text', 'cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_two_backslashes_leave_substitution_live', 'cat <<EOF\n\\\\$(cat /abs/run.sh | bash)\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_four_backslashes_leave_substitution_live', 'cat <<EOF\n\\\\\\\\$(cat /abs/run.sh | bash)\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_two_backslashes_leave_backtick_live', 'cat <<EOF\n\\\\`cat /abs/run.sh | bash`\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_line_continuation_joins_dollar_and_parenthesis', 'cat <<EOF\n$\\\n(cat /abs/run.sh | bash)\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_line_continuation_before_substitution', 'cat <<EOF\n\\\n$(cat /abs/run.sh | bash)\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_escaped_brace_holds_live_substitution', 'cat <<EOF\n\\${x:-$(cat /abs/run.sh | bash)}\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_escaped_substitution_holds_live_one', 'cat <<EOF\n\\$(echo $(cat /abs/run.sh | bash))\nEOF', 'here-document body holds a $( or a backtick'),
+        ('over_refusal_heredoc_body_escaped_substitution_beside_live_one', 'cat <<EOF\n\\$(cat /abs/run.sh | bash) $(date)\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_body_arithmetic_bracket_with_listed_name', 'cat <<EOF\n$[1] bash\nEOF', 'here-document body holds a $( or a backtick'),
+        ('over_refusal_heredoc_body_quote_between_dollar_and_parenthesis', 'cat <<EOF\n$"(cat /abs/run.sh | bash)"\nEOF', 'here-document body holds a $( or a backtick'),
+        ('over_refusal_heredoc_body_live_mark_beside_listed_name_text', 'cat <<EOF\n$(date) bash\nEOF', 'here-document body holds a $( or a backtick'),
+        ('heredoc_in_backticks_escaped_substitution_is_live', 'echo `cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n`', 'here-document body holds a $( or a backtick'),
+        ('heredoc_in_double_quoted_backticks_escaped_substitution_is_live', 'echo "`cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n`"', 'here-document body holds a $( or a backtick'),
+        ('heredoc_in_nested_backticks_escaped_substitution_is_live', 'echo `echo \\`cat <<EOF\n\\\\\\$(cat /abs/run.sh | bash)\nEOF\n\\``', 'here-document body holds a $( or a backtick'),
+        ('heredoc_in_backticks_escaped_backslash_newline_leaves_substitution_live', 'echo `cat <<EOF\n\\\\\n\\$(cat /abs/run.sh | bash)\nEOF\n`', 'here-document body holds a $( or a backtick'),
+        ('heredoc_in_backticks_escaped_substitution_feeds_eval_built_name', '`cat <<EOF\n\\$(cat x | eval b\\${x}ash)\nEOF\n`', 'receives a pipe has its command word'),
+        ('heredoc_in_echo_backticks_escaped_substitution_feeds_eval_built_name', 'echo `cat <<EOF\n\\$(cat /abs/run.sh | eval b\\${x}ash)\nEOF\n`', 'receives a pipe has its command word'),
+        ('heredoc_in_double_quoted_backticks_escaped_substitution_feeds_eval_built_name', 'echo "`cat <<EOF\n\\$(cat /abs/run.sh | eval b\\${x}ash)\nEOF\n`"', 'receives a pipe has its command word'),
+        ('over_refusal_function_body_heredoc_escaped_substitution', 'f() { cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n}', 'receives a pipe is the interpreter bash'),
+        ('heredoc_body_nul_after_backslash_leaves_substitution_live', 'cat <<EOF\n\\\x00\\$(cat /abs/run.sh | bash)\nEOF', 'here-document body holds a $( or a backtick'),
+        ('over_refusal_heredoc_body_escaped_backslash_before_delimiter_read_both_ways', 'cat <<EOF\n\\\\\nEOF\n', 'line continuation in the unquoted here-document body'),
+        ('over_refusal_heredoc_in_command_substitution_escaped_substitution', 'echo $(cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n)', 'here-document body holds a $( or a backtick'),
+        ('over_refusal_heredoc_in_double_quoted_command_substitution_escaped_substitution', 'echo "$(cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n)"', 'here-document body holds a $( or a backtick'),
+        ('heredoc_in_substitution_read_again_by_eval', 'eval "$(cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n)"', 'here-document body holds a $( or a backtick'),
+        ('heredoc_in_double_quoted_eval_text_escaped_substitution_is_live', 'eval "cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n"', 'receives a pipe is the interpreter bash'),
+        ('over_refusal_heredoc_in_single_quoted_eval_text_escaped_substitution', "eval 'cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n'", 'receives a pipe is the interpreter bash'),
+        ('over_refusal_heredoc_in_process_substitution_escaped_substitution', 'cat <(cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n)', 'here-document body holds a $( or a backtick'),
+        ('over_refusal_c_string_escaped_substitution', "bash -c 'echo \\$(python3 /abs/s.py)'", 'names an interpreter together with a pipe'),
+        ('heredoc_body_line_continuation_hides_the_delimiter', 'cat <<EOF\nx\\\nEOF\n# $(cat /abs/run.sh | bash)\nEOF', 'line continuation in the unquoted here-document body'),
+        ('heredoc_body_dash_line_continuation_hides_the_delimiter', 'cat <<-EOF\n\tx\\\n\tEOF\n# $(cat /abs/run.sh | bash)\nEOF', 'line continuation in the unquoted here-document body'),
+        ('heredoc_body_line_continuation_builds_the_delimiter', 'cat <<EOF\nE\\\nOF\ncat /abs/run.sh | bash\nEOF', 'line continuation in the unquoted here-document body'),
         ('heredoc_body_substitution_runs_a_script', 'cat <<EOF\n$(python3 /abs/s.py)\nEOF', 'here-document body holds a $( or a backtick'),
         ('c_string_substitution_runs_a_script', "bash -c 'echo $(python3 /abs/s.py)'", 'names an interpreter together with a pipe'),
         ('c_string_names_an_interpreter_as_text', "bash -c 'echo python3'", 'not followed by a script path'),
@@ -71138,6 +71597,16 @@ class StdinInterpreterHookTests(unittest.TestCase):
         ('quoted_delimiter_heredoc_body_is_data', "cat <<'EOF'\n$(cat /abs/run.sh | bash)\nEOF"),
         ('double_quoted_delimiter_heredoc_body_is_data', 'cat <<"EOF"\n$(cat /abs/run.sh | bash)\nEOF'),
         ('escaped_delimiter_heredoc_body_is_data', 'cat <<\\EOF\n$(cat /abs/run.sh | bash)\nEOF'),
+        ('heredoc_body_escaped_substitution_is_text', 'cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF'),
+        ('heredoc_body_three_backslashes_escape_the_substitution', 'cat <<EOF\n\\\\\\$(cat /abs/run.sh | bash)\nEOF'),
+        ('heredoc_body_escaped_backticks_are_text', 'cat <<EOF\n\\`cat /abs/run.sh | bash\\`\nEOF'),
+        ('heredoc_body_escaped_brace_is_text', 'cat <<EOF\npython3 at \\${HOME}\nEOF'),
+        ('heredoc_body_escaped_arithmetic_bracket_is_text', 'cat <<EOF\n\\$[1] bash\nEOF'),
+        ('heredoc_body_escaped_brace_and_substitution_are_text', 'cat <<EOF\n\\${HOME} \\$(python3 /abs/s.py)\nEOF'),
+        ('heredoc_body_line_continuation_inside_the_body', 'cat <<EOF\nfoo \\\nbar\nEOF'),
+        ('heredoc_body_escaped_backslash_newline_then_escaped_substitution', 'cat <<EOF\n\\\\\n\\$(cat /abs/run.sh | bash)\nEOF'),
+        ('heredoc_body_reviewer_input_escaped_backslash_newline_escaped_dollar', 'cat <<EOF\n\\\\\n\\$(bash)\nEOF'),
+        ('heredoc_at_top_level_after_a_separator_escaped_substitution_is_text', 'true; cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF'),
         ('quoted_delimiter_heredoc_body_holds_c_string_text', "cat <<'EOF'\nbash -c 'cat /abs/run.sh | bash'\nEOF"),
         ('c_string_python_isolated_script', "bash -c 'python3 -I /abs/s.py'"),
         ('c_string_dot_operand', "bash -c 'cd /abs && ls .'"),
@@ -72608,7 +73077,7 @@ class StdinInterpreterHookTests(unittest.TestCase):
         escape in an assignment before a shell reading a pipe is refused.
 
         The quote is left out of the loop: after the escape letter it ends the quote, leaving
-        \c at the end of the text, which bash keeps as a backslash and c (checked last). A
+        \\c at the end of the text, which bash keeps as a backslash and c (checked last). A
         backslash after the escape
         letter is written doubled, which bash reads as one control backslash. A NUL in the
         decoded text ends the segment, as in bash."""
@@ -79520,6 +79989,91 @@ class UncertaintyEngineProfileTests(unittest.TestCase):
     def test_fence_excluded(self):
         doc = "```\nTODO fix\nit must be done\n```\n"
         self.assertEqual(self.scan_doc(doc), [])
+
+    def test_marker_inside_code_span_not_flagged(self):
+        # An uncertainty marker inside an inline code span (one or more
+        # backticks, closed by the same run) is quoted, not used.
+        rows = [
+            "The organization shall act on `TODO 3.4` first.\n",
+            "The organization shall act on ``TODO`` first.\n",
+            "The marker `[Unverified]` means the organization shall check.\n",
+            "Write `TODO` here.\nThe organization shall act.\n",
+            "The organization shall act on `` a`TODO `` first.\n",
+            "See ``TODO`` and `x`; the organization shall act.\n",
+            # A real span beside a backslash-escaped backtick: the escaped
+            # backtick is literal and opens no span, so `TODO` is the span.
+            "Type \\` then `TODO`; the organization shall act.\n",
+            # An escaped backslash escapes nothing further: the span is live.
+            "See \\\\`TODO` then the organization shall act.\n",
+            # Inside a span a backslash is literal and does not stop the close.
+            "Write `TODO\\` here; the organization shall act.\n",
+        ]
+        for doc in rows:
+            with self.subTest(doc=doc):
+                self.assertEqual(self.scan_doc(doc), [])
+
+    def test_bare_marker_beside_code_span_still_flagged(self):
+        # Nearby forms that must still fail: a bare marker beside a span that
+        # quotes one, a bare marker after a closed span, between escaped
+        # backticks, after an unclosed backtick, glued to a span (the span is
+        # replaced by a non-word character, so the marker keeps its word boundary),
+        # and a bare marker near a backticked mandatory word (the mandatory pass
+        # still reads the whole line). Only exact runs pair: a run with no partner
+        # of the same length on its line opens no span, so the marker after an
+        # unmatched double or single run is still read; a span broken across
+        # lines is not recognized, so its marker is read (fail closed).
+        rows = [
+            ("The organization shall act on `TODO 3.4` then TODO first.\n", "TODO"),
+            ("See `` TODO ` then the organization shall act.\n", "TODO"),
+            # A backslash-escaped backtick pair is literal text, not a span,
+            # so the marker between the escaped backticks is read.
+            ("See \\`TODO\\` then the organization shall act.\n", "TODO"),
+            ("See ` TODO `` then the organization shall act.\n", "TODO"),
+            ("Write `TODO\nfinish` here; the organization shall act.\n", "TODO"),
+            ("See `x` then TODO; the organization shall act.\n", "TODO"),
+            ("See ` then TODO; the organization shall act.\n", "TODO"),
+            ("See a`b`TODO; the organization shall act.\n", "TODO"),
+            ("TODO finish.\nQuote the word `shall` here.\n", "TODO"),
+            ("[Unverified] The organization shall implement controls.\n", "[Unverified]"),
+        ]
+        for doc, marker in rows:
+            with self.subTest(doc=doc):
+                found = self.scan_doc(doc)
+                self.assertEqual(len(found), 1)
+                self.assertEqual(found[0][1], marker)
+
+    def test_code_span_never_joins_text_into_marker(self):
+        # The span is replaced by one NUL character, not removed and not a space:
+        # NUL is neither a word character nor whitespace, so the text on either
+        # side can neither glue into one word nor join, through a pattern's \s,
+        # into a multi-word marker. A span removed, not replaced, glues the text
+        # into TODO and the scan alone then fails; a span replaced by a space
+        # joins the Draft rows below into a marker. The strip is also asserted
+        # directly because with no strip at all the glued text just does not
+        # match a marker, so the scan alone would pass.
+        line = "TO`x`DO: the organization shall act."
+        self.assertEqual(self.engine.strip_code_spans(line),
+                         "TO\x00DO: the organization shall act.")
+        self.assertEqual(self.scan_doc(line + "\n"), [])
+        for line in (
+            "The organization shall act. Draft `SP 800-53` Revision 5 applies.",
+            "The organization shall act. Draft`x`May applies.",
+            "The organization shall act. [Draft`1`Reference]",
+            "The organization shall act. Draft `foo` Reference here.",
+            "The organization shall act. [Draft `x` Reference]",
+        ):
+            with self.subTest(line=line):
+                self.assertEqual(self.scan_doc(line + "\n"), [])
+        # Only exact runs pair: an unmatched double run is left as it is.
+        line = "See `` TODO ` then the organization shall act."
+        self.assertEqual(self.engine.strip_code_spans(line), line)
+        # A backslash-escaped backtick pair opens no span: left as it is.
+        line = "See \\`TODO\\` then the organization shall act."
+        self.assertEqual(self.engine.strip_code_spans(line), line)
+        # A real span beside an escaped backtick is replaced, the escape kept.
+        line = "Type \\` then `TODO`; the organization shall act."
+        self.assertEqual(self.engine.strip_code_spans(line),
+                         "Type \\` then \x00; the organization shall act.")
 
     def test_dynamic_vocab(self):
         import re
@@ -93223,6 +93777,506 @@ class BulkAddRefusalReasonAndWordingTests(unittest.TestCase):
         # Flip: the earlier docstring claimed a redirection, which segments() does not skip.
         self.assertEqual(self._reach_doc_problems(hook, self.EARLIER_REACH_DOC),
                          ['claims a redirection but segments() finds no call after one'])
+
+
+class SyntaxWarningCompileTests(unittest.TestCase):
+    """Every Python file git tracks in this repository compiles with SyntaxWarning treated
+    as an error.
+
+    The files compiled are every ``*.py`` path that ``git ls-files`` lists at the repository
+    root, not a fixed tuple of directories, so a tracked Python file in any directory is
+    covered: the hooks, both tools directories, the source tools, the tests and the site
+    generator alike. A submodule entry (a gitlink, mode 160000) is not listed, whatever its
+    name: it records a commit of another repository, not a file of this one, and git lists
+    none of that repository's files here either. The test fails when that listing cannot
+    be read or lists no Python file.
+    An invalid escape sequence in a string (a backslash before a character that starts no
+    escape) is only a SyntaxWarning today, and a future Python makes it a SyntaxError. The
+    files are compiled from their bytes, without this module's future flags, under a
+    warnings filter that turns SyntaxWarning into an error; compile then raises a
+    SyntaxError for any such string (on Python 3.14), so it fails here.
+    A listed file that cannot be read (a tracked file deleted from the working tree, for
+    one) is reported as an unreadable failure naming the file; it neither stops the check
+    nor is skipped. Any exception compile raises for a file (a NUL byte, or a parser stack
+    overflow) is likewise reported as a failure naming the file and the exception type. A
+    file git does not track, such as one in the transient fixture
+    directory (FIXTURE_DIR) or in __pycache__, is not listed and so is not compiled.
+    """
+
+    @staticmethod
+    def compile_failures(paths) -> list[str]:
+        """Each of paths that does not compile with SyntaxWarning as an error, with why.
+
+        A path whose read raises any Exception (an OSError such as FileNotFoundError, or the
+        ValueError a path holding a NUL character gives) is reported as
+        "<path>: unreadable: <exception type name>: <error>" (for one,
+        "<path>: unreadable: FileNotFoundError: <error>"), never raised and never skipped.
+        Any Exception compile raises for a file (a SyntaxError, which is what compile raises
+        for an invalid escape under the "error" filter, or another such as the MemoryError
+        of a parser stack overflow) is reported as "<path>: <exception type name>: <error>",
+        never raised."""
+        import warnings
+        failures = []
+        for path in paths:
+            try:
+                source = Path(path).read_bytes()
+            except Exception as exc:
+                failures.append(f"{path}: unreadable: {type(exc).__name__}: {exc}")
+                continue
+            with warnings.catch_warnings():
+                # What the test observes: with this "error" filter, a file holding an invalid
+                # escape fails the check, including after the same warning was already
+                # recorded once in this process; with the filter taken out, that test fails:
+                # test_an_invalid_escape_fails_with_the_error_filter_after_its_warning_was_recorded_once.
+                warnings.simplefilter("error", SyntaxWarning)
+                try:
+                    compile(source, str(path), "exec", dont_inherit=True)
+                except Exception as exc:
+                    # Under the filter above, compile reports an invalid escape by raising
+                    # SyntaxError, not SyntaxWarning. That, any other SyntaxError and any
+                    # other exception compile raises, such as MemoryError: each is a failure.
+                    failures.append(f"{path}: {type(exc).__name__}: {exc}")
+        return failures
+
+    def tracked_python(self, root, env=None, pathspec=()) -> list[Path]:
+        """Every ``*.py`` path ``git ls-files`` lists under root, sorted; the test fails if git does.
+
+        The listing is ``git ls-files -z --stage -- <pathspec>...``, so each entry carries
+        its mode; the default empty pathspec lists every tracked entry. A gitlink (mode
+        160000, a submodule) is left out whatever its name; every other entry whose path
+        ends in ``.py`` is kept, once (an unmerged path has one entry per stage). env is
+        the environment of that git call: None (the REPO_ROOT listing) inherits this
+        process's, and a fixture repository passes fixture_git_environment()."""
+        proc = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--stage", "--",
+                               *pathspec],
+                              capture_output=True, check=False, env=env)
+        if proc.returncode != 0:
+            self.fail(f"git ls-files exited {proc.returncode}: "
+                      + proc.stderr.decode("utf-8", errors="replace").strip())
+        names = set()
+        for entry in proc.stdout.decode("utf-8", errors="surrogateescape").split("\0"):
+            meta, tab, name = entry.partition("\t")
+            if tab and meta.split()[0] != "160000" and name.endswith(".py"):
+                names.add(name)
+        return [Path(root) / name for name in sorted(names)]
+
+    def targets(self) -> list[Path]:
+        found = self.tracked_python(REPO_ROOT)
+        self.assertTrue(found, "git ls-files lists no tracked Python file")
+        return found
+
+    def covered_python(self, root, covered, env=None) -> set[str]:
+        """The root-relative ``*.py`` paths git tracks under the covered directories.
+
+        This is tracked_python with covered as its pathspec, the same mode-aware listing
+        discovery uses: a gitlink (mode 160000) is left out whatever its name, and a path
+        with several stages is kept once. The test fails if git does."""
+        return {path.relative_to(root).as_posix()
+                for path in self.tracked_python(root, env=env, pathspec=covered)}
+
+    def test_targets_cover_tools_and_tests(self) -> None:
+        """Discovery finds every tracked Python file under the tools, source tools and tests directories.
+
+        The expected set is covered_python for the three corpus-management directories:
+        the same mode-aware listing discovery uses (``git ls-files -z --stage``), with
+        those directories as pathspec, so a gitlink named like a Python file is in neither
+        set. The discovered paths under those directories must equal it. Flip: a discovery
+        that found only this module, a tool, a source tool and the regression gate test
+        fails here, because those four are a strict subset of the tracked list."""
+        covered = (".claude/skills/corpus-management/tools",
+                   ".claude/skills/corpus-management/src/tools",
+                   ".claude/skills/corpus-management/tests")
+        expected = self.covered_python(REPO_ROOT, covered)
+        discovered = {path.relative_to(REPO_ROOT).as_posix() for path in self.targets()}
+        discovered = {name for name in discovered
+                      if any(name.startswith(base + "/") for base in covered)}
+        self.assertEqual(discovered, expected)
+        four = {".claude/skills/corpus-management/tests/test_linters.py",
+                ".claude/skills/corpus-management/tests/test_regression_gate.py",
+                ".claude/skills/corpus-management/tools/lint_common.py",
+                ".claude/skills/corpus-management/src/tools/corpus_mgmt_compiler.py"}
+        self.assertLess(four, expected)
+
+    def test_targets_cover_a_hook_and_the_aiqt_tools_file(self) -> None:
+        """Discovery finds a hook and the aiqt tools file, outside every corpus-management directory.
+
+        Flip: neither file lies under the corpus-management tools, source tools or tests
+        directory, so the earlier fixed tuple of those three directories missed both."""
+        names = {path.resolve() for path in self.targets()}
+        earlier = tuple((REPO_ROOT / rel).resolve() for rel in (
+            ".claude/skills/corpus-management/tools",
+            ".claude/skills/corpus-management/src/tools",
+            ".claude/skills/corpus-management/tests"))
+        for rel in (".claude/hooks/block-stdin-interpreter.py",
+                    ".claude/aiqt/tools/aiqt_corpus.py"):
+            with self.subTest(rel=rel):
+                path = (REPO_ROOT / rel).resolve()
+                self.assertIn(path, names)
+                self.assertFalse(any(base == path or base in path.parents for base in earlier), path)
+
+    def test_discovery_follows_the_tracked_file_list_in_any_directory(self) -> None:
+        """Flip: tracked files in directories no list names are compiled and fail; untracked are not.
+
+        A temporary repository tracks a hook and a file in a new nested directory, each with
+        an invalid escape, and holds an untracked Python file and a tracked text file; only
+        the two tracked Python files are listed, and both fail the check."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            git_env = fixture_git_environment()
+            subprocess.run(["git", "init", "-q", str(root)], check=True, capture_output=True,
+                           env=git_env)
+            planted = {".claude/hooks/new-hook.py", "brand-new-dir/deep/tool.py"}
+            for rel in sorted(planted) + ["untracked/stray.py"]:
+                path = root / rel
+                path.parent.mkdir(parents=True)
+                path.write_text('value = "\\c"\n', encoding="utf-8")
+            (root / "notes.txt").write_text("not python\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(root), "add", "--", *sorted(planted), "notes.txt"],
+                           check=True, capture_output=True, env=git_env)
+            listed = self.tracked_python(root, env=git_env)
+            self.assertEqual({path.relative_to(root).as_posix() for path in listed}, planted)
+            failures = self.compile_failures(listed)
+            self.assertEqual(len(failures), 2, failures)
+            for failure in failures:
+                self.assertIn("invalid escape sequence", failure)
+
+    def test_an_invalid_escape_fails_with_the_error_filter_after_its_warning_was_recorded_once(self) -> None:
+        """With the error filter, an invalid escape fails the check after its warning was recorded once.
+
+        A file holding an invalid escape is imported and compiled again under a "once"
+        filter, and its SyntaxWarning is recorded exactly once in this process. The file
+        then fails compile_failures, both while that "once" filter is still in force and
+        after it. Flip: with the "error" filter taken out of compile_failures, this test
+        fails."""
+        import importlib.util
+        import warnings
+        saved_once = dict(warnings.onceregistry)
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                bad = Path(tmp) / "earlier_import_invalid_escape.py"
+                bad.write_text('value = "\\c"\n', encoding="utf-8")
+                with warnings.catch_warnings(record=True) as seen:
+                    warnings.simplefilter("once", SyntaxWarning)
+                    spec = importlib.util.spec_from_file_location(
+                        "earlier_import_invalid_escape", bad)
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
+                    compile(bad.read_bytes(), str(bad), "exec", dont_inherit=True)
+                    failures_under_once = self.compile_failures([bad])
+                self.assertEqual(len(failures_under_once), 1, failures_under_once)
+                self.assertTrue(failures_under_once[0].startswith(f"{bad}: "), failures_under_once)
+                self.assertIn("invalid escape sequence", failures_under_once[0])
+                self.assertEqual(module.value, "\\c")
+                recorded = [w for w in seen if issubclass(w.category, SyntaxWarning)]
+                self.assertEqual(len(recorded), 1, [str(w.message) for w in seen])
+                self.assertIn("invalid escape sequence", str(recorded[0].message))
+                self.assertIn((str(recorded[0].message), SyntaxWarning), warnings.onceregistry)
+                failures = self.compile_failures([bad])
+                self.assertEqual(len(failures), 1, failures)
+                self.assertTrue(failures[0].startswith(f"{bad}: "), failures)
+                self.assertIn("invalid escape sequence", failures[0])
+        finally:
+            warnings.onceregistry.clear()
+            warnings.onceregistry.update(saved_once)
+
+    def test_an_unreadable_listed_file_is_reported_as_an_unreadable_failure(self) -> None:
+        """Flip: a listed file that cannot be read is an unreadable failure naming it, not a crash.
+
+        A temporary repository tracks a Python file and the file is then deleted from the
+        working tree, so git ls-files still lists it; a directory named like a Python file
+        is passed as well. Each is reported as "<path>: unreadable: ...", the readable file
+        with an invalid escape after them is still checked, and nothing is raised. Flip:
+        with compile_failures reading without its read handler, this test errors."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            git_env = fixture_git_environment()
+            subprocess.run(["git", "init", "-q", str(root)], check=True, capture_output=True,
+                           env=git_env)
+            gone = root / "gone.py"
+            gone.write_text('value = "ok"\n', encoding="utf-8")
+            subprocess.run(["git", "-C", str(root), "add", "--", "gone.py"],
+                           check=True, capture_output=True, env=git_env)
+            gone.unlink()
+            listed = self.tracked_python(root, env=git_env)
+            self.assertEqual(listed, [gone])
+            folder = root / "folder.py"
+            folder.mkdir()
+            bad = root / "bad.py"
+            bad.write_text('value = "\\c"\n', encoding="utf-8")
+            failures = self.compile_failures(listed + [folder, bad])
+            self.assertEqual(len(failures), 3, failures)
+            self.assertTrue(failures[0].startswith(f"{gone}: unreadable: FileNotFoundError: "),
+                            failures)
+            self.assertTrue(failures[1].startswith(f"{folder}: unreadable: "), failures)
+            self.assertTrue(failures[2].startswith(f"{bad}: "), failures)
+            self.assertIn("invalid escape sequence", failures[2])
+
+    def test_any_exception_compile_raises_is_a_failure_naming_the_file(self) -> None:
+        """Flip: any exception compile raises for a file is a failure naming it and the type.
+
+        Planted: a file holding a NUL byte, a file whose expression nests so deep that the
+        parser stack overflows, and after them a readable file with an invalid escape. The
+        NUL byte gives whatever compile raises for it on this interpreter (SyntaxError on
+        Python 3.14, the only version run); the deep file gives an exception that is
+        neither SyntaxWarning nor SyntaxError (MemoryError on Python 3.14). Each is reported
+        as "<path>: <exception type name>: ...", the file after them is still checked, and
+        nothing is raised. Flip: with compile_failures catching only SyntaxWarning and
+        SyntaxError, this test errors on the deep file."""
+        with tempfile.TemporaryDirectory() as tmp:
+            nul = Path(tmp) / "nul_byte.py"
+            nul.write_bytes(b"value = 1\x00\n")
+            deep = Path(tmp) / "parser_stack_overflow.py"
+            deep.write_bytes(b"value = " + b"-" * 200000 + b"1\n")
+            bad = Path(tmp) / "bad.py"
+            bad.write_text('value = "\\c"\n', encoding="utf-8")
+            raised = {}
+            for path in (nul, deep):
+                try:
+                    compile(path.read_bytes(), str(path), "exec", dont_inherit=True)
+                except Exception as exc:
+                    raised[path] = type(exc).__name__
+            self.assertEqual(set(raised), {nul, deep}, raised)
+            self.assertNotIn(raised[deep], ("SyntaxWarning", "SyntaxError"), raised)
+            failures = self.compile_failures([nul, deep, bad])
+            self.assertEqual(len(failures), 3, failures)
+            self.assertTrue(failures[0].startswith(f"{nul}: {raised[nul]}: "), failures)
+            self.assertTrue(failures[1].startswith(f"{deep}: {raised[deep]}: "), failures)
+            self.assertTrue(failures[2].startswith(f"{bad}: "), failures)
+            self.assertIn("invalid escape sequence", failures[2])
+
+    def test_a_path_whose_read_raises_a_non_os_error_is_an_unreadable_failure(self) -> None:
+        """Flip: a path whose read raises ValueError, not OSError, is an unreadable failure.
+
+        Reading a path that holds a NUL character raises ValueError ("embedded null byte"),
+        which is not an OSError. It is reported as "<path>: unreadable: ValueError: ...",
+        the readable file with an invalid escape after it is still checked, and nothing is
+        raised. Flip: with compile_failures catching only OSError on the read, this test
+        errors."""
+        with tempfile.TemporaryDirectory() as tmp:
+            unreadable = Path(tmp) / "nul\0name.py"
+            bad = Path(tmp) / "bad.py"
+            bad.write_text('value = "\\c"\n', encoding="utf-8")
+            failures = self.compile_failures([unreadable, bad])
+            self.assertEqual(len(failures), 2, failures)
+            self.assertTrue(failures[0].startswith(f"{unreadable}: unreadable: ValueError: "),
+                            failures)
+            self.assertTrue(failures[1].startswith(f"{bad}: "), failures)
+            self.assertIn("invalid escape sequence", failures[1])
+
+    def test_every_tracked_python_file_compiles_without_syntax_warning(self) -> None:
+        """Every tracked Python file compiles under compile_failures, and that checker fires.
+
+        The repository check asserts an empty result, which a checker that reports nothing
+        would also give. The planted-failure tests show the checker itself fires:
+        test_check_flags_an_invalid_escape_and_passes_its_fix,
+        test_an_invalid_escape_fails_with_the_error_filter_after_its_warning_was_recorded_once,
+        test_discovery_follows_the_tracked_file_list_in_any_directory and
+        test_an_unreadable_listed_file_is_reported_as_an_unreadable_failure. This test also
+        asserts that the same checker reports a planted file holding an invalid escape.
+        Flip: with compile_failures reporting nothing, or with its "error" filter taken out,
+        this test fails."""
+        targets = self.targets()
+        self.assertTrue(targets)
+        failures = self.compile_failures(targets)
+        self.assertEqual(failures, [], "\n".join(failures))
+        with tempfile.TemporaryDirectory() as tmp:
+            planted = Path(tmp) / "planted_invalid_escape.py"
+            planted.write_text('value = "\\c"\n', encoding="utf-8")
+            self.assertIn("invalid escape sequence", "".join(self.compile_failures([planted])))
+
+    def test_check_flags_an_invalid_escape_and_passes_its_fix(self) -> None:
+        """Flip: planted invalid escapes, one in a string and one in a docstring, fail the check;
+        the escaped and raw forms pass."""
+        with tempfile.TemporaryDirectory() as tmp:
+            bad = Path(tmp) / "bad.py"
+            bad.write_text('value = "\\c"\n', encoding="utf-8")
+            doc = Path(tmp) / "doc.py"
+            doc.write_text('def f():\n    """leaving\n    \\c at the end"""\n', encoding="utf-8")
+            escaped = Path(tmp) / "escaped.py"
+            escaped.write_text('value = "\\\\c"\n', encoding="utf-8")
+            raw = Path(tmp) / "raw.py"
+            raw.write_text('value = r"\\c"\n', encoding="utf-8")
+            failures = self.compile_failures([bad, doc, escaped, raw])
+            self.assertEqual(len(failures), 2, failures)
+            self.assertTrue(failures[0].startswith(f"{bad}: "), failures)
+            self.assertTrue(failures[1].startswith(f"{doc}: "), failures)
+            for failure in failures:
+                self.assertIn("invalid escape sequence", failure)
+            # The two passing forms keep the value of the original: a backslash and c.
+            for path in (escaped, raw):
+                scope = {}
+                exec(compile(path.read_bytes(), str(path), "exec", dont_inherit=True), scope)
+                self.assertEqual(scope["value"], "\\c")
+
+
+class CompileCheckWordingAndDiscoveryTests(unittest.TestCase):
+    """Rows for the compile check: what its docstrings say, and what discovery skips.
+
+    Each row fails on the earlier text or code: a docstring and comment that named
+    SyntaxWarning as an exception compile_failures receives, a docstring that named
+    ValueError for a NUL byte on versions never run, a discovery that listed a submodule
+    entry named like a Python file, and a singular docstring over two planted escapes."""
+
+    @staticmethod
+    def _doc(func) -> str:
+        return " ".join((func.__doc__ or "").split())
+
+    def test_an_invalid_escape_under_the_error_filter_is_reported_as_a_syntax_error(self) -> None:
+        """Under the "error" filter an invalid escape is reported as SyntaxError, and the text says so.
+
+        compile_failures reports a planted invalid escape as "<path>: SyntaxError: ...";
+        neither its docstring nor its except comment lists SyntaxWarning among the
+        exceptions compile raises there."""
+        import inspect
+        with tempfile.TemporaryDirectory() as tmp:
+            bad = Path(tmp) / "bad.py"
+            bad.write_text('value = "\\c"\n', encoding="utf-8")
+            failures = SyntaxWarningCompileTests.compile_failures([bad])
+        self.assertEqual(len(failures), 1, failures)
+        self.assertTrue(failures[0].startswith(f"{bad}: SyntaxError: "), failures)
+        self.assertIn("invalid escape sequence", failures[0])
+        doc = self._doc(SyntaxWarningCompileTests.compile_failures)
+        self.assertNotIn("(SyntaxWarning, SyntaxError", doc)
+        self.assertIn("a SyntaxError, which is what compile raises for an invalid escape under "
+                      'the "error" filter', doc)
+        source = inspect.getsource(SyntaxWarningCompileTests.compile_failures)
+        self.assertNotIn("# SyntaxWarning (under the filter above)", source)
+        self.assertIn("compile reports an invalid escape by raising", source)
+        self.assertIn("SyntaxError, not SyntaxWarning.", source)
+
+    def test_the_nul_byte_text_names_only_the_version_run(self) -> None:
+        """The NUL byte docstring names the exception of the version run, and no other version.
+
+        On Python 3.14 compile raises SyntaxError for a NUL byte, which the docstring
+        names; it makes no claim about older versions, which were not run."""
+        try:
+            compile(b"value = 1\x00\n", "nul_byte.py", "exec", dont_inherit=True)
+        except Exception as exc:
+            raised = type(exc).__name__
+        else:
+            self.fail("compile accepted a NUL byte")
+        if sys.version_info[:2] == (3, 14):
+            self.assertEqual(raised, "SyntaxError")
+        doc = self._doc(SyntaxWarningCompileTests.test_any_exception_compile_raises_is_a_failure_naming_the_file)
+        self.assertIn("(SyntaxError on Python 3.14, the only version run)", doc)
+        self.assertNotIn("ValueError on older ones", doc)
+
+    def test_discovery_leaves_out_a_submodule_entry_named_like_a_python_file(self) -> None:
+        """A gitlink named like a Python file is not listed; a tracked Python file beside it is.
+
+        A temporary repository tracks real.py, holding an invalid escape, and a gitlink
+        (mode 160000) at sub.py, with an empty directory at that path as an uninitialized
+        submodule leaves. tracked_python lists real.py only, and compile_failures reports
+        real.py only, not sub.py as unreadable."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            git_env = fixture_git_environment()
+            subprocess.run(["git", "init", "-q", str(root)], check=True, capture_output=True,
+                           env=git_env)
+            real = root / "real.py"
+            real.write_text('value = "\\c"\n', encoding="utf-8")
+            (root / "sub.py").mkdir()
+            subprocess.run(["git", "-C", str(root), "add", "--", "real.py"],
+                           check=True, capture_output=True, env=git_env)
+            subprocess.run(["git", "-C", str(root), "update-index", "--add", "--cacheinfo",
+                            "160000,1111111111111111111111111111111111111111,sub.py"],
+                           check=True, capture_output=True, env=git_env)
+            staged = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--stage"],
+                                    check=True, capture_output=True, env=git_env)
+            self.assertIn(b"160000 1111111111111111111111111111111111111111 0\tsub.py\0",
+                          staged.stdout)
+            listed = SyntaxWarningCompileTests().tracked_python(root, env=git_env)
+            self.assertEqual(listed, [real])
+            failures = SyntaxWarningCompileTests.compile_failures(listed)
+            self.assertEqual(len(failures), 1, failures)
+            self.assertTrue(failures[0].startswith(f"{real}: SyntaxError: "), failures)
+        doc = self._doc(SyntaxWarningCompileTests.tracked_python)
+        self.assertIn("A gitlink (mode 160000, a submodule) is left out whatever its name", doc)
+        self.assertIn("A submodule entry (a gitlink, mode 160000) is not listed",
+                      " ".join(SyntaxWarningCompileTests.__doc__.split()))
+
+    def test_the_planted_escape_docstring_names_both_planted_escapes(self) -> None:
+        """The docstring of the planted-escape test names both escapes it plants and expects to fail."""
+        import inspect
+        func = SyntaxWarningCompileTests.test_check_flags_an_invalid_escape_and_passes_its_fix
+        doc = self._doc(func)
+        self.assertIn("planted invalid escapes, one in a string and one in a docstring, fail "
+                      "the check", doc)
+        self.assertNotIn("a planted invalid escape fails the check", doc)
+        self.assertIn("self.assertEqual(len(failures), 2, failures)", inspect.getsource(func))
+
+
+class CompileCheckCoverageListingAndEscapeTests(unittest.TestCase):
+    """Rows for the coverage listing of the compile check and for the invalid escape this module held.
+
+    The expected set of the coverage test comes from the same mode-aware listing that
+    discovery uses, so a gitlink named like a Python file under a covered directory is in
+    neither set. The docstring line about the backslash and c that bash keeps once held a
+    single backslash before c, an invalid escape; it is now doubled, and its single form
+    fails the check."""
+
+    DOUBLED = "        \\\\c at the end of the text, which bash keeps as a backslash and c (checked last). A"
+
+    def test_the_expected_set_leaves_out_a_gitlink_under_a_covered_directory(self) -> None:
+        """A gitlink named like a Python file under a covered directory is in neither set.
+
+        A temporary repository tracks tests/real.py and a gitlink (mode 160000) at
+        tests/sub.py, with an empty directory at that path as an uninitialized submodule
+        leaves. covered_python for the tests directory gives tests/real.py only, and
+        discovery under that directory gives the same set. Flip: with covered_python built
+        from plain ``git ls-files -z -- <directory>...``, which carries no mode, the
+        expected set also holds tests/sub.py and this test fails."""
+        checker = SyntaxWarningCompileTests()
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            git_env = fixture_git_environment()
+            subprocess.run(["git", "init", "-q", str(root)], check=True, capture_output=True,
+                           env=git_env)
+            (root / "tests").mkdir()
+            (root / "tests" / "real.py").write_text("value = 1\n", encoding="utf-8")
+            (root / "tests" / "sub.py").mkdir()
+            subprocess.run(["git", "-C", str(root), "add", "--", "tests/real.py"],
+                           check=True, capture_output=True, env=git_env)
+            subprocess.run(["git", "-C", str(root), "update-index", "--add", "--cacheinfo",
+                            "160000,1111111111111111111111111111111111111111,tests/sub.py"],
+                           check=True, capture_output=True, env=git_env)
+            staged = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--stage",
+                                     "--", "tests"],
+                                    check=True, capture_output=True, env=git_env)
+            self.assertIn(b"160000 1111111111111111111111111111111111111111 0\ttests/sub.py\0",
+                          staged.stdout)
+            expected = checker.covered_python(root, ("tests",), env=git_env)
+            discovered = {path.relative_to(root).as_posix()
+                          for path in checker.tracked_python(root, env=git_env)}
+            discovered = {name for name in discovered if name.startswith("tests/")}
+        self.assertEqual(expected, {"tests/real.py"})
+        self.assertEqual(discovered, expected)
+
+    def test_the_single_backslash_form_of_the_bash_docstring_line_fails_the_check(self) -> None:
+        """The docstring line about the backslash and c that bash keeps is doubled; its single form fails.
+
+        This module holds that line exactly once, with the backslash before c doubled, and
+        no line with the single form, and it passes compile_failures. A copy of this module
+        with that line put back to the single form fails compile_failures with a
+        SyntaxError naming that line. Flip: with the "error" filter taken out of
+        compile_failures, the copy is not reported and this test fails; with the single
+        form put back in this module, the count assertions fail."""
+        module = Path(__file__).resolve()
+        lines = module.read_text(encoding="utf-8").split("\n")
+        single = self.DOUBLED.replace("\\\\c", "\\c", 1)
+        self.assertEqual(lines.count(self.DOUBLED), 1)
+        self.assertEqual(lines.count(single), 0)
+        lineno = lines.index(self.DOUBLED) + 1
+        self.assertEqual(SyntaxWarningCompileTests.compile_failures([module]), [])
+        with tempfile.TemporaryDirectory() as tmp:
+            copy = Path(tmp) / "test_linters_single_backslash.py"
+            copy.write_text("\n".join(lines[:lineno - 1] + [single] + lines[lineno:]),
+                            encoding="utf-8")
+            failures = SyntaxWarningCompileTests.compile_failures([copy])
+        self.assertEqual(len(failures), 1, failures)
+        self.assertTrue(failures[0].startswith(f"{copy}: SyntaxError: "), failures)
+        self.assertIn("invalid escape sequence", failures[0])
+        self.assertIn(f"line {lineno})", failures[0])
 
 
 if __name__ == "__main__":

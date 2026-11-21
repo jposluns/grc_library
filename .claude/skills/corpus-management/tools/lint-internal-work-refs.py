@@ -118,7 +118,7 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 
 # Whole-tree count pinned by strict equality. Lower it in the same change
 # that removes references; never raise it.
-FLOOR = 306
+FLOOR = 305
 
 SCAN_DIRS = (".claude", "tools", "tests")
 EXCLUDED_DIRS = (".claude/aiqt", ".claude/rules/aiqt", "tests/tmp")

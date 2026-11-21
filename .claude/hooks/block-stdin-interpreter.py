@@ -379,8 +379,23 @@ ALLOWED:
     the listed shapes (``bash -c 'bash' < /abs/run.sh``).
   * a here-document whose delimiter has a quote or a backslash in it (<<'EOF', <<"EOF"),
     whatever its body holds, and one with an unquoted delimiter whose body holds no $(, ${,
-    $[ and no backtick, or names no listed interpreter, source or . (``cat <<EOF`` with
-    ``$(date)`` in the body).
+    $[ or backtick that bash expands, or names no listed interpreter, source or . (``cat
+    <<EOF`` with ``$(date)`` in the body), when no line continuation in it moves where bash
+    ends the body (RESIDUALS, below). An odd run of backslashes before a $(, ${, $[ or
+    backtick makes it text only where the here-document stands at the top level of the
+    command (``cat <<EOF`` with ``\\$(cat /abs/run.sh | bash)`` in the body); inside a
+    backtick or $( ) substitution, a <( ) or >( ) process substitution or any other nested
+    text, an escaped mark counts as a live one (RESIDUALS, below), and so it does where the
+    deny-by-default rule reads eval text, a -c string or a flock -c string as a line of its
+    own (``eval "cat <<EOF``, then ``\\$(cat /abs/run.sh | bash)``, then ``EOF"``, where
+    bash removes the backslash inside the double quotes, is refused). Some of these
+    refusals are false, because bash reads the mark as text; for example (not a complete
+    list) the same body inside ``echo $(cat <<EOF`` ... ``)``, inside ``cat <(cat <<EOF``
+    ... ``)``, in single-quoted eval text, and in the body of a function defined at the
+    top level in the ``f() { ... }`` form, which the deny-by-default rule reads as a line
+    of its own (``f() { cat <<EOF``, then ``\\$(cat /abs/run.sh | bash)``, then ``EOF``,
+    then ``}``, is refused, while the same body in ``function f { ... }`` or ``{ ...; }``
+    is allowed).
   * an informational call that reads no program (--version, -V, --help, -h and the like).
   * bash, rbash, sh, zsh or dash with no script operand and no listed standard-input shape (a bare
     ``bash``), or with standard input redirected from a named file (``bash < run.sh``): the
@@ -525,15 +540,53 @@ RESIDUALS, stated because they are real gaps:
     taking no argument, as the manual's -E, and its list only after an =.
   * by the rules above, a -c string (bash, rbash, sh, zsh and dash only) and an unquoted
     here-document body are never read as commands: the presence tests above stand in for
-    that and do not tell a command from text, a substitution from an escaped one, or which
-    standard input a command has. The deny-by-default rule reads a listed shell's -c
+    that and do not tell a command from text or which standard input a command has, and the
+    -c string's test does not tell a substitution from an escaped one (the body's test
+    does, below, for its marks only and at the top level only: it does not tell whether a
+    listed name stands inside
+    a mark bash expands, so an escaped substitution beside a live one is refused). The
+    deny-by-default rule reads a listed shell's -c
     string as a line of its own (above), so some lines these tests allow are refused there.
     Over-refusals, each refused whatever it runs: in a -c string, a listed name together
     with any of | < > ( [ { ' " or a backtick (``bash -c 'echo $(python3 /abs/s.py)'``,
     ``bash -c 'python3 /abs/s.py > /abs/out'``, ``bash -c "python3 '/abs/a b.py'"``); in an
-    unquoted body, a listed name together with a $(, ${, $[ or backtick (``cat <<EOF`` with
-    ``$(python3 /abs/s.py)``, with an escaped ``\\$(cat /abs/run.sh | bash)`` or with
-    ``python3 at ${HOME}`` in the body); in a -c
+    unquoted body, a listed name together with a $(, ${, $[ or backtick that bash expands
+    (``cat <<EOF`` with ``$(python3 /abs/s.py)``, with ``\\\\$(cat /abs/run.sh | bash)``,
+    where the even run of backslashes leaves the $( live, or with ``python3 at ${HOME}`` in
+    the body, or with ``\\$(cat /abs/run.sh | bash) $(date)``, where bash runs date only
+    and the listed name is text), or with a $ and one of ( { [ that only dropping a quote
+    brings together (``$"(bash)"``), or, in a body inside a backtick substitution, with
+    a $( that bash reads as text (two or three backslashes before it, below), and any
+    unquoted body where a line continuation moves where bash ends it, whatever the body
+    holds. A $(, ${, $[ or backtick with an
+    odd run of backslashes before it is
+    text to bash and is not a mark (``cat <<EOF`` with ``\\$(cat /abs/run.sh | bash)`` in
+    the body is allowed); the body is read once, from its start, and a backslash takes the
+    next character, so an escaped backslash before a newline leaves the newline in place
+    (``\\\\``, a newline, then ``\\$(bash)`` is text), while a backslash-newline pair is
+    removed, so a $ and a backslash at a line's end followed by ( on the next line is a
+    $(. That allowance is an allow-list: it holds only for a here-document at the top
+    level of the command. Inside a backtick substitution bash removes one round of
+    backslashes (each backslash before a $, a backtick or a backslash) before it reads the
+    here-document, so a $( with one backslash before it is live there (``echo `cat <<EOF``,
+    then ``\\$(cat /abs/run.sh | bash)``, then ``EOF`` and a closing backtick), while a run
+    that the round leaves odd (two or three backslashes leave one) makes the $( text to
+    bash, yet it still counts here: a stated over-refusal (``echo `cat <<EOF``, then
+    ``\\\\$(cat /abs/run.sh | bash)``, then ``EOF`` and a closing backtick, runs nothing
+    and is refused). In a here-document inside a backtick or $( ) substitution, a <( ) or
+    >( ) process substitution, an array assignment or any other nested text, every $(, ${,
+    $[ and backtick counts, escaped or not, which over-refuses where bash removes no round
+    (``echo $(cat <<EOF``, then ``\\$(cat /abs/run.sh | bash)``, then ``EOF`` and ``)``)
+    and, inside a backtick substitution, where that round leaves an odd run. A
+    here-document inside eval text is not read by this test (the eval residual, above); the
+    deny-by-default rule reads eval text as a line of its own, and there every escaped mark
+    in an unquoted body counts as a live one.
+    bash also joins a body line that ends in such a pair to the next line before it looks
+    for the delimiter (``cat <<EOF``, then ``x\\``, then ``EOF``: bash reads xEOF and the
+    body goes on), so an unquoted body is refused unread, whatever it holds, when a
+    reading that removes every backslash-newline pair first, or one where a backslash
+    takes the next character, ends it at another line than the hook's line-by-line
+    reading does; in a -c
     string, $'...' or $"..." quoting anywhere (``bash -c 'echo $"hi"'``), and a listed name
     not followed by a script path in the forms above, as text or as an argument (``bash -c
     'echo python3'``, ``bash -c 'python3 -u /abs/s.py'``, ``bash -c 'bash -x
@@ -950,6 +1003,46 @@ def _skip_body(src, pos, delimiter, strip_tabs):
     return n, n
 
 
+def _joined_body_end(src, pos, delimiter, strip_tabs, verbatim):
+    """Where an unquoted here-document body starting at pos ends when each line that
+    ends in a backslash-newline pair is joined to the next, as bash joins them before
+    it looks for the delimiter: the start of the terminator's first line, or the end.
+
+    verbatim True reads the body once from its start, as bash 5.3 reads it: a backslash
+    before a newline is removed with that newline, and any other backslash takes the next
+    character, so an escaped backslash before a newline leaves the newline in place and
+    ends the line. verbatim False takes no backslash as escaped: it removes every
+    backslash-newline pair, the one after an escaped backslash too. False is a cautious
+    second reading, not bash's; where the two readings end the body at different places
+    the caller refuses the body unread, so a body bash ends where the True reading does
+    can still be refused (an escaped backslash alone on the line before the delimiter,
+    for one). A line is compared after the pairs are removed and, for <<-, its leading
+    tabs are stripped.
+    """
+    n = len(src)
+    while pos < n:
+        start, line = pos, []
+        while pos < n:
+            ch = src[pos]
+            if ch == "\\" and pos + 1 < n:
+                if src[pos + 1] == "\n":
+                    pos += 2
+                    continue
+                if verbatim:
+                    line.append(src[pos:pos + 2])
+                    pos += 2
+                    continue
+            if ch == "\n":
+                break
+            line.append(ch)
+            pos += 1
+        text = "".join(line)
+        if (text.lstrip("\t") if strip_tabs else text) == delimiter:
+            return start
+        pos += 1
+    return n
+
+
 # One-character escapes of $'...' quoting, as bash decodes them.
 _ANSI_C_SIMPLE = {"a": "\a", "b": "\b", "e": "\x1b", "E": "\x1b", "f": "\f", "n": "\n",
                   "r": "\r", "t": "\t", "v": "\v", "\\": "\\", "'": "'", '"': '"', "?": "?"}
@@ -1199,14 +1292,17 @@ def _lex_array(src, pos, depth, word):
     return end
 
 
-def _lex(src, pos, depth, closer):
+def _lex(src, pos, depth, closer, top=False):
     """Tokens of src from pos up to closer (None, ')' or a backtick), and the end position.
 
     A token is ("W", Word), ("PSUB", "<" or ">", tokens) or ("OP", operator, fd).
-    Here-document bodies are skipped, never tokenized.
+    Here-document bodies are skipped, never tokenized. top is True only for the hook's
+    command itself (closer None, depth 0); every nested call leaves it False, and an
+    escaped mark in an unquoted here-document body is text only where it is True.
     """
     if depth > MAX_DEPTH:
         raise ParseError("nesting deeper than " + str(MAX_DEPTH) + " levels")
+    top = top and closer is None and depth == 0
     tokens, pending = [], []
     word, want_delimiter, paren = None, None, 0
     place, target = "start", False      # where the next word stands (_next_place)
@@ -1282,9 +1378,19 @@ def _lex(src, pos, depth, closer):
                 body_end, after = _skip_body(src, pos, delimiter.text, strip_tabs)
                 if not delimiter.quoted:
                     # An unquoted delimiter: bash expands the body. It is not parsed; the
-                    # presence test refuses it unread.
+                    # presence test refuses it unread. bash joins a line ending in a
+                    # backslash-newline pair to the next before it looks for the
+                    # delimiter; where that moves the body's end, read either way, the
+                    # hook cannot tell body from command and refuses it unread.
+                    if any(_joined_body_end(src, pos, delimiter.text, strip_tabs, verbatim)
+                           != body_end for verbatim in (True, False)):
+                        raise Refused([Word("<<" + delimiter.text)], JOIN_REASON)
+                    # An escaped mark is text only at the top level (top) and only in a
+                    # body with no NUL (_body_presence): inside a backtick substitution
+                    # bash removes a round of backslashes before it reads the body, so in
+                    # any nested text every mark counts, escaped or not.
                     body = src[pos:body_end]
-                    if _body_presence(body, _plain_text(body)):
+                    if _body_presence(body, escapes=top):
                         raise Refused([Word("<<" + delimiter.text)], BODY_REASON)
                 pos = after
             pending.clear()
@@ -2266,6 +2372,8 @@ OPERATOR_REASON = ("the -c string names an interpreter together with a pipe, a r
                    "not read, so it is refused unread")
 FORM_REASON = ("the -c string names an interpreter not followed by a script path (as in "
                "python3 -I /abs/s.py), which this hook does not read, so it is refused unread")
+JOIN_REASON = ("a line continuation in the unquoted here-document body moves where bash "
+               "ends the body, which this hook does not read, so it is refused unread")
 BODY_REASON = ("the unquoted here-document body holds a $( or a backtick (or a ${ or $[) "
                "together with an interpreter's name, which this hook does not read, so it is "
                "refused unread")
@@ -2300,10 +2408,55 @@ def _names_a_listed_name(*texts):
     return any(INTERPRETER_NAME.search(text) or _listed_names(text) for text in texts)
 
 
-def _body_presence(*texts):
-    """True when an unquoted here-document body holds a $(, ${, $[ or backtick and a listed name."""
+def _unescaped_body_text(body):
+    """body read for the marks of the presence test, as bash expands an unquoted body at
+    the top level of a command.
+
+    In such a body a backslash quotes only a backslash, a $, a backtick and a newline: an
+    escaped $ or backtick is text, and a backslash-newline pair is removed, which can join
+    a $ to a ( on the next line. The body is read once, from its start: a backslash takes
+    the next character, whatever it is, so an escaped backslash before a newline leaves
+    the newline in place, and each backslash-newline pair is removed. An escaped
+    backslash, $ or backtick is then replaced by a character that is part of no mark, and
+    quotes are dropped, as _plain_text drops them.
+    """
+    first, i, n = [], 0, len(body)
+    while i < n:
+        if body[i] == "\\" and i + 1 < n:
+            if body[i + 1] != "\n":
+                first.append(body[i:i + 2])
+            i += 2
+        else:
+            first.append(body[i])
+            i += 1
+    text = "".join(first)
+    out, i, n = [], 0, len(text)
+    while i < n:
+        if text[i] == "\\" and i + 1 < n and text[i + 1] in "\\$`":
+            out.append("_")
+            i += 2
+        else:
+            out.append(text[i])
+            i += 1
+    return re.sub(r"['\"]", "", "".join(out))
+
+
+def _body_presence(body, escapes=False):
+    """True when an unquoted here-document body holds a $(, ${, $[ or backtick and a
+    listed name.
+
+    With escapes True (a here-document at the top level of the command) and a body that
+    holds no NUL, a mark that an odd run of backslashes escapes is text and does not count
+    (_unescaped_body_text). bash drops each NUL from its input, which changes how the
+    backslashes around it pair, so a body holding a NUL is read as with escapes False.
+    With escapes False (any nested text) every mark counts, escaped or not, in the raw
+    body or with its quotes dropped.
+    """
+    if "\x00" in body:
+        escapes = False
+    texts = [_unescaped_body_text(body)] if escapes else [body, _plain_text(body)]
     return (any(mark in text for text in texts for mark in _BODY_MARKS)
-            and _names_a_listed_name(*texts))
+            and _names_a_listed_name(body, _plain_text(body)))
 
 
 def _not_given_a_script(kind, rest, stdin_shape):
@@ -2471,7 +2624,7 @@ def _decide_text(command, base, depth):
     When none refuses, an assignment prefix followed by a reserved word is refused in a
     command line that feeds standard input to an interpreter.
     """
-    tokens, _end = _lex(command, 0, depth, None)
+    tokens, _end = _lex(command, 0, depth, None, top=depth == 0)
     found = []
     _commands(tokens, found, base)
     for cmd in found:
@@ -2698,7 +2851,7 @@ def _deny_by_default(command, depth=0, functions=None, scope=None):
     if not any(feed in text for text in (command, plain) for feed in UNMODELLED_FEEDS):
         return None
     functions = {**(functions or {}), **_function_bodies(command)}
-    scanner = _FeedScanner(command, 0)
+    scanner = _FeedScanner(command, 0, escapes=depth == 0)
     try:
         scanner.scan(0, None)
     except _Unlocated as exc:
@@ -2761,10 +2914,14 @@ class _FeedScanner:
     command's start are read as one word. Anything that cannot be read raises _Unlocated.
     """
 
-    def __init__(self, src, depth):
+    def __init__(self, src, depth, escapes=True):
         if depth > MAX_DEPTH:
             raise _Unlocated("nesting deeper than " + str(MAX_DEPTH))
         self.src, self.depth = src, depth
+        # False for a line the deny-by-default rule reads again (eval text, a -c string, a
+        # flock -c string) and for text inside a backtick substitution, at any depth below
+        # it: there an escaped mark in an unquoted body is read as live.
+        self.escapes = escapes
         self.commands = []
         self.cur = None
         self.word = None        # raw text of the word being read
@@ -2814,7 +2971,10 @@ class _FeedScanner:
         self.cur = None
 
     def nested(self, kind, pos, closer):
-        inner = _FeedScanner(self.src, self.depth + 1)
+        # Bash removes one round of backslashes before $ ` or \ inside backticks before it
+        # reads the text. Every mark below is read as live (escapes False below it), which
+        # over-refuses a mark that the round leaves escaped (two or three backslashes).
+        inner = _FeedScanner(self.src, self.depth + 1, self.escapes and kind != "`")
         end = inner.scan(pos, closer)
         self.command().nested.append((kind, inner))
         return end
@@ -2925,7 +3085,11 @@ class _FeedScanner:
         raise _Unlocated("an unterminated extended pattern")
 
     def bodies(self, pos):
-        """Skip the bodies of the here-documents opened on the line that ended at pos."""
+        """Skip the bodies of the here-documents opened on the line that ended at pos.
+
+        A backslash takes the next character only where self.escapes is True; elsewhere (a
+        line read again, or text inside a backtick substitution) an escaped $( ${ or
+        backtick in an unquoted body is read as a live one."""
         pending, self.pending = self.pending, []
         for cmd, raw, strip_tabs in pending:
             delimiter = re.sub(r"['\"]", "", re.sub(r"\\(.)", r"\1", raw))
@@ -2937,7 +3101,7 @@ class _FeedScanner:
                 saved, self.cur = self.cur, cmd
                 p = pos
                 while p < body_end:
-                    if self.src[p] == "\\":
+                    if self.src[p] == "\\" and self.escapes:
                         p += 2
                     elif self.src.startswith(("$(", "${"), p):
                         p = self.dollar_span(p)
@@ -4113,7 +4277,47 @@ SELF_TEST = [
     ("cat <<'EOF'\n$(cat /abs/run.sh | bash)\nEOF", False),
     ('cat <<"EOF"\n$(cat /abs/run.sh | bash)\nEOF', False),
     ('cat <<\\EOF\n$(cat /abs/run.sh | bash)\nEOF', False),
-    ('cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF', True),
+    ('cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF', False),
+    ('cat <<EOF\n\\\\\\$(cat /abs/run.sh | bash)\nEOF', False),
+    ('cat <<EOF\n\\`cat /abs/run.sh | bash\\`\nEOF', False),
+    ('cat <<EOF\npython3 at \\${HOME}\nEOF', False),
+    ('cat <<EOF\n\\$[1] bash\nEOF', False),
+    ('cat <<EOF\n\\\\$(cat /abs/run.sh | bash)\nEOF', True),
+    ('cat <<EOF\n\\\\\\\\$(cat /abs/run.sh | bash)\nEOF', True),
+    ('cat <<EOF\n\\\\`cat /abs/run.sh | bash`\nEOF', True),
+    ('cat <<EOF\n$\\\n(cat /abs/run.sh | bash)\nEOF', True),
+    ('cat <<EOF\n\\\n$(cat /abs/run.sh | bash)\nEOF', True),
+    ('cat <<EOF\n\\${x:-$(cat /abs/run.sh | bash)}\nEOF', True),
+    ('cat <<EOF\n\\$(echo $(cat /abs/run.sh | bash))\nEOF', True),
+    ('cat <<EOF\n\\$(cat /abs/run.sh | bash) $(date)\nEOF', True),
+    ('cat <<EOF\n$[1] bash\nEOF', True),
+    ('cat <<EOF\n$"(cat /abs/run.sh | bash)"\nEOF', True),
+    ('cat <<EOF\n$(date) bash\nEOF', True),
+    ('cat <<EOF\n\\${HOME} \\$(python3 /abs/s.py)\nEOF', False),
+    ("bash -c 'echo \\$(python3 /abs/s.py)'", True),
+    ('cat <<EOF\nx\\\nEOF\n# $(cat /abs/run.sh | bash)\nEOF', True),
+    ('cat <<-EOF\n\tx\\\n\tEOF\n# $(cat /abs/run.sh | bash)\nEOF', True),
+    ('cat <<EOF\nE\\\nOF\ncat /abs/run.sh | bash\nEOF', True),
+    ('cat <<EOF\nfoo \\\nbar\nEOF', False),
+    ('cat <<EOF\n\\\\\n\\$(cat /abs/run.sh | bash)\nEOF', False),
+    ('cat <<EOF\n\\\\\n\\$(bash)\nEOF', False),
+    ('cat <<EOF\n\\\x00\\$(cat /abs/run.sh | bash)\nEOF', True),
+    ('cat <<EOF\n\\\\\nEOF\n', True),
+    ('true; cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF', False),
+    ('echo `cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n`', True),
+    ('echo "`cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n`"', True),
+    ('echo `echo \\`cat <<EOF\n\\\\\\$(cat /abs/run.sh | bash)\nEOF\n\\``', True),
+    ('echo `cat <<EOF\n\\\\\n\\$(cat /abs/run.sh | bash)\nEOF\n`', True),
+    ('`cat <<EOF\n\\$(cat x | eval b\\${x}ash)\nEOF\n`', True),
+    ('echo `cat <<EOF\n\\$(cat /abs/run.sh | eval b\\${x}ash)\nEOF\n`', True),
+    ('echo "`cat <<EOF\n\\$(cat /abs/run.sh | eval b\\${x}ash)\nEOF\n`"', True),
+    ('f() { cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n}', True),
+    ('echo $(cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n)', True),
+    ('echo "$(cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n)"', True),
+    ('eval "$(cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n)"', True),
+    ('eval "cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n"', True),
+    ("eval 'cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n'", True),
+    ('cat <(cat <<EOF\n\\$(cat /abs/run.sh | bash)\nEOF\n)', True),
     ('cat <<EOF\n$(python3 /abs/s.py)\nEOF', True),
     ('cat <<EOF\n$(cat /abs/run.sh | grep x)\nEOF', False),
     ("cat <<'EOF'\nbash -c 'cat /abs/run.sh | bash'\nEOF", False),
