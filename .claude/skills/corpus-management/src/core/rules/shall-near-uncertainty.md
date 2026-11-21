@@ -7,8 +7,17 @@ marker (``TBD``, ``TODO``, ``FIXME``, ``XXX``, ``[Unverified]``, ``placeholder``
 prescriptive requirement sitting next to an unfinished-content marker is a drafting
 hazard: the requirement is stated as binding while the content it rests on is admittedly
 incomplete. Both the uncertainty marker and the mandatory word are read outside fenced
-code blocks; a marker inside a fence is example syntax, not prose, and is not counted. A
-mandatory word with no uncertainty marker within the window, and any marker inside a
-fenced block, are not flagged. The exempt files, those that legitimately discuss the
-markers rather than using them, are the project's scan configuration and are not part of
-this clause.
+code blocks; a marker inside a fence is example syntax, not prose, and is not counted. An
+uncertainty marker inside an inline code span is quoted rather than used and is not
+counted either; the mandatory word is read on the whole line, inside a code span or not.
+A code span is text on one line between a run of backticks and the next run of exactly
+the same length, neither run touching a further backtick. As in CommonMark, a backtick
+escaped by a backslash outside a span is literal text and opens no span, and inside a
+span a backslash is literal and does not stop the closing run. A run with no such partner
+on its line opens no span, and a span broken across lines is not recognized, so a marker
+after an unmatched run, between escaped backticks or inside a broken span is still
+counted. The text on the two sides of a code span never joins into a marker, so a line
+whose only marker would be formed across a span is not flagged. A mandatory word with no
+uncertainty marker within the window, and any marker inside a fenced block, are not
+flagged. The exempt files, those that legitimately discuss the markers rather than using
+them, are the project's scan configuration and are not part of this clause.

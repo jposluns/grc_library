@@ -56,7 +56,6 @@ import subprocess
 import sys
 from collections.abc import Iterable, Iterator, Sequence
 from pathlib import Path, PureWindowsPath
-from typing import NamedTuple
 
 # Repository root: four levels above this file
 # (``.claude/skills/corpus-management/tools/lint_common.py``).
@@ -1798,22 +1797,14 @@ def dynamic_floor(present: Iterable[int], floor: int) -> int:
     return max(floor, min(entries)) if entries else floor
 
 
-# --- Store-scope ceiling ---
-# A declaration or a clean-base scope enables deferral. A declaration is the single new
-# singular root header whose PR is absent from the merge-base root headers and from
-# origin/main's root headers and merge subjects. No other ref is consulted. Historical edits,
-# roll-ups, a merged PR's header and example headers do not declare an own PR. Read
-# origin/main locally, without fetching or API calls. Readers retain raw lines; uncertainty
-# widens evaluation. The invariant: a missing or wrong record for a merged PR, or for the
-# branch's own PR once declared, is never deferred, and ambiguity fails closed (no deferral). A
-# clean-base scope has no new header-like line against the merge-base, a parseable root
-# ceiling, and no root delimiters. Historical header-like lines already in the merge-base
-# (including milestones) do not invalidate it. It uses the same readable origin/main evidence,
-# protects merged PRs, and declares no own PR, so the own PR is unknown and cannot be
-# protected: a trailer-only PR (D1 `Changelog:` trailer, no root header) has its own mirror and
-# history entries deferred like any other open PR's until it merges, when origin/main's merge
-# subject protects it. A branch that adds its root header declares and leaves clean-base, so
-# its own entries are evaluated again.
+# --- Store-scope PR identity and own-PR declaration ---
+# This section holds the shared PR-identity grammar below, the CHANGELOG header readers
+# built on it, and the own-PR declaration (own_pr_declaration, declared_own_pr). A
+# declaration is the single new singular
+# root header whose PR is absent from the merge-base root headers and from origin/main's root
+# headers and merge subjects. No other ref is consulted; the caller reads origin/main
+# locally, without fetching or API calls. Historical edits, roll-ups, a merged PR's header and
+# example headers do not declare an own PR, and ambiguity fails closed (no PR is declared).
 #
 # ONE shared, case-insensitive PR-identity grammar reads every identity (root and mirror header
 # cells and register rows alike) and, from the same matched text, every range, so identity and
@@ -1866,9 +1857,8 @@ _HEADER_LIKE_RE = re.compile(
     re.IGNORECASE,
 )
 # Fenced-block and HTML-comment delimiters. Nothing is masked by them: they only make the
-# surrounding structure uncertain, which disables deferral from the delimiter line to the end
-# of the scanned text, and declaration when the delimiter line is at or above the candidate
-# header.
+# surrounding structure uncertain, which disables declaration when the delimiter line is at
+# or above the candidate header.
 STORE_EXAMPLE_DELIMITERS = (chr(96) * 3, "~~~", "<!--", "-->")
 
 
@@ -1935,8 +1925,9 @@ def _header_identity(line: str) -> tuple[str, StorePRs]:
 def changelog_header_prs(line: str) -> list[int]:
     """Read complete identities; unknown or ambiguous cells remain evaluated.
 
-    Ranges return endpoints here. Deferral separately checks their interiors
-    against protected root/main ranges, without expanding large ranges.
+    Ranges return endpoints here. The own-PR declaration checks each PR against
+    the merge-base and origin/main ranges as intervals, interiors included,
+    without expanding large ranges.
     """
     _cell, prs = _header_identity(line)
     return list(prs) if prs.certain else []
@@ -1989,7 +1980,7 @@ def own_pr_declaration(changelog_text: str, base_changelog_text: str,
     ambiguous and fails closed, so a fenced or commented example header can
     never declare. No other ref is read: an open PR's header carried onto a
     stacked branch that has no own entry yet is indistinguishable offline from
-    an own entry and declares; every deferral note names the declared PR.
+    an own entry and declares.
     """
     base_lines = {line.strip() for line in base_changelog_text.splitlines()
                   if changelog_header_like(line)}
@@ -2030,137 +2021,6 @@ def declared_own_pr(changelog_text: str, base_changelog_text: str,
     """The declared own PR (see own_pr_declaration), or None."""
     return own_pr_declaration(changelog_text, base_changelog_text, main_changelog_text,
                               merged_prs)[0]
-
-
-class StoreScope(NamedTuple):
-    """Declaration, numeric ceiling, and offline protected PR coverage.
-
-    Read by the deferral functions below. Nothing in the repository builds one
-    any more (the store-scope builder and its git readers were removed after gate
-    59 stopped deferring); this type and those functions are removed separately. A
-    scope built without ``open_rule`` keeps only the ceiling rule.
-    """
-
-    root_max: int | None
-    own_pr: int | None
-    ceiling: int | None
-    note: str | None
-    branch_prs: tuple[tuple[int, int], ...] = ()
-    merged_prs: tuple[tuple[int, int], ...] = ()
-    open_rule: bool = False
-
-
-_STORE_ROW_TAIL_RE = re.compile(
-    r"\s*(?:(?:iteration|addendum)(?:\s+\(/retro\))?|\(/retro\))\s*", re.IGNORECASE
-)
-
-
-def store_row_prs(cell: str) -> StorePRs:
-    """Read a leading combined identity; uncertain tails cannot defer a row.
-
-    Prose PR mentions do not become row keys. They make deferral uncertain,
-    so an unfamiliar or truncated identity still reaches row-integrity checks.
-    Values and ranges come from the one grammar match, so they cannot disagree.
-    """
-    match = STORE_PR_IDENTITY_RE.match(cell)
-    if match is None:
-        return StorePRs([], certain=False)
-    tail = cell[match.end():]
-    certain = not tail.strip() or bool(_STORE_ROW_TAIL_RE.fullmatch(tail))
-    values, spans = _identity_parts(match.group(0))
-    return StorePRs(sorted(set(values)), certain=certain, spans=spans)
-
-
-def store_history_prs(cell: str, keys: Iterable[int]) -> StorePRs:
-    """History-row keys carrying the identity metadata deferral needs.
-
-    The register's own token reader supplies the keys. Deferral is certain
-    only when the complete leading identity names exactly those keys, and
-    its ranges protect their interiors, as for retro rows.
-    """
-    values = sorted(set(keys))
-    identity = store_row_prs(cell)
-    return StorePRs(values, certain=identity.certain and list(identity) == values,
-                    spans=identity.spans)
-
-
-def store_deferral_reason(prs: Iterable[int], ceiling: int | StoreScope | None) -> str | None:
-    """Explain a whole-entry deferral, or return None to require evaluation."""
-    if not getattr(prs, "certain", True):
-        return None
-    named = list(prs)
-    scope = ceiling if isinstance(ceiling, StoreScope) else None
-    limit = scope.ceiling if scope is not None else ceiling
-    if limit is None or not named:
-        return None
-    spans = tuple((n, n) for n in named) + getattr(prs, "spans", ())
-    if scope is not None:
-        protected = scope.branch_prs + scope.merged_prs
-        if scope.own_pr is not None:
-            protected += ((scope.own_pr, scope.own_pr),)
-        if any(a <= d and c <= b for a, b in spans for c, d in protected):
-            return None
-    if min(named) > limit:
-        return f"every named PR exceeds store-scope ceiling #{limit}"
-    if scope is not None and scope.open_rule:
-        return ("every named PR is another open PR, absent from branch and origin/main "
-                "root headers and from origin/main merge subjects")
-    return None
-
-
-def store_deferral_note(prs: Iterable[int], scope: StoreScope, source: str, lineno: int) -> str:
-    """One note per deferred entry, with its location, keys and reason."""
-    reason = store_deferral_reason(prs, scope)
-    keys = ", ".join(f"#{pr}" for pr in sorted(set(prs)))
-    basis = (f"declared own PR #{scope.own_pr}" if scope.own_pr is not None
-             else "clean-base scope (no declared own PR)")
-    return (f"note: {source}:{lineno}: deferred {keys}: {reason}; "
-            f"{basis}, ceiling #{scope.ceiling}.")
-
-
-def store_deferral_flags(lines: Iterable[str], ceiling: int | StoreScope | None) -> list[tuple[bool, list[int]]]:
-    """Raw per-line flags; uncertainty and example delimiters add evaluation.
-
-    Ceiling deferral remains confined to the initial run of deferrable entries.
-    The open-PR rule also reaches entries below the own entry, including
-    entries whose PRs exceed the ceiling. An unknown boundary, a header-shaped
-    line the grammar cannot read, or a fence/comment delimiter disables
-    deferral for the remainder of the mirror, so an example cannot reopen it
-    or hide a later marker, and an unrecognized header is never swallowed
-    into the deferred entry above it. Nothing is stripped: example headers,
-    rows and markers are still audited. Literal delimiters can therefore
-    conservatively reduce deferral. Plain unmarked header lookalikes remain
-    indistinguishable from real entries, including inside the own entry.
-    """
-    flags: list[tuple[bool, list[int]]] = []
-    prs: list[int] = []
-    numeric_run = True
-    uncertain = False
-    deferred = False
-    for line in lines:
-        if store_example_delimiter(line):
-            uncertain = True
-        if changelog_header_like(line):
-            parsed = changelog_header_prs(line) if changelog_entry_boundary(line) else []
-            prs = StorePRs(parsed, spans=_header_ranges(line) if parsed else ())
-            if not parsed:
-                uncertain = True
-            reason = store_deferral_reason(prs, ceiling)
-            if reason is None:
-                numeric_run = False
-            limit = ceiling.ceiling if isinstance(ceiling, StoreScope) else ceiling
-            numeric = bool(parsed and limit is not None and min(parsed) > limit)
-            open_rule = isinstance(ceiling, StoreScope) and ceiling.open_rule
-            deferred = bool(reason and (numeric_run or not numeric or open_rule))
-        if uncertain:
-            deferred = False
-        flags.append((deferred, prs))
-    return flags
-
-
-def above_store_ceiling(prs: Iterable[int], ceiling: int | StoreScope | None) -> bool:
-    """Compatibility name for the shared ceiling-or-other-open-PR decision."""
-    return store_deferral_reason(prs, ceiling) is not None
 
 
 def split_row(line: str) -> list[str]:

@@ -298,6 +298,25 @@ earlier repository on 2026-09-26, the manifest version was re-baselined from 0.6
 covering 79 earlier pack changes that had shipped without a bump, plus that change.
 
 ## Release history
+- **0.24.0:** gate 9 (`tools/gate_lint_shall_near_uncertainty.py`) adds the public function
+  `strip_code_spans`, which returns a line with each inline code span replaced by one NUL
+  character, neither whitespace nor a word character, so the text on the two sides of a span
+  never joins into a marker; the gate now reads the uncertainty marker on that stripped line,
+  so a marker inside an inline code span is quoted rather than used and is not counted; the
+  mandatory word is still read on the whole line. The clause
+  `core/rules/shall-near-uncertainty.md` changes to state this and that the text on the two
+  sides of a span never joins into a marker: a code span is text on one line between a run of
+  backticks and the next run of exactly
+  the same length, neither run touching a further backtick; as in CommonMark, a backtick
+  escaped by a backslash outside a span is literal text and opens no span, and inside a span a
+  backslash is literal and does not stop the closing run. A run with no such partner on its
+  line opens no span and a span broken across lines is not recognized, so a marker after an
+  unmatched run, between escaped backticks or inside a broken span is still counted. The new
+  public name strip_code_spans is added; the helper that finds the closing run is private.
+  Changed from 0.23.9: a mandatory word whose only nearby marker is inside an inline code span
+  was flagged and is no longer flagged; a marker that would be formed across a span (such as
+  ``Draft `x` Reference``) was not flagged and is still not flagged. Gates and register keys
+  are unchanged.
 - **0.23.9:** the release-delta check (`tools/pack_release_delta.py`) counts a public name bound
   by a top-level assignment (a plain assignment binding the name directly or inside a tuple, list
   or starred target, or an annotated one with a value binding it directly) as public surface, so

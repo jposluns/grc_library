@@ -43,7 +43,9 @@ the merge base's; an unchanged version passes). With ``--base REF`` (and
 the two refs, compared as ``(year, month, patch)``, so within a month the patch
 never falls below the merge base's (an unchanged version passes), and a new month
 may reset it. A README.md that is absent, or that has no
-Library Version field, at either end is a finding that names that end. The range
+Library Version field, at either end is a finding that names that end, and so is
+a field whose value is not a valid ``YYYY.MM.patch`` (README_VERSION_RE, built from
+the README field grammar, whose label starts a line). The range
 is resolved as the delta checks resolve it (``lint_common.resolve_pr_range``), so
 a collapsed range, a missing base or more than one merge base exits 2. The full
 audit runner (``run_all_audits.sh``) runs this audit without a range, so the check
@@ -65,10 +67,13 @@ and the README, that fails when weekly reading is switched off
 (VersionDateConsistencyTests in tests/test_linters.py):
 
     case at d7387bf3                          test on the new input
-    inv. 1, legacy form, version month        test_case_v1_legacy_week_heading_readme_prior_month_flagged
-      earlier than the date month
-    inv. 1, compact form, same                test_case_v2_bold_week_heading_readme_prior_month_flagged
-    inv. 1, legacy form with PR clause        test_case_v3_single_pr_week_heading_readme_prior_month_flagged
+    inv. 1, legacy form, version month        test_case_v1_inv3_legacy_week_heading_readme_prior_month_flagged
+      earlier than the date month               (flagged by inv. 3: a week heading names
+                                                no version, so inv. 1 has nothing to read)
+    inv. 1, compact form, same                test_case_v2_inv3_bold_week_heading_readme_prior_month_flagged
+                                                (flagged by inv. 3, as for v1)
+    inv. 1, legacy form with PR clause        test_case_v3_inv3_single_pr_week_heading_readme_prior_month_flagged
+                                                (flagged by inv. 3, as for v1)
     inv. 1, version month LATER than the      not checked, by design: a README month
       date month                                later than the
                                                 newest week is legitimate (that week's
@@ -144,7 +149,7 @@ Exit codes:
 
     With --base, the README version-floor check alone: 0 the head's README
     Library Version is not below the merge base's; 1 it is below, or a README
-    without the field at either end; 2 the range cannot be resolved (as the
+    without a valid field at either end; 2 the range cannot be resolved (as the
     delta checks refuse it), README.md cannot be read at an end, --head without
     --base, or --base with --changelog or --readme.
 """
@@ -187,13 +192,65 @@ COMPACT_HEADING_RE = re.compile(
     re.MULTILINE,
 )
 
-# README field: **Library Version:** YYYY.MM.patch
+# README field grammar. The defining rule is governance/specification-master-project.md
+# section 4.5: "The library version is `YYYY.MM.patch` where:", "`YYYY` is the
+# four-digit year", "`MM` is the two-digit month" and "`patch` is a sequential counter
+# that increments on every merge to `main` within the same `YYYY.MM` window. It resets
+# to `0` when the month rolls over." The value productions quote the words they come
+# from; label, sep and end describe the field as README.md's metadata block writes it.
+# The pattern is built from these productions alone (README_LABEL to README_END):
+#
+#   field  = line-start label sep value end
+#   label  = "**Library Version:**"      the field as README.md's metadata block shows it
+#   sep    = 1*(SP / HTAB)               the value sits on the label's line ([ \t]+, not
+#                                        \s+, which crosses a line end)
+#   value  = year "." month "." patch    "`YYYY.MM.patch`"
+#   year   = 4DIGIT                      "`YYYY` is the four-digit year"
+#   month  = "0" %x31-39 / "1" %x30-32   "`MM` is the two-digit month": 01 to 12
+#   patch  = "0" / %x31-39 *DIGIT        "a sequential counter" that "resets to `0`": 0,
+#                                        or a number with no leading zero
+#   DIGIT  = %x30-39                     ASCII 0 to 9 only ([0-9], not \d, which in a
+#                                        str pattern matches any Unicode digit)
+#   end    = SP / HTAB / CR / LF / "\" [CR] LF / end-of-text
+#                                        looked at, not consumed: a space, tab, carriage
+#                                        return or line feed, a backslash line break (a
+#                                        backslash, an optional carriage return, then a
+#                                        line feed) or the end of the text
+#
+# line-start is the start of the text or the position after a line feed, so a prose
+# mention of the label inside a line ("The **Library Version:** field ...") is not the
+# field. Any other character joined to the value is refused, not cut off: 2026.11.0.7,
+# 2026.11.0-rc1, 2026.11.0:1, 2026.11.0/1, 2026.11.0,1, and a backslash that does not
+# start a line break (2026.11.0\1, and 2026.11.0\.7 and 2026.11.0\-rc1, which Markdown
+# renders as 2026.11.0.7 and 2026.11.0-rc1).
+README_LABEL = r"\*\*Library Version:\*\*"
+README_SEP = r"[ \t]+"
+README_YEAR = r"([0-9]{4})"
+README_MONTH = r"(0[1-9]|1[0-2])"
+README_PATCH = r"(0|[1-9][0-9]*)"
+README_END = r"(?=[ \t\r\n]|\\\r?\n|\Z)"
 README_VERSION_RE = re.compile(
-    r"\*\*Library Version:\*\*\s+(\d+)\.(\d+)\.(\d+)"
+    "^" + README_LABEL + README_SEP + README_YEAR + r"\." + README_MONTH + r"\."
+    + README_PATCH + README_END,
+    re.MULTILINE,
 )
+# The field's label alone, at the start of a line (line-start label above). The first
+# such label is the field read, so a malformed value is named as malformed, not reported
+# as missing or passed over for a later valid field.
+README_FIELD_RE = re.compile("^" + README_LABEL, re.MULTILINE)
 
 # The README the version-floor check reads at both ends of a PR range.
 README_PATH = "README.md"
+
+
+def readme_field(text: str) -> tuple[bool, re.Match[str] | None]:
+    """The first README ``**Library Version:**`` field (its label at the start of a line)
+    as ``(label found, match)``; the match is None when there is no such label or the
+    first such label's value is malformed."""
+    label = README_FIELD_RE.search(text)
+    if not label:
+        return False, None
+    return True, README_VERSION_RE.match(text, label.start())
 
 
 def weekly_headings(changelog_text: str) -> list[tuple[int, str, date | None]]:
@@ -310,8 +367,16 @@ def main() -> int:
         )
         return 1
 
-    readme_match = README_VERSION_RE.search(readme_text)
-    if not readme_match:
+    has_field, readme_match = readme_field(readme_text)
+    if has_field and not readme_match:
+        findings.append(
+            f"{readme_path.name}: the '**Library Version:**' field is not a valid "
+            f"'YYYY.MM.patch' (a four-digit year, a month 01 to 12, a patch from 0 with no "
+            f"leading zero, in ASCII digits on the label's line, and nothing joined "
+            f"after it); see "
+            f"governance/specification-master-project.md section 4.5."
+        )
+    elif not readme_match:
         findings.append(
             f"{readme_path.name}: no '**Library Version:** YYYY.MM.patch' "
             f"field found in the metadata block."
@@ -393,8 +458,8 @@ def weekly_findings(weekly: list[tuple[int, str, date | None]], readme_match,
 
 def readme_calver(text: str | None) -> tuple[int, int, int] | None:
     """The README ``**Library Version:**`` as ``(year, month, patch)``, or None when the
-    text is None (no README.md) or has no such field."""
-    match = README_VERSION_RE.search(text) if text is not None else None
+    text is None (no README.md), has no such field or its first such field is malformed."""
+    match = readme_field(text)[1] if text is not None else None
     if not match:
         return None
     return int(match.group(1)), int(match.group(2)), int(match.group(3))
@@ -403,7 +468,14 @@ def readme_calver(text: str | None) -> tuple[int, int, int] | None:
 def readme_rise_check(base: str, head: str) -> int:
     """README version-floor check: the README Library
     Version at ``head`` is not below the one at the merge base of ``base`` and ``head``;
-    an unchanged version passes."""
+    an unchanged version passes.
+
+    A README.md absent at either end fails closed as a finding (exit 1, "there is no
+    README.md"): the absent-file branch is reached, not dropped, because git_show_strict
+    returns None when git ls-tree lists no entry at that path, and raises only when git
+    itself fails (a listing failure, or a listed blob whose read fails), which is an
+    execution error (exit 2). ReadmeVersionRiseOnPrTests.test_field_missing_at_merge_base_flagged
+    covers the absent case."""
     import subprocess
 
     # The range reads are shared with the delta checks; imported here so the
@@ -425,7 +497,12 @@ def readme_rise_check(base: str, head: str) -> int:
             return 2
         versions[end] = readme_calver(text)
         if versions[end] is None:
-            absent = "there is no README.md" if text is None else "it has no field"
+            if text is None:
+                absent = "there is no README.md"
+            elif readme_field(text)[0]:
+                absent = "its value is not a valid YYYY.MM.patch"
+            else:
+                absent = "it has no field"
             findings.append(
                 f"{README_PATH} at the {end} ({ref}) has no '**Library Version:** "
                 f"YYYY.MM.patch' field ({absent}), so the version floor cannot be checked."
