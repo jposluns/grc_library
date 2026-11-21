@@ -48238,9 +48238,39 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                     resolved.add(fn.attr)
         return resolved, violations
 
+    # Each (ast node type, field) whose text _child_references reads for the child stem.
+    _CHILD_REFERENCE_FIELDS = (
+        ("Name", "id"),
+        ("Attribute", "attr"),
+        ("alias", "name"),
+        ("alias", "asname"),
+        ("ImportFrom", "module"),
+        ("FunctionDef", "name"),
+        ("AsyncFunctionDef", "name"),
+        ("ClassDef", "name"),
+        ("TypeVar", "name"),
+        ("ParamSpec", "name"),
+        ("TypeVarTuple", "name"),
+        ("arg", "arg"),
+        ("MatchAs", "name"),
+        ("MatchStar", "name"),
+        ("MatchMapping", "rest"),
+        ("ExceptHandler", "name"),
+        ("Global", "names"),
+        ("Nonlocal", "names"),
+    )
+
     @staticmethod
     def _child_references(path, data, child):
-        """Count (command, copy) mentions of a CHILD tool; conservative, syntactic."""
+        """Count (command, copy) mentions of a CHILD tool; conservative, syntactic.
+
+        A mention is the child stem in a constant or in a field named in
+        _CHILD_REFERENCE_FIELDS: a name in any context, an attribute, an imported name,
+        its as alias, a from-import module, or a name bound or declared by def, async
+        def, class, a type parameter, an argument, a match capture (as, star or mapping
+        rest), an except clause, global or nonlocal. Other text is not a mention, such
+        as a call keyword name or a class pattern keyword.
+        """
         import ast
         stem = child.rsplit(".", 1)[0]
         if stem.encode() not in data:
@@ -48264,13 +48294,23 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                              for stmt in loop.body for c in ast.walk(stmt) if isinstance(c, ast.Call)}
                     if calls & copy_calls and calls <= copy_calls | {"mkdir"}:
                         copies.update(id(e) for e in loop.iter.elts)
+        def identifiers(node):
+            # The text of each named field this node has, single or listed.
+            for kind, field in ExplicitPathCliInventoryTests._CHILD_REFERENCE_FIELDS:
+                node_type = getattr(ast, kind, None)
+                if node_type is None or not isinstance(node, node_type):
+                    continue
+                value = getattr(node, field, None)
+                for item in value if isinstance(value, list) else [value]:
+                    if isinstance(item, str):
+                        yield item
+
         commands = copied = 0
         for node in ast.walk(tree):
-            named = (isinstance(node, ast.Constant) and stem in repr(node.value)
-                     or isinstance(node, ast.alias) and stem in node.name
-                     or isinstance(node, ast.ImportFrom) and stem in (node.module or "")
-                     or isinstance(node, ast.Name) and stem in node.id
-                     or isinstance(node, ast.Attribute) and stem in node.attr)
+            if isinstance(node, ast.Constant):
+                named = stem in repr(node.value)
+            else:
+                named = any(stem in name for name in identifiers(node))
             if named and id(node) in copies:
                 copied += 1
             elif named and id(node) not in docs:
@@ -48511,6 +48551,69 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
                 parent.replace("subprocess.run([sys.executable, \"-I\", str(_RUNNER), str(_GATE)])\n", "")):
             with self.subTest(forged=forged):
                 self.assertTrue(self._parent_launch_violations(forged.encode(), child))
+
+    def test_child_references_count_names_bound_by_definitions(self):
+        # A name bound by a definition reaches run time as a string (__name__, co_name,
+        # inspect, locals()), so it can carry the child stem into a launch; count it.
+        child = "runner.py"
+        for source in (
+                "def runner():\n    pass\n",
+                "async def runner():\n    pass\n",
+                "class runner:\n    pass\n",
+                "def f[runner]():\n    pass\n",
+                "def f[*runner]():\n    pass\n",
+                "def f[**runner]():\n    pass\n",
+                "class C[runner]:\n    pass\n",
+                "type T[runner] = int\n",
+                "def f(runner):\n    pass\n",
+                "def f(*runner):\n    pass\n",
+                "def f(**runner):\n    pass\n",
+                "def f(*, runner):\n    pass\n",
+                "f = lambda runner: 0\n",
+                "match x:\n    case runner:\n        pass\n",
+                "match x:\n    case int() as runner:\n        pass\n",
+                "match x:\n    case [*runner]:\n        pass\n",
+                "match x:\n    case {**runner}:\n        pass\n",
+                "try:\n    pass\nexcept OSError as runner:\n    pass\n",
+                "import os as runner\n",
+                "from os import path as runner\n",
+                "def f():\n    global runner\n",
+                "def f():\n    nonlocal runner\n"):
+            with self.subTest(source=source):
+                self.assertGreater(self._child_references("caller.py", source.encode(), child)[0], 0)
+        doc = '"""Mentions runner.py."""\n'
+        self.assertEqual(self._child_references("caller.py", doc.encode(), child), (0, 0))
+
+    def test_child_references_count_named_references(self):
+        child = "runner.py"
+        for source in (
+                "runner\n",
+                "del runner\n",
+                "os.runner\n",
+                "import runner\n",
+                "from os import runner\n",
+                "from runner import x\n"):
+            with self.subTest(source=source):
+                self.assertGreater(self._child_references("caller.py", source.encode(), child)[0], 0)
+
+    def test_child_references_skip_keyword_names(self):
+        # A call keyword name and a class pattern keyword name a parameter or an attribute
+        # of something else; they bind nothing in the caller, so they are not counted.
+        child = "runner.py"
+        for source in (
+                "f(runner=1)\n",
+                "match x:\n    case C(runner=1):\n        pass\n"):
+            with self.subTest(source=source):
+                self.assertEqual(self._child_references("caller.py", source.encode(), child), (0, 0))
+
+    def test_child_reference_fields_name_real_ast_fields(self):
+        # A misspelt type or field would silently count nothing, and an empty list would
+        # pass this loop vacuously.
+        import ast
+        self.assertGreater(len(self._CHILD_REFERENCE_FIELDS), 0)
+        for kind, field in self._CHILD_REFERENCE_FIELDS:
+            with self.subTest(kind=kind, field=field):
+                self.assertIn(field, getattr(ast, kind)._fields)
 
     def test_child_launch_list_goes_straight_to_subprocess(self):
         child = "runner.py"
@@ -92357,6 +92460,769 @@ class InternalWorkRefsLinterTests(LinterTestCase):
             flipped = mod.main(["--root", str(root), "--floor", "1"])
         self.assertEqual(flipped, 0, out.getvalue())
         self.assertIn("count 1, floor 1", out.getvalue())
+
+
+class HookutilSelfTestTests(unittest.TestCase):
+    """Runs the heredoc self-test in .claude/hooks/_hookutil.py, so its rows guard CI.
+
+    The self-test runs only when _hookutil.py is the main program, and nothing else
+    starts it. This class runs it the way a reviewer does, as
+    python3 -I .claude/hooks/_hookutil.py from the repository root (the interpreter
+    running this suite, under a time bound), and checks the exit code and the exact
+    output. The output is one summary line, counts included, so a failing row, a
+    dropped row or an added row each fails here until this pin is reviewed. It also
+    checks an unterminated tag followed by a closed tag: strip_heredocs refuses to
+    read it (UnreadableCommand), and block-bulk-git-add.py blocks the command.
+    """
+
+    HOOKUTIL_REL = '.claude/hooks/_hookutil.py'
+    # The self-test prints exactly one line when every row passes: a single summary
+    # line whose count is its 7 survival rows, the text-after row, its 6
+    # exact-output rows and its 7 unreadable rows.
+    EXPECTED_LINES = ['21/21 heredoc cases pass']
+    HOOK_REL = '.claude/hooks/block-bulk-git-add.py'
+    UNTERMINATED_FIRST = (
+        "cat > f <<'NOEND' <<'EOF'\nPAYLOAD\nEOF",
+        "cat > f <<NOEND <<'EOF'\nPAYLOAD\nEOF",
+        "cat > f <<'NOEND'\nPAYLOAD\ncat > g <<'EOF'\nBODY\nEOF",
+    )
+
+    def test_self_test_exits_zero_with_exact_pass_lines(self):
+        self.assertTrue((REPO_ROOT / self.HOOKUTIL_REL).is_file(), self.HOOKUTIL_REL)
+        r = subprocess.run([sys.executable, '-I', self.HOOKUTIL_REL], cwd=str(REPO_ROOT),
+                           stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=60)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(r.stdout.splitlines(), self.EXPECTED_LINES, r.stdout + r.stderr)
+        self.assertTrue(r.stdout.endswith('\n'), repr(r.stdout))
+        self.assertEqual(r.stderr, '')
+
+    def test_unterminated_tag_then_closed_tag_is_unreadable(self):
+        # A first tag with no terminator may be real (its body runs to the end of the
+        # command) or false, so neither reading is taken: the reader refuses.
+        mod = load_linter_module(self.HOOKUTIL_REL, '_hookutil_unterminated_first')
+        self.assertGreater(len(self.UNTERMINATED_FIRST), 0)
+        for command in self.UNTERMINATED_FIRST:
+            with self.subTest(command=command):
+                with self.assertRaises(mod.UnreadableCommand):
+                    mod.strip_heredocs(command)
+
+    def test_bulk_add_hook_blocks_unreadable_command_with_git(self):
+        # An unquoted first tag expands a command substitution in its body, so it runs.
+        command = "cat > f <<NOEND <<'EOF'\n$(" + 'git' + " add -A)\nEOF"
+        payload = json.dumps({'tool_name': 'Bash', 'tool_input': {'command': command}})
+        env = {k: v for k, v in os.environ.items() if k != 'GRC_ALLOW_BULK_ADD'}
+        r = subprocess.run([sys.executable, '-I', self.HOOK_REL], cwd=str(REPO_ROOT),
+                           input=payload, env=env, capture_output=True, text=True,
+                           timeout=60)
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        # The reason names the unreadable check: a reader that guessed would leave the
+        # sweep check to refuse with its own reason, under the same BLOCKED prefix.
+        self.assertIn('BLOCKED (bulk-git-add): a command this hook cannot read with '
+                      'certainty', r.stderr)
+        self.assertNotIn('tree-wide or unspecified scope', r.stderr)
+
+
+class HeredocUnpairedIntroducerFailsClosedTests(unittest.TestCase):
+    """An unpaired introducer: the bulk-add hook refuses it if it could reach git, allows it if not.
+
+    strip_heredocs raises UnreadableCommand when an introducer has no terminator line,
+    because a real introducer and a false one (in quotes or a comment) read the rest of
+    the command differently, and each reading hides something the other shows. The
+    bulk-add hook refuses such a command, the escape included, only when it could reach git
+    (could_reach_git: some word of it could be git), and allows one with no word that
+    could be git, which stages nothing under either reading. Each reviewed shape is run
+    through the shipped hook. Each flip puts back a reader that guesses instead of
+    refusing (keeping the rest of the command, or skipping the unpaired tag) and shows the
+    shape is then allowed. A last check runs a model of the reader on main over a corpus
+    and confirms no command it refuses is allowed now. The model is main's reader exactly:
+    main's pattern (MAIN_HEREDOC, with no check for a bracket before the pair), an unpaired
+    tag skipped with nothing removed, and an inert body removed with its terminator line.
+    Stated difference, outside the corpus: main read the last two brackets of a here-string
+    as an introducer, so a here-string with a quoted word, then the escape on its own line,
+    then a line that is that word, then a sweep, is refused on main and allowed now. The
+    escape on its own line is allowed on main as well, so this grants nothing main did not
+    (HeredocEarlierReaderModelsMainTests).
+    """
+
+    HOOKUTIL_REL = '.claude/hooks/_hookutil.py'
+    HOOK_REL = '.claude/hooks/block-bulk-git-add.py'
+    E = 'GRC_ALLOW_BULK_ADD' + '=1'
+    G = 'git'
+    QUOTED = 'echo "<<NOEND"\ncat > f <<\'EOF\'\n' + E + '\nEOF\n' + G + ' add -A'
+    COMMENTED = '# <<NOEND\ncat > f <<\'EOF\'\n' + E + '\nEOF\n' + G + ' add -A'
+    JOINED = 'echo "<<NOEND"; cat > f <<\'EOF\'\n' + E + '\nEOF\n' + G + ' add -A'
+    TWO_TAGS = "cat > f <<'NOEND' <<'EOF'\n" + G + " add -A\nEOF"
+    REFUSED = (QUOTED, COMMENTED, JOINED, TWO_TAGS)
+    TERMINATED = (
+        ("cat > f <<'EOF'\nPAYLOAD\nEOF\nAFTERWARDS", "cat > f <<'EOF'\nEOF\nAFTERWARDS"),
+        ("cat > f <<'EOF'\nPAYLOAD\nEOF\ncat > g <<'END'\nBODY\nEND",
+         "cat > f <<'EOF'\nEOF\ncat > g <<'END'\nEND"),
+        ("cat > f <<-'EOF'\n\tPAYLOAD\n\tEOF", "cat > f <<-'EOF'\n\tEOF"),
+        ("cat > f <<EOF\nPAYLOAD\nEOF", "cat > f <<EOF\nPAYLOAD\nEOF"),
+        ("bash <<'EOF'\nPAYLOAD\nEOF", "bash <<'EOF'\nPAYLOAD\nEOF"),
+    )
+
+    def _hook(self, command):
+        payload = json.dumps({'tool_name': 'Bash', 'tool_input': {'command': command}})
+        env = {k: v for k, v in os.environ.items() if k != 'GRC_ALLOW_BULK_ADD'}
+        return subprocess.run([sys.executable, '-I', self.HOOK_REL], cwd=str(REPO_ROOT),
+                              input=payload, env=env, capture_output=True, text=True,
+                              timeout=60)
+
+    @staticmethod
+    def _guessing_reader(util, keep_rest, keep_terminator):
+        # A reader that guesses at an unpaired tag instead of refusing: keep_rest keeps the
+        # rest of the command as that tag's body, otherwise the tag is skipped.
+        def strip(command):
+            lines = command.split('\n')
+            out, i = [], 0
+            while i < len(lines):
+                line = lines[i]
+                out.append(line)
+                i += 1
+                cw = util.command_word(line)
+                for quote, tag in util._HEREDOC.findall(line):
+                    end = next((j for j in range(i, len(lines))
+                                if lines[j].strip() == tag), None)
+                    if end is None:
+                        if keep_rest:
+                            out.extend(lines[i:])
+                            i = len(lines)
+                            break
+                        continue
+                    if bool(quote) and cw not in util.SHELL_INTERPRETERS:
+                        if keep_terminator:
+                            out.append(lines[end])
+                    else:
+                        out.extend(lines[i:end + 1])
+                    i = end + 1
+            return '\n'.join(out)
+        return strip
+
+    def _loaded_hook(self, unique):
+        hook = load_linter_module(self.HOOK_REL, unique)
+        self.assertTrue(callable(hook.refusal))
+        return hook
+
+    def test_reviewed_shapes_are_refused_by_the_hook(self):
+        self.assertEqual(len(self.REFUSED), 4)
+        for command in self.REFUSED:
+            with self.subTest(command=command):
+                r = self._hook(command)
+                self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                self.assertIn('BLOCKED (bulk-git-add): a command this hook cannot read '
+                              'with certainty', r.stderr)
+                self.assertIn('has no terminator line', r.stderr)
+
+    def test_strip_heredocs_raises_for_each_reviewed_shape(self):
+        mod = load_linter_module(self.HOOKUTIL_REL, '_hookutil_unpaired_raises')
+        self.assertFalse(issubclass(mod.UnreadableCommand, ValueError))
+        for command in self.REFUSED + ("cat > f <<'NOEND'\nPAYLOAD\n",
+                                       self.E + ' ' + self.G + ' add -A <<NOEND'):
+            with self.subTest(command=command):
+                with self.assertRaises(mod.UnreadableCommand):
+                    mod.strip_heredocs(command)
+
+    def test_terminated_heredocs_are_read_as_before(self):
+        mod = load_linter_module(self.HOOKUTIL_REL, '_hookutil_terminated')
+        for command, want in self.TERMINATED:
+            with self.subTest(command=command):
+                self.assertEqual(mod.strip_heredocs(command), want)
+        allowed = self._hook("cat > f <<'EOF'\n" + self.G + " add -A\nEOF\n"
+                             + self.G + " add a.md")
+        self.assertEqual(allowed.returncode, 0, allowed.stdout + allowed.stderr)
+        swept = self._hook("cat > f <<'EOF'\n" + self.E + "\nEOF\n" + self.G + " add -A")
+        self.assertEqual(swept.returncode, 2, swept.stdout + swept.stderr)
+        self.assertIn('tree-wide or unspecified scope', swept.stderr)
+
+    def test_flip_a_guessing_reader_lets_each_shape_through(self):
+        hook = self._loaded_hook('_bulk_add_unpaired_flip')
+        for command in self.REFUSED:
+            self.assertIsNotNone(hook.refusal(command), command)
+        # Flip: keeping the rest after the unpaired tag reads the heredoc data as code, so
+        # the escape is granted for the quoted, commented and joined shapes.
+        hook.strip_heredocs = self._guessing_reader(hook._hookutil, True, True)
+        for command in (self.QUOTED, self.COMMENTED, self.JOINED):
+            with self.subTest(flip='keep rest', command=command):
+                self.assertIsNone(hook.refusal(command))
+        # Flip: skipping the unpaired tag strips the later body, hiding the sweep in it.
+        hook.strip_heredocs = self._guessing_reader(hook._hookutil, False, False)
+        with self.subTest(flip='skip tag', command=self.TWO_TAGS):
+            self.assertIsNone(hook.refusal(self.TWO_TAGS))
+
+    # The pattern main used: no check for a bracket before the pair.
+    MAIN_HEREDOC = r"<<-?(?!<)\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1"
+
+    @staticmethod
+    def _main_reader(util):
+        # The reader on main, step for step: main's pattern, an unpaired tag skipped with
+        # nothing removed, and an inert body removed together with its terminator line.
+        heredoc = re.compile(HeredocUnpairedIntroducerFailsClosedTests.MAIN_HEREDOC)
+
+        def strip(command):
+            lines = command.split('\n')
+            out, i = [], 0
+            while i < len(lines):
+                line = lines[i]
+                out.append(line)
+                i += 1
+                cw = util.command_word(line)
+                for quote, tag in heredoc.findall(line):
+                    end = None
+                    for j in range(i, len(lines)):
+                        if lines[j].strip() == tag:
+                            end = j
+                            break
+                    if end is None:
+                        continue
+                    inert = bool(quote) and cw not in util.SHELL_INTERPRETERS
+                    if inert:
+                        i = end + 1
+                    else:
+                        out.extend(lines[i:end + 1])
+                        i = end + 1
+            return '\n'.join(out)
+        return strip
+
+    @staticmethod
+    def _weaker_rows(hook, earlier, commands):
+        # The rows the earlier reader refuses and the hook's current reader allows, and the
+        # number of rows the earlier reader refuses.
+        now = hook.strip_heredocs
+        refused_before, weaker = 0, []
+        try:
+            for command in commands:
+                hook.strip_heredocs = earlier
+                before = hook.refusal(command)
+                hook.strip_heredocs = now
+                if before is not None:
+                    refused_before += 1
+                    if hook.refusal(command) is None:
+                        weaker.append(command)
+        finally:
+            hook.strip_heredocs = now
+        return refused_before, weaker
+
+    @classmethod
+    def _corpus(cls, hook):
+        prefixes = ('', 'echo "<<NOEND"', '# <<NOEND', "cat > f <<'NOEND'", 'cat > f <<NOEND',
+                    "cat > f <<'EOF'\n" + cls.E + "\nEOF", "cat > f <<'EOF'\nx\nEOF",
+                    "bash <<'EOF'\n" + cls.G + " add -A\nEOF", "echo a <<< 'w'", cls.E)
+        suffixes = (cls.G + ' add -A', cls.E + ' ' + cls.G + ' add -A',
+                    cls.G + ' add a.md', cls.G + ' commit -am x',
+                    "sh -c '" + cls.G + " add -A'", cls.G + ' add -A <<NOEND')
+        commands = [c for c, _ in hook.SELF_TEST] + list(cls.REFUSED)
+        for p in prefixes:
+            for s in suffixes:
+                for join in ('\n', '; '):
+                    commands.append(join.join(x for x in (p, s) if x))
+        return commands
+
+    def test_no_generated_corpus_command_main_reader_refuses_is_allowed(self):
+        hook = self._loaded_hook('_bulk_add_unpaired_against_earlier')
+        refused_before, weaker = self._weaker_rows(
+            hook, self._main_reader(hook._hookutil), self._corpus(hook))
+        self.assertEqual(weaker, [])
+        self.assertGreater(refused_before, 0)
+
+
+class HeredocEarlierReaderModelsMainTests(unittest.TestCase):
+    """The corpus comparison runs a model of the reader on main, main's pattern included.
+
+    The comparison in HeredocUnpairedIntroducerFailsClosedTests used the shipped pattern,
+    which rejects a bracket before the pair, so it could not report a command that main
+    refuses and the shipped reader allows. Its baseline is now main's reader exactly. These
+    tests show that main's pattern reads a here-string as an introducer and the shipped one
+    does not, that the comparison reports a row main refuses and the hook allows, and, as
+    flips, that the earlier baseline missed that row and that a weaker reader is reported.
+    """
+
+    HOOK_REL = '.claude/hooks/block-bulk-git-add.py'
+    E = 'GRC_ALLOW_BULK_ADD' + '=1'
+    G = 'git'
+    HERESTRING_ESCAPE = "cat <<< 'x'\n" + E + "\nx\n" + G + " add -A"
+    CLS = HeredocUnpairedIntroducerFailsClosedTests
+
+    def _hook(self, unique):
+        hook = load_linter_module(self.HOOK_REL, unique)
+        self.assertTrue(callable(hook.refusal))
+        return hook
+
+    def test_main_reader_reads_a_herestring_as_an_introducer(self):
+        hook = self._hook('_bulk_add_main_model_pattern')
+        util = hook._hookutil
+        command = "cat <<< 'x'\nBODY\nx"
+        main = self.CLS._main_reader(util)
+        self.assertEqual(main(command), "cat <<< 'x'")
+        self.assertEqual(main("cat > f <<'EOF'\nPAYLOAD\nEOF\nAFTERWARDS"),
+                         "cat > f <<'EOF'\nAFTERWARDS")
+        self.assertEqual(main("cat > f <<'NOEND'\nPAYLOAD\n"), "cat > f <<'NOEND'\nPAYLOAD\n")
+        self.assertEqual(hook.strip_heredocs(command), command)
+        # Flip: the earlier baseline (the shipped pattern with main's skip) does not read the
+        # here-string as main did, so it was not a model of main.
+        earlier = self.CLS._guessing_reader(util, False, False)
+        self.assertNotEqual(earlier(command), main(command))
+
+    def test_comparison_reports_a_row_main_refuses_and_the_hook_allows(self):
+        hook = self._hook('_bulk_add_main_model_weaker')
+        main = self.CLS._main_reader(hook._hookutil)
+        rows = [self.HERESTRING_ESCAPE]
+        # Main refuses the here-string escape row and the shipped hook allows it, so the
+        # comparison reports it: a weaker row fails the check.
+        self.assertEqual(self.CLS._weaker_rows(hook, main, rows), (1, rows))
+        # The difference grants nothing main did not: the escape on its own line is
+        # allowed on main and now.
+        own_line = self.E + '\n' + self.G + ' add -A'
+        self.assertEqual(self.CLS._weaker_rows(hook, main, [own_line]), (0, []))
+        self.assertIsNone(hook.refusal(own_line))
+        # Flip: the earlier baseline does not refuse the row, so it could not report it.
+        earlier = self.CLS._guessing_reader(hook._hookutil, False, False)
+        self.assertEqual(self.CLS._weaker_rows(hook, earlier, rows), (0, []))
+
+    def test_flip_a_weaker_reader_fails_the_corpus_check(self):
+        hook = self._hook('_bulk_add_main_model_corpus')
+        main = self.CLS._main_reader(hook._hookutil)
+        corpus = self.CLS._corpus(hook)
+        refused, weaker = self.CLS._weaker_rows(hook, main, corpus)
+        self.assertGreater(refused, 0)
+        self.assertEqual(weaker, [])
+        # Flip: a reader that keeps the rest after an unpaired tag reads heredoc data as
+        # code, so the comparison reports the rows it lets through.
+        hook.strip_heredocs = self.CLS._guessing_reader(hook._hookutil, True, True)
+        refused, weaker = self.CLS._weaker_rows(hook, main, corpus)
+        self.assertIn(self.CLS.QUOTED, weaker)
+
+
+class BulkAddUnreadableScopedToGitTests(unittest.TestCase):
+    """The bulk-add hook refuses an unreadable command only when it could reach git.
+
+    An unpaired heredoc introducer still makes a command unreadable, and such a command is
+    still refused, the escape included, whenever any word of it could be git (could_reach_git:
+    a word that is git or ends in /git once quotes and backslashes are dropped). A command
+    with no such word stages nothing under either reading, so it is allowed again, as it was
+    before the rule. Three less-than signs are a herestring, never an introducer, so
+    strip_heredocs reads such a command instead of refusing it. Each flip puts one change
+    back and shows the rows it decides then go the other way.
+    """
+
+    HOOKUTIL_REL = '.claude/hooks/_hookutil.py'
+    HOOK_REL = '.claude/hooks/block-bulk-git-add.py'
+    E = 'GRC_ALLOW_BULK_ADD' + '=1'
+    G = 'git'
+    PROBE = ('cat <<< x', 'echo "<<NOEND"; ls', 'printf %s x | wc -c')
+    QUOTED_ESCAPE = 'echo "<<NOEND"\ncat > f <<\'EOF\'\n' + E + '\nEOF\n'
+    REVIEWED_ESCAPES = (
+        QUOTED_ESCAPE + G + ' add -A',                                   # in quotes
+        '# <<NOEND\ncat > f <<\'EOF\'\n' + E + '\nEOF\n' + G + ' add -A',  # in a comment
+        'echo "<<NOEND"; cat > f <<\'EOF\'\n' + E + '\nEOF\n' + G + ' add -A',  # joined by ;
+        "cat > f <<'NOEND' <<'EOF'\n" + G + " add -A\nEOF",               # two tags
+        "cat > f <<NOEND <<'EOF'\n$(" + G + " add -A)\nEOF",              # unquoted body expands
+        E + ' ' + G + ' add -A <<NOEND',                                  # the escape itself
+        QUOTED_ESCAPE + '/usr/bin/' + G + ' add -A',                      # a path to git
+        QUOTED_ESCAPE + "g'i't add -A",                                   # quotes split the word
+        QUOTED_ESCAPE + "sh -c 'g\"i\"t add -A'",                         # inside sh -c
+        QUOTED_ESCAPE + 'gi\\\nt add -A',                                 # backslash-newline
+        QUOTED_ESCAPE + '{' + G + ',add} -A',                             # brace expansion
+    )
+    # The pattern before a bracket ahead of the pair was rejected.
+    EARLIER_HEREDOC = r"<<-?(?!<)\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1"
+
+    def _hook(self, command):
+        payload = json.dumps({'tool_name': 'Bash', 'tool_input': {'command': command}})
+        env = {k: v for k, v in os.environ.items() if k != 'GRC_ALLOW_BULK_ADD'}
+        return subprocess.run([sys.executable, '-I', self.HOOK_REL], cwd=str(REPO_ROOT),
+                              input=payload, env=env, capture_output=True, text=True,
+                              timeout=60)
+
+    def _loaded_hook(self, unique):
+        hook = load_linter_module(self.HOOK_REL, unique)
+        self.assertTrue(callable(hook.refusal))
+        self.assertTrue(callable(hook.could_reach_git))
+        return hook
+
+    def test_probe_commands_are_allowed(self):
+        for command in self.PROBE:
+            with self.subTest(command=command):
+                r = self._hook(command)
+                self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+                self.assertEqual(r.stderr, '')
+
+    def test_reviewed_escapes_are_refused(self):
+        self.assertEqual(len(self.REVIEWED_ESCAPES), 11)
+        for command in self.REVIEWED_ESCAPES:
+            with self.subTest(command=command):
+                r = self._hook(command)
+                self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                self.assertIn('BLOCKED (bulk-git-add): a command this hook cannot read '
+                              'with certainty', r.stderr)
+
+    def test_herestring_is_read_not_refused(self):
+        util = load_linter_module(self.HOOKUTIL_REL, '_hookutil_herestring_read')
+        for command in ('cat <<< x', 'cat <<<x', "echo a <<< 'w'", 'wc -c <<< "a b"'):
+            with self.subTest(command=command):
+                self.assertEqual(util.strip_heredocs(command), command)
+        allowed = self._hook('cat <<< x\n' + self.G + ' add a.md')
+        self.assertEqual(allowed.returncode, 0, allowed.stdout + allowed.stderr)
+        swept = self._hook("cat <<< x\ncat > f <<'EOF'\n" + self.E + "\nEOF\n"
+                           + self.G + ' add -A')
+        self.assertEqual(swept.returncode, 2, swept.stdout + swept.stderr)
+        self.assertIn('tree-wide or unspecified scope', swept.stderr)
+
+    def test_could_reach_git_words(self):
+        hook = self._loaded_hook('_bulk_add_reach_words')
+        for command in (self.G, '/usr/bin/' + self.G + ' x', "g'i't", 'g"i"t',
+                        'gi\\\nt', '{' + self.G + ',x}', 'x>/tmp/' + self.G,
+                        "sh -c '" + self.G + " add -A'", 'X=' + self.G, '$(' + self.G + ')'):
+            with self.subTest(command=command):
+                self.assertTrue(hook.could_reach_git(command))
+        for command in ('ls', 'echo github', 'cat .gitignore', 'gitk', 'legit x',
+                        'printf %s x | wc -c', 'cat <<< x'):
+            with self.subTest(command=command):
+                self.assertFalse(hook.could_reach_git(command))
+
+    def test_flip_unscoped_rule_refuses_the_probe(self):
+        hook = self._loaded_hook('_bulk_add_scope_flip_unscoped')
+        self.assertIsNone(hook.refusal(self.PROBE[1]))
+        # Flip: treat every unreadable command as one that could reach git.
+        hook.could_reach_git = lambda command: True
+        self.assertIsNotNone(hook.refusal(self.PROBE[1]))
+
+    def test_flip_no_reach_lets_each_escape_through(self):
+        hook = self._loaded_hook('_bulk_add_scope_flip_no_reach')
+        for command in self.REVIEWED_ESCAPES:
+            self.assertIsNotNone(hook.refusal(command), command)
+        # Flip: a reach check that never sees git allows every reviewed escape.
+        hook.could_reach_git = lambda command: False
+        for command in self.REVIEWED_ESCAPES:
+            with self.subTest(command=command):
+                self.assertIsNone(hook.refusal(command))
+
+    def test_flip_earlier_pattern_refuses_herestring(self):
+        import re
+        hook = self._loaded_hook('_bulk_add_scope_flip_pattern')
+        command = 'cat <<< x\n' + self.G + ' add a.md'
+        self.assertIsNone(hook.refusal(command))
+        # Flip: a private helper copy with the earlier pattern reads <<< x as an introducer.
+        util = load_linter_module(self.HOOKUTIL_REL, '_hookutil_earlier_pattern')
+        util._HEREDOC = re.compile(self.EARLIER_HEREDOC)
+        with self.assertRaises(util.UnreadableCommand):
+            util.strip_heredocs('cat <<< x')
+        hook.strip_heredocs = util.strip_heredocs
+        hook.UnreadableCommand = util.UnreadableCommand
+        self.assertIsNotNone(hook.refusal(command))
+
+    def test_no_command_the_earlier_reader_refuses_is_allowed(self):
+        hook = self._loaded_hook('_bulk_add_scope_against_earlier')
+        real = hook.strip_heredocs
+        earlier = HeredocUnpairedIntroducerFailsClosedTests._guessing_reader(
+            hook._hookutil, False, False)
+        prefixes = ('', 'echo "<<NOEND"', '# <<NOEND', "cat > f <<'NOEND'", 'cat > f <<NOEND',
+                    self.QUOTED_ESCAPE.rstrip('\n'), 'cat <<< x', "echo a <<< 'w'", self.E,
+                    'ls')
+        suffixes = (self.G + ' add -A', self.E + ' ' + self.G + ' add -A',
+                    self.G + ' add a.md', self.G + ' commit -am x', '/usr/bin/' + self.G + ' add .',
+                    "sh -c '" + self.G + " add -A'", self.G + ' add -A <<NOEND', 'ls', 'wc -c')
+        commands = [c for c, _ in hook.SELF_TEST] + list(self.REVIEWED_ESCAPES)
+        for p in prefixes:
+            for s in suffixes:
+                for join in ('\n', '; ', ' | '):
+                    commands.append(join.join(x for x in (p, s) if x))
+        refused_before = allowed_without_git = 0
+        for command in commands:
+            hook.strip_heredocs = earlier
+            before = hook.refusal(command)
+            hook.strip_heredocs = real
+            now = hook.refusal(command)
+            if before is not None:
+                refused_before += 1
+                with self.subTest(command=command):
+                    self.assertIsNotNone(now)
+            if not hook.could_reach_git(command):
+                with self.subTest(command=command, git=False):
+                    self.assertIsNone(now)
+                allowed_without_git += 1
+        self.assertGreater(refused_before, 0)
+        self.assertGreater(allowed_without_git, 0)
+
+
+class BulkAddUnreadableRefusalWordingTests(unittest.TestCase):
+    """The unreadable refusal, the corpus test name and the reach docstring say true things.
+
+    The bulk-add refusal for a command strip_heredocs cannot read no longer advises quoting
+    the <<: the introducer is matched as text, so a << inside quotes is still read as one.
+    The refusal states that, and its advice (write the text to a file and pass the file) is
+    run through the hook: the quoted shapes are refused and the file form is allowed. The
+    corpus comparison against main's reader is named for its generated corpus, and a
+    here-string escape that main refuses and the hook allows is shown to lie outside that
+    corpus. The could_reach_git docstring lists exactly the characters _GIT_WORD_BREAKS
+    splits on. Each flip puts the earlier wording or shape back and shows the check fails.
+    """
+
+    HOOK_REL = '.claude/hooks/block-bulk-git-add.py'
+    G = 'git'
+    QUOTED_IN_COMMAND = (G + ' commit -m "fix <<EOF parsing" a.md',
+                         G + " commit -m 'fix <<EOF parsing' a.md",
+                         G + " log --grep='<<EOF'")
+    FILE_FORM = G + ' commit -F msg.txt a.md'
+    OLD_ADVICE = 'quote the << so it is not an introducer'
+    STATES_TEXTUAL = 'The introducer is matched as text, even inside quotes'
+    FILE_ADVICE = 'write that text to a file and pass the file'
+    EARLIER_ADVICE = ('CONSIDER INSTEAD: close every here-document with its terminator line, '
+                      'or quote the << so it is not an introducer, or run the parts as '
+                      'separate commands.')
+    OLD_NAME = 'test_no_command_the_earlier_reader_refuses_is_allowed'
+    NEW_NAME = 'test_no_generated_corpus_command_main_reader_refuses_is_allowed'
+    LIST_LEAD = 'which are exactly these: '
+    EARLIER_DOC_LINE = ('and the text is cut at whitespace and at every shell operator or '
+                        'expansion character.')
+
+    def _hook(self, command):
+        payload = json.dumps({'tool_name': 'Bash', 'tool_input': {'command': command}})
+        env = {k: v for k, v in os.environ.items() if k != 'GRC_ALLOW_BULK_ADD'}
+        return subprocess.run([sys.executable, '-I', self.HOOK_REL], cwd=str(REPO_ROOT),
+                              input=payload, env=env, capture_output=True, text=True,
+                              timeout=60)
+
+    def _loaded_hook(self, unique):
+        hook = load_linter_module(self.HOOK_REL, unique)
+        self.assertTrue(callable(hook.refusal))
+        self.assertTrue(callable(hook.could_reach_git))
+        return hook
+
+    @classmethod
+    def _wording_problems(cls, message):
+        problems = []
+        if cls.OLD_ADVICE in message:
+            problems.append('advises quoting the <<')
+        if cls.STATES_TEXTUAL not in message:
+            problems.append('does not say the introducer is matched as text in quotes')
+        if cls.FILE_ADVICE not in message:
+            problems.append('does not give the file advice')
+        return problems
+
+    @classmethod
+    def _listed_breaks(cls, doc):
+        # The characters the docstring lists, or None when it lists none.
+        for line in doc.split('\n'):
+            line = line.strip()
+            if line.startswith(cls.LIST_LEAD):
+                return set(line[len(cls.LIST_LEAD):].split())
+        return None
+
+    @staticmethod
+    def _pattern_breaks(pattern):
+        # Every character other than whitespace that the pattern splits on.
+        return {chr(i) for i in range(0x110000)
+                if not chr(i).isspace() and pattern.fullmatch(chr(i))}
+
+    def test_refusal_says_textual_and_its_file_advice_is_allowed(self):
+        for command in self.QUOTED_IN_COMMAND:
+            with self.subTest(command=command):
+                r = self._hook(command)
+                self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                self.assertIn('BLOCKED (bulk-git-add): a command this hook cannot read '
+                              'with certainty', r.stderr)
+                self.assertEqual(self._wording_problems(r.stderr), [])
+        allowed = self._hook(self.FILE_FORM)
+        self.assertEqual(allowed.returncode, 0, allowed.stdout + allowed.stderr)
+        self.assertEqual(allowed.stderr, '')
+
+    def test_flip_earlier_advice_fails_the_wording_check(self):
+        hook = self._loaded_hook('_bulk_add_wording_flip')
+        message = hook.refusal(self.QUOTED_IN_COMMAND[0])
+        self.assertIsNotNone(message)
+        self.assertEqual(self._wording_problems(message), [])
+        # Flip: the earlier advice (quote the <<) fails all three wording checks.
+        self.assertEqual(len(self._wording_problems(self.EARLIER_ADVICE)), 3)
+
+    def test_corpus_test_is_named_for_its_generated_corpus(self):
+        cls = HeredocUnpairedIntroducerFailsClosedTests
+        self.assertTrue(callable(getattr(cls, self.NEW_NAME, None)))
+        self.assertFalse(hasattr(cls, self.OLD_NAME))
+        hook = self._loaded_hook('_bulk_add_wording_corpus_name')
+        main = cls._main_reader(hook._hookutil)
+        corpus = cls._corpus(hook)
+        row = HeredocEarlierReaderModelsMainTests.HERESTRING_ESCAPE
+        self.assertNotIn(row, corpus)
+        refused, weaker = cls._weaker_rows(hook, main, corpus)
+        self.assertGreater(refused, 0)
+        self.assertEqual(weaker, [])
+        self.assertEqual(cls._weaker_rows(hook, main, [row]), (1, [row]))
+        # Flip: with that shape added, the comparison reports it, so the unqualified name
+        # (no command main's reader refuses is allowed) was not true.
+        refused, weaker = cls._weaker_rows(hook, main, corpus + [row])
+        self.assertEqual(weaker, [row])
+
+    def test_reach_docstring_lists_exactly_the_split_characters(self):
+        hook = self._loaded_hook('_bulk_add_wording_breaks')
+        doc = hook.could_reach_git.__doc__
+        self.assertIn('cut at whitespace', doc)
+        self.assertTrue(hook._GIT_WORD_BREAKS.fullmatch(' \t\n'))
+        listed = self._listed_breaks(doc)
+        self.assertEqual(listed, self._pattern_breaks(hook._GIT_WORD_BREAKS))
+        self.assertIn('No other character cuts a word (: - % and / do not)', doc)
+        for ch in ':-%/':
+            with self.subTest(ch=ch):
+                self.assertIsNone(hook._GIT_WORD_BREAKS.fullmatch(ch))
+
+    def test_flip_a_changed_list_or_pattern_fails_the_docstring_check(self):
+        import re
+        hook = self._loaded_hook('_bulk_add_wording_breaks_flip')
+        listed = self._listed_breaks(hook.could_reach_git.__doc__)
+        # Flip: the earlier docstring line lists no characters at all.
+        self.assertIsNone(self._listed_breaks(self.EARLIER_DOC_LINE))
+        # Flip: a pattern that also splits on : no longer matches the listed characters.
+        wider = re.compile(hook._GIT_WORD_BREAKS.pattern.replace('!#', '!#:'))
+        self.assertNotEqual(wider.pattern, hook._GIT_WORD_BREAKS.pattern)
+        self.assertNotEqual(listed, self._pattern_breaks(wider))
+
+
+class BulkAddRefusalReasonAndWordingTests(unittest.TestCase):
+    """The unreadable refusal names its own check, and two docstrings claim only what is true.
+
+    A tree-sweep command the reader cannot read is refused by the unreadable check, and the
+    same command read by a reader that guesses is refused by the sweep check, so asserting
+    only the shared BLOCKED (bulk-git-add) prefix cannot tell the two apart. These tests
+    assert the reason text each path prints, with a control that the other path prints a
+    different one. The class docstring of HeredocUnpairedIntroducerFailsClosedTests says the
+    hook refuses an unreadable command only when it could reach git and allows one that
+    cannot, and both behaviours are run. The could_reach_git docstring lists only the
+    places segments() actually skips to before a git word: a wrapper, an assignment and
+    ``sh -c`` are each run, and a leading redirection, which segments() does not skip, is
+    not claimed while segments() finds no git call after one. Each flip puts the earlier
+    test, reader or wording back and shows the check then fails.
+    """
+
+    HOOK_REL = '.claude/hooks/block-bulk-git-add.py'
+    G = 'git'
+    UNREADABLE_SWEEP = "cat > f <<NOEND <<'EOF'\n$(" + G + " add -A)\nEOF"
+    READABLE_SWEEP = G + ' add -A'
+    PREFIX = 'BLOCKED (bulk-git-add)'
+    UNREADABLE_REASON = 'BLOCKED (bulk-git-add): a command this hook cannot read with certainty'
+    SWEEP_REASON = 'BLOCKED (bulk-git-add): a git stage/commit with tree-wide or unspecified scope'
+    NO_GIT_UNREADABLE = 'echo "<<NOEND"; ls'
+    OLD_CLASS_SENTENCE = 'bulk-add hook refuses such a command, the escape included. Each'
+    NEW_CLASS_PHRASES = ('refuses such a command, the escape included, only when it could reach git',
+                         'allows one with no word that could be git')
+    EARLIER_CLASS_DOC = ('An unpaired heredoc introducer fails closed in _hookutil.py and '
+                         'block-bulk-git-add.py.\n\n    The\n    bulk-add hook refuses such a '
+                         'command, the escape included. Each reviewed shape is run\n')
+    CALL_SHAPES = (('a wrapper', 'sudo ' + G + ' add -A'),
+                   ('an assignment', 'X=1 ' + G + ' add -A'),
+                   ('``sh -c``', "sh -c '" + G + " add -A'"))
+    REDIRECTION_SHAPE = '> /dev/null ' + G + ' add -A'
+    EARLIER_REACH_DOC = ('of what segments() treats as a call (a token whose basename is git, '
+                         'after a wrapper, an assignment, a redirection or inside ``sh -c``).')
+
+    def _hook(self, command):
+        payload = json.dumps({'tool_name': 'Bash', 'tool_input': {'command': command}})
+        env = {k: v for k, v in os.environ.items() if k != 'GRC_ALLOW_BULK_ADD'}
+        return subprocess.run([sys.executable, '-I', self.HOOK_REL], cwd=str(REPO_ROOT),
+                              input=payload, env=env, capture_output=True, text=True,
+                              timeout=60)
+
+    def _loaded_hook(self, unique):
+        hook = load_linter_module(self.HOOK_REL, unique)
+        self.assertTrue(callable(hook.refusal))
+        self.assertTrue(callable(hook.segments))
+        return hook
+
+    @classmethod
+    def _names_unreadable_check(cls, message):
+        # True only when the message is the unreadable refusal, not the sweep refusal.
+        return (message is not None and cls.UNREADABLE_REASON in message
+                and cls.SWEEP_REASON not in message)
+
+    @classmethod
+    def _reach_doc_problems(cls, hook, doc):
+        doc = ' '.join(doc.split())
+        problems = []
+        for name, command in cls.CALL_SHAPES:
+            if name in doc and not hook.segments(command):
+                problems.append('claims ' + name + ' but segments() finds no call')
+        if 'a redirection' in doc and not hook.segments(cls.REDIRECTION_SHAPE):
+            problems.append('claims a redirection but segments() finds no call after one')
+        return problems
+
+    def test_unreadable_path_prints_its_own_reason(self):
+        r = self._hook(self.UNREADABLE_SWEEP)
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn(self.UNREADABLE_REASON, r.stderr)
+        self.assertNotIn(self.SWEEP_REASON, r.stderr)
+        self.assertTrue(self._names_unreadable_check(r.stderr))
+        # Control: a readable sweep is refused by the other check, with a different reason.
+        control = self._hook(self.READABLE_SWEEP)
+        self.assertEqual(control.returncode, 2, control.stdout + control.stderr)
+        self.assertIn(self.SWEEP_REASON, control.stderr)
+        self.assertNotIn(self.UNREADABLE_REASON, control.stderr)
+        self.assertFalse(self._names_unreadable_check(control.stderr))
+
+    def test_flip_guessing_reader_is_caught_only_by_the_reason(self):
+        hook = self._loaded_hook('_bulk_add_reason_flip')
+        self.assertTrue(self._names_unreadable_check(hook.refusal(self.UNREADABLE_SWEEP)))
+        # Flip: a reader that never refuses lets the sweep check refuse instead. The prefix
+        # alone still matches, so only the reason text tells the two checks apart.
+        hook.strip_heredocs = lambda command: command
+        message = hook.refusal(self.UNREADABLE_SWEEP)
+        self.assertIsNotNone(message)
+        self.assertIn(self.PREFIX, message)
+        self.assertIn(self.SWEEP_REASON, message)
+        self.assertFalse(self._names_unreadable_check(message))
+
+    @classmethod
+    def _class_doc_problems(cls, doc):
+        summary = doc.split('\n')[0]
+        flat = ' '.join(doc.split())
+        problems = []
+        if 'could reach git' not in summary or 'allows' not in summary:
+            problems.append('summary line does not scope the refusal to git')
+        for phrase in cls.NEW_CLASS_PHRASES:
+            if phrase not in flat:
+                problems.append('missing: ' + phrase)
+        if cls.OLD_CLASS_SENTENCE in flat:
+            problems.append('says every unreadable command is refused')
+        return problems
+
+    def test_failclosed_class_docstring_scopes_refusal_to_git(self):
+        doc = HeredocUnpairedIntroducerFailsClosedTests.__doc__
+        self.assertEqual(self._class_doc_problems(doc), [])
+        hook = self._loaded_hook('_bulk_add_class_doc_behaviour')
+        self.assertIsNone(hook.refusal(self.NO_GIT_UNREADABLE))
+        allowed = self._hook(self.NO_GIT_UNREADABLE)
+        self.assertEqual(allowed.returncode, 0, allowed.stdout + allowed.stderr)
+        self.assertEqual(allowed.stderr, '')
+        for command in HeredocUnpairedIntroducerFailsClosedTests.REFUSED:
+            with self.subTest(command=command):
+                self.assertTrue(self._names_unreadable_check(hook.refusal(command)))
+
+    def test_flip_earlier_class_docstring_fails(self):
+        # Flip: the earlier summary line and sentence fail all three wording checks.
+        self.assertEqual(self._class_doc_problems(self.EARLIER_CLASS_DOC), [
+            'summary line does not scope the refusal to git',
+            'missing: ' + self.NEW_CLASS_PHRASES[0],
+            'missing: ' + self.NEW_CLASS_PHRASES[1],
+            'says every unreadable command is refused'])
+
+    def test_reach_docstring_claims_only_skipped_shapes_of_a_fixed_list(self):
+        """Of four named shapes, the could_reach_git docstring claims only ones segments() skips.
+
+        The four are a wrapper, an assignment, ``sh -c`` and a leading redirection
+        (CALL_SHAPES and REDIRECTION_SHAPE). segments() finds the git call after each of the
+        first three, and each of the four the docstring names must have segments() find a
+        call after it. A shape outside this fixed list is not checked, so this does not show
+        that the docstring claims no other shape.
+        """
+        hook = self._loaded_hook('_bulk_add_reach_doc_claims')
+        for name, command in self.CALL_SHAPES:
+            with self.subTest(shape=name):
+                self.assertEqual(hook.segments(command), [[self.G, 'add', '-A']])
+        self.assertEqual(self._reach_doc_problems(hook, hook.could_reach_git.__doc__), [])
+
+    def test_flip_earlier_reach_docstring_fails(self):
+        hook = self._loaded_hook('_bulk_add_reach_doc_flip')
+        # Flip: the earlier docstring claimed a redirection, which segments() does not skip.
+        self.assertEqual(self._reach_doc_problems(hook, self.EARLIER_REACH_DOC),
+                         ['claims a redirection but segments() finds no call after one'])
 
 
 if __name__ == "__main__":

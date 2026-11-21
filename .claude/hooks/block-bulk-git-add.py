@@ -26,7 +26,12 @@ visible while it is authored. A DIRECTORY argument is treated as enumeration, wh
 sweep rather than an unbounded one and is a deliberate, stated limit. Staging by any route other
 than a git command in a Bash tool call is invisible to it.
 
-Fails OPEN on a malformed payload or an internal error.
+Fails OPEN on a malformed payload or an internal error. Fails CLOSED on a command whose
+heredocs cannot be read with certainty (an introducer with no terminator line, raised by
+_hookutil.strip_heredocs as UnreadableCommand, in the command or in an ``sh -c`` body) when
+that command could reach git at all (see could_reach_git): it is refused, the escape
+included, because neither reading of it is safe. An unreadable command with no word that
+could be git stages nothing under either reading, so it is allowed, as before the rule.
 """
 
 from __future__ import annotations
@@ -127,6 +132,7 @@ def _load_sibling(name, _cache={}):
 _hookutil = _load_sibling("_hookutil")
 WRAPPERS = _hookutil.WRAPPERS
 strip_heredocs = _hookutil.strip_heredocs
+UnreadableCommand = _hookutil.UnreadableCommand
 
 SWEEP_LONG = {"-A", "--all", "-u", "--update", "--no-ignore-removal"}
 TREE_ROOTS = {".", "./", ":/", ":", "*", ":/.", "..", "../"}
@@ -239,6 +245,64 @@ def escaped(command: str) -> bool:
     return False
 
 
+_GIT_WORD_BREAKS = re.compile(r"[\s;&|()<>`$={},!#*?\[\]]+")
+
+
+def could_reach_git(command: str) -> bool:
+    """True when any word of the RAW command could be git; never reads heredocs.
+
+    Used only for a command strip_heredocs cannot read, so it decides nothing from
+    quoting or heredoc structure. A backslash-newline is joined, every quote and
+    backslash is dropped (so g'i't, "git" and an ``sh -c`` body all show their words),
+    and the text is cut at whitespace and at each character _GIT_WORD_BREAKS splits on,
+    which are exactly these: ; & | ( ) < > ` $ = { } , ! # * ? [ ]
+    No other character cuts a word (: - % and / do not). A word that is git or ends in
+    /git could be the tool, which is a superset
+    of what segments() treats as a call (a token whose basename is git, after a wrapper,
+    an assignment or inside ``sh -c``). Residue, stated: a name built at
+    run time (a variable, an alias, $'\\x67it') is not seen here, and segments() does not
+    see it either.
+    """
+    text = command.replace("\\\n", "")
+    for ch in "'\"\\":
+        text = text.replace(ch, "")
+    return any(word == "git" or word.endswith("/git")
+               for word in _GIT_WORD_BREAKS.split(text))
+
+
+def refusal(command: str) -> str | None:
+    """The block message for a command, or None when it may run.
+
+    A command strip_heredocs cannot read with certainty is refused before the escape is
+    considered, so no unclosed tail can be taken as either code or data to get past it,
+    whenever any word of it could be git. With no such word it stages nothing under
+    either reading, so it is allowed (a here-string or an unrelated command).
+    """
+    try:
+        if escaped(command):
+            return None
+        problems = [p for p in (violation(t) for t in segments(command)) if p]
+    except UnreadableCommand as exc:
+        if not could_reach_git(command):
+            return None
+        return ("BLOCKED (bulk-git-add): a command this hook cannot read with certainty.\nWHY: "
+                + str(exc) + ". A heredoc introducer with no terminator may be real or may "
+                "sit in quotes or a comment, and the two readings stage different things.\n"
+                "CONSIDER INSTEAD: close every here-document with its terminator line, or "
+                "run the parts as separate commands. The introducer is matched as text, even "
+                "inside quotes or a comment, so quoting the text that holds it does not help: "
+                "write that text to a file and pass the file instead (for a commit message, "
+                "git commit -F <file>).")
+    if not problems:
+        return None
+    return ("BLOCKED (bulk-git-add): a git stage/commit with tree-wide or unspecified scope.\nWHY: " + problems[0] + "\n"
+            "A tree-sweep stage makes the commit message the only record of\n"
+            "scope, and that message is the half that is never verified.\n"
+            "CONSIDER INSTEAD: stage the files you mean by naming their paths, then commit; "
+            "when using a sweep flag, bound it with the `-- <dir>/` form above. "
+            "For a genuinely intended tree sweep, lead the command with " + ESCAPE + "=1.")
+
+
 def main() -> int:
     try:
         if os.environ.get(ESCAPE) == "1":
@@ -247,18 +311,10 @@ def main() -> int:
         if payload.get("tool_name") != "Bash":
             return 0
         command = payload.get("tool_input", {}).get("command", "") or ""
-        if escaped(command):
-            return 0
-        for tokens in segments(command):
-            problem = violation(tokens)
-            if problem:
-                print("BLOCKED (bulk-git-add): a git stage/commit with tree-wide or unspecified scope.\nWHY: " + problem + "\n"
-                      "A tree-sweep stage makes the commit message the only record of\n"
-                      "scope, and that message is the half that is never verified.\n"
-                      "CONSIDER INSTEAD: stage the files you mean by naming their paths, then commit; "
-                      "when using a sweep flag, bound it with the `-- <dir>/` form above. "
-                      "For a genuinely intended tree sweep, lead the command with " + ESCAPE + "=1.", file=sys.stderr)
-                return 2
+        problem = refusal(command)
+        if problem:
+            print(problem, file=sys.stderr)
+            return 2
     except Exception:
         return 0
     return 0
@@ -266,6 +322,8 @@ def main() -> int:
 
 _G = "git"
 _AND = "&& "
+# The reviewed quoted-introducer escape, before its git word.
+_QUOTED_ESCAPE = "echo \"<<NOEND\"\ncat > f <<'EOF'\n" + ESCAPE + "=1\nEOF\n"
 SELF_TEST = [
     (_G + " add -A", True), (_G + " add --all", True), (_G + " add .", True),
     (_G + " add -u", True), (_G + " add", True),
@@ -294,13 +352,35 @@ SELF_TEST = [
     ("echo '" + ESCAPE + "=1' " + _AND + _G + " add -A", True),   # M2: a mention does NOT
     ("cat > f <<'EOF'\n" + _G + " add -A\nEOF", False),           # inert heredoc: data
     ("bash <<'EOF'\n" + _G + " add -A\nEOF", True),               # H7: interpreter body is a program
+    ("cat > f <<NOEND <<'EOF'\n$(" + _G + " add -A)\nEOF", True),  # unterminated tag: its body expands
+    # An introducer with no terminator is refused, so no unclosed tail reaches the escape.
+    ("cat > f <<'NOEND' <<'EOF'\n" + _G + " add -A\nEOF", True),     # two tags, first unterminated
+    ("echo \"<<NOEND\"\ncat > f <<'EOF'\n" + ESCAPE + "=1\nEOF\n" + _G + " add -A", True),   # in quotes
+    ("# <<NOEND\ncat > f <<'EOF'\n" + ESCAPE + "=1\nEOF\n" + _G + " add -A", True),          # in a comment
+    ("echo \"<<NOEND\"; cat > f <<'EOF'\n" + ESCAPE + "=1\nEOF\n" + _G + " add -A", True),  # joined by ;
+    (ESCAPE + "=1 " + _G + " add -A <<NOEND", True),          # the escape itself is not read
+    ("cat > f <<'EOF'\n" + ESCAPE + "=1\nEOF\n" + _G + " add -A", True),   # closed body is data
+    ("cat > f <<'EOF'\nx\nEOF\n" + _G + " add a.md", False),           # closed heredoc still read
+    # The fail-closed rule is scoped: an unreadable command with no word that could be git
+    # stages nothing, so it is allowed; any word that could be git keeps it refused.
+    ("cat <<< x", False),                                       # herestring, not an introducer
+    ("echo \"<<NOEND\"; ls", False),                             # unpaired, no git word
+    ("printf %s x | wc -c", False),
+    ("echo \"<<NOEND\"\n" + _G + " status", True),                # unpaired, a git word
+    (_QUOTED_ESCAPE + "/usr/bin/" + _G + " add -A", True),           # a path to git
+    (_QUOTED_ESCAPE + "g'i't add -A", True),                        # quotes split the word
+    (_QUOTED_ESCAPE + "sh -c 'g\"i\"t add -A'", True),                # inside sh -c
+    (_QUOTED_ESCAPE + "gi\\\nt add -A", True),                      # backslash-newline
+    (_QUOTED_ESCAPE + "{" + _G + ",add} -A", True),                  # brace expansion
+    ("cat <<< x\ncat > f <<'EOF'\n" + ESCAPE + "=1\nEOF\n" + _G + " add -A", True),
+    ("cat <<< x\n" + _G + " add a.md", False),                     # herestring: still read
 ]
 
 
 def self_test() -> int:
     bad = 0
     for command, should_block in SELF_TEST:
-        got = any(violation(t) for t in segments(command)) and not escaped(command)
+        got = refusal(command) is not None
         if got != should_block:
             bad += 1
             print("FAIL want=" + ("BLOCK" if should_block else "allow") + " got="
