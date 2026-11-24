@@ -2,7 +2,7 @@
 
 **Document Title:** Contributing to the GRC Documentation Library\
 **Document Type:** Guideline\
-**Version:** 1.2.18\
+**Version:** 1.3.0\
 **Date:** 2026-11-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\

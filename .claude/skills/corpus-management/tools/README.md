@@ -1,5 +1,8 @@
 # Repository tooling
 
+**Version:** 1.0.1\
+**Date:** 2026-11-24
+
 The Corpus-Management compiler (`build-corpus-management.py`) generates two full always-loaded
 prose rules, a compact rule index in the corpus-management skill directory (read when the skill
 loads, on the skill's instruction, not at session start), and on-demand bodies outside
@@ -99,7 +102,7 @@ pre-commit run --all-files
 
 ## Continuous integration
 
-[`.github/workflows/quality.yml`](../../../../.github/workflows/quality.yml) runs on every pull request. Its 1 job, `Lint markdown corpus`, runs only the CI subset of gates that the audit programme specification's section 4 `ci-pr-subset` block names, then informational collection detection (`python3 .claude/skills/corpus-management/tools/detect-collection-candidates.py --on-pr`), the web generator health check (`python3 .web/build.py --check`), and the 12 per-PR delta gates. Both non-gate checks are pinned by gate 35 to exactly their `name` and `run` keys and commands. Collection candidates are advisory; invalid or unavailable PR diff inputs fail. The manual `regression-timings.yml` workflow measures regression units and uploads weights even on test failure; it adds no audit-runner invocation or pre-commit hook. It uses Python 3.14 from `actions/setup-python` and installs the pinned `requirements.txt` (the one sanctioned third-party dependency, `idna`). The full gate suite runs on the local server, which posts the `local-quality` commit status; merge requires both that status and the `Lint markdown corpus` check. [`.github/workflows/nightly-sweep.yml`](../../../../.github/workflows/nightly-sweep.yml) runs the whole local audit runner on `main` on a nightly schedule. [`.github/workflows/pr-attribution.yml`](../../../../.github/workflows/pr-attribution.yml) runs one more pull-request job, `PR attribution (title and body)`, on the opened, edited, synchronize and reopened events, so an edited title or body is checked again: [`check-pr-attribution.py`](check-pr-attribution.py) reads the pull request's title and body from the event payload and fails (exit 1) when either carries AI-assistant attribution (Claude/Anthropic). It is not an audit gate, and gate 35 does not read that workflow.
+[`.github/workflows/quality.yml`](../../../../.github/workflows/quality.yml) runs on every pull request. Its 1 job, `Lint markdown corpus`, runs only the CI subset of gates that the audit programme specification's section 4 `ci-pr-subset` block names, then informational collection detection (`python3 .claude/skills/corpus-management/tools/detect-collection-candidates.py --on-pr`), the web generator health check (`python3 .web/build.py --check`), and the 12 per-PR delta gates. Both non-gate checks are pinned by gate 35 to exactly their `name` and `run` keys and commands. Collection candidates are advisory; invalid or unavailable PR diff inputs fail. The manual `regression-timings.yml` workflow measures regression units and uploads fresh weights only after a successful measurement; it adds no audit-runner invocation or pre-commit hook. The quality workflow uses Python 3.14 from `actions/setup-python` and installs the pinned `requirements.txt` (the one sanctioned third-party dependency, `idna`). The full gate suite runs on the local server, which posts the `local-quality` commit status; merge requires both that status and the `Lint markdown corpus` check. [`.github/workflows/nightly-sweep.yml`](../../../../.github/workflows/nightly-sweep.yml) runs the whole local audit runner on `main` on a nightly schedule. [`.github/workflows/pr-attribution.yml`](../../../../.github/workflows/pr-attribution.yml) runs one more pull-request job, `PR attribution (title and body)`, on the opened, edited, synchronize and reopened events, so an edited title or body is checked again: [`check-pr-attribution.py`](check-pr-attribution.py) reads the pull request's title and body from the event payload and fails (exit 1) when either carries AI-assistant attribution (Claude/Anthropic). It is not an audit gate, and gate 35 does not read that workflow.
 
 ## Exemptions
 
@@ -453,8 +456,9 @@ what is unknown: what earlier runs left, or what this run left.
 
 The full suite, gate 36 whole included, runs on the local server for the
 pull request head, which posts the `local-quality` commit status that
-merge requires; the GitHub Actions job runs only the CI subset, the web
-generator health check and the delta gates. Residual: a failure in a
+merge requires; the GitHub Actions job runs the CI subset, informational
+collection detection, the web generator health check and the delta gates.
+Residual: a failure in a
 regression test that a site-only change causes is first seen in that
 local server run, not before the push. The guard's header gives the
 exact rules.

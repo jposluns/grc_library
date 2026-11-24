@@ -139,7 +139,7 @@ step's own run value to its exact pinned command string
 the hook's entry only for ``--check``. The other two exclusion sets are
 pinned, not left uncovered: the setup steps by WORKFLOW_SETUP_STEP_SHAPES (exact keys,
 the uses action at a full commit SHA, the with values and the run command), and the
-web generator health check step and collection-candidate steps (WORKFLOW_NON_GATE_CHECK_STEPS) to their keys and run
+web generator health check step and collection-candidate step (WORKFLOW_NON_GATE_CHECK_STEPS) to their keys and run
 command, with no gate script. Nor does it cover runner shell code outside run_gate
 lines (the function
 body, a redefinition of python3 or run_gate, PATH or BASH_ENV, and whether bash

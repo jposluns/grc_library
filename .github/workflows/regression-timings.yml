@@ -30,17 +30,18 @@ jobs:
         run: python3 -m pip install -r requirements.txt
 
       - name: Measure per-unit regression suite timings
-        run: python3 .claude/skills/corpus-management/tools/measure-regression-timings.py
+        id: measurement
+        run: |
+          weights_dir="$(mktemp -d)"
+          python3 .claude/skills/corpus-management/tools/measure-regression-timings.py --output "$weights_dir/regression-shard-weights.json"
+          echo "weights=$weights_dir/regression-shard-weights.json" >> "$GITHUB_OUTPUT"
 
-      # The tool writes the weights file even when a module's run fails
-      # (exit 1), so the upload runs on failure too; only a refusal
-      # (exit 2) leaves no file, which if-no-files-found turns into a
-      # visible error instead of an empty artefact.
+      # Publish only a fresh output from a successful measurement.
       - name: Upload shard-weights artefact
-        if: always()
+        if: ${{ success() && steps.measurement.outcome == 'success' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: regression-shard-weights
-          path: .claude/skills/corpus-management/tests/regression-shard-weights.json
+          path: ${{ steps.measurement.outputs.weights }}
           include-hidden-files: true
           if-no-files-found: error

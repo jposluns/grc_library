@@ -2,7 +2,7 @@
 
 **Document Title:** Command-text hooks and declared staged paths\
 **Document Type:** Guide\
-**Version:** 1.0.6\
+**Version:** 0.0.1\
 **Date:** 2026-11-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\

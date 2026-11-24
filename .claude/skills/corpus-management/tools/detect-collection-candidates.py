@@ -11,10 +11,10 @@ configuration.
 
 Approach (heuristic):
 
-1. Walk a configured set of candidate-source roots (subdirectories of
-   ``.claude/aiqt/rules/`` and ``.claude/skills/``, ``governance/``, and selected
-   compliance subdirs). Every direct subdirectory of a root with at
-   least 3 items is treated as a candidate canonical source.
+1. Walk the candidate-source roots in ``CANDIDATE_ROOTS``:
+   ``.claude/aiqt/rules/``, ``.claude/skills/``, and all 12 domain directories.
+   Every direct subdirectory of a root with at least 3 items is treated as
+   a candidate canonical source.
 
 2. For each candidate canonical, list its items (file basenames stripped
    of ``.md``; subdirectory names as-is).
@@ -45,8 +45,8 @@ Stdlib-only Python 3.14. Exit 0 reports candidates or a PR with no pack
 changes (and --help); exit 2 refuses invalid arguments, unavailable PR diff
 inputs, unreadable in-scope Markdown (including invalid UTF-8), and reported
 scan filesystem errors. Unexpected exceptions remain uncaught (normally exit 1).
-The scan can only report paths yielded by pathlib traversal; it does not prove
-that directories whose traversal errors pathlib suppresses were inspected.
+Directory traversal errors propagate to the incomplete-scan report, naming the
+unreadable directory instead of reporting a complete negative result.
 ``--on-pr`` uses GITHUB_EVENT_PATH, GITHUB_EVENT_NAME and GITHUB_SHA.
 The quality workflow pins that command as a non-gate informational step.
 """
@@ -202,20 +202,27 @@ def file_mentions_items(text: str, items: list[str]) -> int:
 def iter_corpus_markdown() -> list[Path]:
     """Yield markdown files in the corpus, minus the skip set."""
     out: list[Path] = []
-    for path in REPO_ROOT.rglob("*.md"):
-        if is_default_exempt_root(path, repo_root=REPO_ROOT):
-            continue
-        try:
-            rel = path.relative_to(REPO_ROOT).as_posix()
-            parts = path.relative_to(REPO_ROOT).parts
-        except ValueError:
-            continue
-        if has_exempt_part(parts, WALK_SKIP_DIRS, admitted_roots=(
-                *PROJECT_DOCUMENT_DIRS, *PROJECT_DOCUMENT_FILES, ".claude/CLAUDE.md")):
-            continue
-        if rel in WALK_SKIP_FILES:
-            continue
-        out.append(path)
+    def traversal_error(exc: OSError) -> None:
+        raise exc
+
+    for directory, _, filenames in os.walk(REPO_ROOT, onerror=traversal_error):
+        for filename in filenames:
+            if not filename.endswith(".md"):
+                continue
+            path = Path(directory) / filename
+            if is_default_exempt_root(path, repo_root=REPO_ROOT):
+                continue
+            try:
+                rel = path.relative_to(REPO_ROOT).as_posix()
+                parts = path.relative_to(REPO_ROOT).parts
+            except ValueError:
+                continue
+            if has_exempt_part(parts, WALK_SKIP_DIRS, admitted_roots=(
+                    *PROJECT_DOCUMENT_DIRS, *PROJECT_DOCUMENT_FILES, ".claude/CLAUDE.md")):
+                continue
+            if rel in WALK_SKIP_FILES:
+                continue
+            out.append(path)
     return out
 
 

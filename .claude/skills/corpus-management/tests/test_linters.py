@@ -67226,7 +67226,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         "check-version-bump-on-pr.py",
         "check-date-cobump-on-pr.py",
     )
-    # Retired or private selectors stay outside this shipped-tool inventory.
+    # The shipped detector has its own selector adapter in effective().
     SPECIAL = (*SPECIAL, "detect-collection-candidates.py")
     BODY = (
         "# Scope probe\n\n**Document Type:** Standard\n"
@@ -91672,6 +91672,31 @@ class CollectionCandidatePortTests(unittest.TestCase):
         listing.write_text('alpha.md beta.md\n', encoding='utf-8')
         self.assertEqual(len(self.mod.find_candidates()), 1)
 
+    def test_unreadable_directory_refuses_scan_and_names_directory(self):
+        from contextlib import redirect_stdout, redirect_stderr
+        import errno
+
+        for item in ("alpha", "beta", "gamma"):
+            self.write("governance/controls/" + item + ".md", "# Item\n")
+        listing = self.write("governance/listings/index.md", "alpha.md beta.md\n")
+        self.assertEqual(len(self.mod.find_candidates()), 1)
+        scandir = os.scandir
+
+        def unreadable(path):
+            if Path(path) == listing.parent:
+                raise PermissionError(errno.EACCES, "Permission denied", str(path))
+            return scandir(path)
+
+        # Fail at the filesystem traversal layer, where rglob suppresses errors.
+        with self.patch.object(os, "scandir", side_effect=unreadable):
+            out, err = io.StringIO(), io.StringIO()
+            with redirect_stdout(out), redirect_stderr(err):
+                self.assertEqual(self.mod.main([]), 2)
+            self.assertIn("governance/listings", err.getvalue())
+            self.assertIn("incomplete", err.getvalue())
+            self.assertEqual(out.getvalue(), "")
+        self.assertEqual(len(self.mod.find_candidates()), 1)
+
     def test_scan_filesystem_errors_return_two_without_negative_result(self):
         from contextlib import redirect_stdout, redirect_stderr
         for operation in ('iter_corpus_markdown', 'read_text_safe', 'list_candidate_items'):
@@ -91795,6 +91820,25 @@ class CollectionCandidatePortTests(unittest.TestCase):
                     self.assertIn("git diff failed", stream.getvalue())
                     self.assertNotIn("Skipping", stream.getvalue())
 
+    def test_pr_malformed_event_bodies_refuse_before_git_or_scan(self):
+        from contextlib import redirect_stdout, redirect_stderr
+
+        env = self.event()
+        for payload in ("{", "{}", "[]", '{"pull_request":null}'):
+            with self.subTest(payload=payload), \
+                    self.patch.dict(os.environ, env, clear=True), \
+                    self.patch.object(sys, "argv", [self.TOOL, "--on-pr"]), \
+                    self.patch.object(self.mod.subprocess, "run") as run, \
+                    self.patch.object(self.mod, "main") as scan:
+                Path(env["GITHUB_EVENT_PATH"]).write_text(payload, encoding="utf-8")
+                out, err = io.StringIO(), io.StringIO()
+                with redirect_stdout(out), redirect_stderr(err):
+                    self.assertEqual(self.mod.cli(), 2)
+                run.assert_not_called()
+                scan.assert_not_called()
+                self.assertEqual(out.getvalue(), "")
+                self.assertIn("Cannot determine collection-source changes", err.getvalue())
+
     def test_pr_bad_inputs_refused_before_git(self):
         env = self.event()
         cases = ({}, {**env, "GITHUB_SHA": "--help"},
@@ -91834,11 +91878,15 @@ class RegressionTimingWorkflowTests(unittest.TestCase):
             "        with:", '          python-version: "3.14"',
             "      - name: Install pinned dependencies", "        run: python3 -m pip install -r requirements.txt",
             "      - name: Measure per-unit regression suite timings",
-            "        run: python3 .claude/skills/corpus-management/tools/measure-regression-timings.py",
-            "      - name: Upload shard-weights artefact", "        if: always()",
+            "        id: measurement", "        run: |",
+            '          weights_dir="$(mktemp -d)"',
+            '          python3 .claude/skills/corpus-management/tools/measure-regression-timings.py --output "$weights_dir/regression-shard-weights.json"',
+            '          echo "weights=$weights_dir/regression-shard-weights.json" >> "$GITHUB_OUTPUT"',
+            "      - name: Upload shard-weights artefact",
+            "        if: ${{ success() && steps.measurement.outcome == 'success' }}",
             "        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4",
             "        with:", "          name: regression-shard-weights",
-            "          path: .claude/skills/corpus-management/tests/regression-shard-weights.json",
+            "          path: ${{ steps.measurement.outputs.weights }}",
             "          include-hidden-files: true", "          if-no-files-found: error",
         ]
         return lines == expected
@@ -91858,12 +91906,14 @@ class RegressionTimingWorkflowTests(unittest.TestCase):
                               ("contents: read", "contents: write"),
                               ('python-version: "3.14"', 'python-version: "3.11"'),
                               ("fetch-depth: 0", "fetch-depth: 1"),
-                              ("if: always()", "if: success()"),
+                              ("if: ${{ success() && steps.measurement.outcome == 'success' }}", "if: always()"),
+                              ('weights_dir="$(mktemp -d)"', 'weights_dir="."'),
+                              ("steps.measurement.outputs.weights", "github.workspace"),
                               ("include-hidden-files: true", "include-hidden-files: false"),
                               ("if-no-files-found: error", "if-no-files-found: warn"),
-                              (".claude/skills/corpus-management/tests/", "tests/"),
-                              ("run: python3 .claude/skills/corpus-management/tools/measure-regression-timings.py",
-                               "run: true")):
+                              ('--output "$weights_dir/regression-shard-weights.json"', ""),
+                              ("python3 .claude/skills/corpus-management/tools/measure-regression-timings.py",
+                               "true")):
             with self.subTest(before=before):
                 self.assertIn(before, text)
                 self.assertFalse(self.contract(text.replace(before, after)))
@@ -92020,6 +92070,42 @@ class RegressionTimingMeasurementTests(unittest.TestCase):
         (tests / (module_stem + ".py")).write_text(
             module_body, encoding="utf-8")
         return root
+
+    def test_workflow_publishes_only_fresh_successful_measurement(self):
+        import textwrap
+
+        workflow = (REPO_ROOT / ".github/workflows/regression-timings.yml").read_text()
+        script = textwrap.dedent(workflow.split("        run: |\n", 1)[1].split("\n\n", 1)[0])
+        for body, expected in (
+                ("import unittest\nclass TinyTests(unittest.TestCase):\n"
+                 "    def test_tiny(self): pass\n", 0),
+                ("import unittest\nclass TinyTests(unittest.TestCase):\n"
+                 "    def test_tiny(self): self.fail('failure')\n", 1),
+                ("raise ImportError('refusal')\n", 2)):
+            with self.subTest(expected=expected):
+                root = self._tool_fixture_repo("test_tiny_fixture", body)
+                tracked = root / SKILL_TOOLS_REL.parent / "tests" / "regression-shard-weights.json"
+                stale = '{"schema": 1, "units": {"stale:Tests#0": 99}}\n'
+                tracked.write_text(stale, encoding="utf-8")
+                output = root / "step-output"
+                output.touch()
+                temporary = root / "temporary"
+                temporary.mkdir()
+                result = subprocess.run(
+                    ["bash", "-e", "-c", script], cwd=root,
+                    env={**os.environ, "GITHUB_OUTPUT": str(output), "TMPDIR": str(temporary)},
+                    capture_output=True, text=True, timeout=60)
+                self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+                self.assertEqual(tracked.read_text(), stale)
+                if expected:
+                    self.assertEqual(output.read_text(), "")
+                else:
+                    key, value = output.read_text().strip().split("=", 1)
+                    self.assertEqual(key, "weights")
+                    fresh = Path(value)
+                    self.assertTrue(fresh.is_relative_to(temporary))
+                    weights = json.loads(fresh.read_text())
+                    self.assertEqual(set(weights["units"]), {"tests.test_tiny_fixture:TinyTests#0"})
 
     def test_import_error_module_refused_without_weights_file(self):
         root = self._tool_fixture_repo(

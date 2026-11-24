@@ -83,6 +83,40 @@ class DeclaredStagedPathsTests(unittest.TestCase):
         self.declaration.write_bytes(b" " * (self.mod.LIMIT + 1))
         self.check(1, "size limit")
 
+    def test_declaration_read_and_incomplete_git_output_fail_closed(self):
+        from contextlib import ExitStack, redirect_stdout, redirect_stderr
+        import io
+        from unittest.mock import patch
+
+        for failure, message in (("unreadable", "permission denied"),
+                                 ("invalid_utf8", "utf-8"),
+                                 ("incomplete_paths", "incomplete path list")):
+            with self.subTest(failure=failure), ExitStack() as stack:
+                self.declare("wanted")
+                stack.enter_context(patch.object(
+                    self.mod, "context", return_value=(self.repo, self.declaration, None)))
+                if failure == "unreadable":
+                    opened = stack.enter_context(patch.object(
+                        self.mod.os, "open", side_effect=PermissionError("permission denied")))
+                elif failure == "invalid_utf8":
+                    self.declaration.write_bytes(b'{"head":null,"paths":["\xff"]}')
+                else:
+                    # Matching names without the final NUL must still refuse.
+                    git = stack.enter_context(patch.object(
+                        self.mod, "git", side_effect=[b"", b"wanted"]))
+                out, err = io.StringIO(), io.StringIO()
+                with redirect_stdout(out), redirect_stderr(err):
+                    self.assertEqual(self.mod.main(["--pre-commit"]), 1)
+                self.assertEqual(out.getvalue(), "")
+                self.assertIn("REFUSING", err.getvalue())
+                self.assertIn(message, err.getvalue())
+                if failure == "unreadable":
+                    self.assertEqual(opened.call_args.args[0], self.declaration)
+                elif failure == "incomplete_paths":
+                    self.assertEqual(git.call_count, 2)
+        self.declare()
+        self.check(0)
+
     def test_exact_extra_missing_scope_flips(self):
         self.write("wanted")
         self.write("other")

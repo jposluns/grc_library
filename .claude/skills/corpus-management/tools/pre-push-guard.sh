@@ -18,8 +18,9 @@
 # except the linter regression test suite (gate 36) gate by gate. The FULL
 # guard then runs gate 36 WHOLE, with the private store present, as six
 # parallel local shards (replacing an earlier store-dependent list); the fast
-# path leaves gate 36 to the local server run. The quality workflow runs only
-# the CI subset of gates, the web generator health check and the delta gates
+# path leaves gate 36 to the local server run. The quality workflow runs
+# the CI subset of gates, informational collection detection, the web
+# generator health check and the delta gates
 # on each pull request, in 1 job ("Lint markdown corpus"); the full suite,
 # gate 36 whole included, runs on the local server, which posts the
 # local-quality commit status that merge requires. The full guard runs,
