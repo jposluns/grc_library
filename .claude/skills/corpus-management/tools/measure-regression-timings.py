@@ -15,7 +15,7 @@ has an ordinary inventory pin row in ``ExplicitPathCliInventoryTests``
 (``.claude/skills/corpus-management/tests/test_linters.py``), which pins its bytes and path policy
 without running it. The manual-only workflow
 ``.github/workflows/regression-timings.yml`` measures on a CI runner and
-uploads the weights as an artefact, including when measured tests fail.
+uploads fresh weights as an artefact only after a successful measurement.
 Gate 36 remains local; these advisory measurements do not replace it.
 
 A UNIT is a maximal run of consecutive occurrences of one class object

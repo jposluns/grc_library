@@ -48401,8 +48401,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        detect-collection-candidates.py NO_FS F a6b16b1964ab9996a33ebb7d10a7a54f61584d355d8eed62bbb864696e5b2c85
-        README.md DATA F 814a68992dfa7150b8d8594b3fe83e571de4cbe27668d321ac95aaf9650389f0
+        detect-collection-candidates.py NO_FS F d18a8090aa251bae2b14d4aeaf740fd96314cb2628f26c4f8f33f2f714acbb60
+        README.md DATA F 0c007099b38d9cecbec003002584ab1fb8b9ecaea2e2670ee310639da28ae641
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
         aiqt_bootstrap.py PASSIVE F 1f617d3d14213da6e225dabc21c49c253a3738531304e5c7924e87878c1d2206
@@ -48463,7 +48463,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-aiqt-vendor-digest.py NO_FS F 49f26e0c53d3c6c5b88c455204bec8a092ddca252890e189f4dc988baf0e7c8d
         lint-alignment-citation-existence.py CWD F e7792b9664730a6b542285fa654de20ec9d39af7aa6cb553813ff2efa865152c
         lint-allowlist-spec-parity.py NO_FS F e8f452096456f55cd880fdb79b01ac18cadbcbfc966b67e1ab9b9ef43e8ea1db
-        lint-audit-gate-parity.py OWN F 2f8499ae4da2d16b6306069febd1bdf6d3c48078238059ca076c14b6159c8537
+        lint-audit-gate-parity.py OWN F 148ce8b1ae56c2bc5241f04eebcbaad0d45d1640463b01cb25c4340d5751bb99
         lint-audit-spec-detailed-prose.py OWN F 49ba119b94f997b1c35560dab6087ef16c936a09c02a84f3fa02a1925412e390
         lint-bare-normative-shall.py ROOT F 0de8d8f46a8d953aa02ca38c8b86d8f08a5c642e1b900483f3008c2c3983e203
         lint-baseline-pin.py OWN F 33cbe14512f04fb1da1c9c0a44e53ecaef7e618968e8314a48b812b30595035a
@@ -48548,9 +48548,9 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F e69c56be54024ab612c87f8a39f39807334f029426e5e266f860f41ff251479f
         lint_common.py PASSIVE F c6e66110ba84b8ff97a2c10a17b7d6483b6c43bc6faebcd3409b161f3eeb86c9
         matrix_code_parse.py PASSIVE F 62df77ba801019b06afea2a1474836a90dc2e8385f7d99becef9d393c511f622
-        measure-regression-timings.py WRITE F 40c8deff039ac532839f7202d7fc27782620449c7d8abc66ad3f80e1af6c1917
+        measure-regression-timings.py WRITE F 5fced36399a5580d6d4474d0f04c5c4db02b7dfb16ee32b7d95a4cdb70f04c4b
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        pre-push-guard.sh FIXED F ba46b003c527ac68a51aad335db6f2ef323c505296c06a9f4dd16690810ce7b5
+        pre-push-guard.sh FIXED F 8e5d3b526e89fcb013669b11d097df4d9a514a0ef30f4c7960d50194cc093ef5
         pre-push-hook.py TRANSPORT F e0a06be59cc3e8c0b47377b229c16ea169eba04ed717e31c9427356b85f6bb76
         preflight-changelog.py NO_FS F 4a8ab78b13076b2fa1b61333766417034094db2a1e81269048d59fb14f9c50bf
         preflight-version-date.py NO_FS F 31cfe7d03173f406ba0d5b2ff2dfd0fcdf59686c94150aba3a597b3a714e0879
@@ -91696,6 +91696,36 @@ class CollectionCandidatePortTests(unittest.TestCase):
             self.assertIn("incomplete", err.getvalue())
             self.assertEqual(out.getvalue(), "")
         self.assertEqual(len(self.mod.find_candidates()), 1)
+
+    def test_unreadable_excluded_directories_are_pruned_and_admitted_files_remain(self):
+        import errno
+
+        admitted = ("governance/list.md", ".claude/CLAUDE.md",
+                    *(root + "/list.md" for root in self.mod.PROJECT_DOCUMENT_DIRS),
+                    *self.mod.PROJECT_DOCUMENT_FILES)
+        for path in admitted:
+            self.write(path, "alpha.md beta.md\n")
+        excluded = (".git", "node_modules", "__pycache__", "governance/node_modules",
+                    ".claude/private", ".claude/skills/corpus-management/src",
+                    ".claude/skills/corpus-management/specs/__pycache__",
+                    ".claude/skills/corpus-management/tools/private")
+        for path in excluded:
+            self.write(path + "/hidden.md", "alpha.md beta.md\n")
+        scandir = os.scandir
+        attempted = []
+
+        def unreadable(path):
+            rel = Path(path).relative_to(self.root).as_posix()
+            attempted.append(rel)
+            if rel in excluded:
+                raise PermissionError(errno.EACCES, "Permission denied", str(path))
+            return scandir(path)
+
+        with self.patch.object(os, "scandir", side_effect=unreadable):
+            found = {p.relative_to(self.root).as_posix()
+                     for p in self.mod.iter_corpus_markdown()}
+        self.assertEqual(found, set(admitted) - self.mod.WALK_SKIP_FILES)
+        self.assertTrue(set(excluded).isdisjoint(attempted))
 
     def test_scan_filesystem_errors_return_two_without_negative_result(self):
         from contextlib import redirect_stdout, redirect_stderr

@@ -67,7 +67,7 @@ sys.path.append(str(Path(__file__).resolve().parent))
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack .claude/skills/corpus-management/tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import is_default_exempt_root, REPO_ROOT, has_exempt_part, PROJECT_DOCUMENT_DIRS, PROJECT_DOCUMENT_FILES  # noqa: E402  # grc-config/store, stays local
+from lint_common import DEFAULT_EXEMPT_ROOTS, is_default_exempt_root, REPO_ROOT, has_exempt_part, PROJECT_DOCUMENT_DIRS, PROJECT_DOCUMENT_FILES  # noqa: E402  # grc-config/store, stays local
 
 
 # Candidate canonical source roots. Each direct subdirectory of these
@@ -205,7 +205,20 @@ def iter_corpus_markdown() -> list[Path]:
     def traversal_error(exc: OSError) -> None:
         raise exc
 
-    for directory, _, filenames in os.walk(REPO_ROOT, onerror=traversal_error):
+    admitted_roots = (*PROJECT_DOCUMENT_DIRS, *PROJECT_DOCUMENT_FILES, ".claude/CLAUDE.md")
+
+    def scan_directory(path: Path) -> bool:
+        rel = path.relative_to(REPO_ROOT)
+        if (rel.as_posix() in DEFAULT_EXEMPT_ROOTS
+                or is_default_exempt_root(path, repo_root=REPO_ROOT)):
+            return False
+        # Keep ancestors of admitted documents so .claude remains traversable.
+        if any(root.startswith(rel.as_posix() + "/") for root in admitted_roots):
+            return True
+        return not has_exempt_part(rel.parts, WALK_SKIP_DIRS, admitted_roots=admitted_roots)
+
+    for directory, dirnames, filenames in os.walk(REPO_ROOT, onerror=traversal_error):
+        dirnames[:] = [name for name in dirnames if scan_directory(Path(directory) / name)]
         for filename in filenames:
             if not filename.endswith(".md"):
                 continue
@@ -217,8 +230,7 @@ def iter_corpus_markdown() -> list[Path]:
                 parts = path.relative_to(REPO_ROOT).parts
             except ValueError:
                 continue
-            if has_exempt_part(parts, WALK_SKIP_DIRS, admitted_roots=(
-                    *PROJECT_DOCUMENT_DIRS, *PROJECT_DOCUMENT_FILES, ".claude/CLAUDE.md")):
+            if has_exempt_part(parts, WALK_SKIP_DIRS, admitted_roots=admitted_roots):
                 continue
             if rel in WALK_SKIP_FILES:
                 continue

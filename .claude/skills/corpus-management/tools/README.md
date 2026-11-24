@@ -1,6 +1,6 @@
 # Repository tooling
 
-**Version:** 1.0.1\
+**Version:** 0.0.1\
 **Date:** 2026-11-24
 
 The Corpus-Management compiler (`build-corpus-management.py`) generates two full always-loaded
@@ -38,7 +38,7 @@ The linter fixtures live in [`.claude/skills/corpus-management/tests/test_linter
 
 The advisory [`detect-collection-candidates.py`](detect-collection-candidates.py) suggests collections for maintainer triage. Run it directly to scan, or with `--on-pr` to select PRs changing the retained pack paths from GitHub's event and merge SHA. Gate 35 pins its informational quality-workflow step; it has no audit row or pre-commit hook.
 
-The manual [`regression-timings.yml`](../../../../.github/workflows/regression-timings.yml) workflow runs [`measure-regression-timings.py`](measure-regression-timings.py) with Python 3.14 and publishes its per-unit weights, including when measured tests fail. These weights advise shard balancing and do not replace the local regression gate.
+The manual [`regression-timings.yml`](../../../../.github/workflows/regression-timings.yml) workflow runs [`measure-regression-timings.py`](measure-regression-timings.py) with Python 3.14 and publishes fresh per-unit weights only after a successful measurement. These weights advise shard balancing and do not replace the local regression gate.
 
 ## Running
 
