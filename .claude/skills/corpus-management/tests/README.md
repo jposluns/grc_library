@@ -2,7 +2,7 @@
 
 **Document Title:** Linter regression tests\
 **Document Type:** Guide\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-11-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -44,6 +44,26 @@ tests** (a linter that depends on an external register must exit 2,
 not 1, when the register is missing). The audit programme itself
 provides additional implicit negative coverage by running every
 linter against the clean corpus on every commit and expecting exit 0.
+
+## Installer and portability self-tests
+
+`test_hook_installation.py` covers fresh and upgraded commit shims, missing and
+removed tracked dispatchers, argument and failure forwarding, local commit-msg
+hooks, idempotence, and refusal of altered hooks, symlinks, directories and foreign
+framework hooks. It invokes hooks directly without making commits.
+
+`test_portability.py` exercises the real portability shell script with stub Git,
+audit and advisory commands. It requires all three public probes, propagates each
+public probe failure or absence and audit failures, and rejects clone failures
+and sibling-contaminated fixtures. These fixture tests do not run the full audit
+suite or establish that a real cloned HEAD passes it.
+
+Run these focused self-tests from the repository root:
+
+```
+python3 -I .claude/skills/corpus-management/tests/test_hook_installation.py
+python3 -I .claude/skills/corpus-management/tests/test_portability.py
+```
 
 ## Gate 36 and the pre-push fast path
 

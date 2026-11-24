@@ -387,7 +387,9 @@ def _integration_self_test():
     with tempfile.TemporaryDirectory() as base:
         repo = Path(base) / "clone with space" / "r"
         for rel in (".claude/skills/corpus-management/tools/check-generated-commit.py", ".claude/skills/corpus-management/tools/check-commit-on-main.py",
-                    ".claude/skills/corpus-management/tools/install-git-hooks.sh", ".claude/skills/corpus-management/tools/git-hooks/pre-commit", ".claude/skills/corpus-management/tools/git-hooks/pre-push",
+                    ".claude/skills/corpus-management/tools/install-git-hooks.sh", ".claude/skills/corpus-management/tools/git-hooks/pre-commit",
+                    ".claude/skills/corpus-management/tools/git-hooks/commit-msg",
+                    ".claude/skills/corpus-management/tools/check-version-bump-commit.py", ".claude/skills/corpus-management/tools/git-hooks/pre-push",
                     ".claude/skills/corpus-management/tools/lint_common.py", *_BUILDERS):
             (repo / rel).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src / rel, repo / rel)

@@ -218,7 +218,9 @@ def _integration_self_test():
     with tempfile.TemporaryDirectory() as base:
         repo = Path(base) / "clone with space" / "r"
         for rel in (".claude/skills/corpus-management/tools/check-changelog-preflight-commit.py", ".claude/skills/corpus-management/tools/check-commit-on-main.py",
-                    ".claude/skills/corpus-management/tools/install-git-hooks.sh", ".claude/skills/corpus-management/tools/git-hooks/pre-commit", str(_PREFLIGHT),
+                    ".claude/skills/corpus-management/tools/install-git-hooks.sh", ".claude/skills/corpus-management/tools/git-hooks/pre-commit",
+                    ".claude/skills/corpus-management/tools/git-hooks/commit-msg",
+                    ".claude/skills/corpus-management/tools/check-version-bump-commit.py", str(_PREFLIGHT),
                     ".claude/skills/corpus-management/tools/preflight_language_runner.py",
                     ".claude/skills/corpus-management/tools/check-changelog-length-on-pr.py", ".claude/skills/corpus-management/tools/lint_common.py",
                     ".claude/skills/corpus-management/tools/changelog_diff.py",

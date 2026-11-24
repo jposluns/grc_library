@@ -1,6 +1,6 @@
 # Repository tooling
 
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-11-24
 
 The Corpus-Management compiler (`build-corpus-management.py`) generates two full always-loaded
@@ -92,6 +92,15 @@ pre-commit install
 
 Three git-native hooks are installed by `.claude/skills/corpus-management/tools/install-git-hooks.sh`: a pre-push hook (`.claude/skills/corpus-management/tools/git-hooks/pre-push`), a pre-commit hook (`.claude/skills/corpus-management/tools/git-hooks/pre-commit`) that refuses a commit on a `main` or `master` checkout, a commit that changes a document's `**Version:**` or `**Date:**` line (or a generated output) while the staged `.claude/skills/corpus-management/data/taxonomy.yml`, `governance/portal.md` or `governance/maturity-scorecard.md` is out of sync (`.claude/skills/corpus-management/tools/check-generated-commit.py` runs the staged generators' `--check` on a copy of the index being committed; override `GRC_ALLOW_STALE_GENERATED_COMMIT=1`), and a commit that stages `.working/CHANGELOG.md` while `python3 .claude/skills/corpus-management/tools/preflight-changelog.py --staged` fails (override `GRC_ALLOW_FAILING_CHANGELOG_COMMIT=1`), and a commit-msg hook (`.claude/skills/corpus-management/tools/git-hooks/commit-msg`) that refuses a commit whose staged versioned document changed its body without a Version change (a `VersionBump: none <reason>` message line opts out README.md only). A local commit-msg hook is kept by renaming it to `commit-msg-local`; the managed hook runs it first. Run it once per clone, BEFORE `pre-commit install`: the framework then chains the managed pre-commit hook as `pre-commit.legacy`. If the framework is already installed, run `pre-commit uninstall`, then this installer, then `pre-commit install`. A later re-run of the installer cannot verify the chain from file contents, so it reports the pre-commit half as unverified (non-zero) and names the behavioural check: on a `main` checkout, `git commit --allow-empty -m probe` must be refused. It refuses a `git push` when the tracked working tree is modified or staged AND the push includes the current HEAD, mirroring [`pre-push-guard.sh`](pre-push-guard.sh)'s dirty-tree attestation (override `PRE_PUSH_GUARD_ALLOW_DIRTY=1`), as a backstop on every destination; the full guard below clears this override. It is a raw git hook, not a pre-commit-framework hook, because the framework stashes unstaged edits before running hooks (which would defeat the check).
 
+The installed `pre-commit` and `commit-msg` shims report a missing tracked
+dispatcher and exit 1, including when an older checkout predates that dispatcher.
+Restore the tracked file before committing. Rerunning the installer upgrades
+exact, unmodified v1 commit shims to v2 and is idempotent. Altered hooks and
+symlinks are refused. For a framework-managed `pre-commit.legacy`, use the
+uninstall, installer, reinstall sequence above; the installer does not modify
+or certify a foreign framework hook. `commit-msg-local` still runs first and
+its nonzero exit is preserved.
+
 The native pre-commit hook also requires an explicit staged-path declaration before every commit. From the repository root, run `python3 -I .claude/skills/corpus-management/tools/check-staged-paths.py --declare -- path/to/file other/file` with the complete intended file set. Paths are literal repository-relative names, even when the script is invoked from a subdirectory. Declare again after HEAD changes or the intended scope changes; a missing, stale or mismatched declaration refuses the commit. See [declaration setup and limits](../docs/guide-command-text-hooks.md).
 
 Subsequent commits run the full audit programme before the commit is finalized. Run on demand against the entire corpus:
@@ -103,6 +112,17 @@ pre-commit run --all-files
 ## Continuous integration
 
 [`.github/workflows/quality.yml`](../../../../.github/workflows/quality.yml) runs on every pull request. Its 1 job, `Lint markdown corpus`, runs only the CI subset of gates that the audit programme specification's section 4 `ci-pr-subset` block names, then informational collection detection (`python3 .claude/skills/corpus-management/tools/detect-collection-candidates.py --on-pr`), the web generator health check (`python3 .web/build.py --check`), and the 12 per-PR delta gates. Both non-gate checks are pinned by gate 35 to exactly their `name` and `run` keys and commands. Collection candidates are advisory; invalid or unavailable PR diff inputs fail. The manual `regression-timings.yml` workflow measures regression units and uploads fresh weights only after a successful measurement; it adds no audit-runner invocation or pre-commit hook. The quality workflow uses Python 3.14 from `actions/setup-python` and installs the pinned `requirements.txt` (the one sanctioned third-party dependency, `idna`). The full gate suite runs on the local server, which posts the `local-quality` commit status; merge requires both that status and the `Lint markdown corpus` check. [`.github/workflows/nightly-sweep.yml`](../../../../.github/workflows/nightly-sweep.yml) runs the whole local audit runner on `main` on a nightly schedule. [`.github/workflows/pr-attribution.yml`](../../../../.github/workflows/pr-attribution.yml) runs one more pull-request job, `PR attribution (title and body)`, on the opened, edited, synchronize and reopened events, so an edited title or body is checked again: [`check-pr-attribution.py`](check-pr-attribution.py) reads the pull request's title and body from the event payload and fails (exit 1) when either carries AI-assistant attribution (Claude/Anthropic). It is not an audit gate, and gate 35 does not read that workflow.
+
+## Portability check
+
+`check-portability.sh` runs the full audit suite in a sibling-free clone of HEAD,
+then checks the three public sibling-reaching tools: `build-reference-manifest.py`,
+`verify-reference-modules.py`, and `scan-publication-instruction-content.py`.
+The operator tools `ref-holds.py`, `audit-reference-breadth.py`,
+`audit-claim-precision.py`, `audit-register-currency.py`, and
+`audit-reference-acquisition-gaps.py` belong to the private operations repository
+and are not public probes. A missing or failing public probe still fails the check.
+Uncommitted changes are not included in its cloned HEAD.
 
 ## Exemptions
 

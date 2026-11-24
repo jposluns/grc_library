@@ -4,15 +4,12 @@
 #
 # Guarantees the sibling-independence invariant: an adopter who clones ONLY the
 # public grc_library repo (reaching none of the maintainer's sibling repos) can
-# still run every audit gate green AND run the sibling-reaching advisory tools in
-# the loop below (ref-holds among them) without a spurious error. The corpus' QA
-# toolchain is PRODUCT (adopters clone and run it), so it must not depend on the
-# maintainer's private sibling repos. All six maintainer-cadence tools that also
-# reach the reference sibling repo are in the advisory-tool loop below:
-# audit-reference-breadth, audit-reference-acquisition-gaps, and
-# scan-publication-instruction-content each raised on an absent reference base and were
-# fixed to a graceful no-op exit 0, while audit-claim-precision, verify-reference-modules,
-# and audit-register-currency already degraded (SKIP / advisory exit 0). SCOPE NOTE:
+# still run every audit gate green AND run the public sibling-reaching tools in
+# the loop below without a spurious error. The public QA toolchain must not depend
+# on the maintainer's private sibling repos. The public probes are
+# build-reference-manifest.py, verify-reference-modules.py, and
+# scan-publication-instruction-content.py. Operator-only tools are outside
+# this public check's scope. SCOPE NOTE:
 # this check exercises the DEFAULT (relative) sibling-reach a bare adopter clone hits
 # (a sibling absent beside the clone); a tool reaching an ABSOLUTE sibling path (e.g.
 # one under a worker's /tmp) is out of this relative-clone model's scope and is
@@ -78,20 +75,13 @@ rc=$?
 # Advisory-tool graceful degradation: the sibling-reaching advisory tools must
 # no-op and exit 0 (not error) when their sibling repo is absent, so an adopter
 # running them on a sibling-free clone gets a clean advisory rather than a
-# spurious failure. ref-holds needs a query argument to reach the lookup path;
-# the others take none.
+# spurious failure. All public probes run with their default arguments.
 adv_rc=0
 echo
 echo "Checking the sibling-reaching advisory/generator tools degrade gracefully (1.19.2 (closing PR #996), 1.19.7 (closing PR #1007)) ..."
-for tool in ref-holds.py build-reference-manifest.py \
-            audit-reference-breadth.py audit-claim-precision.py verify-reference-modules.py \
-            audit-register-currency.py audit-reference-acquisition-gaps.py \
+for tool in build-reference-manifest.py verify-reference-modules.py \
             scan-publication-instruction-content.py; do
-  if [ "$tool" = "ref-holds.py" ]; then
-    ( cd "$CLONE" && python3 ".claude/skills/corpus-management/tools/$tool" probe-query >/dev/null 2>&1 )
-  else
-    ( cd "$CLONE" && python3 ".claude/skills/corpus-management/tools/$tool" >/dev/null 2>&1 )
-  fi
+  ( cd "$CLONE" && python3 ".claude/skills/corpus-management/tools/$tool" >/dev/null 2>&1 )
   trc=$?
   if [ "$trc" -eq 0 ]; then
     echo "  OK   .claude/skills/corpus-management/tools/$tool exited 0 (graceful no-op)"
