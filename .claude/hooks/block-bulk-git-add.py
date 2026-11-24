@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 """PreToolUse Bash hook: refuse a stage-the-tree git command; require enumerated paths.
 
+Command-text residual: this hook inspects tool_input.command, not execution.
+Commands inside a script file, a heredoc fed to a shell, or a subprocess are
+not generally visible. Recognizing selected shell or heredoc forms does not
+provide recursive inspection of the programs they execute. See
+.claude/skills/corpus-management/docs/guide-command-text-hooks.md for each hook's
+limits and the independent staged-path pre-commit check.
+
 Why: a tree-sweep stage can put a finished, unrelated change into a commit whose message
 describes only a corpus-document edit, so the commit says one thing and ships another. The sweep forms stage the TREE rather than the CHANGE,
 so the author's scope lives only in the commit message while the artefact inherits whatever the

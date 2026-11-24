@@ -117,7 +117,7 @@ delta gates remain the authority.
 
 ## Guard hooks (tracked settings seed)
 
-`.claude/settings.json` registers five guard hooks from `.claude/hooks/`, each launched as
+`.claude/settings.json` registers six guard hooks from `.claude/hooks/`, each launched as
 `/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/<name>.py`. They enforce the last
 three Boundaries items and the version-bump discipline mechanically:
 - `block-branch-to-main-edit.py` (Edit|Write): blocks edits while the repo is on `main`.
@@ -127,6 +127,14 @@ three Boundaries items and the version-bump discipline mechanically:
 - `block-verification-pipes.py` (Bash): refuses verification commands piped into truncating
   filters; use `.claude/skills/corpus-management/tools/tail-safe.sh` instead.
 - `block-repeated-tool-failure.py` (Bash): breaks the resubmit-the-blocked-command loop.
+- `block-stdin-interpreter.py` (Bash): refuses recognized interpreter stdin feeds.
+
+All five Bash hooks read command text. Commands inside a script file, a heredoc fed
+to a shell, or a subprocess are not generally visible, even when selected wrapper
+forms are recognized. Their [reference](skills/corpus-management/docs/guide-command-text-hooks.md)
+states each residual and documents the independent native pre-commit staged-path
+check, including the required declaration command. A missing declaration refuses.
+
 Two helpers (`_hookutil.py`, `_hook_state.py`) ship beside them; hook state lives in the
 gitignored `.claude/hooks/.state/`. Register local additions in the untracked
 `.claude/settings.local.json`, never by editing the tracked seed in place.

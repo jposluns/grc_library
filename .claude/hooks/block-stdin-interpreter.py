@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 """PreToolUse Bash hook: refuse an interpreter that reads its program from standard input.
 
+Command-text residual: this hook inspects tool_input.command, not execution.
+Commands inside a script file, a heredoc fed to a shell, or a subprocess are
+not generally visible. Recognizing selected shell or heredoc forms does not
+provide recursive inspection of the programs they execute. See
+.claude/skills/corpus-management/docs/guide-command-text-hooks.md for each hook's
+limits and the independent staged-path pre-commit check.
+
 Why: a program handed to an interpreter on standard input (``python3 -I - <<'EOF'``, a
 here-string, a pipe, ``-`` or a process substitution) is not part of the command text, and
 the command text is all a PreToolUse Bash hook reads, so no hook can check what that program

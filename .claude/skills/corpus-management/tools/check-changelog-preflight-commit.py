@@ -232,6 +232,10 @@ def _integration_self_test():
                     ".claude/skills/corpus-management/src/defaults/grc/language.toml"):
             (repo / rel).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src / rel, repo / rel)
+        # The staged-path boundary has its own explicit-scope tests. Give this
+        # synthetic fixture a declaration while retaining the real checker.
+        import runpy
+        runpy.run_path(str(src / ".claude/skills/corpus-management/tests/_staged_paths_fixture.py"))["install"](src, repo)
         # Isolated from the caller: no inherited GIT_* (GIT_INDEX_FILE above all), no global or system
         # config, and no GRC_STORE (it would point the preflight's mirror scan at the real mirror). The
         # fixture does not carry the vendored AIQT pack the preflight imports, so it is named here.

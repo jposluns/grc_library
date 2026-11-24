@@ -2,8 +2,8 @@
 
 **Document Title:** Contributing to the GRC Documentation Library\
 **Document Type:** Guideline\
-**Version:** 1.2.16\
-**Date:** 2026-11-09\
+**Version:** 1.3.0\
+**Date:** 2026-11-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`governance/specification-master-project.md`](governance/specification-master-project.md), [`governance/specification-ingestion.md`](governance/specification-ingestion.md), [`SECURITY.md`](SECURITY.md), [`NOTICE.md`](NOTICE.md), [`AUTHORS.md`](AUTHORS.md), [`.working/CHANGELOG.md`](.working/CHANGELOG.md)\
@@ -69,6 +69,8 @@ The most common net-new artefact is an overlay for a sector or jurisdiction the 
    ```
 
    Also run `.claude/skills/corpus-management/tools/install-git-hooks.sh` once to install the git-native pre-push backstop: it refuses a `git push` with a dirty tracked tree when you are pushing your current HEAD (override `PRE_PUSH_GUARD_ALLOW_DIRTY=1`).
+
+   The native pre-commit hook also requires an explicit staged-path declaration before every commit. From the repository root, run `python3 -I .claude/skills/corpus-management/tools/check-staged-paths.py --declare -- path/to/file other/file` with the complete intended file set. Paths are literal repository-relative names, even when the script is invoked from a subdirectory. Declare again after HEAD changes or the intended scope changes; a missing, stale or mismatched declaration refuses the commit. See [declaration setup and limits](.claude/skills/corpus-management/docs/guide-command-text-hooks.md).
 
 4. **Update the index and domain README.** Every new active document must appear in [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md) and in its domain's [`README.md`](README.md) Active Documents table. If the change adds, moves, or retitles a document or edits its Related Documents, also run `python3 .web/build.py` and commit the refreshed [`.web/corpus-link-manifest.md`](.web/corpus-link-manifest.md), the generated list of every corpus target the public website links; do not edit it by hand.
 5. **Bump versions appropriately.** Patch (`x.y.z` increments the patch segment) for corrections; minor (`x.y.0`) for additive changes, including substantive content additions and policy revisions that add a requirement or permission; major (`x.0.0`) for breaking changes that remove, reverse, or invalidate content or a requirement others rely on (major = breaking, minor = additive, patch = correction), under the per-document rule in the Version numbering section of [`governance/specification-ingestion.md`](governance/specification-ingestion.md).

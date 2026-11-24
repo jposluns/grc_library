@@ -110,6 +110,10 @@ def _integration_self_test():
         for rel in (".claude/skills/corpus-management/tools/check-commit-on-main.py", ".claude/skills/corpus-management/tools/install-git-hooks.sh",
                     ".claude/skills/corpus-management/tools/git-hooks/pre-commit", ".claude/skills/corpus-management/tools/git-hooks/pre-push"):
             shutil.copy2(src / rel, repo / rel)
+        # The staged-path boundary has its own explicit-scope tests. Give this
+        # synthetic fixture a declaration while retaining the real checker.
+        import runpy
+        runpy.run_path(str(src / ".claude/skills/corpus-management/tests/_staged_paths_fixture.py"))["install"](src, repo)
         # Isolated from the caller: no inherited GIT_* (GIT_DIR, GIT_INDEX_FILE, ...), no global or
         # system config, as in check-dirty-tree-push.py's integration self-test.
         env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_") and k != _OVERRIDE}

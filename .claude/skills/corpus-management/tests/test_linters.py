@@ -569,6 +569,41 @@ def scope_probe_registry_issues(classes):
     return issues
 
 
+# The header line the interpreter prints to stderr for an uncaught exception, which exits 1.
+CRASH_MARKER = "Traceback (most recent call last):"
+# Require a whole header line, at least one frame, and an exception type line.
+# Indented source and caret lines are optional (for example, with python -c).
+CRASH_TRACEBACK = re.compile(
+    rf"^{re.escape(CRASH_MARKER)}\r?\n"
+    r'(?:  File "[^"\r\n]+", line [0-9]+(?:, in [^\r\n]+)?\r?\n'
+    r"(?:[ \t]+[^\r\n]*\r?\n)*)+"
+    r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*(?::[^\r\n]*)?\r?$",
+    re.MULTILINE,
+)
+
+# Syntax diagnostics have a file frame but no traceback header. Exception groups
+# use a decorated header and frames; retain their indentation when matching.
+CRASH_SYNTAX = re.compile(
+    r'^  File "[^"\r\n]+", line [0-9]+\r?\n'
+    r'(?:[ \t]+[^\r\n]*\r?\n)*'
+    r'(?:SyntaxError|IndentationError|TabError):[^\r\n]*\r?$', re.MULTILINE)
+CRASH_GROUP = re.compile(
+    r'^  \+ Exception Group Traceback \(most recent call last\):\r?\n'
+    r'(?:  \|[^\r\n]*\r?\n)*'
+    r'  \| (?:[\w.]*ExceptionGroup|BaseExceptionGroup):[^\r\n]*\r?$',
+    re.MULTILINE)
+
+
+def interpreter_failure(output):
+    """Recognize conventional, syntax and exception-group Python diagnostics.
+
+    This is output-shape detection, not proof of interpreter provenance. Custom
+    exception hooks, truncated diagnostics and native crashes are not covered.
+    """
+    return any(pattern.search(output)
+               for pattern in (CRASH_TRACEBACK, CRASH_SYNTAX, CRASH_GROUP))
+
+
 class LinterTestCase(unittest.TestCase):
     """Base class providing fixture-file helpers."""
 
@@ -696,7 +731,17 @@ class LinterTestCase(unittest.TestCase):
         that split: lint-version-date-consistency.py exits 1 when its default changelog or
         readme cannot be read (2 only for a file named with --changelog or --readme), so a
         test of that linter on its default inputs cannot tell an unreadable input from a
-        finding by the exit code alone."""
+        finding by the exit code alone.
+
+        A recognized Python failure fails too, whatever the exit code: an exception exits 1,
+        the findings code, so a call with no output substring (or with one the traceback
+        happens to contain) passed when the linter died before it scanned. The interpreter's
+        conventional traceback, exception-group or syntax diagnostic in either stream
+        is refused; custom exception hooks, truncated diagnostics and native crashes
+        are not detected. A finding quoting its header
+        alone is allowed. Residue: a test that
+        checks only result.returncode without this helper is not covered, and a linter that
+        catches its own exception and prints no traceback is not detected here."""
         if expected_code < 1:
             raise ValueError(
                 f"assertLinterFails: expected_code must be 1 or more, got {expected_code}; exit 0 "
@@ -706,6 +751,12 @@ class LinterTestCase(unittest.TestCase):
         if result.returncode == 0:
             self.fail(
                 f"linter exited 0, expected exit {expected_code}.\n"
+                f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+            )
+        if interpreter_failure(result.stdout) or interpreter_failure(result.stderr):
+            self.fail(
+                f"linter crashed (exit {result.returncode}, a Python traceback in its output), "
+                f"expected a findings exit {expected_code}.\n"
                 f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
             )
         if result.returncode != expected_code:
@@ -737,6 +788,107 @@ class MetadataLinterTests(LinterTestCase):
                         self.assertLinterFails(result, expected_code=code)
                     self.assertIn(f"expected_code must be 1 or more, got {code}",
                                   str(caught.exception))
+
+    def _crashing_metadata_run(self, fixture: Path) -> subprocess.CompletedProcess:
+        # lint-metadata.py with its engine loader replaced by one that raises: check_file
+        # calls it for the first file, so the linter dies with an uncaught exception (exit 1)
+        # before it prints any finding.
+        script = (
+            "import importlib.util, sys\n"
+            f"sys.path.insert(0, {str(SKILL_ROOT / 'tools')!r})\n"
+            "spec = importlib.util.spec_from_file_location("
+            f"'metadata_crash', {str(_resolve_path('.claude/skills/corpus-management/tools/lint-metadata.py'))!r})\n"
+            "mod = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(mod)\n"
+            "def broken():\n"
+            "    raise RuntimeError('engine failed before the scan (fixture)')\n"
+            "mod._engine = broken\n"
+            f"sys.exit(mod.main(['lint-metadata.py', {str(fixture)!r}]))\n"
+        )
+        return subprocess.run([sys.executable, "-c", script], cwd=str(REPO_ROOT),
+                              capture_output=True, text=True, timeout=300)
+
+    def test_assert_linter_fails_refuses_a_linter_that_crashed(self) -> None:
+        # An uncaught exception exits 1, the findings code, so the exit code alone cannot
+        # tell a crash from a finding. A call with no substring, or with one the traceback
+        # contains, must still fail.
+        fixture = self.make_fixture(
+            "standard-no-metadata-crash.md",
+            "# A Document\n\nNo metadata at all.\n",
+        )
+        result = self._crashing_metadata_run(fixture)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(CRASH_MARKER, result.stderr)
+        self.assertNotIn("FAIL:", result.stdout)
+        for needle in (None, "RuntimeError", "fixture"):
+            with self.subTest(needle=needle):
+                with self.assertRaises(self.failureException) as caught:
+                    self.assertLinterFails(result, needle)
+                self.assertIn("linter crashed (exit 1", str(caught.exception))
+
+    def test_assert_linter_fails_accepts_the_same_linter_reporting_findings(self) -> None:
+        # Flip of the crash test: the same fixture through the unpatched linter is a real
+        # findings exit 1 with no traceback, and passes with or without a substring.
+        fixture = self.make_fixture(
+            "standard-no-metadata-findings.md",
+            "# A Document\n\nNo metadata at all.\n",
+        )
+        result = run_linter(".claude/skills/corpus-management/tools/lint-metadata.py", fixture)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertNotIn(CRASH_MARKER, result.stdout + result.stderr)
+        self.assertLinterFails(result)
+        self.assertLinterFails(result, "FAIL:")
+
+    def test_assert_linter_fails_accepts_a_finding_quoting_the_traceback_header(self) -> None:
+        fixture = self.make_fixture(
+            "standard-quoted-header.md",
+            VALID_METADATA.replace("**Document Type:** Standard",
+                                   f"**Document Type:** {CRASH_MARKER}"),
+        )
+        result = run_linter(".claude/skills/corpus-management/tools/lint-metadata.py", fixture)
+        finding = f"invalid Document Type: {CRASH_MARKER!r}"
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn(finding, result.stdout)
+        self.assertLinterFails(result)
+        self.assertLinterFails(result, finding)
+
+    def test_assert_linter_fails_requires_a_complete_traceback(self) -> None:
+        frame = '  File "x.py", line 1, in <module>\n'
+        for output in (
+            f"x.md:3: quoted {CRASH_MARKER}\n{frame}RuntimeError: boom\n",
+            f"{CRASH_MARKER}\nRuntimeError: boom\n",
+            f"{CRASH_MARKER}\n{frame}",
+        ):
+            for stdout, stderr in ((output, ""), ("", output)):
+                with self.subTest(output=output, on_stdout=bool(stdout)):
+                    self.assertLinterFails(subprocess.CompletedProcess([], 1, stdout, stderr))
+
+    def test_assert_linter_fails_refuses_a_traceback_on_either_stream(self) -> None:
+        trace = f"{CRASH_MARKER}\n  File \"x.py\", line 1, in <module>\nRuntimeError: boom\n"
+        for code in (1, 2, 3):
+            for stdout, stderr in ((trace, ""), ("", trace)):
+                with self.subTest(code=code, on_stdout=bool(stdout)):
+                    result = subprocess.CompletedProcess([], code, stdout, stderr)
+                    with self.assertRaises(self.failureException) as caught:
+                        self.assertLinterFails(result, expected_code=code)
+                    self.assertIn(f"linter crashed (exit {code}", str(caught.exception))
+        # A finding that only uses the word is not the interpreter's header line.
+        self.assertLinterFails(
+            subprocess.CompletedProcess([], 1, "x.md:3: the word Traceback in prose\n", ""))
+
+    def test_assert_linter_fails_refuses_interpreter_failure_shapes(self):
+        for source in ("raise RuntimeError('boom')", "if True print('bad')",
+                       "raise ExceptionGroup('boom', [ValueError('bad')])",
+                       "raise BaseExceptionGroup('boom', [KeyboardInterrupt()])",
+                       "if True:\nprint('bad')"):
+            result = subprocess.run([sys.executable, '-I', '-c', source],
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 1)
+            for stdout, stderr in ((result.stderr, ''), ('', result.stderr)):
+                with self.subTest(source=source, stdout=bool(stdout)):
+                    with self.assertRaisesRegex(self.failureException, 'linter crashed'):
+                        self.assertLinterFails(subprocess.CompletedProcess(
+                            [], 1, stdout, stderr))
 
     def test_missing_metadata_block_flagged(self) -> None:
         fixture = self.make_fixture(
@@ -35058,11 +35210,12 @@ class AuditGateParityTests(LinterTestCase):
     def _run_isolated_fixture(self, flag: str, *surfaces: str) -> subprocess.CompletedProcess:
         """Copy the real surfaces and put ``flag`` after ``python3`` on every gate
         invocation of the named runtime surfaces (runner, workflow, pre-commit);
-        with no surface named, the copy is unchanged. A workflow delta-gate step is
-        not a gate invocation: its run value is pinned to its exact command string,
+        with no surface named, the copy is unchanged. A workflow delta-gate or
+        informational step is not a gate invocation: its run value is pinned to its exact command string,
         so it is left as it is."""
-        delta_runs = set(self._gate_parity_module(
-            "_agp_isolated_delta_pins").WORKFLOW_DELTA_GATE_STEP_RUNS.values())
+        parity = self._gate_parity_module("_agp_isolated_delta_pins")
+        delta_runs = set(parity.WORKFLOW_DELTA_GATE_STEP_RUNS.values())
+        delta_runs.update(shape["run"] for shape in parity.WORKFLOW_NON_GATE_CHECK_STEPS.values())
         prefixes = {".claude/skills/corpus-management/tools/run_all_audits.sh": "run_gate ",
                     ".github/workflows/quality.yml": "run: python3 .claude/skills/corpus-management/tools/",
                     ".pre-commit-config.yaml": "entry: python3 .claude/skills/corpus-management/tools/"}
@@ -36357,6 +36510,25 @@ class AuditGateParityTests(LinterTestCase):
         self._assert_subset_finding(
             "gate 110 'Baseline-pin integrity audit'",
             (self._WF, "\n" + self._WF_BASELINE_PIN, ""))
+
+    def test_collection_candidate_step_is_pinned(self) -> None:
+        command = "python3 .claude/skills/corpus-management/tools/detect-collection-candidates.py --on-pr"
+        step = ("      - name: Detect collection candidates on pack PRs (informational)\n"
+                "        run: " + command + "\n")
+        result = self._run_yaml_edits((self._WF, "\n" + step, ""))
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("WORKFLOW_NON_GATE_CHECK_STEPS member", result.stdout)
+        duplicate = self._run_yaml_edits((self._WF, step, step + "\n" + step))
+        self.assertEqual(duplicate.returncode, 1, duplicate.stdout + duplicate.stderr)
+        self.assertIn("appears 2 times", duplicate.stdout)
+        self._assert_yaml_edits_refused((
+            ("candidate flag dropped", "not exactly the pinned", (
+                (self._WF, command, command.removesuffix(" --on-pr")),)),
+            ("candidate runs a gate", "must not run a gate", (
+                (self._WF, command, "python3 .claude/skills/corpus-management/tools/lint-links.py"),)),
+            ("candidate skip condition", "not exactly the pinned", (
+                (self._WF, step, step.replace("        run:", "        if: false\n        run:")),)),
+        ))
 
     def test_web_generator_health_check_step_is_pinned(self) -> None:
         # The pull-request job runs the web generator health check as a pinned
@@ -48188,6 +48360,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
     this is not a proof about arbitrary environment-installed modules or config.
     DEPENDENCIES covers the reviewed compiler and MESSAGE guard; lint_common is
     itself inventoried. Review new delegation when updating a whole-file pin.
+    After that review, run tests/refresh_cli_inventory.py with explicit repository-
+    relative paths to update existing rows. See tests/README.md for the procedure.
 
     Guard binding checks conservatively reject syntactic shadowing of imported
     guards/module aliases in any scope. They do not prove execution. The runtime
@@ -48227,7 +48401,8 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
 
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
-        README.md DATA F dc25184c6ab1fd0cdef0e0e4f990c68bcf5152a30caa60b818a447e9a039b0f3
+        detect-collection-candidates.py NO_FS F d18a8090aa251bae2b14d4aeaf740fd96314cb2628f26c4f8f33f2f714acbb60
+        README.md DATA F 0c007099b38d9cecbec003002584ab1fb8b9ecaea2e2670ee310639da28ae641
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
         aiqt_bootstrap.py PASSIVE F 1f617d3d14213da6e225dabc21c49c253a3738531304e5c7924e87878c1d2206
@@ -48254,40 +48429,41 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-dash-on-pr.py NO_FS F 02f7a615c905ca17326fbfcf9a7181f2f1d36092124ee0d3fe65b3b2d60c0f22
         check-changelog-length-on-pr.py NO_FS F e1a3cffc6031c81d63233a67f4bfba4f77f1f4b99715175eea013268cb5c1d28
         check-changelog-on-pr.py NO_FS F ee66330940fa8c41c22d18d7a22a21daf1fb3865ad62556b482d7a96e1faf32d
-        check-changelog-preflight-commit.py NO_FS F 85a1d0e6791f1777d9d68f85c95465eb42e3121ae001323fed5f3e0aa27a81a2
+        check-changelog-preflight-commit.py NO_FS F 006f13afc1ee759759f64bc0b4dbca284bdf36c32da75ee29208d479d101a04d
         check-class-completeness.py NO_FS F dd060e4b9474d3ad7d65d720224294fae4efff2310d49b75384c821c021ccd00
         check-claude-md-size.py NO_FS F 3bfd6751e841ef19f398ed3bf3ce6223c3ac91383494728a4e3330c7dd872fd4
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
-        check-commit-on-main.py NO_FS F a9672ae752b0434a1e94118bccf3dcc640bd321967ea3e6d775c0f1a8f153f7e
+        check-commit-on-main.py NO_FS F feb5ccf06a98dcc8841c454d70301db0cfdfac60e1eb030ee67c12e6798bea9b
         check-date-cobump-on-pr.py NO_FS F 302cb52aff2cc9b7a4c2a9c5f8c3646d6270bd4932dea572dcbe08e762292cb9
         check-dirty-tree-push.py TRANSPORT F 55222e921472f5297afb9c5f98e0f5efb8f5c8d0adcca8dbe84f30012ac0f8fb
-        check-generated-commit.py NO_FS F a15e3235cc5ab50f0d3473efcfd05b56741f602ecbae59fd92b79ca1ee7f19e1
+        check-generated-commit.py NO_FS F 65baf1942c747b96382152a274713635f7c9787a3b0a83ea9d20f4dcd9e9d2d2
         check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 3260adf3c9d26de4dd19d6414c39d893bbe78ba336c96e31eefccbb4cae9e7da
         check-portability.sh FIXED F 53ce8fd609c5f99cfff314dda4641f02d2a99136cba2f0e2b1d76c8e612c1538
         check-pr-attribution.py OWN F a926f479d86540bdb68ef86bb9d906e39373e9c85e168265e5e5052587809949
         check-retired-section-orphan-on-pr.py NO_FS F 0d710f974f62cd7b1cf9e80d7b8b03ce51f05784c34e6ead05db22f157d5428b
         check-review-cadence.py ROOT F bcd4b92ee9be87833a2905a2f9aea484fec84520c85ff1aa07e85aff956b0cc1
+        check-staged-paths.py OWN F 5aaa44aaccfcf2348e87a18c6782e4e5fe73c6c779038fe45fffe7c1bded4bf6
         check-stranded-control-code-on-pr.py NO_FS F d0631b2fca128c3457f87029e56a252e20e4be701148cc2e171c2d6cbe051b37
         check-todo-floor-monotonic-on-pr.py NO_FS F 3d8a8e64f47f3055e85fff8a27fd741b8e84ff6a6c29046576c3331cf2889bd3
         check-todo-rotation-on-pr.py NO_FS F 0e97e2267ce265155213bb0e37fe38524217929d395b870aa7dc0dbac500fb5d
-        check-version-bump-commit.py MESSAGE F dff25752daf9574afb2cfe538f624bd9d075fcc1e1511166997d9ebdefc8e0df
+        check-version-bump-commit.py MESSAGE F 265beffdcea7d3cf64cc6aabc3cd7532177816baef375b415245d44c18f081eb
         check-version-bump-on-pr.py NO_FS F c0aaefac08a658834846417e1049dd17cdec4caae3224914fcb64c863a8b2ad1
         citation_publishers.py PASSIVE F 8f367f75830d8b235e1019615b4e876c0ee562c6c5819e4bf4118325f1bb5dff
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
-        gate-scope-manifest.json DATA F 7e5b4c4e02db7f5883d1434e3d611a6bc8cae03f82149348de4b8e7a195a582c
+        gate-scope-manifest.json DATA F 908091a302fbd9c8d16994ece2792e4b81fbe2522b598a8a198379cf9f6a3ece
         git-hooks/commit-msg MESSAGE F 64510e0d473663d37e6416287e8edce7b4043619e64fea8c5cb2a82200a5ab97
-        git-hooks/pre-commit FIXED F 5e576c5bf6bab147625b27fa4875aa6b9b292f68292ca0085de3fa29bf387ecb
+        git-hooks/pre-commit FIXED F ad203769cf056103a62ac512b72552fda940e2c298725778f7849e5f62884139
         git-hooks/pre-push TRANSPORT F a7e4da49d2f18e10ab2f88f31bf5264485486bd206f77aed0ed68c63bbb59a33
         historical_citation_register.py PASSIVE F ffa6d49a55cae8e0945fb64c79fc8318f10630064311772ee367d2a0e6c2cb66
-        install-git-hooks.sh FIXED F 7ea50c44609e8a39f460aaf4b2a745e100ed61d1724a3592d40478572f70c386
+        install-git-hooks.sh FIXED F ace79168f10f3f52ebe45007fc6438a9631b61704a1efec111fdfaaf2f4b7b4b
         iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
         iso_27001_reference.py PASSIVE F e8789346ac57b557de2f5c93c7fc2b31651b49be25bc8180e8bdc84310b21418
         lint-acronym-consistency.py CWD F b5ef8c043946b895b5b8be67a58e7067ce0a4ce36737174266511ca504353055
         lint-aiqt-vendor-digest.py NO_FS F 49f26e0c53d3c6c5b88c455204bec8a092ddca252890e189f4dc988baf0e7c8d
         lint-alignment-citation-existence.py CWD F e7792b9664730a6b542285fa654de20ec9d39af7aa6cb553813ff2efa865152c
         lint-allowlist-spec-parity.py NO_FS F e8f452096456f55cd880fdb79b01ac18cadbcbfc966b67e1ab9b9ef43e8ea1db
-        lint-audit-gate-parity.py OWN F de32da18f1bec08c1bc4650d2aecc032676d03fd3b8a9da72204329b5a875c37
+        lint-audit-gate-parity.py OWN F 148ce8b1ae56c2bc5241f04eebcbaad0d45d1640463b01cb25c4340d5751bb99
         lint-audit-spec-detailed-prose.py OWN F 49ba119b94f997b1c35560dab6087ef16c936a09c02a84f3fa02a1925412e390
         lint-bare-normative-shall.py ROOT F 0de8d8f46a8d953aa02ca38c8b86d8f08a5c642e1b900483f3008c2c3983e203
         lint-baseline-pin.py OWN F 33cbe14512f04fb1da1c9c0a44e53ecaef7e618968e8314a48b812b30595035a
@@ -48372,9 +48548,9 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         lint-web-corpus-links.py OWN F e69c56be54024ab612c87f8a39f39807334f029426e5e266f860f41ff251479f
         lint_common.py PASSIVE F c6e66110ba84b8ff97a2c10a17b7d6483b6c43bc6faebcd3409b161f3eeb86c9
         matrix_code_parse.py PASSIVE F 62df77ba801019b06afea2a1474836a90dc2e8385f7d99becef9d393c511f622
-        measure-regression-timings.py WRITE F 3fa6dd03e89eaf23d6b92a01f4369f11ff863a475bc81926319b7c734fa007d1
+        measure-regression-timings.py WRITE F 5fced36399a5580d6d4474d0f04c5c4db02b7dfb16ee32b7d95a4cdb70f04c4b
         nist_csf_reference.py PASSIVE F 4ba36a9172b5e3c4cd873dc1ae2db7425db94310b801c8f343de55b59ee078c7
-        pre-push-guard.sh FIXED F ba46b003c527ac68a51aad335db6f2ef323c505296c06a9f4dd16690810ce7b5
+        pre-push-guard.sh FIXED F 8e5d3b526e89fcb013669b11d097df4d9a514a0ef30f4c7960d50194cc093ef5
         pre-push-hook.py TRANSPORT F e0a06be59cc3e8c0b47377b229c16ea169eba04ed717e31c9427356b85f6bb76
         preflight-changelog.py NO_FS F 4a8ab78b13076b2fa1b61333766417034094db2a1e81269048d59fb14f9c50bf
         preflight-version-date.py NO_FS F 31cfe7d03173f406ba0d5b2ff2dfd0fcdf59686c94150aba3a597b3a714e0879
@@ -48407,7 +48583,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         .claude/skills/corpus-management/src/tools/pack_release_delta.py f383c7e516caf2ee3a48138949ef8fd199fd64cbc60ce26081dee740b2b3082f
         .claude/skills/corpus-management/src/tools/profile_loader.py c54f863c1d19ea5a934e05194504538a75d2b4893e7b16aa9d4c386c932bfb6b
         .claude/aiqt/tools/aiqt_corpus.py f2292eb511e960d9c38881a54bee92d0fc5c7b5cbe0c7b5cb002cb78da08245f
-        .claude/hooks/block-unbumped-version-commit.py 0db1edd838740ff54edecec6bc03e52232febac402266e49cec499ef88ae4a2e
+        .claude/hooks/block-unbumped-version-commit.py e100448b2671b1bd8a93893f4d8eafde81b5bf465d13729d8ade93895ac79034
     """
 
     POLICIES = frozenset(
@@ -48853,6 +49029,100 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         if not launches:
             violations.append("parent never starts the child")
         return violations
+
+    def test_pin_refresher_preserves_policy_and_refuses_unknown_paths(self):
+        helper = load_linter_module(
+            '.claude/skills/corpus-management/tests/refresh_cli_inventory.py', '_pin_refresh')
+        source = Path(__file__).read_text(encoding='utf-8')
+        name = '.claude/skills/corpus-management/tools/README.md'
+        updated = helper.refreshed(source, REPO_ROOT, [name], type(self))
+        self.assertIn('README.md DATA F ', updated)
+        self.assertEqual(helper.refreshed(updated, REPO_ROOT, [name], type(self)), updated)
+        for paths in ([], [name, name], ['../README.md'], ['README.md']):
+            with self.subTest(paths=paths), self.assertRaises(ValueError):
+                helper.refreshed(source, REPO_ROOT, paths, type(self))
+
+    def test_pin_refresher_cli_updates_only_pins_and_fails_without_writes(self):
+        import hashlib
+        helper_rel = '.claude/skills/corpus-management/tests/refresh_cli_inventory.py'
+        target_rel = '.claude/skills/corpus-management/tests/test_linters.py'
+        name = '.claude/skills/corpus-management/tools/README.md'
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            shutil.copytree(REPO_ROOT, root, dirs_exist_ok=True,
+                            ignore=shutil.ignore_patterns('.git', '__pycache__', 'tmp', 'node_modules'))
+            target = root / target_rel
+            original = target.read_bytes().replace(b'\r\n', b'\n').replace(b'\n', b'\r\n')
+            target.write_bytes(original)
+            (root / name).write_bytes(b'reviewed CLI fixture\n')
+            old = ('README.md ' + ' '.join(self._rows(self.INVENTORY, 4)['README.md'])).encode()
+            new = ('README.md DATA F ' + hashlib.sha256(b'reviewed CLI fixture\n').hexdigest()).encode()
+
+            def snapshot():
+                return {str(p.relative_to(root)): p.read_bytes() for p in root.rglob('*')
+                        if p.is_file() and '__pycache__' not in p.parts}
+
+            def run(*paths):
+                return subprocess.run([sys.executable, '-I', '-B', str(root / helper_rel), *paths],
+                                      capture_output=True, text=True, timeout=60)
+
+            before = snapshot()
+            result = run(name)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn('Refreshed 1 reviewed inventory pin(s).', result.stdout)
+            self.assertEqual(target.read_bytes(), original.replace(old, new))
+            after = snapshot()
+            self.assertEqual([p for p in before if before[p] != after[p]], [target_rel])
+            self.assertEqual(before.keys(), after.keys())
+            result = run(name, 'README.md')
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertEqual(snapshot(), after)
+            (root / name).unlink()
+            before = snapshot()
+            result = run(name)
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertEqual(snapshot(), before)
+            # An inventory assertion raised while loading must also be a CLI error.
+            target.write_bytes(b"raise AssertionError('invalid inventory')\n")
+            before = snapshot()
+            result = run(name)
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            self.assertNotIn('Traceback', result.stderr)
+            self.assertEqual(snapshot(), before)
+
+    def test_pin_refresher_changes_only_reviewed_digests(self):
+        import hashlib
+        helper = load_linter_module(
+            '.claude/skills/corpus-management/tests/refresh_cli_inventory.py', '_pin_update')
+        source = Path(__file__).read_text(encoding='utf-8')
+        tool = '.claude/skills/corpus-management/tools/README.md'
+        dependency = '.claude/hooks/block-unbumped-version-commit.py'
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name in (tool, dependency):
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b'reviewed replacement\n')
+            updated = helper.refreshed(source, root, [tool, dependency], type(self))
+            digest = hashlib.sha256(b'reviewed replacement\n').hexdigest()
+            old_tool = 'README.md ' + ' '.join(self._rows(self.INVENTORY, 4)['README.md'])
+            old_dep = dependency + ' ' + self._rows(self.DEPENDENCIES, 2)[dependency][0]
+            expected = source.replace(old_tool, 'README.md DATA F ' + digest).replace(
+                old_dep, dependency + ' ' + digest)
+            self.assertEqual(updated, expected)
+            for bad in (source.replace(old_tool, ''), source + '\n        ' + old_tool + '\n'):
+                with self.subTest(malformed_row=True), self.assertRaises(ValueError):
+                    helper.refreshed(bad, root, [tool], type(self))
+            (root / dependency).unlink()
+            with self.assertRaises(OSError):
+                helper.refreshed(source, root, [tool, dependency], type(self))
+            (root / dependency).symlink_to(root / tool)
+            with self.assertRaises(ValueError):
+                helper.refreshed(source, root, [dependency], type(self))
+            for name in ('./' + tool, tool.replace('/tools/', '//tools/'), str(root / tool)):
+                with self.subTest(path=name), self.assertRaises(ValueError):
+                    helper.refreshed(source, root, [name], type(self))
+            self.assertEqual(Path(__file__).read_text(encoding='utf-8'), source)
 
     def test_every_tool_file_has_exactly_one_policy_and_pin(self):
         files = self._files(SKILL_ROOT / "tools")
@@ -61522,6 +61792,14 @@ class AuditGateParityExclusionGuardTests(unittest.TestCase):
         spec.loader.exec_module(mod)
         return mod
 
+    def test_collection_candidate_cannot_mask_an_inventory_gate(self):
+        mod = self._load("_agp_candidate_inventory")
+        scripts = {script for _, _, _, script in mod.parse_spec_inventory(REPO_ROOT / mod.SPEC_PATH)}
+        self.assertEqual(mod.verify_exclusion_and_delta_guards(REPO_ROOT, scripts), [])
+        scripts.add(".claude/skills/corpus-management/tools/detect-collection-candidates.py")
+        findings = mod.verify_exclusion_and_delta_guards(REPO_ROOT, scripts)
+        self.assertTrue(any("must not be masked from parity" in f for f in findings), findings)
+
     def test_guards_clean_on_real_repo(self):
         # The live config is correct today, so the additive guards find nothing.
         mod = self._load("_agp_clean")
@@ -66948,11 +67226,8 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         "check-version-bump-on-pr.py",
         "check-date-cobump-on-pr.py",
     )
-    # Four selectors left these lists because their tools do not ship in
-    # .claude/skills/corpus-management/tools/: lint-working-prose-hygiene.py
-    # (gate 51, retired and tombstoned), lint-bookkeeping-parity.py (private),
-    # detect-collection-candidates.py and audit-claim-precision.py. Their
-    # adapters in effective() went with them.
+    # The shipped detector has its own selector adapter in effective().
+    SPECIAL = (*SPECIAL, "detect-collection-candidates.py")
     BODY = (
         "# Scope probe\n\n**Document Type:** Standard\n"
         "**Version:** 1.0.0\n**Date:** 9999-01-01\n\n"
@@ -67262,6 +67537,8 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
                 return m.iter_targets()
             if name == "lint-ccm-provider-member-in-range.py":
                 return m.scan_targets()
+            if name == "detect-collection-candidates.py":
+                return m.iter_corpus_markdown()
             if name == "suggest-listing-surfaces.py":
                 return [self.root / p for p in m.find_matrix_surfaces()]
             if name == "check-class-completeness.py":
@@ -91339,6 +91616,339 @@ class IsolatedLaunchTests(LinterTestCase):
             self.assertEqual(mod.probe(tool)["error"], planted)
 
 
+
+
+class CollectionCandidatePortTests(unittest.TestCase):
+    """Advisory candidate detection and PR selection, with failure flips."""
+
+    TOOL = ".claude/skills/corpus-management/tools/detect-collection-candidates.py"
+
+    def setUp(self):
+        from contextlib import ExitStack
+        from unittest.mock import patch
+        self.stack = ExitStack()
+        self.addCleanup(self.stack.close)
+        self.patch = patch
+        self.stack.enter_context(patch.object(sys, "path", list(sys.path)))
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("_collection_candidates_port", REPO_ROOT / self.TOOL)
+        self.mod = importlib.util.module_from_spec(spec)
+        self.stack.enter_context(patch.dict(sys.modules, {spec.name: self.mod}))
+        spec.loader.exec_module(self.mod)
+        self.root = Path(self.stack.enter_context(tempfile.TemporaryDirectory()))
+        self.stack.enter_context(patch.object(self.mod, "REPO_ROOT", self.root))
+
+    def write(self, path, text):
+        target = self.root / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text, encoding="utf-8")
+        return target
+
+    def test_threshold_and_minimum_item_flips(self):
+        for item in ("alpha", "beta", "gamma"):
+            self.write("governance/controls/" + item + ".md", "# Item\n")
+        listing = self.write("governance/list.md", "alpha.md\n")
+        self.assertEqual(self.mod.find_candidates(), [])
+        listing.write_text("alpha.md beta.md\n")
+        found = self.mod.find_candidates()
+        self.assertEqual([c.canonical for c in found], ["governance/controls"])
+        self.assertEqual(found[0].enumeration_files, (("governance/list.md", 2, 3),))
+        (self.root / "governance/controls/gamma.md").unlink()
+        self.assertEqual(self.mod.find_candidates(), [])
+
+    def test_invalid_utf8_refuses_incomplete_scan_and_names_file(self):
+        from contextlib import redirect_stdout, redirect_stderr
+        for item in ('alpha', 'beta', 'gamma'):
+            self.write('governance/controls/' + item + '.md', '# Item\n')
+        listing = self.write('governance/list.md', 'alpha.md beta.md\n')
+        self.assertEqual(len(self.mod.find_candidates()), 1)
+        listing.write_bytes(listing.read_bytes() + b'\xff')
+        out, err = io.StringIO(), io.StringIO()
+        with redirect_stdout(out), redirect_stderr(err):
+            self.assertEqual(self.mod.main([]), 2)
+        self.assertIn('governance/list.md', err.getvalue())
+        self.assertIn('incomplete', err.getvalue())
+        self.assertNotIn('No new candidates', out.getvalue())
+        listing.write_text('alpha.md beta.md\n', encoding='utf-8')
+        self.assertEqual(len(self.mod.find_candidates()), 1)
+
+    def test_unreadable_directory_refuses_scan_and_names_directory(self):
+        from contextlib import redirect_stdout, redirect_stderr
+        import errno
+
+        for item in ("alpha", "beta", "gamma"):
+            self.write("governance/controls/" + item + ".md", "# Item\n")
+        listing = self.write("governance/listings/index.md", "alpha.md beta.md\n")
+        self.assertEqual(len(self.mod.find_candidates()), 1)
+        scandir = os.scandir
+
+        def unreadable(path):
+            if Path(path) == listing.parent:
+                raise PermissionError(errno.EACCES, "Permission denied", str(path))
+            return scandir(path)
+
+        # Fail at the filesystem traversal layer, where rglob suppresses errors.
+        with self.patch.object(os, "scandir", side_effect=unreadable):
+            out, err = io.StringIO(), io.StringIO()
+            with redirect_stdout(out), redirect_stderr(err):
+                self.assertEqual(self.mod.main([]), 2)
+            self.assertIn("governance/listings", err.getvalue())
+            self.assertIn("incomplete", err.getvalue())
+            self.assertEqual(out.getvalue(), "")
+        self.assertEqual(len(self.mod.find_candidates()), 1)
+
+    def test_unreadable_excluded_directories_are_pruned_and_admitted_files_remain(self):
+        import errno
+
+        admitted = ("governance/list.md", ".claude/CLAUDE.md",
+                    *(root + "/list.md" for root in self.mod.PROJECT_DOCUMENT_DIRS),
+                    *self.mod.PROJECT_DOCUMENT_FILES)
+        for path in admitted:
+            self.write(path, "alpha.md beta.md\n")
+        excluded = (".git", "node_modules", "__pycache__", "governance/node_modules",
+                    ".claude/private", ".claude/skills/corpus-management/src",
+                    ".claude/skills/corpus-management/specs/__pycache__",
+                    ".claude/skills/corpus-management/tools/private")
+        for path in excluded:
+            self.write(path + "/hidden.md", "alpha.md beta.md\n")
+        scandir = os.scandir
+        attempted = []
+
+        def unreadable(path):
+            rel = Path(path).relative_to(self.root).as_posix()
+            attempted.append(rel)
+            if rel in excluded:
+                raise PermissionError(errno.EACCES, "Permission denied", str(path))
+            return scandir(path)
+
+        with self.patch.object(os, "scandir", side_effect=unreadable):
+            found = {p.relative_to(self.root).as_posix()
+                     for p in self.mod.iter_corpus_markdown()}
+        self.assertEqual(found, set(admitted) - self.mod.WALK_SKIP_FILES)
+        self.assertTrue(set(excluded).isdisjoint(attempted))
+
+    def test_scan_filesystem_errors_return_two_without_negative_result(self):
+        from contextlib import redirect_stdout, redirect_stderr
+        for operation in ('iter_corpus_markdown', 'read_text_safe', 'list_candidate_items'):
+            self.write('governance/controls/alpha.md', '# Item\n')
+            with self.subTest(operation=operation), self.patch.object(
+                    self.mod, operation, side_effect=PermissionError('unreadable fixture')):
+                out, err = io.StringIO(), io.StringIO()
+                with redirect_stdout(out), redirect_stderr(err):
+                    self.assertEqual(self.mod.main([]), 2)
+                self.assertIn('unreadable fixture', err.getvalue())
+                self.assertNotIn('No new candidates', out.getvalue())
+
+    def test_retained_roots_tracked_suppression_and_new_location(self):
+        for item in ("alpha", "beta", "gamma"):
+            self.write(".claude/aiqt/rules/aiqt/" + item + ".md", "# Item\n")
+        self.write(".claude/CLAUDE.md", "alpha.md beta.md gamma.md\n")
+        self.assertEqual(self.mod.find_candidates(), [])
+        self.write(".claude/skills/corpus-management/specs/list.md", "alpha.md beta.md\n")
+        found = self.mod.find_candidates()
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0].canonical, ".claude/aiqt/rules/aiqt")
+        self.assertEqual(found[0].enumeration_files[0][0],
+                         ".claude/skills/corpus-management/specs/list.md")
+        self.assertIn(".claude/skills", self.mod.CANDIDATE_ROOTS)
+        self.assertNotIn("guardrails", self.mod.CANDIDATE_ROOTS)
+
+    def test_scope_excludes_sources_generated_and_nested_cache(self):
+        paths = ("governance/list.md", ".claude/skills/corpus-management/specs/list.md",
+                 ".claude/skills/corpus-management/specs/__pycache__/list.md",
+                 ".claude/skills/corpus-management/src/list.md", ".working/CHANGELOG.md",
+                 "governance/portal.md", ".claude/aiqt/rules/aiqt/list.md")
+        for path in paths:
+            self.write(path, "alpha.md beta.md\n")
+        self.assertEqual({p.relative_to(self.root).as_posix() for p in self.mod.iter_corpus_markdown()},
+                         set(paths[:2]))
+
+    def event(self):
+        import json
+        path = self.write("event.json", json.dumps({"pull_request": {"base": {"sha": "a" * 40}}}))
+        return {"GITHUB_EVENT_NAME": "pull_request", "GITHUB_EVENT_PATH": str(path),
+                "GITHUB_SHA": "b" * 40}
+
+    def test_pr_source_path_flips_and_nul_boundaries(self):
+        from unittest.mock import Mock
+        with self.patch.dict(os.environ, self.event(), clear=True):
+            for path, expected in ((".claude/aiqt/PIN.toml", True),
+                                   (".claude/skills/example/SKILL.md", True),
+                                   (".claude/rules/example.md", True),
+                                   ("governance/a.md", False), ("guardrails/a.md", False),
+                                   ("prefix/.claude/aiqt/a.md", False),
+                                   ("governance/a\n.claude/aiqt/a.md", False)):
+                with self.subTest(path=path), self.patch.object(self.mod.subprocess, "run",
+                        return_value=Mock(returncode=0, stdout=path + "\0", stderr="")) as run:
+                    self.assertEqual(self.mod.pr_changes_sources(), expected)
+                    args = run.call_args.args[0]
+                    self.assertEqual(args[:2], ["bash", "-c"])
+                    self.assertIn("diff --name-only --no-renames -z " + "a" * 40 + " " + "b" * 40, args[2])
+                    self.assertEqual(run.call_args.kwargs["timeout"], 60)
+
+    def test_pr_renames_into_and_out_of_pack_roots(self):
+        import shlex
+
+        def git(*args):
+            result = subprocess.run(
+                ["bash", "-c", shlex.join(["git", "-C", str(self.root), *args])],
+                capture_output=True, text=True, timeout=60)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return result.stdout
+
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
+                   GIT_TERMINAL_PROMPT="0")
+        with self.patch.dict(os.environ, env, clear=True):
+            git("init", "-q", "-b", "feature")
+            git("config", "diff.renames", "true")
+            for root in self.mod.PR_SOURCE_ROOTS:
+                with self.subTest(root=root):
+                    source = root + "example.md"
+                    destination = "governance/" + root.split("/")[1] + ".md"
+                    git("read-tree", "--empty")
+                    original = self.write(source, "# Collection item\n")
+                    git("add", "--", source)
+                    # Tree snapshots exercise Git's real rename detection without commits.
+                    before = git("write-tree").strip()
+                    moved = self.root / destination
+                    moved.parent.mkdir(parents=True, exist_ok=True)
+                    original.rename(moved)
+                    git("add", "--all", "--", source, destination)
+                    after = git("write-tree").strip()
+                    self.assertEqual(
+                        git("diff", "--name-status", "-z", before, after, "--"),
+                        "R100\0" + source + "\0" + destination + "\0")
+                    for base, head in ((before, after), (after, before)):
+                        with self.subTest(base=base, head=head):
+                            event = self.write("event.json", json.dumps(
+                                {"pull_request": {"base": {"sha": base}}}))
+                            with self.patch.dict(os.environ, {
+                                    "GITHUB_EVENT_NAME": "pull_request",
+                                    "GITHUB_EVENT_PATH": str(event), "GITHUB_SHA": head}):
+                                self.assertTrue(self.mod.pr_changes_sources())
+
+    def test_pr_cli_skip_scan_and_failure_flips(self):
+        import io
+        from contextlib import redirect_stdout, redirect_stderr
+        from unittest.mock import Mock
+        with self.patch.dict(os.environ, self.event(), clear=True), \
+                self.patch.object(sys, "argv", [self.TOOL, "--on-pr"]), \
+                self.patch.object(self.mod, "main", return_value=0) as scan:
+            for code, output, expected, scanned in (
+                    (0, "governance/a.md\0", 0, False),
+                    (0, ".claude/skills/a.md\0", 0, True),
+                    (128, "", 2, False)):
+                scan.reset_mock()
+                stream = io.StringIO()
+                with self.patch.object(self.mod.subprocess, "run", return_value=Mock(
+                        returncode=code, stdout=output, stderr="missing object")), \
+                        redirect_stdout(stream), redirect_stderr(stream):
+                    self.assertEqual(self.mod.cli(), expected)
+                self.assertEqual(scan.called, scanned)
+                if expected == 2:
+                    self.assertIn("git diff failed", stream.getvalue())
+                    self.assertNotIn("Skipping", stream.getvalue())
+
+    def test_pr_malformed_event_bodies_refuse_before_git_or_scan(self):
+        from contextlib import redirect_stdout, redirect_stderr
+
+        env = self.event()
+        for payload in ("{", "{}", "[]", '{"pull_request":null}'):
+            with self.subTest(payload=payload), \
+                    self.patch.dict(os.environ, env, clear=True), \
+                    self.patch.object(sys, "argv", [self.TOOL, "--on-pr"]), \
+                    self.patch.object(self.mod.subprocess, "run") as run, \
+                    self.patch.object(self.mod, "main") as scan:
+                Path(env["GITHUB_EVENT_PATH"]).write_text(payload, encoding="utf-8")
+                out, err = io.StringIO(), io.StringIO()
+                with redirect_stdout(out), redirect_stderr(err):
+                    self.assertEqual(self.mod.cli(), 2)
+                run.assert_not_called()
+                scan.assert_not_called()
+                self.assertEqual(out.getvalue(), "")
+                self.assertIn("Cannot determine collection-source changes", err.getvalue())
+
+    def test_pr_bad_inputs_refused_before_git(self):
+        env = self.event()
+        cases = ({}, {**env, "GITHUB_SHA": "--help"},
+                 {**env, "GITHUB_EVENT_NAME": "push"},
+                 {**env, "GITHUB_EVENT_PATH": str(self.root / "absent")})
+        for values in cases:
+            with self.subTest(values=values), self.patch.dict(os.environ, values, clear=True), \
+                    self.patch.object(self.mod.subprocess, "run") as run:
+                with self.assertRaises((ValueError, KeyError, OSError)):
+                    self.mod.pr_changes_sources()
+                run.assert_not_called()
+
+    def test_cli_unknown_argument_refused(self):
+        result = subprocess.run([sys.executable, "-I", str(REPO_ROOT / self.TOOL), "--unknown"],
+                                capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("unrecognized arguments", result.stderr)
+
+
+class RegressionTimingWorkflowTests(unittest.TestCase):
+    """Keep the manual timing job and its hidden output upload runnable."""
+
+    @staticmethod
+    def contract(text):
+        # Ignore comments and blank lines, but compare every executable line.
+        # Setup action pins and Python version must equal the quality workflow.
+        lines = [line.rstrip() for line in text.splitlines()
+                 if line.strip() and not line.lstrip().startswith("#")]
+        expected = [
+            "name: Regression suite timing measurement", "on:", "  workflow_dispatch:",
+            "permissions:", "  contents: read", "jobs:", "  measure:",
+            "    name: Measure per-unit regression timings", "    runs-on: ubuntu-latest", "    steps:",
+            "      - name: Checkout",
+            "        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1",
+            "        with:", "          fetch-depth: 0", "      - name: Set up Python",
+            "        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0",
+            "        with:", '          python-version: "3.14"',
+            "      - name: Install pinned dependencies", "        run: python3 -m pip install -r requirements.txt",
+            "      - name: Measure per-unit regression suite timings",
+            "        id: measurement", "        run: |",
+            '          weights_dir="$(mktemp -d)"',
+            '          python3 .claude/skills/corpus-management/tools/measure-regression-timings.py --output "$weights_dir/regression-shard-weights.json"',
+            '          echo "weights=$weights_dir/regression-shard-weights.json" >> "$GITHUB_OUTPUT"',
+            "      - name: Upload shard-weights artefact",
+            "        if: ${{ success() && steps.measurement.outcome == 'success' }}",
+            "        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4",
+            "        with:", "          name: regression-shard-weights",
+            "          path: ${{ steps.measurement.outputs.weights }}",
+            "          include-hidden-files: true", "          if-no-files-found: error",
+        ]
+        return lines == expected
+
+    def test_live_workflow_and_setup_parity(self):
+        text = (REPO_ROOT / ".github/workflows/regression-timings.yml").read_text()
+        self.assertTrue(self.contract(text))
+        quality = (REPO_ROOT / ".github/workflows/quality.yml").read_text()
+        for line in text.splitlines():
+            if "actions/checkout@" in line or "actions/setup-python@" in line or "python-version:" in line:
+                self.assertIn(line, quality)
+
+    def test_each_workflow_flip_is_caught(self):
+        text = (REPO_ROOT / ".github/workflows/regression-timings.yml").read_text()
+        self.assertTrue(self.contract(text))
+        for before, after in (("workflow_dispatch:", "pull_request:"),
+                              ("contents: read", "contents: write"),
+                              ('python-version: "3.14"', 'python-version: "3.11"'),
+                              ("fetch-depth: 0", "fetch-depth: 1"),
+                              ("if: ${{ success() && steps.measurement.outcome == 'success' }}", "if: always()"),
+                              ('weights_dir="$(mktemp -d)"', 'weights_dir="."'),
+                              ("steps.measurement.outputs.weights", "github.workspace"),
+                              ("include-hidden-files: true", "include-hidden-files: false"),
+                              ("if-no-files-found: error", "if-no-files-found: warn"),
+                              ('--output "$weights_dir/regression-shard-weights.json"', ""),
+                              ("python3 .claude/skills/corpus-management/tools/measure-regression-timings.py",
+                               "true")):
+            with self.subTest(before=before):
+                self.assertIn(before, text)
+                self.assertFalse(self.contract(text.replace(before, after)))
+
+
 class RegressionTimingMeasurementTests(unittest.TestCase):
     """Per-unit timing measurement for the regression suite.
 
@@ -91490,6 +92100,42 @@ class RegressionTimingMeasurementTests(unittest.TestCase):
         (tests / (module_stem + ".py")).write_text(
             module_body, encoding="utf-8")
         return root
+
+    def test_workflow_publishes_only_fresh_successful_measurement(self):
+        import textwrap
+
+        workflow = (REPO_ROOT / ".github/workflows/regression-timings.yml").read_text()
+        script = textwrap.dedent(workflow.split("        run: |\n", 1)[1].split("\n\n", 1)[0])
+        for body, expected in (
+                ("import unittest\nclass TinyTests(unittest.TestCase):\n"
+                 "    def test_tiny(self): pass\n", 0),
+                ("import unittest\nclass TinyTests(unittest.TestCase):\n"
+                 "    def test_tiny(self): self.fail('failure')\n", 1),
+                ("raise ImportError('refusal')\n", 2)):
+            with self.subTest(expected=expected):
+                root = self._tool_fixture_repo("test_tiny_fixture", body)
+                tracked = root / SKILL_TOOLS_REL.parent / "tests" / "regression-shard-weights.json"
+                stale = '{"schema": 1, "units": {"stale:Tests#0": 99}}\n'
+                tracked.write_text(stale, encoding="utf-8")
+                output = root / "step-output"
+                output.touch()
+                temporary = root / "temporary"
+                temporary.mkdir()
+                result = subprocess.run(
+                    ["bash", "-e", "-c", script], cwd=root,
+                    env={**os.environ, "GITHUB_OUTPUT": str(output), "TMPDIR": str(temporary)},
+                    capture_output=True, text=True, timeout=60)
+                self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+                self.assertEqual(tracked.read_text(), stale)
+                if expected:
+                    self.assertEqual(output.read_text(), "")
+                else:
+                    key, value = output.read_text().strip().split("=", 1)
+                    self.assertEqual(key, "weights")
+                    fresh = Path(value)
+                    self.assertTrue(fresh.is_relative_to(temporary))
+                    weights = json.loads(fresh.read_text())
+                    self.assertEqual(set(weights["units"]), {"tests.test_tiny_fixture:TinyTests#0"})
 
     def test_import_error_module_refused_without_weights_file(self):
         root = self._tool_fixture_repo(

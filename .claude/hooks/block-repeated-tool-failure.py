@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 """PreToolUse hook (Bash AND AskUserQuestion): break the resubmit-the-blocked-command loop.
 
+Command-text residual: this hook inspects tool_input.command, not execution.
+Commands inside a script file, a heredoc fed to a shell, or a subprocess are
+not generally visible. Recognizing selected shell or heredoc forms does not
+provide recursive inspection of the programs they execute. See
+.claude/skills/corpus-management/docs/guide-command-text-hooks.md for each hook's
+limits and the independent staged-path pre-commit check.
+
 Why: a command that a sibling guard has just blocked can be re-submitted repeatedly
 without the structural change the block asked for, for example when each retry edits the
 command DESCRIPTION, not the command STRING. The sibling guards each block one mistake

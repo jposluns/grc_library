@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 """PreToolUse Bash hook: reject pipe-masked verification commands.
 
+Command-text residual: this hook inspects tool_input.command, not execution.
+Commands inside a script file, a heredoc fed to a shell, or a subprocess are
+not generally visible. Recognizing selected shell or heredoc forms does not
+provide recursive inspection of the programs they execute. See
+.claude/skills/corpus-management/docs/guide-command-text-hooks.md for each hook's
+limits and the independent staged-path pre-commit check.
+
 Reads the PreToolUse JSON payload on stdin, inspects
 `tool_input.command`, and BLOCKS (exit 2, reason on stderr) any command that
 pipes a named verification command into a truncating filter, the pipe-masking

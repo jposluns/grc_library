@@ -13,8 +13,10 @@ the gate inventory in the audit-programme specification
 pre-commit configuration do not list it. Like every ``.claude/skills/corpus-management/tools/`` file it
 has an ordinary inventory pin row in ``ExplicitPathCliInventoryTests``
 (``.claude/skills/corpus-management/tests/test_linters.py``), which pins its bytes and path policy
-without running it. No workflow runs it either: gate 36 is sharded only
-locally, so it is run by hand on the local server.
+without running it. The manual-only workflow
+``.github/workflows/regression-timings.yml`` measures on a CI runner and
+uploads fresh weights as an artefact only after a successful measurement.
+Gate 36 remains local; these advisory measurements do not replace it.
 
 A UNIT is a maximal run of consecutive occurrences of one class object
 within one module's loaded suite, flattened in suite order, so a unit

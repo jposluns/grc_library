@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 """PreToolUse: auto-bump (or, failing that, refuse) a `git commit` that changes a versioned document's body without bumping it.
 
+Command-text residual: this hook inspects tool_input.command, not execution.
+Commands inside a script file, a heredoc fed to a shell, or a subprocess are
+not generally visible. Recognizing selected shell or heredoc forms does not
+provide recursive inspection of the programs they execute. See
+.claude/skills/corpus-management/docs/guide-command-text-hooks.md for each hook's
+limits and the independent staged-path pre-commit check.
+
 WHY THIS IS A HOOK AND NOT A CONVENTION. The convention existed, is written down in two
 places, and was still repeatedly broken, including a downstream miss (the derived artefacts
 left unregenerated after a bump): the rule was known, restated precisely, and then missed

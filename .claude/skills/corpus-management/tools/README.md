@@ -1,5 +1,8 @@
 # Repository tooling
 
+**Version:** 0.0.1\
+**Date:** 2026-11-24
+
 The Corpus-Management compiler (`build-corpus-management.py`) generates two full always-loaded
 prose rules, a compact rule index in the corpus-management skill directory (read when the skill
 loads, on the skill's instruction, not at session start), and on-demand bodies outside
@@ -32,6 +35,10 @@ Passing output: stdout carries the module list (`Running test modules:` and one 
 What the nonce and sentinel defend against: accidental early exits (a premature `SystemExit` before the sentinel), grandchild or stray output standing in for the summary or the sentinel, dropped modules, and zero-test modules (a module hollowed to zero tests). What they do NOT defend against: test code in the child process that deliberately reads the driver's state. The driver is a `python -c` script, so the nonce is a module-level global of `__main__`; one line of test code (`import __main__`) recovers it and can forge a complete sentinel. This is a documented accepted residual, pinned by a test in [`.claude/skills/corpus-management/tests/test_regression_gate.py`](../tests/test_regression_gate.py), so a change that closes the channel must update that test and this paragraph together. They also do not defend against a partially hollowed module (a `load_tests` that returns some but not all of a module's tests), because the loaded suite is the gate's only ground truth. No in-process scheme is proof against deliberately adversarial in-process code.
 
 The linter fixtures live in [`.claude/skills/corpus-management/tests/test_linters.py`](../tests/test_linters.py).
+
+The advisory [`detect-collection-candidates.py`](detect-collection-candidates.py) suggests collections for maintainer triage. Run it directly to scan, or with `--on-pr` to select PRs changing the retained pack paths from GitHub's event and merge SHA. Gate 35 pins its informational quality-workflow step; it has no audit row or pre-commit hook.
+
+The manual [`regression-timings.yml`](../../../../.github/workflows/regression-timings.yml) workflow runs [`measure-regression-timings.py`](measure-regression-timings.py) with Python 3.14 and publishes fresh per-unit weights only after a successful measurement. These weights advise shard balancing and do not replace the local regression gate.
 
 ## Running
 
@@ -85,6 +92,8 @@ pre-commit install
 
 Three git-native hooks are installed by `.claude/skills/corpus-management/tools/install-git-hooks.sh`: a pre-push hook (`.claude/skills/corpus-management/tools/git-hooks/pre-push`), a pre-commit hook (`.claude/skills/corpus-management/tools/git-hooks/pre-commit`) that refuses a commit on a `main` or `master` checkout, a commit that changes a document's `**Version:**` or `**Date:**` line (or a generated output) while the staged `.claude/skills/corpus-management/data/taxonomy.yml`, `governance/portal.md` or `governance/maturity-scorecard.md` is out of sync (`.claude/skills/corpus-management/tools/check-generated-commit.py` runs the staged generators' `--check` on a copy of the index being committed; override `GRC_ALLOW_STALE_GENERATED_COMMIT=1`), and a commit that stages `.working/CHANGELOG.md` while `python3 .claude/skills/corpus-management/tools/preflight-changelog.py --staged` fails (override `GRC_ALLOW_FAILING_CHANGELOG_COMMIT=1`), and a commit-msg hook (`.claude/skills/corpus-management/tools/git-hooks/commit-msg`) that refuses a commit whose staged versioned document changed its body without a Version change (a `VersionBump: none <reason>` message line opts out README.md only). A local commit-msg hook is kept by renaming it to `commit-msg-local`; the managed hook runs it first. Run it once per clone, BEFORE `pre-commit install`: the framework then chains the managed pre-commit hook as `pre-commit.legacy`. If the framework is already installed, run `pre-commit uninstall`, then this installer, then `pre-commit install`. A later re-run of the installer cannot verify the chain from file contents, so it reports the pre-commit half as unverified (non-zero) and names the behavioural check: on a `main` checkout, `git commit --allow-empty -m probe` must be refused. It refuses a `git push` when the tracked working tree is modified or staged AND the push includes the current HEAD, mirroring [`pre-push-guard.sh`](pre-push-guard.sh)'s dirty-tree attestation (override `PRE_PUSH_GUARD_ALLOW_DIRTY=1`), as a backstop on every destination; the full guard below clears this override. It is a raw git hook, not a pre-commit-framework hook, because the framework stashes unstaged edits before running hooks (which would defeat the check).
 
+The native pre-commit hook also requires an explicit staged-path declaration before every commit. From the repository root, run `python3 -I .claude/skills/corpus-management/tools/check-staged-paths.py --declare -- path/to/file other/file` with the complete intended file set. Paths are literal repository-relative names, even when the script is invoked from a subdirectory. Declare again after HEAD changes or the intended scope changes; a missing, stale or mismatched declaration refuses the commit. See [declaration setup and limits](../docs/guide-command-text-hooks.md).
+
 Subsequent commits run the full audit programme before the commit is finalized. Run on demand against the entire corpus:
 
 ```
@@ -93,7 +102,7 @@ pre-commit run --all-files
 
 ## Continuous integration
 
-[`.github/workflows/quality.yml`](../../../../.github/workflows/quality.yml) runs on every pull request. Its 1 job, `Lint markdown corpus`, runs only the CI subset of gates that the audit programme specification's section 4 `ci-pr-subset` block names, then the web generator health check (`python3 .web/build.py --check`, not a section 6 gate), then the 12 per-PR delta gates. It uses Python 3.14 from `actions/setup-python` and installs the pinned `requirements.txt` (the one sanctioned third-party dependency, `idna`). The full gate suite runs on the local server, which posts the `local-quality` commit status; merge requires both that status and the `Lint markdown corpus` check. [`.github/workflows/nightly-sweep.yml`](../../../../.github/workflows/nightly-sweep.yml) runs the whole local audit runner on `main` on a nightly schedule. [`.github/workflows/pr-attribution.yml`](../../../../.github/workflows/pr-attribution.yml) runs one more pull-request job, `PR attribution (title and body)`, on the opened, edited, synchronize and reopened events, so an edited title or body is checked again: [`check-pr-attribution.py`](check-pr-attribution.py) reads the pull request's title and body from the event payload and fails (exit 1) when either carries AI-assistant attribution (Claude/Anthropic). It is not an audit gate, and gate 35 does not read that workflow.
+[`.github/workflows/quality.yml`](../../../../.github/workflows/quality.yml) runs on every pull request. Its 1 job, `Lint markdown corpus`, runs only the CI subset of gates that the audit programme specification's section 4 `ci-pr-subset` block names, then informational collection detection (`python3 .claude/skills/corpus-management/tools/detect-collection-candidates.py --on-pr`), the web generator health check (`python3 .web/build.py --check`), and the 12 per-PR delta gates. Both non-gate checks are pinned by gate 35 to exactly their `name` and `run` keys and commands. Collection candidates are advisory; invalid or unavailable PR diff inputs fail. The manual `regression-timings.yml` workflow measures regression units and uploads fresh weights only after a successful measurement; it adds no audit-runner invocation or pre-commit hook. The quality workflow uses Python 3.14 from `actions/setup-python` and installs the pinned `requirements.txt` (the one sanctioned third-party dependency, `idna`). The full gate suite runs on the local server, which posts the `local-quality` commit status; merge requires both that status and the `Lint markdown corpus` check. [`.github/workflows/nightly-sweep.yml`](../../../../.github/workflows/nightly-sweep.yml) runs the whole local audit runner on `main` on a nightly schedule. [`.github/workflows/pr-attribution.yml`](../../../../.github/workflows/pr-attribution.yml) runs one more pull-request job, `PR attribution (title and body)`, on the opened, edited, synchronize and reopened events, so an edited title or body is checked again: [`check-pr-attribution.py`](check-pr-attribution.py) reads the pull request's title and body from the event payload and fails (exit 1) when either carries AI-assistant attribution (Claude/Anthropic). It is not an audit gate, and gate 35 does not read that workflow.
 
 ## Exemptions
 
@@ -447,8 +456,9 @@ what is unknown: what earlier runs left, or what this run left.
 
 The full suite, gate 36 whole included, runs on the local server for the
 pull request head, which posts the `local-quality` commit status that
-merge requires; the GitHub Actions job runs only the CI subset, the web
-generator health check and the delta gates. Residual: a failure in a
+merge requires; the GitHub Actions job runs the CI subset, informational
+collection detection, the web generator health check and the delta gates.
+Residual: a failure in a
 regression test that a site-only change causes is first seen in that
 local server run, not before the push. The guard's header gives the
 exact rules.

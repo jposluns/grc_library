@@ -139,7 +139,7 @@ step's own run value to its exact pinned command string
 the hook's entry only for ``--check``. The other two exclusion sets are
 pinned, not left uncovered: the setup steps by WORKFLOW_SETUP_STEP_SHAPES (exact keys,
 the uses action at a full commit SHA, the with values and the run command), and the
-web generator health check step (WORKFLOW_NON_GATE_CHECK_STEPS) to its keys and run
+web generator health check step and collection-candidate step (WORKFLOW_NON_GATE_CHECK_STEPS) to their keys and run
 command, with no gate script. Nor does it cover runner shell code outside run_gate
 lines (the function
 body, a redefinition of python3 or run_gate, PATH or BASH_ENV, and whether bash
@@ -320,11 +320,14 @@ def _delta_pinned_script(name: str) -> str:
     return WORKFLOW_DELTA_GATE_STEP_RUNS[name].removeprefix("python3 ")
 
 # Workflow steps that run a check that is not a section 6 gate and not a delta
-# gate: the web generator health check, which the earlier repository ran on each
-# pull request and maintainer decision 2026-11-15 restored to the lint job. Each is
+# gate: the web generator health check and advisory collection detection. Each is
 # pinned to its exact keys and run command (``_check_non_gate_check_step``), must
 # invoke no gate script, and is excluded from the gate list.
 WORKFLOW_NON_GATE_CHECK_STEPS = {
+    "Detect collection candidates on pack PRs (informational)": {
+        "keys": ("name", "run"),
+        "run": "python3 .claude/skills/corpus-management/tools/detect-collection-candidates.py --on-pr",
+    },
     "Web generator health check": {
         "keys": ("name", "run"),
         "run": "python3 .web/build.py --check",
@@ -1131,7 +1134,7 @@ def _check_non_gate_check_step(path: Path, step: _YamlNode) -> None:
     """Raise a ParseError unless ``step``, named in WORKFLOW_NON_GATE_CHECK_STEPS,
     holds exactly its pinned keys and its pinned run command as a plain value.
 
-    The checks run in this order: a plain run value that names a gate script
+    The checks run in this order: an unpinned plain run value that names a tool script
     (STEP_SCRIPT_RE) is refused with a message naming that script; a key set other
     than the pinned one is refused, and this key-set check is the one that refuses
     a missing run value, since the pinned keys include run; and a run value that is
@@ -1139,7 +1142,8 @@ def _check_non_gate_check_step(path: Path, step: _YamlNode) -> None:
     exact-command check. That check keeps its ``run is None`` test, which cannot be
     reached while the pinned keys include run, so that it refuses rather than
     raising AttributeError should the pinned key set ever change. The gate-script
-    check is not a separate condition: the pinned command names no gate script, so
+    check is not a separate condition: the exclusion guard compares the pinned
+    scripts with the section 6 inventory, and
     the exact-command check would refuse such a value anyway; the first check only
     gives that case a clearer message. A block run value is not searched for a
     gate script; the exact-command check refuses it."""
@@ -1147,7 +1151,9 @@ def _check_non_gate_check_step(path: Path, step: _YamlNode) -> None:
     name = step.get("name").value
     shape = WORKFLOW_NON_GATE_CHECK_STEPS[name]
     run = step.get("run")
-    if run is not None and run.kind == "scalar" and STEP_SCRIPT_RE.search(run.value):
+    if (run is not None and run.kind == "scalar" and STEP_SCRIPT_RE.search(run.value)
+            and {_step_script(m.group(1)) for m in STEP_SCRIPT_RE.finditer(run.value)}
+            - {_step_script(m.group(1)) for m in STEP_SCRIPT_RE.finditer(shape["run"])}):
         raise ParseError(f"{rel}:{step.lineno}: lint job non-gate check step {name!r} "
                          f"invokes the gate script {STEP_SCRIPT_RE.search(run.value).group(1)!r}; "
                          f"a non-gate check step must not run a gate; {WORKFLOW_SHAPE}")
@@ -1861,6 +1867,14 @@ def verify_exclusion_and_delta_guards(
     # (i) WORKFLOW_NON_GATE_CHECK_STEPS: must be a lint job step, where parse_workflow
     # pins its shape (a step in another job is never read by parse_workflow).
     for name in sorted(WORKFLOW_NON_GATE_CHECK_STEPS):
+        if len(wf_runs.get(name, ())) > 1:
+            findings.append(f"exclusion guard: non-gate step {name!r} appears "
+                            f"{len(wf_runs[name])} times; expected exactly once")
+        pinned_scripts = {_step_script(m.group(1)) for m in STEP_SCRIPT_RE.finditer(
+            WORKFLOW_NON_GATE_CHECK_STEPS[name]["run"])}
+        for script in sorted(pinned_scripts & spec_scripts):
+            findings.append(f"exclusion guard: non-gate step {name!r} runs section 6 "
+                            f"gate {script!r}; a real gate must not be masked from parity")
         if name not in wf_names:
             findings.append(
                 f"exclusion guard: WORKFLOW_NON_GATE_CHECK_STEPS member {name!r} is "
