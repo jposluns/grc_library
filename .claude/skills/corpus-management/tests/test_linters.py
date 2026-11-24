@@ -48456,7 +48456,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         git-hooks/pre-commit FIXED F ad203769cf056103a62ac512b72552fda940e2c298725778f7849e5f62884139
         git-hooks/pre-push TRANSPORT F a7e4da49d2f18e10ab2f88f31bf5264485486bd206f77aed0ed68c63bbb59a33
         historical_citation_register.py PASSIVE F ffa6d49a55cae8e0945fb64c79fc8318f10630064311772ee367d2a0e6c2cb66
-        install-git-hooks.sh FIXED F a5898f64ee73794d1dc94e6dbc83acf58d9313eebec11df1eeafe20ff2fb0ba2
+        install-git-hooks.sh FIXED F f6c4b03215c645b8123f143e50de0e02a93b0eb84d62358a07191da919d46a85
         iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
         iso_27001_reference.py PASSIVE F e8789346ac57b557de2f5c93c7fc2b31651b49be25bc8180e8bdc84310b21418
         lint-acronym-consistency.py CWD F b5ef8c043946b895b5b8be67a58e7067ce0a4ce36737174266511ca504353055

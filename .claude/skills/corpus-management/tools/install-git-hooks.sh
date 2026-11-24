@@ -153,7 +153,7 @@ if [ "${1:-}" = --check ]; then
   exit 1
 fi
 
-# Commit dispatchers refuse missing tracked checks, including on older branches.
+# Installed commit shims refuse a missing tracked dispatcher, including on older branches.
 # Wire new checks in the tracked dispatchers, never in these installed shims.
 # Installed shims are compared byte for byte; editing an emitter makes existing
 # installations foreign unless their exact previous contents are retained for upgrade.

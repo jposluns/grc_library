@@ -20465,8 +20465,7 @@ class ProgrammeClaimsTests(unittest.TestCase):
     small fixes, among them reference fixes in documents the change touched.
     Held paths are under the reference corpus; line numbers are those of
     the held full-text extracts, counting only LF as a line end (the
-    repository's convention for held extracts, as in
-    .claude/skills/corpus-management/tools/audit-reference-breadth.py), so
+    repository's convention for held extracts), so
     a form feed or a Unicode line separator inside a line does not start a
     new one.
 
