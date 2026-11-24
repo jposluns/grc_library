@@ -25889,12 +25889,20 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # store and siblings survives it.
         parent = Path(self.tmp.name)
         siblings = ("private", "grc_library_private", "grc_library_ref", "grc_library_scratch")
-        # With a private store present the guard's install-git-hooks.sh
-        # --check requires the installed hook, so this clone installs it.
-        for name in ("git-hooks/pre-push", "pre-push-hook.py", "check-dirty-tree-push.py"):
+        # With a private store present the guard requires the installed hook.
+        # The installer also installs commit shims, so supply their tracked
+        # dispatchers and checkers for the fixture's later commit.
+        for name in ("git-hooks/pre-push", "pre-push-hook.py", "check-dirty-tree-push.py",
+                     "git-hooks/pre-commit", "git-hooks/commit-msg",
+                     "check-commit-on-main.py", "check-version-bump-commit.py",
+                     "check-staged-paths.py"):
             dest = self.root / ".claude/skills/corpus-management/tools" / name
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(SKILL_ROOT / "tools" / name, dest)
+        version_guard = self.root / ".claude/hooks/block-unbumped-version-commit.py"
+        version_guard.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(REPO_ROOT / ".claude/hooks/block-unbumped-version-commit.py", version_guard)
+        self.git("checkout", "-qb", "feature")
         self.move_base("Hook files")
         subprocess.run(["sh", ".claude/skills/corpus-management/tools/install-git-hooks.sh"], cwd=self.root, env=self.env,
                        check=True, capture_output=True, text=True, timeout=30)
@@ -25902,6 +25910,10 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             (parent / name / "nested").mkdir(parents=True)
             (parent / name / "keep.md").write_text(name + "\n", encoding="utf-8")
             (parent / name / "nested" / "keep.md").write_text(name + "\n", encoding="utf-8")
+        subprocess.run([sys.executable, "-I",
+                        ".claude/skills/corpus-management/tools/check-staged-paths.py",
+                        "--declare", "--", "ai/policy-fixture.md"], cwd=self.root, env=self.env,
+                       check=True, capture_output=True, text=True, timeout=30)
         self.change("ai/policy-fixture.md")
         result, _ran = self.run_guard(GRC_STORE="../private")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
