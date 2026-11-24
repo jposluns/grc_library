@@ -391,6 +391,10 @@ def _integration_self_test():
                     ".claude/skills/corpus-management/tools/lint_common.py", *_BUILDERS):
             (repo / rel).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src / rel, repo / rel)
+        # The staged-path boundary has its own explicit-scope tests. Give this
+        # synthetic fixture a declaration while retaining the real checker.
+        import runpy
+        runpy.run_path(str(src / ".claude/skills/corpus-management/tests/_staged_paths_fixture.py"))["install"](src, repo)
         env = {k: v for k, v in os.environ.items()
                if not k.startswith("GIT_") and k not in (_OVERRIDE, "GRC_ALLOW_MAIN_COMMIT")}
         env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT="0",

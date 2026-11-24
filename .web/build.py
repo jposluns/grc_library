@@ -128,6 +128,7 @@ import argparse
 import datetime
 import hashlib
 import importlib.util
+import json
 import posixpath
 import re
 import subprocess
@@ -4219,7 +4220,15 @@ def _adopter_purpose(text):
     heading written flush at the start
     of the line with white space after its hashes. An indented
     level-three heading, or hashes with nothing after them, is not
-    skipped and is read as paragraph text, as main reads it."""
+    skipped and is read as paragraph text, as main reads it.
+
+    ``text`` must be an exact str (``type(text) is str``, so a str subclass
+    is refused); anything else raises TypeError through
+    _refuse_unless_exact_str, the message naming the exact type given
+    (None once failed as "'NoneType' object has no attribute
+    'splitlines'", and bytes as "a bytes-like object is required, not
+    'str'", neither naming the argument or the type it needs)."""
+    _refuse_unless_exact_str("_adopter_purpose", "text", text)
     lines = text.splitlines()
     for section in read_markdown_sections(text, heading="stripped-text",
                                           fences="toggle")[1:]:
@@ -6575,9 +6584,12 @@ def _draft_search_row(d, facets=False):
     # whitespace collapsed, so a query matches everything the page says it
     # matches (a former 36-row cap left most queries empty, and a
     # 200-character purpose cut lost matches for the page's own examples).
+    # The purpose is read through _metadata_purpose: absent reads as empty,
+    # and a purpose that is not an exact str is refused with a TypeError
+    # naming _draft_search_row.
     haystack = " ".join(" ".join(
         [d.get("title", ""), d.get("type", ""), label,
-         d.get("domain", ""), d.get("purpose", "") or ""]
+         d.get("domain", ""), _metadata_purpose("_draft_search_row", d)]
         + d.get("frameworks", [])
     ).lower().split())
     tokens = ""
@@ -6611,6 +6623,10 @@ def draft_search_values(full_docs, adopter_docs):
         key=lambda d: (d.get("title", "").lower(), d["path"]),
     )
     pool.sort(key=lambda d: d.get("date", ""), reverse=True)
+    # Every purpose is read through _metadata_purpose before any row is
+    # built, so a purpose that is not an exact str is refused with a
+    # TypeError naming draft_search_values.
+    purposes = [_metadata_purpose("draft_search_values", d) for d in pool]
     rows = [_draft_search_row(d) for d in pool]
     # The prompt names its pool (the library also holds the root
     # specifications, which have no row) and states a field plainly only when
@@ -6627,7 +6643,7 @@ def draft_search_values(full_docs, adopter_docs):
     domains = len({d.get("domain", "") for d in pool
                    if d.get("domain") != ADOPTER_DOCS_AREA})
     domain_noun = "domain" if domains == 1 else "domains"
-    with_purpose = sum(1 for d in pool if (d.get("purpose") or "").strip())
+    with_purpose = sum(1 for purpose in purposes if purpose.strip())
     fields = ["title", "type", "area" if n_adopter else "domain"]
     clauses = []
     if with_purpose == len(rows):
@@ -6878,8 +6894,14 @@ def draft_doc_purpose(doc):
     ending with a colon introduces a list the lead never shows (six leads
     once ended mid-promise), so the trailing colon-terminated
     fragment is dropped back to the last whole sentence, and a purpose that is
-    only that fragment keeps its text with the colon closed to a full stop."""
-    purpose = doc.get("purpose", "")
+    only that fragment keeps its text with the colon closed to a full stop.
+
+    The purpose is read through _metadata_purpose, so a purpose that is
+    present and not an exact str raises TypeError naming draft_doc_purpose
+    and the exact type given (unchecked, a list failed as an AttributeError
+    on endswith, and bytes as a TypeError about the endswith argument,
+    neither naming the field or the type it needs)."""
+    purpose = _metadata_purpose("draft_doc_purpose", doc)
     if not purpose:
         purpose = (
             f"A {doc.get('type', '').lower()} in the "
@@ -11829,20 +11851,120 @@ def stale_standard_editions(texts=None):
     return hits
 
 
-def generator_ok_line(page_rels, artefact_count, out_dir, written, summary):
+def listed_names(names):
+    """Each name double-quoted and escaped as a JSON string, joined by ", ",
+    so a name that holds a comma, a bracket or a double quote still reads as
+    one name: ``["a, b"]`` lists as ``"a, b"``, never as the two names
+    ``a`` and ``b``."""
+    return ", ".join(json.dumps(name, ensure_ascii=False) for name in names)
+
+
+def _exact_type_name(value):
+    """The exact type of ``value`` by name: the bare name for a built-in
+    type (``tuple``, ``NoneType``), else module-qualified
+    (``collections.deque``)."""
+    given = type(value)
+    if given.__module__ == "builtins":
+        return given.__qualname__
+    return f"{given.__module__}.{given.__qualname__}"
+
+
+def _refuse_unless_exact_str(func, param, value):
+    """Raise TypeError unless ``value`` is an exact str (``type(value) is
+    str``, so a str subclass is refused). The message is the fixed prefix
+    "<func>: <param> must be a str, not " (``func`` the name of the
+    checking function) and then only the exact type of ``value`` by
+    _exact_type_name."""
+    if type(value) is not str:
+        raise TypeError(
+            f"{func}: {param} must be a str, not {_exact_type_name(value)}"
+        )
+
+
+def _metadata_purpose(func, doc):
+    """The ``purpose`` value of one document metadata dict (a taxonomy or
+    adopter document), read the same way by every reader of a purpose
+    from document metadata: draft_doc_purpose (the document page lead and
+    the type page rows), _draft_search_row (a search row's text) and
+    draft_search_values (the count of rows that state a purpose). An
+    absent ``purpose`` key reads as an empty string; a present value must
+    be an exact str (``type(value) is str``, so None, bytes, a list and a
+    str subclass are each refused), checked by _refuse_unless_exact_str
+    with ``func`` the name of the reader, so the message is
+    "<func>: purpose must be a str, not " and then the exact type given."""
+    if "purpose" not in doc:
+        return ""
+    value = doc["purpose"]
+    _refuse_unless_exact_str(func, "purpose", value)
+    return value
+
+
+def _refuse_unless_str_list(func, param, value):
+    """Raise TypeError unless ``value`` is an exact list (``type(value) is
+    list``, so a list subclass is refused) whose every item is an exact str
+    (a str subclass item is refused). The message is the fixed prefix
+    "<func>: <param> must be a list of str, not " (``func`` the name of
+    the checking function) and then only type
+    names taken from the value by _exact_type_name: the exact type of
+    ``value`` and, when it is an exact list, the index and exact type of
+    the first item that is not an exact str."""
+    if type(value) is not list:
+        raise TypeError(
+            f"{func}: {param} must be a list of str, not "
+            f"{_exact_type_name(value)}"
+        )
+    for index, item in enumerate(value):
+        if type(item) is not str:
+            raise TypeError(
+                f"{func}: {param} must be a list of str, not "
+                f"{_exact_type_name(value)} "
+                f"(item {index} is {_exact_type_name(item)})"
+            )
+
+
+def generator_ok_line(page_rels, out_dir, artefacts, summary):
     """The OK line of a writing run, its counts labelled apart: the dist
     HTML pages, the other dist files written beside them (assets, feeds and
     control files; a single "wrote 540 page(s)" count once took in 44
     non-HTML files as pages), and the committed artefact(s) (a single page
     count once read 541 in one line and 540 in another for the same build,
     because it silently included the corpus-link manifest). ``page_rels`` is
-    every dist path written; an HTML page is one ending ``.html``."""
+    every dist path written; an HTML page is one ending ``.html``.
+    ``artefacts`` is the committed artefact(s) written outside the dist tree,
+    and the count is the length of that same list (a count passed apart from
+    the list once read 1 beside every dist page and the manifest). Each name
+    is listed double-quoted by ``listed_names``, so a name that holds a comma
+    reads as one name and the number agrees with the names listed (joined
+    unquoted, ``["a, b"]`` printed as "1 committed artefact(s) (a, b)", two
+    names beside a count of 1). ``page_rels`` and then ``artefacts`` are
+    each checked by allow-list through _refuse_unless_str_list: each must
+    be an exact list (``type(value) is list``, so a list subclass is
+    refused) whose every item is an exact str (a str subclass item is
+    refused; callers pass lists of str), and anything else raises
+    TypeError. After its fixed prefix ("generator_ok_line: page_rels must
+    be a list of str, not " or the same with "artefacts") the message
+    holds only type names taken from the value, never a type word of its
+    own: the exact type of the argument (module-qualified unless built in)
+    and, for an exact list, the index and exact type of the first item
+    that is not an exact str. A str, bytes or bytearray artefacts value
+    would otherwise be
+    counted and listed one item at a time (``"manifest.md"`` once read as 11
+    committed artefact(s) ``("m", "a", "n", ...)``), and a list item that
+    is not a str (an int, say) would be listed unquoted by
+    ``listed_names``, so the brackets would no longer be double-quoted
+    names. A bare str page_rels value would otherwise be counted one
+    character at a time (``"index.html"`` once read as 0 HTML page(s) and
+    10 other file(s)), and a page_rels item that is not a str failed only
+    as an AttributeError on ``endswith``."""
+    _refuse_unless_str_list("generator_ok_line", "page_rels", page_rels)
+    _refuse_unless_str_list("generator_ok_line", "artefacts", artefacts)
     html_count = sum(1 for rel in page_rels if rel.endswith(".html"))
     other_count = len(page_rels) - html_count
     return (
         f"web-generator OK: wrote {html_count} HTML page(s) and "
         f"{other_count} other file(s) to {out_dir} and "
-        f"{artefact_count} committed artefact(s) ({', '.join(written)}). "
+        f"{len(artefacts)} committed artefact(s) "
+        f"({listed_names(artefacts)}). "
         f"{summary}"
     )
 
@@ -11881,8 +12003,8 @@ def main(argv=None):
         f"web-generator: {figures['total']} documents "
         f"({figures['domain_docs']} across {figures['domain_count']} domains "
         f"+ {figures['root_count']} root), {len(figures['types'])} document types, "
-        f"library {figures['calver']}; {len(pages)} pages "
-        f"({', '.join(rel for rel, _ in pages)})."
+        f"library {figures['calver']}; {len(pages)} dist file(s) "
+        f"({listed_names(rel for rel, _ in pages)})."
     )
 
     if args.check:
@@ -11971,8 +12093,7 @@ def main(argv=None):
     CORPUS_LINK_MANIFEST.write_text(manifest_text, encoding="utf-8")
     written.append(str(CORPUS_LINK_MANIFEST.relative_to(REPO_ROOT)))
     print(generator_ok_line(
-        [rel for rel, _ in pages], len(written) - len(pages), out_dir,
-        written, summary
+        [rel for rel, _ in pages], out_dir, written[len(pages):], summary
     ))
     return 0
 

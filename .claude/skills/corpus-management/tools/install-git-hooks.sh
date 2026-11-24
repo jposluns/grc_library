@@ -156,7 +156,7 @@ fi
 # The pre-commit dispatcher FAILS OPEN when the active checkout has no tracked
 # pre-commit file (a branch older than the hook), so it never breaks a commit there.
 # The tracked file runs each pre-commit check in turn (commit-on-main, then the generated-output
-# check, then the CHANGELOG preflight), so a new check is wired there, never here: an installed
+# check, then the CHANGELOG preflight, then declared staged paths), so a new check is wired there, never here: an installed
 # dispatcher is compared byte for byte with this text, and any edit to it would make every existing
 # installation foreign.
 emit_pre_commit() {

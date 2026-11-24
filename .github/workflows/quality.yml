@@ -11,7 +11,7 @@ permissions:
 jobs:
   # The one pull-request job. It runs only the CI subset of corpus gates that
   # the audit programme specification's ci-pr-subset block names, in section 6
-  # order, then the web generator health check (python3 .web/build.py --check,
+  # order, then advisory collection detection and the web generator health check (python3 .web/build.py --check,
   # not a section 6 gate) and the 12 per-PR delta gates. The full gate suite runs on the
   # local server, which posts the local-quality commit status that merge
   # requires; the scheduled full sweep stays in nightly-sweep.yml. Gate 35
@@ -75,6 +75,9 @@ jobs:
 
       - name: Internal work reference floor audit
         run: python3 .claude/skills/corpus-management/tools/lint-internal-work-refs.py
+
+      - name: Detect collection candidates on pack PRs (informational)
+        run: python3 .claude/skills/corpus-management/tools/detect-collection-candidates.py --on-pr
 
       - name: Web generator health check
         run: python3 .web/build.py --check

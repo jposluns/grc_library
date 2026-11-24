@@ -17971,26 +17971,477 @@ class GeneratorOkLineTests(unittest.TestCase):
     repository, one log said "wrote 541 page(s)" and then "540 pages" for the
     same build, the first count silently including the committed manifest, and
     "wrote 540 page(s)" counted 44 non-HTML dist files as pages, so the HTML
-    pages and the other dist files now count apart)."""
+    pages and the other dist files now count apart). The committed
+    artefact(s) count is the length of the list the line names (main once
+    passed every written file as the list beside a count of the written
+    total minus the pages, so the line read "1 committed artefact(s)" and
+    then named every dist page as well as the manifest). Each name in the
+    brackets is double-quoted, so a name that holds a comma is never read as
+    two, and the summary labels its count "dist file(s)" (it once called
+    every dist file a page)."""
+
+    _QUOTED_NAMES = r'(|"(?:[^"\\]|\\.)*"(?:, "(?:[^"\\]|\\.)*")*)'
+
+    def _count_and_names(self, label, line):
+        """The count before ``label`` in ``line`` and the double-quoted
+        names in the brackets after it, each parsed as a JSON string."""
+        match = re.search(
+            r" (\d+) " + re.escape(label) + r" \(" + self._QUOTED_NAMES
+            + r"\)\.(?: |$)", line)
+        self.assertIsNotNone(match, line)
+        return int(match.group(1)), json.loads("[" + match.group(2) + "]")
 
     def test_html_pages_other_files_and_artefacts_count_apart(self):
+        """Checks generator_ok_line alone, on a direct call: two HTML pages
+        and one other dist file are counted apart, the one committed
+        artefact is counted and named, no "3 page" count appears and the
+        brackets name exactly the artefact list passed. generator_ok_line
+        refuses with TypeError any page_rels or artefacts value that is not
+        an exact list of exact str, but it lists every name of an accepted
+        artefact list and leaves no name out, so that no dist page is listed
+        as a committed artefact is a property of the list main builds: it is asserted on the OK line main prints, by
+        running main in test_artefact_count_equals_the_names_listed, not by
+        this direct call and not by reading the source of main."""
         mod = _load_build()
         line = mod.generator_ok_line(
-            ["a.html", "b.html", "robots.txt"], 1, "/tmp/dist",
-            ["a.html", "b.html", "robots.txt", "manifest.md"],
-            "web-generator: summary.")
+            ["a.html", "b.html", "robots.txt"], "/tmp/dist",
+            ["manifest.md"], "web-generator: summary.")
         self.assertIn("wrote 2 HTML page(s) and 1 other file(s) to "
                       "/tmp/dist and 1 committed artefact(s) "
-                      "(a.html, b.html, robots.txt, manifest.md).", line)
+                      '("manifest.md"). web-generator: summary.', line)
         self.assertNotIn("3 page", line)
-        source = inspect.getsource(mod.main)
-        self.assertIn("generator_ok_line(", source,
-                      "main reports the write through the labelled line")
-        self.assertIn("[rel for rel, _ in pages], len(written) - len(pages)",
-                      source,
-                      "main passes the dist paths so the HTML pages count "
-                      "apart from the other dist files, excluding the "
-                      "committed artefact(s)")
+        count, listed = self._count_and_names("committed artefact(s)", line)
+        self.assertEqual(listed, ["manifest.md"], line)
+        self.assertEqual(count, 1, line)
+
+    def test_bare_string_artefacts_refused(self):
+        """Checks that generator_ok_line raises TypeError, naming the list
+        it needs, when artefacts is a bare string ("manifest.md" or the
+        empty string) or bytes. Unrefused, "manifest.md" would be counted
+        and quoted one character at a time (it once read as 11 committed
+        artefact(s) ("m", "a", "n", ...)), bytes would be counted one byte
+        at a time and listed as numbers (109, 97, 110, ...), and the empty
+        string, which has no characters, would pass silently as 0 committed
+        artefact(s) with empty brackets."""
+        mod = _load_build()
+        for artefacts in ("manifest.md", "", b"manifest.md"):
+            with self.subTest(artefacts=artefacts):
+                with self.assertRaisesRegex(TypeError,
+                                            "artefacts must be a list"):
+                    mod.generator_ok_line(
+                        ["a.html"], "/tmp/dist", artefacts,
+                        "web-generator: summary.")
+
+    def test_refusal_names_the_type_given(self):
+        """Checks that the TypeError generator_ok_line raises for an
+        artefacts value that is not a list of str is the one message, the
+        fixed prefix and then the exact type given (module-qualified unless
+        built in), with no wording of its own for any type: a tuple, a set,
+        a generator, None, a collections.deque, a str, bytes and a
+        bytearray each read as that type's name and nothing more, and a
+        list holding an item that is not a str reads as "list" with the
+        index and exact type of the first such item."""
+        import collections
+        mod = _load_build()
+        prefix = "generator_ok_line: artefacts must be a list of str, not "
+        cases = (
+            (("manifest.md",), "tuple"),
+            ({"manifest.md"}, "set"),
+            ((name for name in ["manifest.md"]), "generator"),
+            (None, "NoneType"),
+            (collections.deque(["manifest.md"]), "collections.deque"),
+            ("manifest.md", "str"),
+            (b"manifest.md", "bytes"),
+            (bytearray(b"manifest.md"), "bytearray"),
+            (["manifest.md", collections.deque()],
+             "list (item 1 is collections.deque)"),
+        )
+        for artefacts, expected in cases:
+            with self.subTest(artefacts=type(artefacts).__name__):
+                with self.assertRaises(TypeError) as caught:
+                    mod.generator_ok_line(
+                        ["a.html"], "/tmp/dist", artefacts,
+                        "web-generator: summary.")
+                self.assertEqual(str(caught.exception), prefix + expected)
+
+    def test_list_and_str_subclasses_refused_by_their_type(self):
+        """Checks that only an exact list whose every item is an exact str
+        is accepted: a list subclass holding only str, a list subclass
+        holding an int and an exact list holding a str subclass item are
+        each refused with TypeError, and the message names the actual type
+        given (the list subclass itself, or "list" with the index and the
+        str subclass of the item), module-qualified from the type's own
+        module and qualified name. Checked by isinstance, a list subclass
+        holding only str was accepted, a str subclass item was accepted, and
+        a list subclass holding an int was refused as "list (item 1 is
+        int)", naming list rather than the type given."""
+        mod = _load_build()
+        prefix = "generator_ok_line: artefacts must be a list of str, not "
+
+        class _Names(list):
+            pass
+
+        class _Name(str):
+            pass
+
+        def qualified(kind):
+            return f"{kind.__module__}.{kind.__qualname__}"
+
+        cases = (
+            (_Names(["manifest.md"]), qualified(_Names)),
+            (_Names(["manifest.md", 2]), qualified(_Names)),
+            (["manifest.md", _Name("b.json")],
+             f"list (item 1 is {qualified(_Name)})"),
+        )
+        for index, (artefacts, expected) in enumerate(cases):
+            with self.subTest(case=index, expected=expected):
+                with self.assertRaises(TypeError) as caught:
+                    mod.generator_ok_line(
+                        ["a.html"], "/tmp/dist", artefacts,
+                        "web-generator: summary.")
+                self.assertEqual(str(caught.exception), prefix + expected)
+
+    def test_page_rels_must_be_an_exact_list_of_str(self):
+        """Checks that page_rels is held to the same allow-list as
+        artefacts: an exact list of exact str (empty, or HTML pages beside
+        other files) is accepted and counted, and a bare str, bytes, a
+        tuple, a list subclass, a list holding an int and a list holding a
+        str subclass item are each refused with TypeError whose message is
+        the page_rels prefix and then the exact type given. Unchecked, the
+        bare string "index.html" was counted one character at a time as 0
+        HTML page(s) and 10 other file(s), and a list holding an int failed
+        only as an AttributeError on endswith."""
+        mod = _load_build()
+        for page_rels, html, other in (([], 0, 0),
+                                       (["a.html", "robots.txt"], 1, 1)):
+            with self.subTest(accepted=page_rels):
+                line = mod.generator_ok_line(
+                    page_rels, "/tmp/dist", ["manifest.md"],
+                    "web-generator: summary.")
+                self.assertIn(f"wrote {html} HTML page(s) and {other} "
+                              "other file(s) to /tmp/dist ", line)
+
+        class _Rels(list):
+            pass
+
+        class _Rel(str):
+            pass
+
+        def qualified(kind):
+            return f"{kind.__module__}.{kind.__qualname__}"
+
+        prefix = "generator_ok_line: page_rels must be a list of str, not "
+        cases = (
+            ("index.html", "str"),
+            (b"index.html", "bytes"),
+            (("index.html",), "tuple"),
+            (_Rels(["index.html"]), qualified(_Rels)),
+            (["index.html", 3], "list (item 1 is int)"),
+            (["index.html", _Rel("b.html")],
+             f"list (item 1 is {qualified(_Rel)})"),
+        )
+        for index, (page_rels, expected) in enumerate(cases):
+            with self.subTest(case=index, expected=expected):
+                with self.assertRaises(TypeError) as caught:
+                    mod.generator_ok_line(
+                        page_rels, "/tmp/dist", ["manifest.md"],
+                        "web-generator: summary.")
+                self.assertEqual(str(caught.exception), prefix + expected)
+
+    def test_only_a_list_of_str_is_accepted(self):
+        """Checks the allow-list on artefacts: a list whose every item is a
+        str (empty, one name, two names) is accepted and listed, and a bare
+        string, bytes, a bytearray, a tuple of str and a list holding an
+        item that is not a str (an int first, an int after a name, None,
+        bytes) are each refused with TypeError naming the exact type of the
+        argument and, for a list, the index and exact type of the first
+        item that is not a str. Unrefused, a list of ints would be listed
+        unquoted ("2 committed artefact(s) (1, 2)"), so the brackets would
+        no longer hold double-quoted names, and a bytearray would be counted
+        and listed one byte at a time."""
+        mod = _load_build()
+        for artefacts in ([], ["manifest.md"], ["manifest.md", "b.json"]):
+            with self.subTest(accepted=artefacts):
+                line = mod.generator_ok_line(
+                    ["a.html"], "/tmp/dist", artefacts,
+                    "web-generator: summary.")
+                count, listed = self._count_and_names(
+                    "committed artefact(s)", line)
+                self.assertEqual(listed, artefacts, line)
+                self.assertEqual(count, len(artefacts), line)
+        prefix = "generator_ok_line: artefacts must be a list of str, not "
+        cases = (
+            ("manifest.md", "str"),
+            (b"manifest.md", "bytes"),
+            (bytearray(b"manifest.md"), "bytearray"),
+            (("manifest.md", "b.json"), "tuple"),
+            ([1, 2], "list (item 0 is int)"),
+            (["manifest.md", 2], "list (item 1 is int)"),
+            (["manifest.md", None], "list (item 1 is NoneType)"),
+            (["manifest.md", b"b.json"], "list (item 1 is bytes)"),
+        )
+        for artefacts, expected in cases:
+            with self.subTest(refused=artefacts):
+                with self.assertRaises(TypeError) as caught:
+                    mod.generator_ok_line(
+                        ["a.html"], "/tmp/dist", artefacts,
+                        "web-generator: summary.")
+                self.assertEqual(str(caught.exception), prefix + expected)
+
+    def test_artefact_count_equals_the_names_listed(self):
+        """Checks that generator_ok_line takes no count apart from the list
+        (its parameters are page_rels, out_dir, artefacts and summary) and
+        that, for each artefact list (empty, one name, two names, and names
+        holding a comma, a bracket or a double quote), the double-quoted
+        names in the brackets parse back to that same list and the count
+        before them equals the number of names parsed. The count and the
+        names are both derived from the one list, so this checks that each
+        is derived from it correctly, each name double-quoted so that a
+        comma inside a name never splits it (joined unquoted, ["a, b"]
+        printed as "1 committed artefact(s) (a, b)"). It then runs main
+        itself, with the site render stubbed to five dist files (two HTML
+        pages and three other files, one holding a comma and a double
+        quote, which json.dumps escapes) and the output
+        and manifest paths in a temporary directory, and checks that main
+        returns 0, writes the stubbed manifest and every dist file, and
+        prints one OK line that reports 2 HTML page(s) and 3 other file(s),
+        whose brackets name only the manifest and no dist path, whose count
+        is the number of names listed, and whose summary labels its count
+        "dist file(s)", lists every dist file, counts the HTML pages plus
+        the other files the line reports and never labels a count "pages".
+        This run of main is what checks the list main passes (main once
+        passed every written file as the list, and a check of
+        generator_ok_line alone still passed)."""
+        mod = _load_build()
+        self.assertEqual(
+            list(inspect.signature(mod.generator_ok_line).parameters),
+            ["page_rels", "out_dir", "artefacts", "summary"],
+            "the artefact count is derived from the list, never passed apart")
+        for artefacts in ([], ["manifest.md"],
+                          ["manifest.md", "other/committed.json"],
+                          ["a, b"],
+                          ["manifest.md", "a, b", 'say "hi" (x).md']):
+            with self.subTest(artefacts=artefacts):
+                line = mod.generator_ok_line(
+                    ["a.html", "robots.txt"], "/tmp/dist", artefacts,
+                    "web-generator: summary.")
+                count, listed = self._count_and_names(
+                    "committed artefact(s)", line)
+                self.assertEqual(listed, artefacts, line)
+                self.assertEqual(count, len(listed), line)
+
+        import contextlib
+        import io
+
+        class _Pages(list):
+            repo_ledger = {}
+
+        pages = _Pages([
+            ("index.html", "<p>home</p>\n"),
+            ("docs/a/index.html", "<p>a</p>\n"),
+            ("robots.txt", "User-agent: *\n"),
+            ("assets/baseline/rail.js", b"// rail\n"),
+            ('assets/baseline/a, "b".txt', "comma and quote\n"),
+        ])
+        page_rels = [rel for rel, _ in pages]
+        figures = {"total": 3, "domain_docs": 2, "domain_count": 1,
+                   "root_count": 1, "types": ["policy"],
+                   "calver": "2026.11.0"}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            (root / ".web").mkdir(parents=True)
+            manifest = root / ".web" / "corpus-link-manifest.md"
+            out_dir = Path(tmp) / "dist"
+            out = io.StringIO()
+            with mock.patch.object(mod, "REPO_ROOT", root), \
+                    mock.patch.object(mod, "DEFAULT_OUT",
+                                      root / ".web" / "dist"), \
+                    mock.patch.object(mod, "CORPUS_LINK_MANIFEST", manifest), \
+                    mock.patch.object(mod, "compute_figures",
+                                      lambda: figures), \
+                    mock.patch.object(mod, "render_site",
+                                      lambda _figures: pages), \
+                    mock.patch.object(mod, "indexable_variant",
+                                      lambda: "draft"), \
+                    mock.patch.object(mod, "render_corpus_link_manifest",
+                                      lambda *_args: "# stub manifest\n"), \
+                    contextlib.redirect_stdout(out):
+                code = mod.main(["--out", str(out_dir)])
+            printed = out.getvalue()
+            self.assertEqual(code, 0, printed)
+            self.assertEqual(manifest.read_text(encoding="utf-8"),
+                             "# stub manifest\n",
+                             "the manifest is written to the stubbed path")
+            for rel in page_rels:
+                self.assertTrue((out_dir / rel).is_file(), rel)
+            ok_lines = [text for text in printed.splitlines()
+                        if text.startswith("web-generator OK: ")]
+            self.assertEqual(len(ok_lines), 1, printed)
+            line = ok_lines[0]
+            # Moved here from the direct-call test: main builds the artefact
+            # list, so main's printed line is where a dist page must be
+            # absent from the committed artefact(s) brackets. The brackets
+            # hold each name as json.dumps prints it, so each dist path is
+            # looked for in that escaped, double-quoted form (a raw
+            # substring check missed a listed name holding a double quote).
+            artefact_text = line.split(" committed artefact(s) (", 1)[1]
+            artefact_text = artefact_text.split("). web-generator: ", 1)[0]
+            for rel in page_rels:
+                self.assertNotIn(json.dumps(rel, ensure_ascii=False),
+                                 artefact_text,
+                                 "a dist page is not listed as a committed "
+                                 "artefact")
+            self.assertIn("wrote 2 HTML page(s) and 3 other file(s) to "
+                          f"{out_dir.resolve()} and ", line)
+            count, listed = self._count_and_names(
+                "committed artefact(s)", line)
+            self.assertEqual(listed, [".web/corpus-link-manifest.md"], line)
+            self.assertEqual(count, len(listed), line)
+            counts = re.search(
+                r"wrote (\d+) HTML page\(s\) and (\d+) other file\(s\) ",
+                line)
+            self.assertIsNotNone(counts, line)
+            summary_count, summary_names = self._count_and_names(
+                "dist file(s)", line)
+            self.assertEqual(summary_names, page_rels, line)
+            self.assertEqual(summary_count, len(summary_names), line)
+            self.assertEqual(summary_count,
+                             int(counts.group(1)) + int(counts.group(2)),
+                             "the summary counts the HTML pages and the "
+                             "other dist files the line reports")
+            self.assertNotRegex(line, r"\d+ pages\b",
+                                "the summary labels dist files, never pages")
+
+
+class LedeReaderTypeTests(unittest.TestCase):
+    """Every build.py reader of a lede or purpose takes only an exact str
+    and refuses anything else with a TypeError that names the reader, the
+    argument and the exact type given: the adopter lede reader,
+    _adopter_purpose (its text argument), and the three readers of a
+    purpose from document metadata, draft_doc_purpose, _draft_search_row
+    and draft_search_values, each through the shared _metadata_purpose."""
+
+    # One document metadata dict a search row can render (the adopter
+    # fixture shape the search prompt tests use); each test sets or drops
+    # its purpose.
+    _DOC = {
+        "path": ".claude/skills/corpus-management/docs/fixture.md",
+        "domain": "docs", "type": "Guide", "title": "Fixture Guide",
+        "date": "2026-11-03", "frameworks": [],
+    }
+
+    def _wrong_purposes(self):
+        """The wrong purpose values every metadata reader refuses, each
+        with the exact type name its message ends with: None, bytes, a
+        list of lines and a str subclass."""
+
+        class _Text(str):
+            pass
+
+        return (
+            (None, "NoneType"),
+            (b"A purpose.", "bytes"),
+            (["A purpose."], "list"),
+            (_Text("A purpose."),
+             f"{_Text.__module__}.{_Text.__qualname__}"),
+        )
+
+    def _assert_purpose_refused(self, func, call):
+        """Checks that ``call`` refuses each wrong purpose with TypeError
+        and the message "<func>: purpose must be a str, not " and then the
+        exact type given."""
+        prefix = f"{func}: purpose must be a str, not "
+        for index, (value, expected) in enumerate(self._wrong_purposes()):
+            with self.subTest(reader=func, case=index, expected=expected):
+                doc = dict(self._DOC, purpose=value)
+                with self.assertRaises(TypeError) as caught:
+                    call(doc)
+                self.assertEqual(str(caught.exception), prefix + expected)
+
+    def test_draft_doc_purpose_takes_only_an_exact_str(self):
+        """Checks that draft_doc_purpose reads an exact str purpose as
+        before (a whole sentence is kept, and a colon-terminated fragment
+        is dropped), reads an absent purpose as the generated line, and
+        refuses None, bytes, a list and a str subclass with TypeError and
+        the message "draft_doc_purpose: purpose must be a str, not " and
+        then the exact type given. Unchecked, a list failed as an
+        AttributeError on endswith and bytes as a TypeError about the
+        endswith argument, neither naming the field or the type it
+        needs."""
+        mod = _load_build()
+        self.assertEqual(
+            mod.draft_doc_purpose(dict(self._DOC, purpose="A purpose.")),
+            "A purpose.")
+        self.assertEqual(
+            mod.draft_doc_purpose(
+                dict(self._DOC, purpose="First sentence. A list of:")),
+            "First sentence.")
+        self.assertTrue(
+            mod.draft_doc_purpose(dict(self._DOC)).startswith("A guide in "))
+        self._assert_purpose_refused("draft_doc_purpose",
+                                     mod.draft_doc_purpose)
+
+    def test_draft_search_row_takes_only_an_exact_str(self):
+        """Checks that _draft_search_row carries an exact str purpose in
+        its search text as before, reads an absent purpose as empty, and
+        refuses None, bytes, a list and a str subclass with TypeError and
+        the message "_draft_search_row: purpose must be a str, not " and
+        then the exact type given. Unchecked, None was read as empty and
+        a str subclass as a str."""
+        mod = _load_build()
+        row = mod._draft_search_row(dict(self._DOC, purpose="Zebra Purpose."))
+        self.assertIn("zebra purpose.", row)
+        self.assertNotIn("zebra", mod._draft_search_row(dict(self._DOC)))
+        self._assert_purpose_refused("_draft_search_row",
+                                     mod._draft_search_row)
+
+    def test_draft_search_values_takes_only_an_exact_str(self):
+        """Checks that draft_search_values counts an exact str purpose as
+        before (one adopter row with a purpose is searched by purpose, and
+        one without is not), and refuses None, bytes, a list and a str
+        subclass with TypeError and the message "draft_search_values:
+        purpose must be a str, not " and then the exact type given, read
+        before any row is built. Unchecked, None was counted as no
+        purpose and a str subclass as a str."""
+        mod = _load_build()
+        stated = mod.draft_search_values(
+            [], [dict(self._DOC, purpose="A purpose.")])
+        self.assertIn("purpose", stated["SEARCH_PROMPT"])
+        unstated = mod.draft_search_values([], [dict(self._DOC)])
+        self.assertNotIn("purpose", unstated["SEARCH_PROMPT"])
+        self._assert_purpose_refused(
+            "draft_search_values",
+            lambda doc: mod.draft_search_values([], [doc]))
+
+    def test_adopter_purpose_takes_only_an_exact_str(self):
+        """Checks that _adopter_purpose reads an exact str as before
+        ("## Purpose" then "Lede." reads as "Lede.") and that None, bytes,
+        a list of lines and a str subclass are each refused with TypeError,
+        the message "_adopter_purpose: text must be a str, not " and then
+        the exact type given (module-qualified unless built in). Unchecked,
+        None failed as an AttributeError on splitlines, bytes as a TypeError
+        about a bytes-like object that named neither the argument nor the
+        type it needs, and a str subclass was read as a str."""
+        mod = _load_build()
+        self.assertEqual(mod._adopter_purpose("## Purpose\n\nLede.\n"),
+                         "Lede.")
+
+        class _Text(str):
+            pass
+
+        prefix = "_adopter_purpose: text must be a str, not "
+        cases = (
+            (None, "NoneType"),
+            (b"## Purpose\n\nLede.\n", "bytes"),
+            (["## Purpose", "", "Lede."], "list"),
+            (_Text("## Purpose\n\nLede.\n"),
+             f"{_Text.__module__}.{_Text.__qualname__}"),
+        )
+        for index, (value, expected) in enumerate(cases):
+            with self.subTest(case=index, expected=expected):
+                with self.assertRaises(TypeError) as caught:
+                    mod._adopter_purpose(value)
+                self.assertEqual(str(caught.exception), prefix + expected)
 
 
 class CorpusTextAndCommittedMapTests(unittest.TestCase):

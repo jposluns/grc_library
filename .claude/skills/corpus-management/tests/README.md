@@ -1,5 +1,19 @@
 # Linter regression tests
 
+**Document Title:** Linter regression tests\
+**Document Type:** Guide\
+**Version:** 1.0.2\
+**Date:** 2026-11-24\
+**Owner:** Governance Library Maintainer\
+**Approving Authority:** Governance Library Maintainer\
+**Related Documents:** [`CONTRIBUTING.md`](../../../../CONTRIBUTING.md)\
+**Classification:** Public\
+**Category:** Documentation\
+**Review Frequency:** Upon material change to the test workflow\
+**Repository Path:** [`.claude/skills/corpus-management/tests/README.md`](README.md)\
+**Confidentiality:** Public\
+**License:** CC BY-SA 4.0
+
 This directory contains regression tests for the audit-programme linters
 in [`.claude/skills/corpus-management/tools/`](../tools/). Each test:
 
@@ -398,3 +412,21 @@ filename satisfied an unrelated filter path, so the new trailing-window
 code was never exercised; the next build applied the weakened-copy
 mutation test to all four of its fixtures as the standing form of this
 rail.
+
+## Refreshing CLI inventory pins
+
+`ExplicitPathCliInventoryTests` in `test_linters.py` documents the `INVENTORY`
+policies and `DEPENDENCIES` pins. Review the changed files' argument handling and
+any new delegation before updating a pin. From the repository root, name only
+the reviewed paths:
+
+```sh
+python3 -I .claude/skills/corpus-management/tests/refresh_cli_inventory.py .claude/skills/corpus-management/tools/detect-collection-candidates.py
+```
+
+The helper updates existing rows with the inventory's pin algorithm, preserving
+policy labels. It refuses duplicate, noncanonical, missing, symlinked or unknown
+paths and mismatched rows before writing `test_linters.py`. It does not select
+files, add rows or perform the review. Inspect the resulting diff and run
+`ExplicitPathCliInventoryTests` after refreshing. New files and changed policies
+still require explicit inventory edits and review.
