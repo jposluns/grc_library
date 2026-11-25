@@ -25895,10 +25895,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         for name in ("git-hooks/pre-push", "pre-push-hook.py", "check-dirty-tree-push.py",
                      "git-hooks/pre-commit", "git-hooks/commit-msg",
                      "check-commit-on-main.py", "check-version-bump-commit.py",
+                     "check-version-date-commit.py", "aiqt_bootstrap.py", "aiqt_rules.py",
                      "check-staged-paths.py"):
             dest = self.root / ".claude/skills/corpus-management/tools" / name
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(SKILL_ROOT / "tools" / name, dest)
+        # The metadata checker verifies and imports the vendored corpus parser.
+        shutil.copytree(REPO_ROOT / ".claude/aiqt", self.root / ".claude/aiqt")
         version_guard = self.root / ".claude/hooks/block-unbumped-version-commit.py"
         version_guard.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(REPO_ROOT / ".claude/hooks/block-unbumped-version-commit.py", version_guard)
@@ -36347,7 +36350,8 @@ class AuditGateParityTests(LinterTestCase):
         nested = lambda text, by: "".join(" " * by + line + "\n" for line in text.splitlines())
         self._assert_yaml_edits_refused((
             ("P29 repo key", "has the key 'x'", (
-                (self._PC, "    hooks:\n" + metadata_hook, "    x:\n" + metadata_hook + "    hooks:\n"),)),
+                (self._PC, metadata_hook, ""),
+                (self._PC, "    hooks:\n", "    x:\n" + metadata_hook + "    hooks:\n"),)),
             ("P31b regen hook key", "is at column 8 below the key 'x' at column 8", (
                 (self._PC, "        types: [markdown]\n\n" + parity_hook,
                  "        types: [markdown]\n        x:\n" + nested(parity_hook, 2)),)),

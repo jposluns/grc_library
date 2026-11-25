@@ -22,7 +22,7 @@ import sys
 import tomllib
 
 sys.dont_write_bytecode = True
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.append(str(Path(__file__).resolve().parent))
 import aiqt_bootstrap  # noqa: E402,F401
 from aiqt_corpus import parse_metadata_block  # noqa: E402
 
