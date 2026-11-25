@@ -108,7 +108,9 @@ def _integration_self_test():
         repo = Path(base) / "clone with space" / "r"  # exercises the installer's path quoting
         (repo / ".claude" / "skills" / "corpus-management" / "tools" / "git-hooks").mkdir(parents=True)
         for rel in (".claude/skills/corpus-management/tools/check-commit-on-main.py", ".claude/skills/corpus-management/tools/install-git-hooks.sh",
-                    ".claude/skills/corpus-management/tools/git-hooks/pre-commit", ".claude/skills/corpus-management/tools/git-hooks/pre-push"):
+                    ".claude/skills/corpus-management/tools/git-hooks/pre-commit",
+                    ".claude/skills/corpus-management/tools/git-hooks/commit-msg",
+                    ".claude/skills/corpus-management/tools/check-version-bump-commit.py", ".claude/skills/corpus-management/tools/git-hooks/pre-push"):
             shutil.copy2(src / rel, repo / rel)
         # The staged-path boundary has its own explicit-scope tests. Give this
         # synthetic fixture a declaration while retaining the real checker.
@@ -159,14 +161,17 @@ def _integration_self_test():
         cp = run(["git", "commit", "-q", "-m", "worktree main"], cwd=linked)
         if cp.returncode == 0:
             failures.append("a commit on main in a linked worktree was not refused")
-        # An older checkout without the tracked hook file: the installed shim fails OPEN.
+        # An older checkout without the tracked dispatcher must refuse the commit.
         (repo / ".claude" / "skills" / "corpus-management" / "tools" / "git-hooks" / "pre-commit").rename(repo / "moved-pre-commit")
         (repo / "a.txt").write_text("3\n")
         run(["git", "add", "a.txt"])
         cp = run(["git", "commit", "-q", "-m", "no tracked hook"])
-        if cp.returncode != 0:
-            failures.append(f"the shim did not fail open without the tracked hook: {cp.stderr.strip()}")
+        if cp.returncode != 1 or "pre-commit: missing tracked dispatcher:" not in cp.stderr:
+            failures.append(f"the shim did not refuse the missing tracked dispatcher: {cp.stderr.strip()}")
         (repo / "moved-pre-commit").rename(repo / ".claude" / "skills" / "corpus-management" / "tools" / "git-hooks" / "pre-commit")
+        cp = run(["git", "commit", "-q", "-m", "restored tracked hook"])
+        if cp.returncode != 0:
+            failures.append(f"restoring the tracked dispatcher did not allow the commit: {cp.stderr.strip()}")
         # A tag named 'main' makes git's SHORT name for the branch 'heads/main'; the full ref is compared.
         must(["git", "worktree", "remove", "--force", str(linked)])  # frees 'main' for the switch
         sw = run(["git", "switch", "-q", "main"])
@@ -220,7 +225,7 @@ def _self_test():
     ]
     failures = [f"{name}: got {got!r}, want {want!r}" for name, got, want in cases if got != want]
     failures += _integration_self_test()
-    total = len(cases) + 7 + (4 if shutil.which("pre-commit") else 0)
+    total = len(cases) + 8 + (4 if shutil.which("pre-commit") else 0)
     for f in failures:
         print(f"  FAIL: {f}")
     print(f"self-test: {total - len(failures)}/{total} passed" if not failures

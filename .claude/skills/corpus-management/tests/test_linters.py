@@ -25889,12 +25889,20 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         # store and siblings survives it.
         parent = Path(self.tmp.name)
         siblings = ("private", "grc_library_private", "grc_library_ref", "grc_library_scratch")
-        # With a private store present the guard's install-git-hooks.sh
-        # --check requires the installed hook, so this clone installs it.
-        for name in ("git-hooks/pre-push", "pre-push-hook.py", "check-dirty-tree-push.py"):
+        # With a private store present the guard requires the installed hook.
+        # The installer also installs commit shims, so supply their tracked
+        # dispatchers and checkers for the fixture's later commit.
+        for name in ("git-hooks/pre-push", "pre-push-hook.py", "check-dirty-tree-push.py",
+                     "git-hooks/pre-commit", "git-hooks/commit-msg",
+                     "check-commit-on-main.py", "check-version-bump-commit.py",
+                     "check-staged-paths.py"):
             dest = self.root / ".claude/skills/corpus-management/tools" / name
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(SKILL_ROOT / "tools" / name, dest)
+        version_guard = self.root / ".claude/hooks/block-unbumped-version-commit.py"
+        version_guard.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(REPO_ROOT / ".claude/hooks/block-unbumped-version-commit.py", version_guard)
+        self.git("checkout", "-qb", "feature")
         self.move_base("Hook files")
         subprocess.run(["sh", ".claude/skills/corpus-management/tools/install-git-hooks.sh"], cwd=self.root, env=self.env,
                        check=True, capture_output=True, text=True, timeout=30)
@@ -25902,6 +25910,10 @@ class PrePushGuardFastPathTests(unittest.TestCase):
             (parent / name / "nested").mkdir(parents=True)
             (parent / name / "keep.md").write_text(name + "\n", encoding="utf-8")
             (parent / name / "nested" / "keep.md").write_text(name + "\n", encoding="utf-8")
+        subprocess.run([sys.executable, "-I",
+                        ".claude/skills/corpus-management/tools/check-staged-paths.py",
+                        "--declare", "--", "ai/policy-fixture.md"], cwd=self.root, env=self.env,
+                       check=True, capture_output=True, text=True, timeout=30)
         self.change("ai/policy-fixture.md")
         result, _ran = self.run_guard(GRC_STORE="../private")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -48402,7 +48414,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
     # Exact path, policy, mode, sha256. Update only after path-argument review.
     INVENTORY = """
         detect-collection-candidates.py NO_FS F d18a8090aa251bae2b14d4aeaf740fd96314cb2628f26c4f8f33f2f714acbb60
-        README.md DATA F 0c007099b38d9cecbec003002584ab1fb8b9ecaea2e2670ee310639da28ae641
+        README.md DATA F b399830ee2f99b101821e1428087cf0337d34ca9b5235d46762c38f84234932d
         adopt-bootstrap-ref.py OWN F ec19e2c45233ad02ca422349c0778a3c17463e6fc23fe9bf0591d822ac8d531c
         adopt-preflight-guard.py FIXED F 73ab980af0fa53c8a485af18b7bdaee1b7bfef218c37982593e30c66d7f85f66
         aiqt_bootstrap.py PASSIVE F 1f617d3d14213da6e225dabc21c49c253a3738531304e5c7924e87878c1d2206
@@ -48429,17 +48441,17 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-changelog-dash-on-pr.py NO_FS F 02f7a615c905ca17326fbfcf9a7181f2f1d36092124ee0d3fe65b3b2d60c0f22
         check-changelog-length-on-pr.py NO_FS F e1a3cffc6031c81d63233a67f4bfba4f77f1f4b99715175eea013268cb5c1d28
         check-changelog-on-pr.py NO_FS F ee66330940fa8c41c22d18d7a22a21daf1fb3865ad62556b482d7a96e1faf32d
-        check-changelog-preflight-commit.py NO_FS F 006f13afc1ee759759f64bc0b4dbca284bdf36c32da75ee29208d479d101a04d
+        check-changelog-preflight-commit.py NO_FS F df66aa7c4b8771828fbd54010dba3c0b24ee3a40ef7aa9ec326f10a4074bd7a7
         check-class-completeness.py NO_FS F dd060e4b9474d3ad7d65d720224294fae4efff2310d49b75384c821c021ccd00
         check-claude-md-size.py NO_FS F 3bfd6751e841ef19f398ed3bf3ce6223c3ac91383494728a4e3330c7dd872fd4
         check-clause-preservation.py OWN F 96d156bb17eb92ea45d096dae64345313ba8962de62b38a413a988aa7f8c8737
         check-clean-language-upstream.py NO_FS F 68e539ea645383d29ec9ded3cb44012af2afcfc78f820c172070a8c492665159
-        check-commit-on-main.py NO_FS F feb5ccf06a98dcc8841c454d70301db0cfdfac60e1eb030ee67c12e6798bea9b
+        check-commit-on-main.py NO_FS F 9bb408de0980e1efd4bd77383110d246d57a5a8a9246857ab4da2c531484b703
         check-date-cobump-on-pr.py NO_FS F 302cb52aff2cc9b7a4c2a9c5f8c3646d6270bd4932dea572dcbe08e762292cb9
         check-dirty-tree-push.py TRANSPORT F 55222e921472f5297afb9c5f98e0f5efb8f5c8d0adcca8dbe84f30012ac0f8fb
-        check-generated-commit.py NO_FS F 65baf1942c747b96382152a274713635f7c9787a3b0a83ea9d20f4dcd9e9d2d2
+        check-generated-commit.py NO_FS F 05dd2433e9b35e03ec41f55d0e05a7df69261fc5fd9a7adbecf47bb4378d6dd2
         check-narrative-corpus-mixed-diff-on-pr.py NO_FS F 3260adf3c9d26de4dd19d6414c39d893bbe78ba336c96e31eefccbb4cae9e7da
-        check-portability.sh FIXED F 53ce8fd609c5f99cfff314dda4641f02d2a99136cba2f0e2b1d76c8e612c1538
+        check-portability.sh FIXED F 66f7611fc40ae9bf662937e748e3776ec06c13d0bc17fa800fb21e89fe156626
         check-pr-attribution.py OWN F a926f479d86540bdb68ef86bb9d906e39373e9c85e168265e5e5052587809949
         check-retired-section-orphan-on-pr.py NO_FS F 0d710f974f62cd7b1cf9e80d7b8b03ce51f05784c34e6ead05db22f157d5428b
         check-review-cadence.py ROOT F bcd4b92ee9be87833a2905a2f9aea484fec84520c85ff1aa07e85aff956b0cc1
@@ -48447,7 +48459,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-stranded-control-code-on-pr.py NO_FS F d0631b2fca128c3457f87029e56a252e20e4be701148cc2e171c2d6cbe051b37
         check-todo-floor-monotonic-on-pr.py NO_FS F 3d8a8e64f47f3055e85fff8a27fd741b8e84ff6a6c29046576c3331cf2889bd3
         check-todo-rotation-on-pr.py NO_FS F 0e97e2267ce265155213bb0e37fe38524217929d395b870aa7dc0dbac500fb5d
-        check-version-bump-commit.py MESSAGE F 265beffdcea7d3cf64cc6aabc3cd7532177816baef375b415245d44c18f081eb
+        check-version-bump-commit.py MESSAGE F 4acaf245762e1acb3b90954d04b515bce1a904e7ee7f457292990956b3177863
         check-version-bump-on-pr.py NO_FS F c0aaefac08a658834846417e1049dd17cdec4caae3224914fcb64c863a8b2ad1
         citation_publishers.py PASSIVE F 8f367f75830d8b235e1019615b4e876c0ee562c6c5819e4bf4118325f1bb5dff
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
@@ -48456,7 +48468,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         git-hooks/pre-commit FIXED F ad203769cf056103a62ac512b72552fda940e2c298725778f7849e5f62884139
         git-hooks/pre-push TRANSPORT F a7e4da49d2f18e10ab2f88f31bf5264485486bd206f77aed0ed68c63bbb59a33
         historical_citation_register.py PASSIVE F ffa6d49a55cae8e0945fb64c79fc8318f10630064311772ee367d2a0e6c2cb66
-        install-git-hooks.sh FIXED F ace79168f10f3f52ebe45007fc6438a9631b61704a1efec111fdfaaf2f4b7b4b
+        install-git-hooks.sh FIXED F f6c4b03215c645b8123f143e50de0e02a93b0eb84d62358a07191da919d46a85
         iso27001_reference.py PASSIVE F 01119eacf328d0bfe36ae40f9800a6c7fe37ef895bca70b219341ac07aec53e3
         iso_27001_reference.py PASSIVE F e8789346ac57b557de2f5c93c7fc2b31651b49be25bc8180e8bdc84310b21418
         lint-acronym-consistency.py CWD F b5ef8c043946b895b5b8be67a58e7067ce0a4ce36737174266511ca504353055

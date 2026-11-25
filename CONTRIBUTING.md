@@ -2,7 +2,7 @@
 
 **Document Title:** Contributing to the GRC Documentation Library\
 **Document Type:** Guideline\
-**Version:** 1.3.0\
+**Version:** 1.3.1\
 **Date:** 2026-11-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -69,6 +69,7 @@ The most common net-new artefact is an overlay for a sector or jurisdiction the 
    ```
 
    Also run `.claude/skills/corpus-management/tools/install-git-hooks.sh` once to install the git-native pre-push backstop: it refuses a `git push` with a dirty tracked tree when you are pushing your current HEAD (override `PRE_PUSH_GUARD_ALLOW_DIRTY=1`).
+   The installed pre-commit and commit-msg shims refuse commits if their tracked dispatchers are missing. Rerun the installer to upgrade unmodified older shims; if the pre-commit framework is installed, run `pre-commit uninstall`, then the installer, then `pre-commit install`. Restore missing tracked dispatchers before committing.
 
    The native pre-commit hook also requires an explicit staged-path declaration before every commit. From the repository root, run `python3 -I .claude/skills/corpus-management/tools/check-staged-paths.py --declare -- path/to/file other/file` with the complete intended file set. Paths are literal repository-relative names, even when the script is invoked from a subdirectory. Declare again after HEAD changes or the intended scope changes; a missing, stale or mismatched declaration refuses the commit. See [declaration setup and limits](.claude/skills/corpus-management/docs/guide-command-text-hooks.md).
 

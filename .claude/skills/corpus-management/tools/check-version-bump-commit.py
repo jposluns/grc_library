@@ -363,12 +363,16 @@ def _integration_self_test():
         cp = run(["git", "commit", "-q", "-m", "readme bumped"])
         if cp.returncode != 0:
             failures.append(f"a README body change with its README Version bumped was refused: {cp.stderr.strip()}")
-        # (e) a checkout OLDER than the tracked dispatcher still runs commit-msg-local.
+        # (e) a missing dispatcher refuses after running commit-msg-local.
         (repo / ".claude" / "skills" / "corpus-management" / "tools" / "git-hooks" / "commit-msg").rename(repo / "moved-commit-msg")
         (repo / "f.txt").write_text("x\n")
         must(["git", "add", "f.txt"])
-        must(["git", "commit", "-q", "-m", "older checkout"])
-        if "local hook ran" not in must(["git", "log", "-1", "--format=%B"]).stdout:
+        cp = run(["git", "commit", "-q", "-m", "older checkout"])
+        if cp.returncode != 1 or "commit-msg: missing tracked dispatcher:" not in cp.stderr:
+            failures.append(f"a missing commit-msg dispatcher did not refuse: {cp.stderr.strip()}")
+        message = Path(must(["git", "rev-parse", "--git-path", "COMMIT_EDITMSG"]).stdout.strip())
+        message = message if message.is_absolute() else repo / message
+        if message.read_text() != "older checkout\nlocal hook ran\n":
             failures.append("commit-msg-local was skipped in a checkout without the tracked dispatcher")
     return failures
 
@@ -416,7 +420,7 @@ def _self_test():
     failures = [f"{n}: got {g!r}, want {w!r}" for n, g, w in cases if g != w]
     integ = _integration_self_test()
     failures += integ
-    total = len(cases) + 19
+    total = len(cases) + 20
     for f in failures:
         print(f"  FAIL: {f}")
     print(f"self-test: {total - len(failures)}/{total} passed" if not failures

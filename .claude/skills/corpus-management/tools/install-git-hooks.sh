@@ -15,9 +15,9 @@
 # (or when git config cannot read it).
 #
 # KNOWN LIMITATION: the check-then-link/compare
-# publish path has a residual TOCTOU window against a CONCURRENT adversarial
+# publish and upgrade paths have a residual TOCTOU window against a CONCURRENT adversarial
 # writer to the shared hooks directory (e.g. a symlink swapped in between the
-# existence check and the ln/cmp). This does NOT enable a dirty-push bypass
+# existence check and the ln/cmp/mv). This does NOT enable a dirty-push bypass
 # (the checker still runs on the real tree); it needs an attacker who can
 # already write .git/hooks, which is a stronger position than this race. A
 # race-safe redesign (exact-destination link that rejects an existing dest;
@@ -153,13 +153,26 @@ if [ "${1:-}" = --check ]; then
   exit 1
 fi
 
-# The pre-commit dispatcher FAILS OPEN when the active checkout has no tracked
-# pre-commit file (a branch older than the hook), so it never breaks a commit there.
-# The tracked file runs each pre-commit check in turn (commit-on-main, then the generated-output
-# check, then the CHANGELOG preflight, then declared staged paths), so a new check is wired there, never here: an installed
-# dispatcher is compared byte for byte with this text, and any edit to it would make every existing
-# installation foreign.
+# Installed commit shims refuse a missing tracked dispatcher, including on older branches.
+# Wire new checks in the tracked dispatchers, never in these installed shims.
+# Installed shims are compared byte for byte; editing an emitter makes existing
+# installations foreign unless their exact previous contents are retained for upgrade.
+# Keep the previous emitters unchanged solely for exact-content upgrade recognition.
 emit_pre_commit() {
+  cat <<'HOOK'
+#!/bin/sh
+# Managed by .claude/skills/corpus-management/tools/install-git-hooks.sh: commit-on-main pre-commit dispatcher v2.
+set -eu
+root="$(git rev-parse --show-toplevel)"
+if [ ! -f "$root/.claude/skills/corpus-management/tools/git-hooks/pre-commit" ]; then
+  echo "pre-commit: missing tracked dispatcher: $root/.claude/skills/corpus-management/tools/git-hooks/pre-commit; restore it before committing." >&2
+  exit 1
+fi
+exec sh "$root/.claude/skills/corpus-management/tools/git-hooks/pre-commit" "$@"
+HOOK
+}
+
+emit_pre_commit_v1() {
   cat <<'HOOK'
 #!/bin/sh
 # Managed by .claude/skills/corpus-management/tools/install-git-hooks.sh: commit-on-main pre-commit dispatcher v1.
@@ -185,9 +198,24 @@ trap cleanup 0
 trap 'exit 1' HUP INT TERM
 
 # The commit-msg dispatcher runs a LOCAL (unmanaged) hook kept as commit-msg-local FIRST, in every
-# checkout (so a branch older than the tracked dispatcher still runs it), then FAILS OPEN for the
-# tracked check when the active checkout predates it.
+# checkout, then refuses if the tracked dispatcher is missing.
 emit_commit_msg() {
+  cat <<'HOOK'
+#!/bin/sh
+# Managed by .claude/skills/corpus-management/tools/install-git-hooks.sh: version-bump commit-msg dispatcher v2.
+set -eu
+hooks="$(git rev-parse --git-path hooks)"
+if [ -x "$hooks/commit-msg-local" ]; then "$hooks/commit-msg-local" "$@"; fi
+root="$(git rev-parse --show-toplevel)"
+if [ ! -f "$root/.claude/skills/corpus-management/tools/git-hooks/commit-msg" ]; then
+  echo "commit-msg: missing tracked dispatcher: $root/.claude/skills/corpus-management/tools/git-hooks/commit-msg; restore it before committing." >&2
+  exit 1
+fi
+exec sh "$root/.claude/skills/corpus-management/tools/git-hooks/commit-msg" "$@"
+HOOK
+}
+
+emit_commit_msg_v1() {
   cat <<'HOOK'
 #!/bin/sh
 # Managed by .claude/skills/corpus-management/tools/install-git-hooks.sh: version-bump commit-msg dispatcher v1.
@@ -216,7 +244,14 @@ install_one() {
     echo "install-git-hooks: already installed ($hook)."
     return 0
   fi
-  if [ -e "$hook" ] || [ -L "$hook" ]; then
+  upgrade=false
+  case "$name" in
+    pre-commit|commit-msg)
+      if [ ! -L "$hook" ] && [ -f "$hook" ] && "${emit}_v1" | cmp -s - "$hook"; then
+        upgrade=true
+      fi ;;
+  esac
+  if [ "$upgrade" = false ] && { [ -e "$hook" ] || [ -L "$hook" ]; }; then
     echo "install-git-hooks: refusing to overwrite the existing hook at $hook." >&2
     echo "  Remove it or integrate the managed $name check manually, then re-run." >&2
     if [ "$name" = "commit-msg" ]; then
@@ -227,7 +262,12 @@ install_one() {
       echo "  If it is the pre-commit framework's hook: run 'pre-commit uninstall', re-run this" >&2
       echo "  installer, then 'pre-commit install' (the framework chains the managed hook as" >&2
       echo "  pre-commit.legacy)." >&2
-      if [ -f "$legacy" ] && "$emit" | cmp -s - "$legacy"; then
+      if [ ! -L "$legacy" ] && [ -f "$legacy" ] &&
+         { "$emit" | cmp -s - "$legacy" || "${emit}_v1" | cmp -s - "$legacy"; }; then
+        if "${emit}_v1" | cmp -s - "$legacy"; then
+          echo "  NOTE: the managed hook at $legacy is stale (v1) and fails open when its tracked dispatcher is missing." >&2
+          echo "  Use the uninstall, installer, reinstall sequence above to upgrade it." >&2
+        fi
         # File contents cannot prove the active hook RUNS .legacy (a comment is not
         # behaviour), so the chain is never reported as installed. Verify it by behaviour.
         echo "  NOTE: a managed hook is present at $legacy, but whether the active hook runs it" >&2
@@ -247,6 +287,24 @@ install_one() {
     echo "install-git-hooks: could not prepare the $name hook." >&2
     rm -f -- "$tmp" || leftover="$leftover
 $tmp"; tmp=""; return 1
+  fi
+  if [ "$upgrade" = true ]; then
+    # Recheck the entire old shim immediately before atomic replacement.
+    # As with initial publication, a concurrent hooks-dir writer is out of scope.
+    if [ -L "$hook" ] || [ ! -f "$hook" ] ||
+       ! "${emit}_v1" | cmp -s - "$hook"; then
+      echo "install-git-hooks: $hook changed during upgrade; refusing." >&2
+      rm -f -- "$tmp" || leftover="$leftover
+$tmp"; tmp=""; return 1
+    fi
+    if ! mv -f "$tmp" "$hook"; then
+      echo "install-git-hooks: could not upgrade $hook." >&2
+      rm -f -- "$tmp" || leftover="$leftover
+$tmp"; tmp=""; return 1
+    fi
+    tmp=""
+    echo "upgraded: $hook (missing tracked dispatcher now refuses commits)"
+    return 0
   fi
   if ! ln "$tmp" "$hook"; then
     echo "install-git-hooks: could not install $hook without overwriting an existing hook." >&2
