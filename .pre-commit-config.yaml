@@ -17,6 +17,20 @@
 repos:
   - repo: local
     hooks:
+      - id: lint-document-date-staleness
+        name: Document Date staleness audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-document-date-staleness.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
+      - id: lint-version-bump-recency
+        name: Corpus version-bump-recency audit
+        entry: python3 .claude/skills/corpus-management/tools/lint-version-bump-recency.py
+        language: system
+        pass_filenames: false
+        types: [markdown]
+
       - id: lint-metadata
         name: Metadata audit
         entry: python3 .claude/skills/corpus-management/tools/lint-metadata.py
@@ -228,13 +242,6 @@ repos:
         pass_filenames: false
         types: [markdown]
 
-      - id: lint-document-date-staleness
-        name: Document Date staleness audit
-        entry: python3 .claude/skills/corpus-management/tools/lint-document-date-staleness.py
-        language: system
-        pass_filenames: false
-        types: [markdown]
-
       - id: taxonomy-in-sync
         name: Machine-readable taxonomy in sync
         entry: python3 .claude/skills/corpus-management/tools/build-taxonomy.py --check
@@ -290,13 +297,6 @@ repos:
         language: system
         pass_filenames: false
         types_or: [markdown, python, shell]
-
-      - id: lint-version-bump-recency
-        name: Corpus version-bump-recency audit
-        entry: python3 .claude/skills/corpus-management/tools/lint-version-bump-recency.py
-        language: system
-        pass_filenames: false
-        types: [markdown]
 
       - id: lint-collection-enumeration-consistency
         name: Collection-enumeration consistency audit

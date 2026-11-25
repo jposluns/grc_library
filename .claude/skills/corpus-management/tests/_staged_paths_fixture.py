@@ -20,6 +20,15 @@ def install(src, repo):
     shutil.copy2(Path(__file__), target / "_declare_staged_fixture.py")
     hook = target / "git-hooks/pre-commit"
     text = hook.read_text()
+    # These fixtures test older policies, including metadata edits that the
+    # pairing policy now rejects independently. Keep their original assertions
+    # and chain intact; test_commit_metadata.py exercises the added dispatcher
+    # step separately, including failure and missing-checker propagation.
+    pairing = ('python3 -I "$root/.claude/skills/corpus-management/tools/'
+               'check-version-date-commit.py" --pre-commit || exit $?\n')
+    if text.count(pairing) != 1:
+        raise AssertionError("Version-Date fixture hook anchor changed")
+    text = text.replace(pairing, "")
     anchor = "# Mandatory: a missing checker or declaration refuses, including an empty index."
     if text.count(anchor) != 1:
         raise AssertionError("staged-path fixture hook anchor changed")

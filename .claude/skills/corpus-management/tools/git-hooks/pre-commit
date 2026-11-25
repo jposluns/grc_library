@@ -1,17 +1,22 @@
 #!/bin/sh
 # git-native pre-commit hook: refuse a commit on a grc_library main/master checkout,
-# then a commit that changes a Version or Date line or a generated output while the staged .claude/skills/corpus-management/data/taxonomy.yml,
+# then invalid staged Version-Date edits, then a commit that changes a Version or Date line
+# or a generated output while the staged .claude/skills/corpus-management/data/taxonomy.yml,
 # governance/portal.md or governance/maturity-scorecard.md is out of sync, then a commit that stages
 # .working/CHANGELOG.md while .claude/skills/corpus-management/tools/preflight-changelog.py --staged fails.
 #
 # A persistent shim installed by .claude/skills/corpus-management/tools/install-git-hooks.sh in the shared hooks dir resolves the
 # active checkout and execs THIS tracked file at commit time, which delegates to the tested Python
-# implementations in .claude/skills/corpus-management/tools/check-commit-on-main.py, .claude/skills/corpus-management/tools/check-generated-commit.py and
+# implementations in .claude/skills/corpus-management/tools/check-commit-on-main.py,
+# .claude/skills/corpus-management/tools/check-version-date-commit.py,
+# .claude/skills/corpus-management/tools/check-generated-commit.py and
 # .claude/skills/corpus-management/tools/check-changelog-preflight-commit.py.
 # Finally, require an exact declared staged-path set, independent of staging route.
 # NOT a pre-commit-framework hook.
 root="$(git rev-parse --show-toplevel)" || exit $?
 python3 "$root/.claude/skills/corpus-management/tools/check-commit-on-main.py" --pre-commit || exit $?
+# Mandatory: a missing checker or unreadable staged document refuses.
+python3 -I "$root/.claude/skills/corpus-management/tools/check-version-date-commit.py" --pre-commit || exit $?
 # FAILS OPEN for a tree that carries this shim without the generated-output check (the commit-on-main,
 # Version-bump and CHANGELOG self-test fixtures copy the shim without it).
 if [ -f "$root/.claude/skills/corpus-management/tools/check-generated-commit.py" ]; then

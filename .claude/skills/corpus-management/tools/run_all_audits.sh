@@ -5,7 +5,8 @@
 # Single-command audit runner. Executes every section 6 linter and
 # generator-check in section 6 order; .github/workflows/quality.yml runs
 # only the section 4 CI subset of them. Exits non-zero on the first failure (FAIL_FAST
-# mode) or aggregates all failures (default).
+# mode) or aggregates later failures (default). The first two freshness gates
+# always stop the sweep immediately on failure.
 #
 # Usage:
 #   .claude/skills/corpus-management/tools/run_all_audits.sh            # run all gates, aggregate failures
@@ -118,9 +119,9 @@ run_gate() {
         echo "${output}" | sed 's/^/      /'
         FAILED=$((FAILED + 1))
         FAILED_LIST+=("${name}")
-        if [ "${FAIL_FAST}" = "1" ]; then
+        if [ "${FRESHNESS_PREFLIGHT:-0}" = "1" ] || [ "${FAIL_FAST}" = "1" ]; then
             echo ""
-            echo "FAIL_FAST=1: stopping on first failure."
+            echo "Stopping on first failure (freshness preflight or FAIL_FAST=1)."
             exit ${rc}
         fi
     fi
@@ -129,6 +130,12 @@ run_gate() {
 echo "Running full audit programme (${REPO_ROOT})"
 [ -n "${GATE_INDEX}" ] || echo "NOTE: the gate inventory could not be read, so no canonical gate number is shown"
 echo ""
+
+# Freshness gates always stop on failure, even when later gates aggregate.
+FRESHNESS_PREFLIGHT=1
+run_gate "Document Date staleness audit"                 python3 .claude/skills/corpus-management/tools/lint-document-date-staleness.py
+run_gate "Corpus version-bump-recency audit"             python3 .claude/skills/corpus-management/tools/lint-version-bump-recency.py
+FRESHNESS_PREFLIGHT=0
 
 # ----------------------------------------------------------------------
 # Markdown linters (sub-group of the corpus gates). Order follows section 6;
@@ -165,7 +172,6 @@ run_gate "Citation verification freshness audit"         python3 .claude/skills/
 run_gate "Tooling provenance freshness audit"            python3 .claude/skills/corpus-management/tools/lint-tooling-provenance-freshness.py
 run_gate "Version-date consistency audit"                python3 .claude/skills/corpus-management/tools/lint-version-date-consistency.py
 run_gate "Metadata-block line-break audit"               python3 .claude/skills/corpus-management/tools/lint-metadata-line-breaks.py
-run_gate "Document Date staleness audit"                 python3 .claude/skills/corpus-management/tools/lint-document-date-staleness.py
 
 # ----------------------------------------------------------------------
 # Generator-output drift gates (the first 2 of 7 generator --check gates).
@@ -209,7 +215,6 @@ run_gate "Linter regression test suite"                  python3 .claude/skills/
 run_gate "Claude-rules local-copy sync audit"            python3 .claude/skills/corpus-management/tools/lint-claude-rules-sync.py
 run_gate "Section placement audit"                       python3 .claude/skills/corpus-management/tools/lint-section-placement.py
 run_gate "Cross-file gate-count consistency audit"       python3 .claude/skills/corpus-management/tools/lint-gate-count-consistency.py
-run_gate "Corpus version-bump-recency audit"             python3 .claude/skills/corpus-management/tools/lint-version-bump-recency.py
 run_gate "Collection-enumeration consistency audit"      python3 .claude/skills/corpus-management/tools/lint-collection-enumeration-consistency.py
 run_gate "TODO staleness audit"                          python3 .claude/skills/corpus-management/tools/lint-todo-staleness.py
 run_gate "Listing-surface completeness audit"            python3 .claude/skills/corpus-management/tools/lint-listing-surface-completeness.py
