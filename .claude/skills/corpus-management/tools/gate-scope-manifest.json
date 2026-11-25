@@ -72,6 +72,7 @@
       "check-claude-md-size.py",
       "check-commit-on-main.py",
       "check-version-bump-commit.py",
+      "check-version-date-commit.py",
       "check-date-cobump-on-pr.py",
       "check-dirty-tree-push.py",
       "check-generated-commit.py",

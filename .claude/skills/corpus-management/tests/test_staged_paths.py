@@ -34,6 +34,9 @@ class DeclaredStagedPathsTests(unittest.TestCase):
             target = self.repo / rel
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / rel, target)
+        for name in ("check-version-date-commit.py", "aiqt_bootstrap.py", "aiqt_rules.py"):
+            shutil.copy2(ROOT / TOOLS / name, self.repo / TOOLS / name)
+        shutil.copytree(ROOT / ".claude/aiqt", self.repo / ".claude/aiqt")
         spec = importlib.util.spec_from_file_location("staged_paths", self.repo / CHECK)
         self.mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.mod)
@@ -180,12 +183,14 @@ class DeclaredStagedPathsTests(unittest.TestCase):
 
     def test_literal_names_and_subdirectory_declaration(self):
         paths = ["space name", "line\nbreak", "tab\tname", 'quote"name',
-                 "café", "-dash", ":(glob)*", "dir/child", os.fsdecode(b"byte-\xff")]
+                 "café", "-dash", ":(glob)*", "dir/child", os.fsdecode(b"byte-\xff"),
+                 os.fsdecode(b"byte-\xff.txt"), os.fsdecode(b"byte-\xff.md")]
         for path in paths:
             self.write(path)
         self.git("--literal-pathspecs", "add", "--", *paths)
         self.declare(*paths, cwd=self.repo / "dir")
         self.check(0)
+        self.check(0, hook=True)
         self.declare("dir")
         self.check(1, "staged paths differ")
         self.declare("*")

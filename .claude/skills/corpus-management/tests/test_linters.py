@@ -25895,10 +25895,13 @@ class PrePushGuardFastPathTests(unittest.TestCase):
         for name in ("git-hooks/pre-push", "pre-push-hook.py", "check-dirty-tree-push.py",
                      "git-hooks/pre-commit", "git-hooks/commit-msg",
                      "check-commit-on-main.py", "check-version-bump-commit.py",
+                     "check-version-date-commit.py", "aiqt_bootstrap.py", "aiqt_rules.py",
                      "check-staged-paths.py"):
             dest = self.root / ".claude/skills/corpus-management/tools" / name
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(SKILL_ROOT / "tools" / name, dest)
+        # The metadata checker verifies and imports the vendored corpus parser.
+        shutil.copytree(REPO_ROOT / ".claude/aiqt", self.root / ".claude/aiqt")
         version_guard = self.root / ".claude/hooks/block-unbumped-version-commit.py"
         version_guard.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(REPO_ROOT / ".claude/hooks/block-unbumped-version-commit.py", version_guard)
@@ -36347,7 +36350,8 @@ class AuditGateParityTests(LinterTestCase):
         nested = lambda text, by: "".join(" " * by + line + "\n" for line in text.splitlines())
         self._assert_yaml_edits_refused((
             ("P29 repo key", "has the key 'x'", (
-                (self._PC, "    hooks:\n" + metadata_hook, "    x:\n" + metadata_hook + "    hooks:\n"),)),
+                (self._PC, metadata_hook, ""),
+                (self._PC, "    hooks:\n", "    x:\n" + metadata_hook + "    hooks:\n"),)),
             ("P31b regen hook key", "is at column 8 below the key 'x' at column 8", (
                 (self._PC, "        types: [markdown]\n\n" + parity_hook,
                  "        types: [markdown]\n        x:\n" + nested(parity_hook, 2)),)),
@@ -48459,13 +48463,14 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-stranded-control-code-on-pr.py NO_FS F d0631b2fca128c3457f87029e56a252e20e4be701148cc2e171c2d6cbe051b37
         check-todo-floor-monotonic-on-pr.py NO_FS F 3d8a8e64f47f3055e85fff8a27fd741b8e84ff6a6c29046576c3331cf2889bd3
         check-todo-rotation-on-pr.py NO_FS F 0e97e2267ce265155213bb0e37fe38524217929d395b870aa7dc0dbac500fb5d
+        check-version-date-commit.py NO_FS F 55791101ae3a433ba3bb6e23a859983112c78d3a0e5e851fae8a6cd51db9e596
         check-version-bump-commit.py MESSAGE F 4acaf245762e1acb3b90954d04b515bce1a904e7ee7f457292990956b3177863
         check-version-bump-on-pr.py NO_FS F c0aaefac08a658834846417e1049dd17cdec4caae3224914fcb64c863a8b2ad1
         citation_publishers.py PASSIVE F 8f367f75830d8b235e1019615b4e876c0ee562c6c5819e4bf4118325f1bb5dff
         cobit_iso31000_reference.py PASSIVE F 396aa674262ec1a794c27adb7ce50f8b2adbfe863eec66e7845a45a07fbd2c61
-        gate-scope-manifest.json DATA F 908091a302fbd9c8d16994ece2792e4b81fbe2522b598a8a198379cf9f6a3ece
+        gate-scope-manifest.json DATA F 07d7bc133eabbffa5faba9a7136e2e4cde7fa9567357f177f8fa5ebd4292629a
         git-hooks/commit-msg MESSAGE F 64510e0d473663d37e6416287e8edce7b4043619e64fea8c5cb2a82200a5ab97
-        git-hooks/pre-commit FIXED F ad203769cf056103a62ac512b72552fda940e2c298725778f7849e5f62884139
+        git-hooks/pre-commit FIXED F 2e0764cdda683815ee41c7cc762d6834137ff6fc21c7e03e6a18cef65960a1ce
         git-hooks/pre-push TRANSPORT F a7e4da49d2f18e10ab2f88f31bf5264485486bd206f77aed0ed68c63bbb59a33
         historical_citation_register.py PASSIVE F ffa6d49a55cae8e0945fb64c79fc8318f10630064311772ee367d2a0e6c2cb66
         install-git-hooks.sh FIXED F f6c4b03215c645b8123f143e50de0e02a93b0eb84d62358a07191da919d46a85
@@ -48574,7 +48579,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         run-linter-regression.py FIXED F 4975b199210338878c418be2f96717dab8a1df9f58bb33a36dfe5e50e1f0b2fd
         run-pr-time-checks.sh FIXED F 1c07008870b9cf5b7fe0febe7bbd05c38678701d9ff9bf010350cc0fd440e372
         run-shell-stubbed.py NO_FS F 38d59f2282a5706ea75fb9c9b109aa3e3a61fd45203def3f7fda5367fcbcb415
-        run_all_audits.sh FIXED F df3c1257479d88a14c366b7118a209354889c5df8446747b7b3f07a83b1a4447
+        run_all_audits.sh FIXED F ea694f8056b43e6361f4136a570af3b28be017c117640127e280d5f71632c3f4
         safe_fs.py PASSIVE F 13c29f1625ffc04ba289a42a2ba241e2d68a77c9420b114f2a96e58c4b5ad35a
         scan-publication-instruction-content.py OWN F 62fd62e2345b14ae59e33db7ef62cf131bdbdb9eb2f75cc3f5bab3391cbdd17f
         skill-verdict-fields.json DATA F 3a9c5b89ed3acc1a7bdbda02b5630379c1ef016fc58b34e4338a485ad3fd4cb8

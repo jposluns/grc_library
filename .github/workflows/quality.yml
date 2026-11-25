@@ -16,7 +16,9 @@ jobs:
   # local server, which posts the local-quality commit status that merge
   # requires; the scheduled full sweep stays in nightly-sweep.yml. Gate 35
   # checks that the steps below equal the subset exactly and that the runner
-  # and pre-commit still hold every gate.
+  # and pre-commit still hold every gate. The full runner starts with the two
+  # freshness gates, which are outside this CI subset. The staged Version-Date
+  # pairing check runs only in the git-native pre-commit dispatcher.
   lint:
     name: Lint markdown corpus
     runs-on: ubuntu-latest
