@@ -48463,7 +48463,7 @@ class ExplicitPathCliInventoryTests(unittest.TestCase):
         check-stranded-control-code-on-pr.py NO_FS F d0631b2fca128c3457f87029e56a252e20e4be701148cc2e171c2d6cbe051b37
         check-todo-floor-monotonic-on-pr.py NO_FS F 3d8a8e64f47f3055e85fff8a27fd741b8e84ff6a6c29046576c3331cf2889bd3
         check-todo-rotation-on-pr.py NO_FS F 0e97e2267ce265155213bb0e37fe38524217929d395b870aa7dc0dbac500fb5d
-        check-version-date-commit.py NO_FS F cbf4fdae9320aececf43c36fcf5ff714bda498d07e93cdf9dc6ee68b96ad4581
+        check-version-date-commit.py NO_FS F 55791101ae3a433ba3bb6e23a859983112c78d3a0e5e851fae8a6cd51db9e596
         check-version-bump-commit.py MESSAGE F 4acaf245762e1acb3b90954d04b515bce1a904e7ee7f457292990956b3177863
         check-version-bump-on-pr.py NO_FS F c0aaefac08a658834846417e1049dd17cdec4caae3224914fcb64c863a8b2ad1
         citation_publishers.py PASSIVE F 8f367f75830d8b235e1019615b4e876c0ee562c6c5819e4bf4118325f1bb5dff
