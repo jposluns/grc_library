@@ -18,10 +18,11 @@
 # rendered rules with aiqt_rules.py --write. Never hand-edit the vendored files.
 #
 # The pinned bytes are the unreleased Apache-2.0 upstream commit 37ef243c, so
-# release-version records "unreleased". The vendored manifest's own 1.0.5
-# label is upstream's, not a published release. Per owner decisions D-2438 and
-# D-2445 this pin stays on that commit until an Apache-licensed AIQT release
-# ships (P-1.120).
+# release-version records "unreleased". The vendored manifest carries
+# upstream's 1.0.5 label, but these pinned bytes are the unreleased Apache-2.0
+# commit 37ef243c, not the published v1.0.5 release (c5d77b0, Elastic 2.0).
+# Per owner decisions D-2438 and D-2445 this pin stays on that commit until an
+# Apache-licensed AIQT release ships (P-1.120).
 
 schema-version = 1
 
