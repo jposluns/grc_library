@@ -83877,10 +83877,10 @@ class ClausePreservationTests(unittest.TestCase):
     def test_mutant_starts_with_shallow_tmpdir(self):
         from unittest import mock
 
-        # Start from the runner's own temp root, with no fixture levels. The
-        # startup check reproduces the shallow-TMPDIR IndexError only when that
-        # root is itself shallow, such as /tmp; under a deep root the layout
-        # checks below catch a regression of either helper.
+        # Start from the runner's own temp root, with no fixture levels. Under
+        # any temp root the layout checks below catch a regression of either
+        # helper before the tool starts; the --help run confirms the copy
+        # starts at that layout.
         temp_root = tempfile.gettempdir()
         with tempfile.TemporaryDirectory(prefix="clause-preservation-shallow-",
                                          dir=temp_root) as tmp:
