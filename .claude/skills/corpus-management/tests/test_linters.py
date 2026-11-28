@@ -83877,10 +83877,7 @@ class ClausePreservationTests(unittest.TestCase):
     def test_tool_copies_keep_shipped_layout(self):
         from unittest import mock
 
-        # Start from the runner's own temp root, with no fixture levels. Under
-        # any temp root the layout checks below catch a regression of either
-        # helper before the tool starts; the --help run confirms the copy
-        # starts at that layout.
+        # Start from the runner's own temp root, with no fixture levels.
         temp_root = tempfile.gettempdir()
         with tempfile.TemporaryDirectory(prefix="clause-preservation-shallow-",
                                          dir=temp_root) as tmp:
@@ -83893,7 +83890,6 @@ class ClausePreservationTests(unittest.TestCase):
                 self.assertEqual(tool.parents[4] / SKILL_TOOLS_REL / "mutant.py", tool)
                 result = self.invoke("--help", tool=tool)
                 self.assertEqual(result.returncode, 0, result.stderr)
-                # Also catch a copy that keeps the layout but sits inside the fixture repository.
                 self.assertNotIn(self.root, tool.parents)
                 tool = self.flipped(self.WS_RUN_RULE)
                 self.assertGreater(len(tool.parents), 4, tool)
