@@ -70549,8 +70549,8 @@ class HookLauncherIsolationGateTests(unittest.TestCase):
     def test_missing_default_settings_fails_closed(self):
         import subprocess
         with tempfile.TemporaryDirectory() as td:
-            tools = Path(td) / 'tools'
-            tools.mkdir()
+            tools = Path(td) / SKILL_TOOLS_REL
+            tools.mkdir(parents=True)
             gate = tools / 'lint-hook-launcher-isolation.py'
             gate.write_text(Path(self.TOOL).read_text(encoding='utf-8'), encoding='utf-8')
             r = subprocess.run([sys.executable, str(gate), '--launcher-isolation'], capture_output=True, text=True)
@@ -70558,6 +70558,7 @@ class HookLauncherIsolationGateTests(unittest.TestCase):
             self.assertIn('ERROR: settings.json:', r.stderr)
             self.assertIn('settings.json', r.stderr)
             self.assertNotIn('OK:', r.stdout)
+            # A default settings path that is not a regular file is unreadable, so the check must still fail closed.
             (Path(td) / '.claude' / 'settings.json').mkdir(parents=True)
             r = subprocess.run([sys.executable, str(gate), '--launcher-isolation'], capture_output=True, text=True)
             self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
@@ -83851,9 +83852,16 @@ class ClausePreservationTests(unittest.TestCase):
         self.assertIn(self.path, result.stderr)
         return result
 
+    def _tool_copy_path(self):
+        tmp = tempfile.TemporaryDirectory(prefix="clause-preservation-mutant-")
+        self.addCleanup(tmp.cleanup)
+        target = Path(tmp.name) / SKILL_TOOLS_REL / "mutant.py"
+        target.parent.mkdir(parents=True)
+        return target
+
     def mutant(self, old, new):
         self.assertIn(old, self.source)
-        target = self.root / "mutant.py"
+        target = self._tool_copy_path()
         target.write_text(self.source.replace(old, new), encoding="utf-8")
         return target
 
@@ -83865,6 +83873,30 @@ class ClausePreservationTests(unittest.TestCase):
         module.__file__ = str(path)
         exec(compile(path.read_text(encoding="utf-8"), str(path), "exec"), module.__dict__)
         return module
+
+    def test_tool_copies_keep_shipped_layout(self):
+        from unittest import mock
+
+        # Start from the runner's own temp root, with no fixture levels.
+        temp_root = tempfile.gettempdir()
+        with tempfile.TemporaryDirectory(prefix="clause-preservation-shallow-",
+                                         dir=temp_root) as tmp:
+            with mock.patch.dict(os.environ, {"TMPDIR": temp_root}), \
+                    mock.patch("tempfile.tempdir", None), \
+                    mock.patch.object(self, "root", Path(tmp)), \
+                    mock.patch.dict(self.env, {"TMPDIR": temp_root}):
+                tool = self.mutant("import argparse", "import argparse  # trivial mutant")
+                self.assertGreater(len(tool.parents), 4, tool)
+                self.assertEqual(tool.parents[4] / SKILL_TOOLS_REL / "mutant.py", tool)
+                result = self.invoke("--help", tool=tool)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertNotIn(self.root, tool.parents)
+                tool = self.flipped(self.WS_RUN_RULE)
+                self.assertGreater(len(tool.parents), 4, tool)
+                self.assertEqual(tool.parents[4] / SKILL_TOOLS_REL / "mutant.py", tool)
+                result = self.invoke("--help", tool=tool)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertNotIn(self.root, tool.parents)
 
     def test_extract_complete_inventory(self):
         self.assertEqual(self.ledger["base_revision"], self.base)
@@ -84691,7 +84723,7 @@ class ClausePreservationTests(unittest.TestCase):
         for old, new in flips:
             self.assertEqual(source.count(old), 1, old)
             source = source.replace(old, new)
-        target = self.root / "mutant.py"
+        target = self._tool_copy_path()
         target.write_text(source, encoding="utf-8")
         return target
 
