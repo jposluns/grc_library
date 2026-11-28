@@ -83893,7 +83893,7 @@ class ClausePreservationTests(unittest.TestCase):
                 self.assertEqual(tool.parents[4] / SKILL_TOOLS_REL / "mutant.py", tool)
                 result = self.invoke("--help", tool=tool)
                 self.assertEqual(result.returncode, 0, result.stderr)
-                # Also catch the old helper when the temp root is necessarily deep.
+                # Also catch a copy that keeps the layout but sits inside the fixture repository.
                 self.assertNotIn(self.root, tool.parents)
                 tool = self.flipped(self.WS_RUN_RULE)
                 self.assertGreater(len(tool.parents), 4, tool)
