@@ -83874,7 +83874,7 @@ class ClausePreservationTests(unittest.TestCase):
         exec(compile(path.read_text(encoding="utf-8"), str(path), "exec"), module.__dict__)
         return module
 
-    def test_mutant_starts_with_shallow_tmpdir(self):
+    def test_tool_copies_keep_shipped_layout(self):
         from unittest import mock
 
         # Start from the runner's own temp root, with no fixture levels. Under
